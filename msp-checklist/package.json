@@ -1,0 +1,114 @@
+{
+  "name": "msp-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "main": "electron/main.js",
+  "homepage": "./",
+  "scripts": {
+    "dev": "next dev -p 3010",
+    "build": "next build",
+    "build:electron": "next build",
+    "start": "next start -p 3010",
+    "lint": "eslint",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run dev\" \"wait-on http://localhost:3010 && electron .\"",
+    "electron-pack": "npm run build:electron && electron-builder",
+    "electron-build": "npm run build:electron && electron-builder --publish=never",
+    "dist": "npm run build:electron && electron-builder --publish=always",
+    "cache": "node scripts/generate-advice-cache-node.js",
+    "cache:generate": "npm run cache generate",
+    "cache:list": "npm run cache list",
+    "cache:stats": "npm run cache stats"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie": "^1.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "cookie": "^1.1.1",
+    "jsonwebtoken": "^9.0.3",
+    "next": "16.0.10",
+    "openai": "^6.13.0",
+    "pdfjs-dist": "^5.4.449",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "concurrently": "^9.2.1",
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.12",
+    "electron-reload": "^2.0.0-alpha.1",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.10",
+    "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5",
+    "wait-on": "^9.0.3"
+  },
+  "build": {
+    "appId": "com.msp.checklist",
+    "productName": "AWS MSP 자체 평가 헬퍼 시스템",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      ".next/standalone/**/*",
+      ".next/static/**/*",
+      "public/**/*",
+      "electron/**/*",
+      "server.js",
+      "package.json"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.icns"
+    },
+    "dmg": {
+      "title": "AWS MSP 자체 평가 헬퍼 시스템",
+      "icon": "assets/icon.icns",
+      "background": "assets/dmg-background.png",
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.ico"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "assets/icon.png"
+    }
+  }
+}

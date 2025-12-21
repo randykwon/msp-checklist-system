@@ -1,0 +1,26 @@
+apiVersion: v2
+name: msp-checklist
+description: MSP Checklist Application Helm Chart for Kubernetes
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+
+keywords:
+  - msp
+  - checklist
+  - assessment
+  - kubernetes
+  - aws
+
+home: https://github.com/your-org/msp-checklist
+sources:
+  - https://github.com/your-org/msp-checklist
+
+maintainers:
+  - name: MSP Team
+    email: msp-team@example.com
+    url: https://github.com/your-org
+
+annotations:
+  category: Application
+  licenses: MIT

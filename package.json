@@ -1,0 +1,30 @@
+{
+  "name": "msp-qna",
+  "version": "1.0.0",
+  "description": "AWS MSP Partner Program Checklist Manager",
+  "type": "module",
+  "main": "file-watcher.js",
+  "scripts": {
+    "watch": "node file-watcher.js",
+    "convert:xlsx": "node convert-xlsx-to-csv.js",
+    "convert:ppt": "./convert-ppt-to-pdf.sh",
+    "restart": "./restart-server.sh",
+    "stop": "./stop-server.sh",
+    "status": "./server-status.sh",
+    "quick-restart": "./quick-restart.sh"
+  },
+  "keywords": [
+    "aws",
+    "msp",
+    "checklist"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "chokidar": "^5.0.0",
+    "node-fetch": "^3.3.2",
+    "xlsx": "^0.18.5"
+  }
+}

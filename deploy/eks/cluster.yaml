@@ -1,0 +1,159 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: msp-checklist-cluster
+  region: us-east-1
+  version: "1.28"
+
+vpc:
+  enableDnsHostnames: true
+  enableDnsSupport: true
+  cidr: "10.0.0.0/16"
+  nat:
+    gateway: Single
+
+iam:
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: aws-load-balancer-controller
+        namespace: kube-system
+      wellKnownPolicies:
+        awsLoadBalancerController: true
+    - metadata:
+        name: ebs-csi-controller-sa
+        namespace: kube-system
+      wellKnownPolicies:
+        ebsCSIController: true
+    - metadata:
+        name: efs-csi-controller-sa
+        namespace: kube-system
+      wellKnownPolicies:
+        efsCSIController: true
+
+addons:
+  - name: vpc-cni
+    version: latest
+    resolveConflicts: overwrite
+  - name: coredns
+    version: latest
+    resolveConflicts: overwrite
+  - name: kube-proxy
+    version: latest
+    resolveConflicts: overwrite
+  - name: aws-ebs-csi-driver
+    version: latest
+    resolveConflicts: overwrite
+    serviceAccountRoleARN: arn:aws:iam::ACCOUNT_ID:role/eksctl-msp-checklist-cluster-addon-iamserviceaccount-kube-system-ebs-csi-controller-sa-Role1
+  - name: aws-efs-csi-driver
+    version: latest
+    resolveConflicts: overwrite
+    serviceAccountRoleARN: arn:aws:iam::ACCOUNT_ID:role/eksctl-msp-checklist-cluster-addon-iamserviceaccount-kube-system-efs-csi-controller-sa-Role1
+
+managedNodeGroups:
+  - name: msp-checklist-nodes
+    instanceTypes: 
+      - t3.medium
+      - t3.large
+      - t3a.medium
+      - t3a.large
+    minSize: 1
+    maxSize: 10
+    desiredCapacity: 2
+    volumeSize: 20
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    spot: false
+    privateNetworking: true
+    
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonEFSClientWrite
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+    
+    ssh:
+      allow: true
+      publicKeyName: msp-checklist-key
+    
+    labels:
+      Environment: production
+      Application: msp-checklist
+      NodeGroup: primary
+    
+    tags:
+      Environment: production
+      Application: msp-checklist
+      NodeGroup: primary
+      
+    kubeletExtraConfig:
+      kubeReserved:
+        cpu: "100m"
+        memory: "100Mi"
+        ephemeral-storage: "1Gi"
+      systemReserved:
+        cpu: "100m"
+        memory: "100Mi"
+        ephemeral-storage: "1Gi"
+
+  - name: msp-checklist-spot-nodes
+    instanceTypes:
+      - t3.medium
+      - t3.large
+      - t3a.medium
+      - t3a.large
+    minSize: 0
+    maxSize: 5
+    desiredCapacity: 1
+    volumeSize: 20
+    volumeType: gp3
+    amiFamily: AmazonLinux2
+    spot: true
+    privateNetworking: true
+    
+    iam:
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonEFSClientWrite
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+    
+    labels:
+      Environment: production
+      Application: msp-checklist
+      NodeGroup: spot
+      
+    taints:
+      - key: spot-instance
+        value: "true"
+        effect: NoSchedule
+    
+    tags:
+      Environment: production
+      Application: msp-checklist
+      NodeGroup: spot
+
+cloudWatch:
+  clusterLogging:
+    enable: ["api", "audit", "authenticator", "controllerManager", "scheduler"]
+    logRetentionInDays: 7
+
+secretsEncryption:
+  keyARN: ""  # KMS 키 ARN (선택사항)
+
+fargateProfiles:
+  - name: msp-checklist-fargate
+    selectors:
+      - namespace: msp-checklist
+        labels:
+          compute-type: fargate
+    subnets:
+      - private-us-east-1a
+      - private-us-east-1b
+    tags:
+      Environment: production
+      Application: msp-checklist

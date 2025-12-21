@@ -1,0 +1,1245 @@
+'use client';
+
+import { AssessmentItem, EvidenceFile, EvidenceEvaluation } from '../lib/csv-parser';
+import { useState, useEffect, useRef } from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useAdvice } from '@/contexts/AdviceContext';
+import { extractTextFromPDF, isPDFFile } from '../lib/pdf-utils';
+import QASection from './QASection';
+import { renderTextWithLinks } from '../lib/text-utils';
+import { getClientAdviceCacheService } from '../lib/advice-cache-client';
+
+interface AssessmentItemProps {
+  item: AssessmentItem;
+  assessmentType: 'prerequisites' | 'technical';
+  onUpdate: (itemId: string, updates: Partial<AssessmentItem>) => void;
+}
+
+// 증빙자료 샘플 생성 함수
+const generateEvidenceSamples = (item: AssessmentItem, language: 'ko' | 'en') => {
+  const samples = [];
+  
+  // 카테고리별 샘플 증빙자료 정의
+  const samplesByCategory: Record<string, { ko: string[], en: string[] }> = {
+    'Business': {
+      ko: [
+        '📄 회사 소개서 (사업자등록증, 조직도 포함)',
+        '📊 최근 12개월 AWS 서비스 매출 보고서',
+        '🏆 AWS 파트너 포털 스크린샷 (파트너 등급 확인)',
+        '📋 AWS 워크로드 관련 고객 사례 연구 (최소 2건)',
+        '💼 AWS 전담 팀 구성 및 역할 분담표'
+      ],
+      en: [
+        '📄 Company profile (business registration, org chart)',
+        '📊 AWS service revenue report (last 12 months)',
+        '🏆 AWS Partner Portal screenshot (partner tier)',
+        '📋 AWS workload customer case studies (min. 2)',
+        '💼 AWS dedicated team structure and roles'
+      ]
+    },
+    'People': {
+      ko: [
+        '🎓 AWS 인증서 스캔본 (Solutions Architect Professional, DevOps Engineer 등)',
+        '📚 AWS 공식 교육 이수증 (AWS Training and Certification)',
+        '👥 기술팀 구성원 이력서 (AWS 경력 3년 이상)',
+        '📈 연간 인력 개발 계획서 (AWS 교육 로드맵 포함)',
+        '🏅 AWS 커뮤니티 활동 증빙 (발표, 블로그, 기여도)'
+      ],
+      en: [
+        '🎓 AWS certification scans (Solutions Architect Pro, DevOps Engineer)',
+        '📚 AWS official training certificates',
+        '👥 Technical team resumes (3+ years AWS experience)',
+        '📈 Annual workforce development plan (AWS training roadmap)',
+        '🏅 AWS community activity evidence (presentations, blogs)'
+      ]
+    },
+    'Governance': {
+      ko: [
+        '📋 품질 관리 프로세스 문서',
+        '🔒 보안 정책 및 절차서',
+        '📊 서비스 수준 협약서 (SLA)',
+        '🎯 거버넌스 프레임워크 문서'
+      ],
+      en: [
+        '📋 Quality management process documents',
+        '🔒 Security policies and procedures',
+        '📊 Service Level Agreements (SLA)',
+        '🎯 Governance framework documents'
+      ]
+    },
+    'Platform': {
+      ko: [
+        '🏗️ 아키텍처 다이어그램',
+        '⚙️ 인프라 구성 문서',
+        '🔧 자동화 스크립트 및 템플릿',
+        '📱 모니터링 대시보드 스크린샷'
+      ],
+      en: [
+        '🏗️ Architecture diagrams',
+        '⚙️ Infrastructure configuration documents',
+        '🔧 Automation scripts and templates',
+        '📱 Monitoring dashboard screenshots'
+      ]
+    },
+    'Security': {
+      ko: [
+        '🛡️ 외부 보안 감사 보고서 (ISO 27001, SOC 2 등)',
+        '🔐 데이터 암호화 정책 및 키 관리 절차서',
+        '🚨 보안 인시던트 대응 플레이북 (24/7 대응체계)',
+        '✅ 컴플라이언스 인증서 (GDPR, HIPAA, PCI-DSS 등)',
+        '🔒 AWS Security Hub 대시보드 스크린샷'
+      ],
+      en: [
+        '🛡️ External security audit reports (ISO 27001, SOC 2)',
+        '🔐 Data encryption policies and key management procedures',
+        '🚨 Security incident response playbook (24/7 response)',
+        '✅ Compliance certificates (GDPR, HIPAA, PCI-DSS)',
+        '🔒 AWS Security Hub dashboard screenshots'
+      ]
+    },
+    'Operations': {
+      ko: [
+        '📊 운영 메트릭 대시보드',
+        '🔄 백업 및 복구 절차서',
+        '📈 성능 모니터링 보고서',
+        '🎛️ 운영 자동화 도구 문서'
+      ],
+      en: [
+        '📊 Operational metrics dashboard',
+        '🔄 Backup and recovery procedures',
+        '📈 Performance monitoring reports',
+        '🎛️ Operations automation tool documentation'
+      ]
+    }
+  };
+
+  // 기본 샘플 (카테고리가 매칭되지 않을 경우)
+  const defaultSamples = {
+    ko: [
+      '📄 관련 정책 문서',
+      '📊 실행 결과 보고서',
+      '🏆 인증서 또는 증명서',
+      '📋 프로세스 문서화'
+    ],
+    en: [
+      '📄 Related policy documents',
+      '📊 Implementation result reports',
+      '🏆 Certificates or credentials',
+      '📋 Process documentation'
+    ]
+  };
+
+  const categoryKey = Object.keys(samplesByCategory).find(key => 
+    item.category.toLowerCase().includes(key.toLowerCase())
+  );
+  
+  const selectedSamples = categoryKey 
+    ? samplesByCategory[categoryKey][language]
+    : defaultSamples[language];
+
+  return selectedSamples.slice(0, 4); // 최대 4개 샘플 표시
+};
+
+export default function AssessmentItemComponent({ item, assessmentType, onUpdate }: AssessmentItemProps) {
+  const { language, t } = useLanguage();
+  const { getAdvice, setAdvice, getVirtualEvidence, setVirtualEvidence } = useAdvice();
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [showAdviceInline, setShowAdviceInline] = useState(false);
+  const [adviceContent, setAdviceContent] = useState<string>('');
+  const [isLoadingAdvice, setIsLoadingAdvice] = useState(false);
+  const [adviceError, setAdviceError] = useState<string>('');
+  const [isAdviceFromServerCache, setIsAdviceFromServerCache] = useState(false);
+  const [itemLanguage, setItemLanguage] = useState<'ko' | 'en'>('ko'); // Fixed initial value
+  const [showVirtualEvidence, setShowVirtualEvidence] = useState(false);
+  const [virtualEvidenceContent, setVirtualEvidenceContent] = useState<string>('');
+  const [isGeneratingVirtualEvidence, setIsGeneratingVirtualEvidence] = useState(false);
+  const [virtualEvidenceError, setVirtualEvidenceError] = useState<string>('');
+  const [isVirtualEvidenceFromServerCache, setIsVirtualEvidenceFromServerCache] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+  
+  // 증빙 파일 업로드 및 평가 관련 상태
+  const [evidenceFiles, setEvidenceFiles] = useState<EvidenceFile[]>([]);
+  const [isEvaluating, setIsEvaluating] = useState(false);
+  const [evaluationError, setEvaluationError] = useState<string>('');
+  const [showFileGallery, setShowFileGallery] = useState(false);
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false);
+  const [editingPdfText, setEditingPdfText] = useState<string | null>(null);
+  const [pdfTextInput, setPdfTextInput] = useState<string>('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 하이드레이션 완료 후 초기화
+  useEffect(() => {
+    setIsHydrated(true);
+    setItemLanguage(language); // 클라이언트에서 실제 언어로 설정
+    setEvidenceFiles(item.evidenceFiles || []); // 클라이언트에서 증빙 파일 설정
+  }, [language, item.evidenceFiles]);
+
+  // 컴포넌트 마운트 시 캐시된 조언과 가상증빙예제 확인
+  useEffect(() => {
+    if (isHydrated) {
+      // 먼저 로컬 캐시 확인
+      const cachedAdvice = getAdvice(item.id, itemLanguage);
+      if (cachedAdvice) {
+        setAdviceContent(cachedAdvice);
+      } else {
+        // 로컬 캐시에 없으면 DB 캐시 확인
+        loadCachedAdviceFromDB();
+      }
+      
+      const cachedVirtualEvidence = getVirtualEvidence(item.id, itemLanguage);
+      if (cachedVirtualEvidence) {
+        setVirtualEvidenceContent(cachedVirtualEvidence);
+        // 캐시에서 로드할 때도 자동으로 표시하지 않음
+      } else {
+        // 로컬 캐시에 없으면 DB 캐시 확인
+        loadCachedVirtualEvidenceFromDB();
+      }
+    }
+  }, [item.id, itemLanguage, getAdvice, getVirtualEvidence, isHydrated]);
+
+  // DB에서 캐시된 조언 로드
+  const loadCachedAdviceFromDB = async () => {
+    try {
+      const cacheService = getClientAdviceCacheService();
+      const cachedAdvice = await cacheService.getCachedAdvice(item.id, itemLanguage);
+      
+      if (cachedAdvice) {
+        setAdviceContent(cachedAdvice.advice);
+        // 로컬 캐시에도 저장
+        setAdvice(item.id, cachedAdvice.advice, itemLanguage);
+      }
+    } catch (error) {
+      console.error('Failed to load cached advice from DB:', error);
+    }
+  };
+
+  // DB에서 캐시된 가상증빙예제 로드
+  const loadCachedVirtualEvidenceFromDB = async () => {
+    try {
+      const cacheService = getClientAdviceCacheService();
+      const cachedAdvice = await cacheService.getCachedAdvice(item.id, itemLanguage);
+      
+      if (cachedAdvice && cachedAdvice.virtualEvidence) {
+        setVirtualEvidenceContent(cachedAdvice.virtualEvidence);
+        // DB 캐시에서 로드할 때도 자동으로 표시하지 않음
+        // 로컬 캐시에도 저장
+        setVirtualEvidence(item.id, cachedAdvice.virtualEvidence, itemLanguage);
+      }
+    } catch (error) {
+      console.error('Failed to load cached virtual evidence from DB:', error);
+    }
+  };
+
+  // 가상증빙예제 생성 함수
+  const generateVirtualEvidence = async () => {
+    // 캐시된 가상증빙예제가 있으면 바로 사용 (표시는 하지 않음)
+    const cachedVirtualEvidence = getVirtualEvidence(item.id, itemLanguage);
+    if (cachedVirtualEvidence) {
+      setVirtualEvidenceContent(cachedVirtualEvidence);
+      // 캐시된 내용이 있어도 자동으로 표시하지 않음 - 사용자가 "보기" 버튼을 클릭해야 함
+      return;
+    }
+
+    setIsGeneratingVirtualEvidence(true);
+    setVirtualEvidenceError('');
+    
+    try {
+      const response = await fetch('/api/virtual-evidence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          title: itemLanguage === 'ko' ? item.titleKo || item.title : item.title,
+          description: itemLanguage === 'ko' ? item.descriptionKo || item.description : item.description,
+          evidenceRequired: itemLanguage === 'ko' ? item.evidenceRequiredKo || item.evidenceRequired : item.evidenceRequired,
+          advice: adviceContent,
+          language: itemLanguage
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setVirtualEvidenceContent(data.virtualEvidence);
+        setIsVirtualEvidenceFromServerCache(data.fromCache || false);
+        
+        // 캐시에 저장
+        setVirtualEvidence(item.id, data.virtualEvidence, itemLanguage);
+        
+        // 생성 후 자동으로 표시하지 않음 - 사용자가 "보기" 버튼을 클릭해야 함
+      } else {
+        const errorData = await response.json();
+        setVirtualEvidenceError(errorData.error || '가상증빙예제 생성에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Error generating virtual evidence:', error);
+      setVirtualEvidenceError('가상증빙예제 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsGeneratingVirtualEvidence(false);
+    }
+  };
+
+  const toggleItemLanguage = () => {
+    const newLanguage = itemLanguage === 'ko' ? 'en' : 'ko';
+    setItemLanguage(newLanguage);
+    
+    // 언어 변경 시 캐시된 조언이 있으면 로드
+    const cachedAdvice = getAdvice(item.id, newLanguage);
+    if (cachedAdvice) {
+      setAdviceContent(cachedAdvice);
+    } else {
+      setAdviceContent('');
+      setShowAdviceInline(false);
+    }
+    
+    // 언어 변경 시 캐시된 가상증빙예제가 있으면 로드
+    const cachedVirtualEvidence = getVirtualEvidence(item.id, newLanguage);
+    if (cachedVirtualEvidence) {
+      setVirtualEvidenceContent(cachedVirtualEvidence);
+      // 언어 변경 시에도 자동으로 표시하지 않음
+    } else {
+      setVirtualEvidenceContent('');
+      setShowVirtualEvidence(false);
+    }
+  };
+
+  const handleMetChange = (value: boolean | null) => {
+    onUpdate(item.id, { met: value, lastUpdated: new Date() });
+  };
+
+
+
+  // 파일 업로드 처리 (이미지 및 PDF)
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    setIsProcessingPdf(true);
+    const newFiles: EvidenceFile[] = [];
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      
+      // 파일 크기 제한 (10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        alert(itemLanguage === 'ko' ? 
+          `파일 "${file.name}"이 너무 큽니다. 10MB 이하의 파일만 업로드 가능합니다.` :
+          `File "${file.name}" is too large. Only files under 10MB are allowed.`
+        );
+        continue;
+      }
+
+      // 지원되는 파일 타입 확인 (이미지 또는 PDF)
+      const isImage = file.type.startsWith('image/');
+      const isPdf = file.type === 'application/pdf';
+      
+      if (!isImage && !isPdf) {
+        alert(itemLanguage === 'ko' ? 
+          `"${file.name}"은 지원되지 않는 파일 형식입니다. 이미지 파일 또는 PDF 파일만 업로드 가능합니다.` :
+          `"${file.name}" is not a supported file format. Only image files or PDF files are allowed.`
+        );
+        continue;
+      }
+
+      // Base64로 변환
+      const base64Data = await new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result as string;
+          resolve(result.split(',')[1]); // data:image/jpeg;base64, 부분 제거
+        };
+        reader.readAsDataURL(file);
+      });
+
+      let extractedText = '';
+      
+      // PDF인 경우 클라이언트 사이드에서 텍스트 추출
+      if (isPdf) {
+        try {
+          extractedText = await extractTextFromPDF(base64Data);
+          if (!extractedText) {
+            console.warn(`No text extracted from PDF: ${file.name}`);
+            // 텍스트 추출 실패 시 사용자에게 알림
+            alert(itemLanguage === 'ko' ? 
+              `PDF "${file.name}"에서 텍스트를 추출할 수 없습니다. 파일은 업로드되지만 AI 평가 시 내용이 포함되지 않을 수 있습니다.` :
+              `Could not extract text from PDF "${file.name}". The file will be uploaded but may not be included in AI evaluation.`
+            );
+          }
+        } catch (error) {
+          console.error('Error extracting PDF text:', error);
+          // 텍스트 추출에 실패해도 파일은 업로드되도록 함
+          alert(itemLanguage === 'ko' ? 
+            `PDF "${file.name}" 처리 중 오류가 발생했습니다. 파일은 업로드되지만 텍스트 추출이 실패했습니다.` :
+            `Error processing PDF "${file.name}". The file will be uploaded but text extraction failed.`
+          );
+        }
+      }
+
+      const newFile: EvidenceFile = {
+        id: `${item.id}_${Date.now()}_${i}`,
+        fileName: file.name,
+        fileSize: file.size,
+        uploadedAt: new Date(),
+        base64Data,
+        mimeType: file.type,
+        fileType: isImage ? 'image' : 'pdf',
+        extractedText: isPdf ? extractedText : undefined
+      };
+
+      newFiles.push(newFile);
+    }
+
+    if (newFiles.length > 0) {
+      const updatedFiles = [...evidenceFiles, ...newFiles];
+      setEvidenceFiles(updatedFiles);
+      onUpdate(item.id, { evidenceFiles: updatedFiles, lastUpdated: new Date() });
+    }
+
+    setIsProcessingPdf(false);
+
+    // 파일 입력 초기화
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  // 파일 삭제
+  const handleFileDelete = (fileId: string) => {
+    const updatedFiles = evidenceFiles.filter(file => file.id !== fileId);
+    setEvidenceFiles(updatedFiles);
+    onUpdate(item.id, { evidenceFiles: updatedFiles, lastUpdated: new Date() });
+  };
+
+  // PDF 텍스트 편집 시작
+  const handleEditPdfText = (fileId: string) => {
+    const file = evidenceFiles.find(f => f.id === fileId);
+    if (file && file.fileType === 'pdf') {
+      setEditingPdfText(fileId);
+      setPdfTextInput(file.extractedText || '');
+    }
+  };
+
+  // PDF 텍스트 저장
+  const handleSavePdfText = () => {
+    if (editingPdfText) {
+      const updatedFiles = evidenceFiles.map(file => 
+        file.id === editingPdfText 
+          ? { ...file, extractedText: pdfTextInput }
+          : file
+      );
+      setEvidenceFiles(updatedFiles);
+      onUpdate(item.id, { evidenceFiles: updatedFiles, lastUpdated: new Date() });
+      setEditingPdfText(null);
+      setPdfTextInput('');
+    }
+  };
+
+  // PDF 텍스트 편집 취소
+  const handleCancelPdfEdit = () => {
+    setEditingPdfText(null);
+    setPdfTextInput('');
+  };
+
+  // 증빙 평가 요청
+  const handleEvaluateEvidence = async () => {
+    if (evidenceFiles.length === 0) {
+      alert(itemLanguage === 'ko' ? 
+        '평가할 증빙 파일을 먼저 업로드해주세요.' :
+        'Please upload evidence files to evaluate first.'
+      );
+      return;
+    }
+
+    if (!adviceContent) {
+      alert(itemLanguage === 'ko' ? 
+        '평가를 위해 먼저 조언을 생성해주세요.' :
+        'Please generate advice first for evaluation.'
+      );
+      return;
+    }
+
+    setIsEvaluating(true);
+    setEvaluationError('');
+
+    try {
+      const response = await fetch('/api/evaluate-evidence', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          title: itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title,
+          description: itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description,
+          evidenceRequired: itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired,
+          advice: adviceContent,
+          files: evidenceFiles,
+          language: itemLanguage,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to evaluate evidence');
+      }
+
+      const data = await response.json();
+      onUpdate(item.id, { 
+        evaluation: data.evaluation, 
+        lastUpdated: new Date() 
+      });
+
+    } catch (error: any) {
+      console.error('Error evaluating evidence:', error);
+      
+      let errorMessage = '';
+      if (error.message.includes('API key')) {
+        errorMessage = itemLanguage === 'ko' ? 
+          'OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.' : 
+          'OpenAI API key is not configured. Please contact the administrator.';
+      } else {
+        errorMessage = itemLanguage === 'ko' ? 
+          '증빙 평가 중 오류가 발생했습니다. 다시 시도해주세요.' : 
+          'An error occurred while evaluating evidence. Please try again.';
+      }
+      
+      setEvaluationError(errorMessage);
+    } finally {
+      setIsEvaluating(false);
+    }
+  };
+
+  const handleAdviceClick = async () => {
+    // 캐시된 조언이 있으면 바로 표시
+    const cachedAdvice = getAdvice(item.id, itemLanguage);
+    if (cachedAdvice) {
+      setAdviceContent(cachedAdvice);
+      setShowAdviceInline(true);
+      return;
+    }
+
+    setIsLoadingAdvice(true);
+    setAdviceError('');
+    
+    try {
+      const response = await fetch('/api/advice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          title: itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title,
+          description: itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description,
+          evidenceRequired: itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired,
+          language: itemLanguage,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to generate advice');
+      }
+
+      const data = await response.json();
+      setAdviceContent(data.advice);
+      setIsAdviceFromServerCache(data.fromCache || false);
+      
+      // 캐시에 저장
+      setAdvice(item.id, data.advice, itemLanguage);
+      
+      setShowAdviceInline(true);
+    } catch (error: any) {
+      console.error('Error fetching advice:', error);
+      
+      let errorMessage = '';
+      if (error.message.includes('API key')) {
+        errorMessage = itemLanguage === 'ko' ? 
+          'OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.' : 
+          'OpenAI API key is not configured. Please contact the administrator.';
+      } else {
+        errorMessage = itemLanguage === 'ko' ? 
+          '조언을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.' : 
+          'An error occurred while generating advice. Please try again.';
+      }
+      
+      setAdviceError(errorMessage);
+    } finally {
+      setIsLoadingAdvice(false);
+    }
+  };
+
+  // 하이드레이션 전에는 기본 상태로 렌더링
+  if (!isHydrated) {
+    return (
+      <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition-all">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-mono text-sm text-blue-600 font-semibold">
+                {item.id}
+              </span>
+              {item.isMandatory && (
+                <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded">
+                  필수
+                </span>
+              )}
+            </div>
+            <h4 className="text-base font-semibold text-gray-900 mt-1">
+              {item.titleKo || item.title}
+            </h4>
+          </div>
+          <div className="flex flex-col items-end gap-2 min-w-[120px]">
+            <label className="text-xs font-medium text-gray-500">충족?</label>
+            <div className="flex gap-1">
+              <button
+                onClick={() => handleMetChange(true)}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  item.met === true
+                    ? 'bg-green-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-green-100'
+                }`}
+              >
+                예
+              </button>
+              <button
+                onClick={() => handleMetChange(false)}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  item.met === false
+                    ? 'bg-red-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-red-100'
+                }`}
+              >
+                아니오
+              </button>
+              <button
+                onClick={() => handleMetChange(null)}
+                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                  item.met === null
+                    ? 'bg-gray-500 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                해당없음
+              </button>
+            </div>
+          </div>
+        </div>
+        <button
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="mt-2 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+        >
+          ▼ 세부사항 펼치기
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition-all">
+      {/* Header */}
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-sm text-blue-600 font-semibold">
+              {item.id}
+            </span>
+            {item.isMandatory && (
+              <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded">
+                {t('assessmentDashboard.mandatory')}
+              </span>
+            )}
+            {/* 개별 언어 토글 버튼 */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleItemLanguage();
+              }}
+              className="px-2 py-0.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
+              title={t('assessmentItem.languageToggle')}
+            >
+              {itemLanguage === 'ko' ? t('assessmentItem.switchToEnglish') : t('assessmentItem.switchToKorean')}
+            </button>
+          </div>
+          <h4 className="text-base font-semibold text-gray-900 mt-1">
+            {itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title}
+          </h4>
+        </div>
+
+        {/* Met Status */}
+        <div className="flex flex-col items-end gap-2 min-w-[120px]">
+          <label className="text-xs font-medium text-gray-500">{t('assessmentItem.met')}?</label>
+          <div className="flex gap-1">
+            <button
+              onClick={() => handleMetChange(true)}
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                item.met === true
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-green-100'
+              }`}
+            >
+              {t('assessmentItem.yes')}
+            </button>
+            <button
+              onClick={() => handleMetChange(false)}
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                item.met === false
+                  ? 'bg-red-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-red-100'
+              }`}
+            >
+              {t('assessmentItem.no')}
+            </button>
+            <button
+              onClick={() => handleMetChange(null)}
+              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
+                item.met === null
+                  ? 'bg-gray-500 text-white'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
+            >
+              {t('assessmentItem.na')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
+          {/* Description */}
+          <div>
+            <h5 className="text-sm font-semibold text-gray-700 mb-2">{t('assessmentItem.description')}</h5>
+            <div className="text-sm text-gray-600 whitespace-pre-line bg-gray-50 p-3 rounded">
+              {renderTextWithLinks(itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description)}
+            </div>
+          </div>
+
+          {/* Evidence Required */}
+          {(item.evidenceRequired || item.evidenceRequiredKo) && (
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <h5 className="text-sm font-semibold text-gray-700">{t('assessmentItem.evidenceRequired')}</h5>
+                <div className="flex gap-2">
+                  {adviceContent && (
+                    <button
+                      onClick={() => setShowAdviceInline(!showAdviceInline)}
+                      className="px-3 py-1 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-full transition-colors"
+                    >
+                      {showAdviceInline ? t('assessmentItem.hideAdvice') : t('assessmentItem.showAdvice')}
+                    </button>
+                  )}
+                  <button
+                    onClick={handleAdviceClick}
+                    disabled={isLoadingAdvice}
+                    className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-full transition-colors"
+                  >
+                    {isLoadingAdvice ? t('assessmentItem.generating') : 
+                     adviceContent ? t('assessmentItem.refreshAdvice') : 
+                     t('assessmentItem.adviceButton')}
+                  </button>
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
+                {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
+              </div>
+              
+              {/* 인라인 조언 표시 */}
+              {showAdviceInline && adviceContent && (
+                <div className="mt-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <h6 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                      💡 {t('assessmentItem.adviceTitle')}
+                      <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
+                        {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                      </span>
+                    </h6>
+                    <button
+                      onClick={() => setShowAdviceInline(false)}
+                      className="text-gray-400 hover:text-gray-600 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <div className="text-sm text-gray-700 whitespace-pre-line">
+                    {adviceContent}
+                  </div>
+                </div>
+              )}
+
+              {/* 오류 표시 */}
+              {adviceError && (
+                <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h6 className="text-sm font-semibold text-red-900 mb-1">⚠️ {t('assessmentItem.error')}</h6>
+                      <div className="text-sm text-red-800">{adviceError}</div>
+                    </div>
+                    <button
+                      onClick={handleAdviceClick}
+                      disabled={isLoadingAdvice}
+                      className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                    >
+                      {isLoadingAdvice ? t('assessmentItem.retrying') : t('assessmentItem.retry')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Virtual Evidence Examples */}
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="text-sm font-semibold text-gray-700">
+                {(() => {
+                  const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                  const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                        evidenceText?.toLowerCase().includes('demonstration') ||
+                                        evidenceText?.toLowerCase().includes('demo');
+                  
+                  if (isDemonstration) {
+                    return itemLanguage === 'ko' ? '🎯 시연 가이드' : '🎯 Demonstration Guide';
+                  } else {
+                    return itemLanguage === 'ko' ? '💡 가상증빙예제-참고용' : '💡 Virtual Evidence Examples';
+                  }
+                })()}
+              </h4>
+              <div className="flex gap-2">
+                {virtualEvidenceContent && (
+                  <button
+                    onClick={() => setShowVirtualEvidence(!showVirtualEvidence)}
+                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {showVirtualEvidence 
+                      ? (itemLanguage === 'ko' ? '숨기기' : 'Hide')
+                      : (itemLanguage === 'ko' ? '보기' : 'Show')
+                    }
+                  </button>
+                )}
+                <button
+                  onClick={generateVirtualEvidence}
+                  disabled={isGeneratingVirtualEvidence}
+                  className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-full transition-colors"
+                >
+                  {(() => {
+                    const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                    const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                          evidenceText?.toLowerCase().includes('demonstration') ||
+                                          evidenceText?.toLowerCase().includes('demo');
+                    
+                    if (isGeneratingVirtualEvidence) {
+                      return itemLanguage === 'ko' ? '⏳ 생성 중...' : '⏳ Generating...';
+                    } else if (virtualEvidenceContent) {
+                      return itemLanguage === 'ko' ? '🔄 새로 생성' : '🔄 Regenerate';
+                    } else {
+                      if (isDemonstration) {
+                        return itemLanguage === 'ko' ? '🎯 시연 가이드 생성' : '🎯 Generate Demo Guide';
+                      } else {
+                        return itemLanguage === 'ko' ? '✨ 예제 생성' : '✨ Generate Examples';
+                      }
+                    }
+                  })()}
+                </button>
+              </div>
+            </div>
+            
+            {/* 캐시된 값이 없으면 아무것도 표시하지 않음 */}
+
+            {/* Generated Virtual Evidence */}
+            {showVirtualEvidence && virtualEvidenceContent && (
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 shadow-sm">
+                <div className="flex items-start space-x-2 mb-3">
+                  {(() => {
+                    const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                    const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                          evidenceText?.toLowerCase().includes('demonstration') ||
+                                          evidenceText?.toLowerCase().includes('demo');
+                    
+                    return (
+                      <>
+                        <span className="text-purple-600 text-lg">{isDemonstration ? '🎯' : '✨'}</span>
+                        <div>
+                          <p className="text-sm font-medium text-purple-800 mb-1 flex items-center gap-2">
+                            {isDemonstration ? 
+                              (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
+                              (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
+                            }
+                            <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
+                              {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                            </span>
+                          </p>
+                          <p className="text-xs text-purple-700">
+                            {isDemonstration ?
+                              (itemLanguage === 'ko' 
+                                ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
+                                : 'Specific demonstration guide generated by AI based on this item\'s description and advice.') :
+                              (itemLanguage === 'ko' 
+                                ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 증빙자료 예제입니다.'
+                                : 'Specific evidence examples generated by AI based on this item\'s description and advice.')
+                            }
+                          </p>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+                
+                <div className="bg-white bg-opacity-80 rounded-lg p-4 border border-purple-100">
+                  <div className="text-sm text-purple-900 whitespace-pre-line font-mono">
+                    {virtualEvidenceContent}
+                  </div>
+                </div>
+                
+                <div className="mt-4 pt-3 border-t border-purple-200 bg-white bg-opacity-40 rounded p-3">
+                  <div className="flex items-start space-x-2">
+                    <span className="text-amber-600 text-sm">💡</span>
+                    <p className="text-xs text-purple-700 font-medium">
+                      {(() => {
+                        const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                        const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                              evidenceText?.toLowerCase().includes('demonstration') ||
+                                              evidenceText?.toLowerCase().includes('demo');
+                        
+                        if (isDemonstration) {
+                          return itemLanguage === 'ko' 
+                            ? '이 가이드를 참고하여 실제 시연을 준비하고, 시연 과정을 녹화하거나 스크린샷으로 기록하여 아래 "파일 추가" 버튼으로 업로드하세요.'
+                            : 'Use this guide to prepare your actual demonstration, and record the demo process or take screenshots to upload using the "Add Files" button below.';
+                        } else {
+                          return itemLanguage === 'ko' 
+                            ? '이 예제를 참고하여 실제 증빙자료를 준비하고, 아래 "파일 추가" 버튼으로 업로드하세요.'
+                            : 'Use these examples as reference to prepare your actual evidence and upload using the "Add Files" button below.';
+                        }
+                      })()}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Virtual Evidence Error */}
+            {virtualEvidenceError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h6 className="text-sm font-semibold text-red-900 mb-1">⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}</h6>
+                    <div className="text-sm text-red-800">{virtualEvidenceError}</div>
+                  </div>
+                  <button
+                    onClick={generateVirtualEvidence}
+                    disabled={isGeneratingVirtualEvidence}
+                    className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                  >
+                    {isGeneratingVirtualEvidence ? 
+                      (itemLanguage === 'ko' ? '재시도 중...' : 'Retrying...') : 
+                      (itemLanguage === 'ko' ? '다시 시도' : 'Retry')
+                    }
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Q&A Section */}
+          <QASection 
+            itemId={item.id}
+            assessmentType={assessmentType}
+          />
+
+          {/* Evidence Upload Section */}
+          <div className="border-t border-gray-200 pt-4">
+            <div className="flex items-center justify-between mb-3">
+              <h5 className="text-sm font-semibold text-gray-700">
+                📎 {t('assessmentItem.evidenceUpload')}
+              </h5>
+              <div className="flex gap-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  multiple
+                  accept="image/*,application/pdf"
+                  onChange={handleFileUpload}
+                  className="hidden"
+                />
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isProcessingPdf}
+                  className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 rounded-full transition-colors"
+                >
+                  {isProcessingPdf ? 
+                    (itemLanguage === 'ko' ? '📄 처리 중...' : '📄 Processing...') :
+                    (itemLanguage === 'ko' ? '📄 파일 추가' : '📄 Add Files')
+                  }
+                </button>
+                {evidenceFiles.length > 0 && (
+                  <button
+                    onClick={() => setShowFileGallery(!showFileGallery)}
+                    className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
+                  >
+                    📁 {itemLanguage === 'ko' ? `파일 보기 (${evidenceFiles.length})` : `View Files (${evidenceFiles.length})`}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {/* File Gallery */}
+            {showFileGallery && evidenceFiles.length > 0 && (
+              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  {evidenceFiles.map((file) => (
+                    <div key={file.id} className="relative group">
+                      {file.fileType === 'image' ? (
+                        <img
+                          src={`data:${file.mimeType};base64,${file.base64Data}`}
+                          alt={file.fileName}
+                          className="w-full h-24 object-cover rounded-lg border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-full h-24 bg-red-100 rounded-lg border border-red-200 flex items-center justify-center">
+                          <div className="text-center">
+                            <div className="text-2xl text-red-600 mb-1">📄</div>
+                            <div className="text-xs text-red-800 font-medium">PDF</div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all rounded-lg flex items-center justify-center">
+                        <button
+                          onClick={() => handleFileDelete(file.id)}
+                          className="opacity-0 group-hover:opacity-100 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600 transition-all"
+                        >
+                          ×
+                        </button>
+                      </div>
+                      <div className="mt-1 text-xs text-gray-500 truncate" title={file.fileName}>
+                        {file.fileName}
+                      </div>
+                      <div className="text-xs text-gray-400">
+                        {(file.fileSize / 1024).toFixed(1)}KB
+                        {file.fileType === 'pdf' && file.extractedText && (
+                          <span className="ml-1 text-green-600">✓</span>
+                        )}
+                      </div>
+                      {file.fileType === 'pdf' && (
+                        <div className="text-xs mt-1 space-y-1">
+                          {file.extractedText ? (
+                            <div className="text-green-600">
+                              {itemLanguage === 'ko' ? '텍스트 추출됨' : 'Text extracted'}
+                            </div>
+                          ) : (
+                            <div className="text-yellow-600">
+                              {itemLanguage === 'ko' ? '텍스트 없음' : 'No text'}
+                            </div>
+                          )}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEditPdfText(file.id);
+                            }}
+                            className="text-blue-600 hover:text-blue-800 underline"
+                          >
+                            {itemLanguage === 'ko' ? '텍스트 편집' : 'Edit text'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Evaluation Section */}
+            {evidenceFiles.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <h6 className="text-sm font-semibold text-gray-700">
+                    🤖 AI {t('assessmentItem.evidenceUpload')}
+                  </h6>
+                  <button
+                    onClick={handleEvaluateEvidence}
+                    disabled={isEvaluating || !adviceContent}
+                    className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  >
+                    {isEvaluating ? 
+                      t('assessmentItem.evaluating') :
+                      t('assessmentItem.evaluateEvidence')
+                    }
+                  </button>
+                </div>
+
+                {/* Evaluation Results */}
+                {item.evaluation && (
+                  <div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <h6 className="text-sm font-semibold text-green-900">
+                          📊 {t('assessmentItem.evaluationResults')}
+                        </h6>
+                        <div className={`px-3 py-1 rounded-full text-sm font-bold ${
+                          item.evaluation.score >= 80 ? 'bg-green-100 text-green-800' :
+                          item.evaluation.score >= 60 ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {item.evaluation.score}점
+                        </div>
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(item.evaluation.evaluatedAt).toLocaleString(itemLanguage === 'ko' ? 'ko-KR' : 'en-US')}
+                      </div>
+                    </div>
+
+                    {/* Criteria Scores */}
+                    <div className="mb-4 space-y-2">
+                      {item.evaluation.criteria.map((criteria, index) => (
+                        <div key={index} className="flex items-center justify-between text-sm">
+                          <span className="text-gray-700">
+                            {itemLanguage === 'ko' && criteria.nameKo ? criteria.nameKo : criteria.name}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-20 bg-gray-200 rounded-full h-2">
+                              <div 
+                                className={`h-2 rounded-full ${
+                                  criteria.score >= 80 ? 'bg-green-500' :
+                                  criteria.score >= 60 ? 'bg-yellow-500' :
+                                  'bg-red-500'
+                                }`}
+                                style={{ width: `${criteria.score}%` }}
+                              ></div>
+                            </div>
+                            <span className="font-medium text-gray-900 w-8 text-right">
+                              {criteria.score}
+                            </span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Feedback */}
+                    <div className="text-sm text-gray-700 whitespace-pre-line bg-white p-3 rounded border">
+                      {itemLanguage === 'ko' && item.evaluation.feedbackKo ? 
+                        item.evaluation.feedbackKo : 
+                        item.evaluation.feedback
+                      }
+                    </div>
+                  </div>
+                )}
+
+                {/* Evaluation Error */}
+                {evaluationError && (
+                  <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h6 className="text-sm font-semibold text-red-900 mb-1">
+                          ⚠️ {t('assessmentItem.evaluationError')}
+                        </h6>
+                        <div className="text-sm text-red-800">{evaluationError}</div>
+                      </div>
+                      <button
+                        onClick={handleEvaluateEvidence}
+                        disabled={isEvaluating}
+                        className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                      >
+                        {isEvaluating ? 
+                          t('assessmentItem.retrying') : 
+                          t('assessmentItem.retry')
+                        }
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Upload Instructions */}
+            {evidenceFiles.length === 0 && (
+              <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
+                💡 {itemLanguage === 'ko' ? 
+                  '증빙 자료를 이미지 또는 PDF 파일로 업로드하세요. 문서, 스크린샷, 차트, 보고서 등을 포함할 수 있습니다. (최대 10MB, 여러 파일 선택 가능)' :
+                  'Upload your evidence documents as images or PDF files. You can include documents, screenshots, charts, reports, etc. (Max 10MB, multiple files allowed)'
+                }
+              </div>
+            )}
+          </div>
+
+          {/* Last Updated */}
+          <div className="text-xs text-gray-500">
+            {t('assessmentItem.lastUpdated')}: {new Date(item.lastUpdated).toLocaleString(itemLanguage === 'ko' ? 'ko-KR' : 'en-US')}
+          </div>
+        </div>
+      )}
+
+      {/* Expand/Collapse Indicator */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="mt-2 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+      >
+        {isExpanded ? `▲ ${t('assessmentItem.collapse')}` : `▼ ${t('assessmentItem.expandDetails')}`}
+      </button>
+
+      {/* PDF Text Edit Modal */}
+      {editingPdfText && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  📄 {itemLanguage === 'ko' ? 'PDF 텍스트 편집' : 'Edit PDF Text'}
+                </h3>
+                <button
+                  onClick={handleCancelPdfEdit}
+                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
+                >
+                  ×
+                </button>
+              </div>
+              
+              <div className="mb-4">
+                <p className="text-sm text-gray-600 mb-2">
+                  {itemLanguage === 'ko' ? 
+                    'PDF에서 자동 추출된 텍스트를 확인하고 필요시 수정하세요. 이 텍스트는 AI 평가에 사용됩니다.' :
+                    'Review and edit the automatically extracted text from the PDF. This text will be used for AI evaluation.'
+                  }
+                </p>
+                <div className="text-xs text-gray-500">
+                  {itemLanguage === 'ko' ? 
+                    '파일명: ' + (evidenceFiles.find(f => f.id === editingPdfText)?.fileName || '') :
+                    'File: ' + (evidenceFiles.find(f => f.id === editingPdfText)?.fileName || '')
+                  }
+                </div>
+              </div>
+
+              <textarea
+                value={pdfTextInput}
+                onChange={(e) => setPdfTextInput(e.target.value)}
+                className="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-y"
+                placeholder={itemLanguage === 'ko' ? 
+                  'PDF 내용을 입력하거나 수정하세요...' :
+                  'Enter or edit PDF content...'
+                }
+              />
+
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={handleCancelPdfEdit}
+                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
+                >
+                  {itemLanguage === 'ko' ? '취소' : 'Cancel'}
+                </button>
+                <button
+                  onClick={handleSavePdfText}
+                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  {itemLanguage === 'ko' ? '저장' : 'Save'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+

@@ -1,0 +1,412 @@
+"MSP AWS Partner Technical Validation 
+The following requirements apply to ISSI audit.",,,
+"ID",Requirement Description,Met?,Partner Response
+Business,,,
+,,,
+BUS-001,"Company Overview
+Mandatory
+
+AWS Partner has a company overview presentation to set the stage for customer conversations as applicable to its MSP practice, in addition to demonstration capabilities.
+
+Presentation will contain information about next generation cloud managed services; how managed services are different in an AWS environment vs. traditional on premise or hosted managed services with emphasis on automation enabled by DevOps practices.
+
+Overview presentations contain:
+
+• Company history
+• Office locations
+• Number of employees
+• Location of AWS MSP support and operation staff
+• Customer profile, including number, size and geography  of customers, and industry/segment
+• Service differentiators
+• AWS relationship overview/details, including AWS Partner Paths, monthly AWS billings, etc.
+
+
+Evidence must be a presentation delivered during the Full Audit. Presentation should be limited to no more than 20 minutes.",,
+BUS-002,"MSP Practice Growth
+Mandatory
+
+AWS Partner is actively growing their MSP Practice on AWS.
+
+All customer contracts must be for net new customers onboarded within the last 18 months, or demonstrate significant growth, like migration of new applications or refactoring of existing architecture, of an existing customer engagement. Renewal of ongoing managed services for existing workloads is not sufficient without any additional scope of work.
+
+Evidence must be in the form of ≥ 4 new contracts or addenda that demonstrate customer growth . All those new contracts or addenda should be ongoing managed services engagements.",,
+BUS-003,"Financial Planning and Reporting
+Mandatory
+
+AWS Partner has processes in place for financial planning, including forecasting, budgeting, and review of financial metrics and reports.
+
+Evidence can be in the form of either budgets, financial forecasts, and reports for the prior quarter or month, or documented policies and processes related to financial planning and review of financial metrics. Public securities filings for the most recent period are sufficient evidence for publicly traded companies.",,
+BUS-004,"Go-To-Market
+Mandatory
+
+AWS Partner must have processes on how they identify Managed Services opportunities, train their sellers to recognize and sell these opportunities, and their specific efforts to generate demand and leads for their AWS Managed Services (MSP) practice.
+
+Evidence must be in a form of a documented process or first call deck on how the AWS Partner engages with customers, their internal sales team, and AWS sales representatives (if applicable) to promote and sell their Managed Services offerings.",,
+,,,
+People,,,
+,,,
+PEO-001,"Personnel Onboarding
+Mandatory
+
+AWS Partner has defined processes and checklists for onboarding of personnel relevant to the AWS Partner’s AWS managed service practice.
+
+Evidence must be in the form of completed on-boarding records scoped to the AWS Partner’s AWS managed service practice; examples may include completed checklists, training plans, or other records.",,
+PEO-002,"Cloud Center of Excellence (CCOE)
+Mandatory
+
+AWS Partner maintains a Cloud Center of Excellence (CCOE).
+
+A CCOE is a team of cross-functional people dedicated to creating, evangelizing, and institutionalizing cloud best practices, frameworks, and governance for evolving technology operations. This team becomes a central force through which the organization can evolve the way that it serves customers in this space by providing engineering and business functions for the managed services providers.
+
+This dedicated cross functional team shapes and supports the direction of the MSP practice across the following domains:
+
+1. Cloud adoption and retooling: Promoting the adoption of cloud services across the organization, and developing reusable tools and artifacts.
+2. Training and change management: Coordinating cloud learnings and embracing a change-as-normal mindset.
+3. Governance: Setting up initial governance processes and best practices to help keep workloads in line with cloud architecture framework and policies.
+4. Strategy: Aligning cloud offerings with the organizational business strategy.
+5. Operations and automation: Standardizing and automating commonly needed platform components and solutions over time
+
+
+Evidence of a CCOE must be in the form of documented charter, organization structure, and operational process for the CCOE and how it engages across the AWS Partner’s business.",,
+PEO-003,"Personnel Offboarding
+Mandatory
+
+AWS Partner has defined termination processes and checklists for off-boarding of personnel relevant to the AWS Partner’s AWS managed service practice in order to ensure all access to customer and Partner systems and data is revoked.
+
+Evidence must be in the form of completed off-boarding records scoped to the AWS Partner’s AWS managed service practice; examples must include termination of personnel access to AWS Partner and customer systems.  Records may also be in the form of current industry certification related to information security (e.g., ISO 27001, SOC2) that are scoped to include the AWS Partner’s AWS MSP practice.",,
+,,,
+Governance,,,
+,,,
+GOV-001,"Risk and Mitigation Plans
+Mandatory
+
+Areas of business risk including the AWS practice are outlined with documented mitigation plans. This may include financial risks, age and maturity of business, planning for rapid growth, assumption or loss of large deals/customers, etc.
+
+Evidence must be in the form of documented risk analysis and mitigation plan(s) relevant to the AWS Partner’s AWS managed service practice . This should detail how the partner manages the full life-cycle of the risk management documentation, from initial assessment through ongoing monitoring and updates.",,
+GOV-002,"Customer Satisfaction
+Mandatory
+
+AWS Partner has a mechanism to objectively capture customer satisfaction data. This is done via formal survey process, contact-based surveys after a customer interaction, or as part of customer review meetings. The purpose is to ensure AWS MSP partners have recurring feedback mechanisms in place which allow them to measure the success of their customer engagements.
+
+Evidence must be in the form of a demonstration of how feedback is collected and concerns are addressed,if any. AWS owned and operated Customer Satisfaction (CSAT) data collected through Partner Central will not be accepted, as this information cannot be shared with partners without customers explicitly granting permission.",,
+GOV-003,"Data Ownership and Customer Offboarding
+Mandatory
+
+Customer contracts define the specific legal ownership of data, including arrangements for handling of customer data upon termination of the contract by either party, including:
+
+• Time commitment as to when data/account is handed to customer
+• Format and method for transfer of data/account credentials
+• If applicable, the process for removal of non-customer IAM accounts, groups, roles, and federation
+• A defined procedure for offboarding customer AWS accounts from the Partner’s managed services that enables the customer to retain ownership of their data and AWS accounts.
+
+
+Evidence must be in the form of a contract template scoped to the AWS Partner’s AWS managed service practice addressing the above requirements.",,
+GOV-004,"Operational Readiness
+Mandatory
+
+AWS Partner has an Operational Readiness process in form of checklist/process description document detailing how the operations team will support customer environments post go live.
+
+Evidence must be in the form of documented processes including checklists to determine operational readiness with respect to personnel, tools, and operational processes.",,
+GOV-005,"Shared Responsibility Model
+Mandatory
+
+AWS Partner defines security requirements and operational expectations from the customers related to the AWS environments managed by the Partner, and formalize those in terms of roles and responsibities matrix (RACI) between the Partner and their Customer.
+
+Evidence must be in the form of onboarding documentation provided to customers.",,
+GOV-006,"Sustainability Best Practices
+Mandatory
+
+AWS Partner takes steps towards optimizing workload placement, architecture for user, software, data, hardware and deployment patterns to increase energy efficiency.  Example of such optimizations could include optimization steps taken based on user behaviour, architecture design, data patterns, hardware patterns etc..
+
+Evidence must be in the form of explanation and any examples where improvements were identified , proposed and/or  implemented within the last 12 months scoped to the AWS Partner’s AWS managed service practice.",,
+,,,
+Platform,,,
+,,,
+PLAT-001,"Account Management
+Mandatory
+
+AWS accounts are not shared across multiple customers. This does not apply in cases where the AWS Partner operates a multi-tenant software product they own in a software as a service (SaaS) model. Third party software products managed by the Partner on AWS on behalf of the customer must be deployed to dedicated accounts per customer.
+
+Evidence must be in the form of a documented policy that describes how customer environment isolation is maintained including procedures for creating new AWS accounts or assuming management of existing customer accounts.",,
+PLAT-002,"Solution Capabilities
+Mandatory
+
+The AWS Partner delivers a detailed design document to customers for major engagements. This document must be reviewed and approved by an AWS expert from AWS Partner who holds a current AWS Solutions Architect certification.
+
+Evidence must be in the form of implemented system detailed design documents produced within the last 18 months for 2 independent and unrelated customers. Each document must contain the following components:
+
+These components must be defined in the original design document and not just recorded after the system has been deployed.
+
+1. Documentation of customer requirements that need to be addressed through the technical solution.
+2. Architectural details of the proposed design.
+",,
+PLAT-003,"Non-Functional Requirement
+Mandatory
+
+The AWS Partner delivers a detailed design document to customers for major engagements that includes the approach to fulfill the non-functional requirements of the system including:
+
+• Definition of system requirements or goals for performance, capacity, and availability.
+• Service level agreements (SLAs) if applicable.
+• Tools and approaches used to monitor these aspects of the system in production including specific metrics.
+• Overview of the test or verification process for ensuring the design meets the specified requirements before it is deployed to production.
+
+
+Evidence must be in the form of implemented system detailed design documents produced within the last 18 months for 2 independent and unrelated customers with the non-functional requirements.",,
+PLAT-004,"Well- Architected
+Mandatory
+
+Detailed design that shows customer infrastructure is well-architected as per AWS Well-Architected Framework as outlined in https://aws.amazon.com/architecture/well-architected/ .
+
+Evidence must be in the form of implemented system detailed design documents produced within the last 18 months for 2 independent and unrelated customers. Alternatively, if  you have completed an AWS Well-Architected Framework Review (WAFR) for the customer example which shows zero outstanding high-risk issues (HRIs) in the Security, Operational Excellence, and Reliability pillars, you can present an exported WAFR report for each of the customer example instead.",,
+PLAT-005,"AWS Service Expertise
+Mandatory
+
+AWS Partners who currently hold three or more AWS Competency or AWS Service Delivery designations are exempt from this requirement.
+
+AWS Partner has demonstrated expertise in leveraging the breadth of AWS services to improve or implement solutions for customers.
+
+Evidence must be in the form of two example customer workloads designed or rearchitected by the AWS Partner which each make significant utilization of at least four AWS services not including the following:
+
+• Amazon Elastic Compute Cloud (Amazon EC2)
+• Amazon Virtual Private Cloud (Amazon VPC)
+• Amazon Relational Database Service (Amazon RDS)
+• Amazon Simple Storage Service (Amazon S3)
+• Amazon Elastic Block Storage (Amazon EBS)
+• AWS Identity and Access Management (IAM)
+• Amazon CloudWatch
+• AWS CloudTrail
+• AWS CloudFormation
+",,
+,,,
+Security (AWS Partners who hold the Level 1 MSSP Competency are exempt from this section),,,
+,,,
+SEC-001,"Security Policies and Procedures
+Mandatory
+
+AWS Partner has established security policies and procedures to protect its own systems from attacks and these policies have been reviewed and approved by AWS Partner’s internal management. This includes systems such as their  Customer Relationship Management (CRM) system, billing and invoicing systems, etc handling customer PII information.
+
+Evidence of security policies and procedures may be in the form of current industry certification related to information security (e.g., ISO 27001, SOC2) scoped to the Partner's MSP practice or proof of infrastructure security and information security management processes including data classification and associated approvals.",,
+SEC-002,"Security Awareness Training and testing
+Mandatory
+
+AWS Partner’s MSP Practice employees complete annual security awareness training.
+
+AWS Partners may use https://learnsecurity.amazon.com/ or another similar training program.
+
+Evidence must be in the form of training completion record for current employees of the Partner’s MSP business.",,
+SEC-003,"AWS Account Configuration
+Mandatory
+
+AWS Partner defines a standard set of security controls implemented for all managed customer environments. This standard at a minimum includes all items defined in Appendix A: Minimum AWS Account Security Configuration.
+
+Evidence must be in the form of security dashboards showing the security configuration status across all AWS accounts in at least one AWS Organization managed by the AWS Partner. All high or critical severity findings must be accompanied with documentation on how the risk is being mitigated and/or timelines for remediation.",,
+SEC-004,"Identity and Access Management
+Mandatory
+
+AWS Partner uses a centralized identity provider for managing access to all AWS accounts and other systems containing customer data.
+
+Evidence must be in the form of a demonstration of the authentication process for accessing customer accounts and other systems.",,
+SEC-005,"Policy Management
+Mandatory
+
+AWS Partner has established a mechanism to evaluate and restrict permissions. This includes baselining the group and role membership of identities and evaluating the specific permissions granted to groups and roles. This must specifically include reviews of AWS IAM policies using IAM Access Analyzer or similar tools.
+
+Evidence must be in the form of such reviews being performed (more than once during the last 12 months) and the outcomes thereof.",,
+SEC-006,"Role-Based Access
+Mandatory
+
+AWS Partners ensures that all access to AWS accounts by human or machine identities owned by the Partner uses temporary credentials. Cases where specific AWS services require the use of static credentials (e.g., Amazon SES SMTP credentials) are allowed as long as the policies for each IAM user are limited to the service in question.
+
+Evidence must be in the form of a demonstration of IAM roles with permissions based on functional roles and follows the principle of least privilege that support Partner access scenarios.",,
+SEC-007,"Multi-Factor Authentication
+Mandatory
+
+All access to AWS accounts by human identities from the AWS Partner requires multi-factor authentication (MFA).
+
+Evidence must be in the form of a demonstration of the mechanism used to enforce MFA within the identity provided used for AWS access.",,
+SEC-008,"Vulnerability Management
+Mandatory
+
+AWS Partner provides vulnerability scanning functionality that allows them to evaluate the security and compliance of the AWS infrastructure.
+
+Evidence must be in the form of a demonstration of the technical solution that is used to solve this requirement.",,
+SEC-009,"Security Event Logging
+Mandatory
+
+AWS Partner 1/ defines security event logging requirements with customers including retention periods and 2/captures required security events logging, and 3/ implements controls to ensure retention periods are honored.
+
+Evidence must be in the form of a customer example demonstrating 1/agreed upon requirements, 2/ how logs are captured and 3/ retained for the agreed upon periods.",,
+SEC-010,"SaaS Tooling Account Access
+Mandatory
+
+Any third party SaaS tool or any tools administered by the AWS Partner that require access to customer AWS accounts must use IAM Roles with external IDs to provide cross-account access.
+
+Evidence must be in the form of a list of SaaS tools with access to customer AWS accounts and example IAM role trust policies that require external ID.",,
+,,,
+Operations,,,
+,,,
+OPS-001,"Service Level Management
+Mandatory
+
+AWS Partners defines SLAs related to the service offerings they provide to their customers like advisory, professional services, operations services. Examples of such SLAs include but not limited to : Service Request compliance, incident and problem management, security events, change management, deployment quality, etc.
+
+SLAs may include response times when customer opens ticket/initiates request, time from event or incident trigger to remediation, and turnaround time for customer-initiated changes/requests.
+
+Evidence must be in the form of 1/ SLA documentation or report, 2/ its review process with customers scoped to the AWS Partner’s AWS managed service practice.
+
+Examples of reports provided are:
+
+• Incident management
+• Non-service affecting incidents
+• Service levels
+• Performance analysis
+",,
+OPS-002,"AWS Support Plan for Partner owned Management and Member Account
+Mandatory
+
+AWS Partner has enrolled all AWS Organizations management accounts (aka payer accounts) and member accounts with production workloads in a Business, Enterprise or PLS (Partner-Led) Support subscription.
+
+Evidence must be in the form of a list of AWS Organizations managed by AWS Partner and each organization's management and member account’s support level.",,
+OPS-003,"AWS Support Plan for Customer owned Member Account
+Mandatory
+
+AWS Partner clearly communicates to customers the value of AWS Premium Support plans and recommends Business or Enterprise support for all customer accounts hosting production workloads. Customers who opt out of AWS Support are provided with a clear explanation of the associated risks, i.e., that the AWS Partner does not have access to inspect and troubleshoot underlying AWS services in the event of a production impacting incident.
+
+Evidence must be in the form of a list of managed customer accounts with associated AWS support levels, and communications to customers without AWS Business Support coverage on production accounts.",,
+OPS-004,"Service Desk Operations
+Mandatory
+
+AWS Partner provides 24x7 service desk function and available over multiple communication means; may be a staffed 24x7 call center or 8x5 service with after-hours support (e.g., pager/alert support after-hours on a rotational basis).
+
+AWS Partner must explain or show how service desk function is provided; if AWS Partner does not maintain a staffed service desk on a 24-hour basis, there must be documented procedures for after hours, weekend, and holiday support. If the AWS Partner is using a 3rd party service to cover the after hours, then there should be a common set of tools and processes in place across both providers.
+
+Evidence must be in the form of a documented agreement (formal or otherwise) with customer covering this requirement.",,
+OPS-005,"Implement a Comprehensive ITSM platform
+Mandatory
+
+AWS partner must have a well-designed and integrated ITSM platform that enables the effective management of the entire service lifecycle for their managed services customers. The ITSM platform must, at a minimum, provide the following capabilities:
+
+1. Incident and Problem Management : Efficient incident communication through tickets, escalation, and root cause analysis
+2. Change Management : Ability to track, approve, and document all changes to ensure compliance and minimize service disruptions
+3. Service Request Management: Streamlined request fulfillment process and visibility into the status of pending requests
+4. Reporting and Analytics: Insights into service performance, reporting, and operational efficiency
+5. Integration and Automation: Seamless integration with the partner's other systems, such as cloud monitoring tools, automation solutions, etc. to automatically create items in the AWS Partner's ticketing/ITSM system or run  automated responses to standard alerts/events.
+
+
+AWS partner partner must demonstrate the implementation and effective use of the ITSM platform covering the above items.",,
+OPS-006,"Release Management
+Mandatory
+
+AWS MSP partners should implement a comprehensive release management practice for validating and managing changes to production environments. This practice should include the following key components:
+
+1. AWS Partner uses version control to manage code and deployment assets.
+2. AWS Partner has standard procedures for testing and validating changes in non-production environments before deploying to production.
+3. AWS Partner has a system for managing approvals of changes before being deployed to production.
+4. For AWS resources owned and deployed by the AWS Partner, the Partner uses either declarative (e.g., AWS CloudFormation or HashiCorp Terraform) or imperative (e.g., AWS Cloud Development Kit) automated infrastructure deployment tools.
+
+
+Evidence for each of the sub-items must be in the form of a customer example demonstrating the end-to-end process for validating and managing changes to production.",,
+OPS-007,"Configuration Management
+Mandatory
+
+The AWS Partner maintains records of environment configuration changes. There must be a system that enables operators to list all changes made to the environment by the Partner and track the following details about each change:
+
+• Resources that were added/removed/updated
+• Date and time of the change
+• Current status (e.g. deployed/rolled back)
+• Individual who executed the change
+• Approval workflow or alert of change
+
+
+This can be implemented using a Configuration Management Database (CMDB) or a combination of other tools such as code repositories, infrastructure as code services, automated deployment pipelines, and issue tracking or workflow systems. If multiple tools are used, there must be a single unified view that provides all of the details listed above.
+
+Evidence must be in the form of a customer example with demonstration of the ability to view configuration records and identification of recent approved configuration changes for that customer environment.",,
+OPS-008,"Patch Management
+Mandatory
+
+AWS Partner has automated the process of patching customer compute resources for operating systems, applications, and security and compliance related patching.
+
+Evidence must be in the form of a technology demonstration of the patch automation tooling in use and patch status reporting.",,
+OPS-009,"Customer Deployment Pipelines
+Mandatory
+
+AWS Partners who hold the AWS DevOps Competency are exempt from this requirement.
+
+AWS Partner supports automated deployments and rollbacks, if needed. Customers or partners must be able to deploy new versions of applications or cloud infrastructures without manual involvement. Manual approval steps are acceptable.
+
+Evidence must be in the form a demonstration of an automated deployment in a sandbox environment, or a customer example where automated deployments were executed in last 6 months. AWS Partner must show build/pipeline execution history or other deployment logs showing consistent usage of automated deployments by the customer or partner.",,
+OPS-010,"Event Management and Dynamic Monitoring
+Mandatory
+
+Define, monitor and analyze customer workload and infrastructure health KPIs:
+AWS Partner has defined metrics for determining the health of each component of the workload and infrastructure. Establish the capability to run, monitor and improve operational procedure by:
+a.  Defining, collecting and analyzing workload and infrastructure health metrics w/AWS services or 3rd Party tool.
+b.  Exporting standard application logs that capture errors and aid in troubleshooting and response  to operational events.
+c.  Defining threshold of workload and infrastructure metrics to generate alert for any issues.
+d.  Use tags to organize and categorize resources.
+
+Evidence must be in the form of a tool demonstration showing how monitoring of infrastructure and application performance is achieved through customer metrics, logs, traces, alarms, and real time dashboards.",,
+OPS-011,"Operational Runbooks
+Mandatory
+
+AWS Partner has runbooks to perform procedures for responding to specific workload/infrastructure/security alerts.
+
+Evidence must be in the form of runbooks used in day to day operations.",,
+OPS-012,"Anomaly Detection
+Mandatory
+
+AWS Partner implements statistical or machine learning anomaly detection models (typically using existing ISV/open source tools or AWS CloudWatch anomaly detection) to generate alerts across a broad range of workload metrics including infrastructure and application layers.  Anomaly detection is used to reduce false positives in alerts and avoid alarm fatigue in operations staff.
+
+Evidence must be in the form of one customer example that demonstrate anomaly detection implementation.",,
+OPS-013,"Predictive Monitoring and AIOps
+Recommended
+
+AWS Partner has implemented predictive models (typically using Amazon DevOps Guru or existing ISV/open source tools) that can identify trends in monitoring and logging data and alert or trigger actions before an anomaly or threshold breach is detected.
+
+Evidence must be in the form of one customer example that demonstrate predictive monitoring and AIOps.",,
+OPS-014,"Knowledge Management
+Mandatory
+
+AWS Partner maintains a knowledge management system for organizing information about internal operational processes and customer workload-specific details. This includes processes for identifying new content to be created, and existing content that should be updated or archived.
+
+Evidence must be in the form of a demonstration of the knowledge management system",,
+OPS-015,"Disaster Recovery
+Mandatory
+
+AWS Partner implements automated backups for all customer workloads and infrastructure  against each workload's predefined recovery time objective (RTO) and recovery point objective (RPO).
+
+Evidence must be in the form of example backup jobs and recovery tests  for any two AWS services used in the architecture of a customer solution.  Recovery tests are evaluated against each workload's predefined recovery time objective (RTO) and recovery point objective (RPO).",,
+OPS-016,"Cloud Financial Management
+Mandatory
+
+The AWS Partner has methodology, process and relevant tooling experience to enable the customer with the following capabilities:
+
+1. Creation of a  total cost of ownership (TCO) type analysis for customers willing to move to cloud
+2. Creation of  strategy/processes  to measure, monitor and help customers to understand their cloud spend.
+3. AWS partners that are reselling AWS services together with managed services, possess tools to show the AWS usage cost based on the rates agreed with their customers
+
+
+Evidence must be in the form of a technology demonstration explaining the capabilities listed above.",,
+OPS-017,"Migrations
+Mandatory
+
+AWS Partners who currently hold the AWS Migration Competency designation are exempt from this requirement.
+
+AWS Partner has capabilities for migrating or modernizing customer workloads from outside to AWS using a standard methodology and automated tooling that addresses the following:
+
+• Portfolio discovery: Reports generated by discovery tools used and interviews conducted with customer, documentation of recommended migration and modernization strategy (7Rs - Retire, Retain, Rehost, Relocate, Refactor, Replatform, and Repurchase).
+• Migration or modernization governance: communication plan to inform stakeholders,  cutover plan mitigating downtime, tests and rollback plans for applications.
+• People and Skills: RACI matrix, transition plan delivered for the customer, documentation of role-based training plans created for the customer, knowledge transfer or training content delivered to the customer
+• Landing zone:  diagrams with the AWS multi-account structure, process or output of tools used to create and maintain the landing zone.
+• Operations: runbooks or standard operation procedures (SOPs) created or changed to cover cloud operations, dashboard or reports of tools used for observing and analyzing events, logs, metrics and distributed tracing.
+• Security, Risk and Compliance: documented process of how security, risk and compliance requirements are gathered from the customer and tooling used to meet these requirements.
+• Application Migration or Modernization: documented list of applications, workloads, or solution components chosen for the pilot/MVP and documented lessons learned during the pilot/MVP.
+
+
+Evidence must be in the form of two customer examples with the associated documentation covering the items above. At least one example must include refactoring or replaforming as described in https://docs.aws.amazon.com/prescriptive-guidance/latest/large-migration-guide/migration-strategies.html",,
+OPS-018,"Artificial Intelligence
+Recommended
+
+Managed services providers stand at the crossroads of technology and customer needs, uniquely positioned to bring transformative AI solutions to businesses. Through the use of AI, they refine user experiences while reducing managed services cost. Furthermore, MSPs  assist customers in transforming their use cases by leveraging Generative AI technologies.
+
+Evidence may include any documentation demonstrating the use of Generative AI technology for internal use, or  using the Partners' Generative AI offerings in the customer project. This evidence may include a Statement of Work (SOW), Project Plans or Sprint Plans, Project Proposals, or other relevant deliverables.",,
