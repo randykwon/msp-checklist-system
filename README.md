@@ -58,9 +58,10 @@ AWS MSP(Managed Service Provider) 파트너 프로그램 검증을 위한 종합
 ## 📦 설치 및 실행
 
 ### 사전 요구사항
-- Node.js 18+
-- npm 또는 yarn
-- Git
+- **Node.js 22+** (LTS 권장)
+- **npm 10+** 또는 **yarn 4+**
+- **Git**
+- **지원 OS**: Ubuntu 22.04 LTS, Amazon Linux 2023, macOS, Windows (WSL2)
 
 ### 로컬 개발 환경 설정
 
@@ -70,7 +71,21 @@ AWS MSP(Managed Service Provider) 파트너 프로그램 검증을 위한 종합
    cd msp-checklist-system
    ```
 
-2. **의존성 설치**
+2. **Node.js 설치 (필요한 경우)**
+   
+   **Ubuntu 22.04 LTS:**
+   ```bash
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+   sudo apt-get install -y nodejs
+   ```
+   
+   **Amazon Linux 2023:**
+   ```bash
+   curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+   sudo dnf install -y nodejs
+   ```
+
+3. **의존성 설치**
    ```bash
    # 루트 의존성 설치
    npm install

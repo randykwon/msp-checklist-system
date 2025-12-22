@@ -2,24 +2,56 @@
 
 AWS MSP 체크리스트 애플리케이션을 빠르게 시작하는 방법입니다.
 
+## 📋 시스템 요구사항
+
+- **Node.js 22+** (LTS 권장)
+- **npm 10+** 또는 **yarn 4+**
+- **Git**
+- **지원 OS**: Ubuntu 22.04 LTS, Amazon Linux 2023, macOS, Windows (WSL2)
+
 ## ⚡ 1분 설치
 
+### Ubuntu 22.04 LTS
 ```bash
-# 1. 저장소 클론
+# Node.js 22 설치 (필요한 경우)
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 저장소 클론 및 설치
 git clone <repository-url>
 cd msp-qna
-
-# 2. 의존성 설치
 npm install
 cd msp-checklist && npm install && cd ..
 
-# 3. 환경 설정 (선택사항)
+# 환경 설정 (선택사항)
 cd msp-checklist
 cp .env.local.example .env.local
 # OpenAI API 키가 있다면 .env.local에 추가
 cd ..
 
-# 4. 서버 시작
+# 서버 시작
+./restart-server.sh
+```
+
+### Amazon Linux 2023
+```bash
+# Node.js 22 설치 (필요한 경우)
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo dnf install -y nodejs
+
+# 저장소 클론 및 설치
+git clone <repository-url>
+cd msp-qna
+npm install
+cd msp-checklist && npm install && cd ..
+
+# 환경 설정 (선택사항)
+cd msp-checklist
+cp .env.local.example .env.local
+# OpenAI API 키가 있다면 .env.local에 추가
+cd ..
+
+# 서버 시작
 ./restart-server.sh
 ```
 
@@ -65,16 +97,49 @@ cd ..
 
 ## 🔧 문제 해결
 
+### Node.js 버전 문제
+```bash
+# 버전 확인 (22.x 이상 필요)
+node --version
+
+# Ubuntu에서 업그레이드
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# Amazon Linux에서 업그레이드
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo dnf install -y nodejs
+```
+
 ### 서버가 시작되지 않는 경우
 ```bash
-# 1. Node.js 버전 확인 (20.9.0 필요)
+# 1. Node.js 버전 확인 (22.x 필요)
 node --version
 
 # 2. 포트 3010 사용 확인
+# Ubuntu/macOS
 lsof -i:3010
+
+# Amazon Linux
+ss -tlnp | grep :3010
 
 # 3. 로그 확인
 tail -f server.log
+```
+
+### 방화벽 설정
+
+#### Ubuntu (ufw)
+```bash
+sudo ufw allow 3010
+sudo ufw allow 3011
+```
+
+#### Amazon Linux (firewalld)
+```bash
+sudo firewall-cmd --permanent --add-port=3010/tcp
+sudo firewall-cmd --permanent --add-port=3011/tcp
+sudo firewall-cmd --reload
 ```
 
 ### AI 기능이 작동하지 않는 경우

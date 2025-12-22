@@ -63,9 +63,17 @@
    # macOS
    brew install docker
    
-   # Linux
+   # Ubuntu 22.04 LTS
    sudo apt-get update
-   sudo apt-get install docker.io
+   sudo apt-get install -y docker.io
+   sudo systemctl start docker
+   sudo systemctl enable docker
+   
+   # Amazon Linux 2023
+   sudo dnf update -y
+   sudo dnf install -y docker
+   sudo systemctl start docker
+   sudo systemctl enable docker
    ```
 
 ### AWS 설정

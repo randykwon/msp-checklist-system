@@ -46,9 +46,24 @@ sudo curl -Lo /usr/local/bin/ecs-cli https://amazon-ecs-cli.s3.amazonaws.com/ecs
 sudo chmod +x /usr/local/bin/ecs-cli
 
 # Docker 설치
+
+#### Ubuntu 22.04 LTS
+```bash
 sudo apt-get update
 sudo apt-get install -y docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
 sudo usermod -aG docker $USER
+```
+
+#### Amazon Linux 2023
+```bash
+sudo dnf update -y
+sudo dnf install -y docker
+sudo systemctl start docker
+sudo systemctl enable docker
+sudo usermod -aG docker $USER
+```
 ```
 
 ### 2. AWS 자격 증명 설정

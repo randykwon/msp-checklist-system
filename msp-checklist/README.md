@@ -77,9 +77,10 @@ AWS 관리형 서비스 제공업체(MSP) 파트너 프로그램 검증 체크�
 
 ### 필수 요구사항
 
-- Node.js 20.9.0 이상
-- npm 또는 yarn 패키지 매니저
-- LLM API 키 (AI 기능 사용 시 - OpenAI, Gemini, Claude, 또는 AWS Bedrock 중 선택)
+- **Node.js 22.x 이상** (LTS 권장)
+- **npm 10.x 이상** 또는 **yarn 4.x 이상** 패키지 매니저
+- **지원 OS**: Ubuntu 22.04 LTS, Amazon Linux 2023, macOS, Windows (WSL2)
+- **LLM API 키** (AI 기능 사용 시 - OpenAI, Gemini, Claude, 또는 AWS Bedrock 중 선택)
 
 ### 📚 추가 문서
 
@@ -88,7 +89,37 @@ AWS 관리형 서비스 제공업체(MSP) 파트너 프로그램 검증 체크�
 
 ### 설치
 
+#### Ubuntu 22.04 LTS
 ```bash
+# Node.js 22 설치 (필요한 경우)
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 프로젝트 루트 디렉토리에서
+# 1. 파일 감시 시스템 의존성 설치
+npm install
+
+# 2. MSP 체크리스트 앱 의존성 설치
+cd msp-checklist
+npm install
+
+# 3. 환경 변수 설정
+cp .env.local.example .env.local
+# .env.local 파일을 편집하여 LLM 제공업체 및 API 키를 설정하세요
+
+# 4. 서버 시작 (프로젝트 루트에서)
+cd ..
+./restart-server.sh
+# 또는 간단히
+npm run restart
+```
+
+#### Amazon Linux 2023
+```bash
+# Node.js 22 설치 (필요한 경우)
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo dnf install -y nodejs
+
 # 프로젝트 루트 디렉토리에서
 # 1. 파일 감시 시스템 의존성 설치
 npm install

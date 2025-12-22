@@ -409,8 +409,8 @@ Resources:
             yum update -y
             yum install -y docker git
             
-            # Install Node.js 18
-            curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -
+            # Install Node.js 20
+            curl -fsSL https://rpm.nodesource.com/setup_20.x | bash -
             yum install -y nodejs
             
             # Install PM2

@@ -1,0 +1,20 @@
+# VPC 생성
+aws ec2 create-vpc --cidr-block 10.0.0.0/16 --tag-specifications 'ResourceType=vpc,Tags=[{Key=Name,Value=msp-checklist-vpc}]'
+
+# 서브넷 생성
+aws ec2 create-subnet --vpc-id vpc-0bc88ef52e2a49bed --cidr-block 10.0.1.0/24 --availability-zone ap-northeast-2a --tag-specifications 'ResourceType=subnet,Tags=[{Key=Name,Value=msp-checklist-subnet}]'
+
+# 인터넷 게이트웨이 생성 및 연결
+aws ec2 create-internet-gateway --tag-specifications 'ResourceType=internet-gateway,Tags=[{Key=Name,Value=msp-checklist-igw}]'
+
+aws ec2 attach-internet-gateway --vpc-id vpc-0bc88ef52e2a49bed --internet-gateway-id igw-03cc243da71014465
+
+# 보안 그룹 생성
+aws ec2 create-security-group --group-name msp-checklist-sg --description "MSP Checklist Security Group" --vpc-id vpc-0bc88ef52e2a49bed
+
+# 인바운드 규칙 추가
+aws ec2 authorize-security-group-ingress --group-id sg-07188ea926cce3924 --protocol tcp --port 22 --cidr 0.0.0.0/0    # SSH
+aws ec2 authorize-security-group-ingress --group-id sg-07188ea926cce3924 --protocol tcp --port 80 --cidr 0.0.0.0/0    # HTTP
+aws ec2 authorize-security-group-ingress --group-id sg-07188ea926cce3924 --protocol tcp --port 443 --cidr 0.0.0.0/0   # HTTPS
+aws ec2 authorize-security-group-ingress --group-id sg-07188ea926cce3924 --protocol tcp --port 3010 --cidr 0.0.0.0/0  # Main App
+aws ec2 authorize-security-group-ingress --group-id sg-07188ea926cce3924 --protocol tcp --port 3011 --cidr 0.0.0.0/0  # Admin App

@@ -231,9 +231,49 @@ ls -la msp_data/
 ## 📞 지원
 
 문제가 지속되면 다음을 확인하세요:
-1. Node.js 버전 (20.9.0 권장)
-2. npm 패키지 설치 상태
-3. 포트 3010 사용 가능 여부
-4. 로그 파일의 오류 메시지
+1. **Node.js 버전** (22.x 이상 권장)
+   ```bash
+   node --version  # v22.x.x 이상 필요
+   ```
+2. **npm 패키지 설치 상태**
+   ```bash
+   npm list --depth=0
+   ```
+3. **포트 사용 가능 여부**
+   ```bash
+   # Ubuntu/macOS
+   lsof -i:3010
+   lsof -i:3011
+   
+   # Amazon Linux
+   ss -tlnp | grep :3010
+   ss -tlnp | grep :3011
+   ```
+4. **로그 파일의 오류 메시지**
+   ```bash
+   tail -f server.log
+   tail -f admin-server.log
+   ```
+
+### 운영체제별 추가 확인사항
+
+#### Ubuntu 22.04 LTS
+```bash
+# 방화벽 상태 확인
+sudo ufw status
+
+# 서비스 상태 확인
+systemctl --user status
+```
+
+#### Amazon Linux 2023
+```bash
+# 방화벽 상태 확인
+sudo firewall-cmd --list-all
+
+# SELinux 상태 확인 (문제 발생 시)
+getenforce
+sudo ausearch -m avc -ts recent
+```
 
 더 자세한 정보는 `./server-status.sh`를 실행하여 전체 시스템 상태를 확인하세요.

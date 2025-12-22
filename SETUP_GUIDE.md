@@ -4,6 +4,19 @@
 
 이 프로젝트는 AWS MSP 파트너 프로그램 준비를 위한 종합 체크리스트 웹 애플리케이션입니다.
 
+## 시스템 요구사항
+
+### 지원 운영체제
+- **Ubuntu 22.04 LTS** (권장)
+- **Amazon Linux 2023** (AWS 최적화)
+- **macOS** (개발 환경)
+- **Windows 10/11** (WSL2 권장)
+
+### 필수 소프트웨어
+- **Node.js 22+** (LTS 권장)
+- **npm 10+** 또는 **yarn 4+**
+- **Git**
+
 ## 디렉토리 구조
 
 ```
@@ -26,29 +39,84 @@ msp-qna/
 
 ## 환경 설정
 
-### 1. Node.js 버전 업그레이드
+### 1. Node.js 설치
 
-현재 시스템의 Node.js 버전(18.12.1)은 Next.js 16의 최소 요구사항(20.9.0)을 만족하지 않습니다.
-
-#### Option A: nvm 사용 (권장)
-
+#### Ubuntu 22.04 LTS
 ```bash
-# nvm이 설치되어 있다면
-nvm install 20.9.0
-nvm use 20.9.0
+# 시스템 업데이트
+sudo apt update && sudo apt upgrade -y
 
-# msp-checklist 디렉토리에서
-npm install
-npm run dev
+# Node.js 22 설치 (NodeSource 저장소)
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 또는 최신 LTS 버전 설치
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
+
+# 버전 확인
+node --version  # v22.x.x 이상
+npm --version   # 10.x.x 이상
 ```
 
-#### Option B: 시스템 Node.js 업그레이드
+#### Amazon Linux 2023
+```bash
+# 시스템 업데이트
+sudo dnf update -y
 
-공식 Node.js 웹사이트에서 LTS 버전(20.x) 다운로드:
-https://nodejs.org/
+# Node.js 22 설치 (NodeSource 저장소)
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo dnf install -y nodejs
 
-### 2. 웹 애플리케이션 실행
+# 또는 최신 LTS 버전 설치
+curl -fsSL https://rpm.nodesource.com/setup_lts.x | sudo bash -
+sudo dnf install -y nodejs
 
+# 버전 확인
+node --version  # v22.x.x 이상
+npm --version   # 10.x.x 이상
+```
+
+#### NVM 사용 (모든 OS - 권장)
+```bash
+# NVM 설치
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash
+source ~/.bashrc
+
+# Node.js 22 설치 및 사용
+nvm install 22
+nvm use 22
+nvm alias default 22
+
+# 버전 확인
+node --version
+npm --version
+```
+
+### 2. 추가 패키지 설치
+
+#### Ubuntu 22.04 LTS
+```bash
+# 개발 도구 설치
+sudo apt install -y git curl wget build-essential
+
+# 선택사항: 유용한 도구들
+sudo apt install -y htop tree unzip
+```
+
+#### Amazon Linux 2023
+```bash
+# 개발 도구 설치
+sudo dnf groupinstall -y "Development Tools"
+sudo dnf install -y git curl wget
+
+# 선택사항: 유용한 도구들
+sudo dnf install -y htop tree unzip
+```
+
+### 3. 웹 애플리케이션 실행
+
+#### 공통 설정 (모든 OS)
 ```bash
 cd msp-checklist
 
@@ -61,8 +129,9 @@ npm run dev
 
 브라우저에서 http://localhost:3000 접속
 
-### 3. 프로덕션 빌드
+### 4. 프로덕션 빌드
 
+#### 공통 설정 (모든 OS)
 ```bash
 # 빌드
 npm run build
@@ -70,6 +139,22 @@ npm run build
 # 프로덕션 서버 시작
 npm start
 ```
+
+### 5. 관리자 시스템 설정
+
+관리자 시스템은 별도 포트(3011)에서 실행됩니다:
+
+```bash
+cd msp-checklist/admin
+
+# 의존성 설치
+npm install
+
+# 개발 서버 시작
+npm run dev
+```
+
+브라우저에서 http://localhost:3011 접속
 
 ## 주요 기능
 
@@ -192,12 +277,32 @@ location.reload();
 
 ### Node.js 버전 오류
 ```
-Error: You are using Node.js 18.12.1. For Next.js, Node.js version ">=20.9.0" is required.
+Error: You are using Node.js 18.12.1. For Next.js, Node.js version ">=22.0.0" is required.
 ```
 
-**해결방법**: Node.js 20.9.0 이상으로 업그레이드
+**해결방법**: Node.js 22.0.0 이상으로 업그레이드
+
+#### Ubuntu에서 업그레이드
+```bash
+curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
+#### Amazon Linux에서 업그레이드
+```bash
+curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+sudo dnf install -y nodejs
+```
 
 ### 의존성 설치 오류
+
+#### 권한 문제 (Linux/macOS)
+```bash
+# npm 권한 설정
+sudo chown -R $USER:$USER ~/.npm
+```
+
+#### 캐시 문제
 ```bash
 # npm 캐시 정리 후 재설치
 npm cache clean --force
@@ -205,10 +310,49 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-### 포트 충돌 (3000번 포트)
+#### 네트워크 문제
+```bash
+# npm 레지스트리 확인
+npm config get registry
+
+# 기본 레지스트리로 변경
+npm config set registry https://registry.npmjs.org/
+```
+
+### 포트 충돌
+
+#### 3000번 포트 충돌
 ```bash
 # 다른 포트에서 실행
 PORT=3001 npm run dev
+```
+
+#### 3011번 포트 충돌 (관리자 시스템)
+```bash
+# 다른 포트에서 실행
+PORT=3012 npm run dev
+```
+
+### 방화벽 설정
+
+#### Ubuntu (ufw)
+```bash
+sudo ufw allow 3000
+sudo ufw allow 3011
+```
+
+#### Amazon Linux (firewalld)
+```bash
+sudo firewall-cmd --permanent --add-port=3000/tcp
+sudo firewall-cmd --permanent --add-port=3011/tcp
+sudo firewall-cmd --reload
+```
+
+### 메모리 부족 오류
+```bash
+# Node.js 메모리 제한 증가
+export NODE_OPTIONS="--max-old-space-size=4096"
+npm run build
 ```
 
 ## 다음 단계
