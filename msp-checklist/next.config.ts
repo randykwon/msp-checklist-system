@@ -8,8 +8,10 @@ const nextConfig: NextConfig = {
     unoptimized: true
   },
   
-  // Turbopack 설정 (빈 객체로 경고 해결)
-  turbopack: {},
+  // Turbopack 설정 (루트 디렉토리 명시로 경고 해결)
+  turbopack: {
+    root: process.cwd()
+  },
   
   webpack: (config: any) => {
     // PDF.js 워커 파일을 위한 설정

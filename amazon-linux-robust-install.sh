@@ -391,7 +391,10 @@ install_dependencies() {
     
     # 단계별 설치
     if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
-        retry_command "npm install --production --no-optional --legacy-peer-deps" "MSP 체크리스트 의존성 설치 (최소 모드)"
+        # 최소 설치 모드에서도 TypeScript는 필요 (next.config.ts 때문에)
+        retry_command "npm install --no-optional --legacy-peer-deps" "MSP 체크리스트 의존성 설치 (최소 모드 + TypeScript)"
+        # 빌드 후 devDependencies 제거
+        log_info "빌드 완료 후 개발 의존성 정리 예정..."
     else
         retry_command "npm install --no-optional --legacy-peer-deps --verbose" "MSP 체크리스트 의존성 설치"
     fi
@@ -443,10 +446,24 @@ build_application() {
     cd msp-checklist
     retry_command "npm run build" "MSP 체크리스트 빌드"
     
+    # 최소 설치 모드에서 빌드 후 개발 의존성 정리
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        log_info "개발 의존성 정리 중 (최소 설치 모드)..."
+        npm prune --production 2>/dev/null || true
+        log_success "개발 의존성 정리 완료"
+    fi
+    
     # 관리자 시스템 빌드
     log_info "관리자 시스템 빌드 중..."
     cd admin
     retry_command "npm run build" "관리자 시스템 빌드"
+    
+    # 관리자 시스템도 최소 설치 모드에서 정리
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        log_info "관리자 시스템 개발 의존성 정리 중..."
+        npm prune --production 2>/dev/null || true
+        log_success "관리자 시스템 개발 의존성 정리 완료"
+    fi
     
     cd ..
     log_success "애플리케이션 빌드 완료"
