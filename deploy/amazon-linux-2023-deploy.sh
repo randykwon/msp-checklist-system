@@ -96,9 +96,9 @@ sudo dnf update -y
 # 2단계: 필수 패키지 설치
 log_info "2단계: 필수 패키지 설치 중..."
 sudo dnf groupinstall -y "Development Tools"
+# Note: curl-minimal already installed by default, skip curl to avoid conflicts
 sudo dnf install -y \
     git \
-    curl \
     wget \
     unzip \
     tar \

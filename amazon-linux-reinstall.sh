@@ -223,9 +223,10 @@ log_success "방화벽 규칙 정리 완료"
 
 log_step "설치 1단계: 시스템 업데이트 및 필수 패키지 설치"
 sudo dnf update -y
-sudo dnf install -y curl wget git gcc gcc-c++ make
+# curl-minimal already installed by default, skip curl to avoid conflicts
+sudo dnf install -y wget git gcc gcc-c++ make python3
 sudo dnf groupinstall -y "Development Tools"
-log_success "시스템 업데이트 완료"
+log_success "시스템 업데이트 및 빌드 도구 설치 완료"
 
 log_step "설치 2단계: Node.js 20.9.0 설치"
 if ! command -v node &> /dev/null || [[ $(node --version) < "v20.9.0" ]]; then
@@ -241,6 +242,11 @@ npm config set registry https://registry.npmjs.org/
 npm config set fetch-timeout 600000
 npm config set fetch-retry-mintimeout 10000
 npm config set fetch-retry-maxtimeout 60000
+
+# Native 모듈 빌드를 위한 환경 변수 설정
+export npm_config_build_from_source=true
+export NODE_OPTIONS="--max-old-space-size=4096"
+log_success "npm 설정 및 빌드 환경 완료"
 
 log_step "설치 3단계: 방화벽 설정"
 sudo systemctl start firewalld
