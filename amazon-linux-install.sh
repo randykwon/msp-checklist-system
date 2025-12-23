@@ -213,7 +213,7 @@ fi
 
 # 관리자 시스템 의존성
 log_info "관리자 시스템 의존성 설치 중..."
-cd ../admin
+cd admin
 npm install
 
 log_success "의존성 설치 완료"
@@ -247,7 +247,7 @@ else
     log_warning "MSP 체크리스트 빌드 중 경고가 있었습니다."
 fi
 
-cd ../admin
+cd admin
 if npm run build; then
     log_success "관리자 시스템 빌드 완료"
 else

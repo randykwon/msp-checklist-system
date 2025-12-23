@@ -96,7 +96,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     npm install --no-optional --legacy-peer-deps
     
     # 관리자 시스템
-    cd ../admin
+    cd admin
     rm -rf node_modules package-lock.json
     npm cache clean --force
     npm install
@@ -110,7 +110,7 @@ log_info "6. 애플리케이션 빌드"
 export NODE_OPTIONS="--max-old-space-size=2048"
 
 cd msp-checklist && npm run build
-cd ../admin && npm run build
+cd admin && npm run build
 cd ..
 log_success "빌드 완료"
 

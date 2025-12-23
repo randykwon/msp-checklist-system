@@ -273,7 +273,60 @@ install_nodejs() {
 configure_firewall() {
     log_step "방화벽 설정 중..."
     
-    sudo systemctl start firewalld
+    # firewalld 설치 확인 및 설치
+    if ! command -v firewall-cmd > /dev/null; then
+        log_info "firewalld 설치 중..."
+        retry_command "sudo dnf install -y firewalld" "firewalld 설치"
+    fi
+    
+    # firewalld 서비스 시작
+    if ! sudo systemctl start firewalld 2>/dev/null; then
+        log_warning "firewalld 시작 실패, 설치 후 재시도..."
+        retry_command "sudo dnf install -y firewalld" "firewalld 재설치"
+        
+        # 서비스 데몬 리로드
+        sudo systemctl daemon-reload
+        
+        if ! sudo systemctl start firewalld 2>/dev/null; then
+            log_warning "firewalld를 사용할 수 없습니다. iptables로 대체합니다."
+            
+            # iptables 사용
+            if command -v iptables > /dev/null; then
+                log_info "iptables로 방화벽 설정 중..."
+                
+                # 기본 정책 설정 (허용)
+                sudo iptables -P INPUT ACCEPT
+                sudo iptables -P FORWARD ACCEPT
+                sudo iptables -P OUTPUT ACCEPT
+                
+                # 기존 규칙 정리
+                sudo iptables -F
+                
+                # 기본 허용 규칙
+                sudo iptables -A INPUT -i lo -j ACCEPT
+                sudo iptables -A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+                
+                # SSH 허용 (포트 22)
+                sudo iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+                
+                # MSP Checklist 포트 허용
+                sudo iptables -A INPUT -p tcp --dport 3010 -j ACCEPT
+                sudo iptables -A INPUT -p tcp --dport 3011 -j ACCEPT
+                
+                # 규칙 저장 시도
+                if command -v iptables-save > /dev/null; then
+                    sudo iptables-save > /tmp/iptables.rules 2>/dev/null || true
+                fi
+                
+                log_success "iptables 방화벽 설정 완료"
+            else
+                log_warning "방화벽 설정을 건너뜁니다. AWS 보안 그룹에서 포트를 허용하세요."
+            fi
+            return 0
+        fi
+    fi
+    
+    # firewalld 자동 시작 설정
     sudo systemctl enable firewalld
     
     # 포트 열기
@@ -281,7 +334,7 @@ configure_firewall() {
     sudo firewall-cmd --permanent --add-port=3011/tcp
     sudo firewall-cmd --reload
     
-    log_success "방화벽 설정 완료"
+    log_success "firewalld 방화벽 설정 완료"
 }
 
 # 프로젝트 클론
@@ -326,7 +379,7 @@ install_dependencies() {
     
     # 3. 관리자 시스템 의존성
     log_info "관리자 시스템 의존성 설치 중..."
-    cd ../admin
+    cd admin
     
     rm -rf node_modules package-lock.json
     retry_command "npm install --no-optional --verbose" "관리자 시스템 의존성 설치"
@@ -348,8 +401,8 @@ setup_environment() {
     fi
     
     # 관리자 시스템 환경 변수
-    if [ -f "admin/.env.local.example" ] && [ ! -f "admin/.env.local" ]; then
-        cp admin/.env.local.example admin/.env.local
+    if [ -f "msp-checklist/admin/.env.local.example" ] && [ ! -f "msp-checklist/admin/.env.local" ]; then
+        cp msp-checklist/admin/.env.local.example msp-checklist/admin/.env.local
         log_info "관리자 시스템 환경 변수 파일 생성됨"
     fi
     
@@ -369,7 +422,7 @@ build_application() {
     
     # 관리자 시스템 빌드
     log_info "관리자 시스템 빌드 중..."
-    cd ../admin
+    cd admin
     retry_command "npm run build" "관리자 시스템 빌드"
     
     cd ..
@@ -430,7 +483,7 @@ verify_installation() {
         return 1
     fi
     
-    if [ ! -f "admin/package.json" ]; then
+    if [ ! -f "msp-checklist/admin/package.json" ]; then
         log_error "관리자 시스템 파일이 없습니다."
         return 1
     fi

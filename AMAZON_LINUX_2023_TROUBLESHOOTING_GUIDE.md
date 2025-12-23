@@ -1,523 +1,362 @@
 # Amazon Linux 2023 문제 해결 가이드
 
-Amazon Linux 2023에서 MSP Checklist 시스템 운영 중 발생할 수 있는 문제들과 해결 방법을 정리한 가이드입니다.
+## 🚨 긴급 문제 해결
 
-## 🚨 일반적인 문제들
+### 1. curl 패키지 충돌 해결
 
-### 1. 포트 접근 불가 (가장 흔한 문제)
-
-**증상**: 브라우저에서 `http://EC2-IP:3010` 또는 `http://EC2-IP:3011`에 접속할 수 없음
-
-**해결 방법**:
+**증상**: 
 ```bash
-# 1. 서버 프로세스 확인
-sudo ss -tlnp | grep :3010
-sudo ss -tlnp | grep :3011
-
-# 2. firewalld 상태 확인
-sudo firewall-cmd --list-ports
-sudo firewall-cmd --list-services
-
-# 3. 포트 열기
-sudo firewall-cmd --permanent --add-port=3010/tcp
-sudo firewall-cmd --permanent --add-port=3011/tcp
-sudo firewall-cmd --reload
-
-# 4. AWS 보안 그룹 확인 (중요!)
-# AWS 콘솔 → EC2 → 보안 그룹 → 인바운드 규칙
-# 포트 3010, 3011을 0.0.0.0/0에서 TCP로 허용
-
-# 5. 서버 재시작
-./restart-server.sh
+Error: Problem: problem with installed package curl-minimal-8.11.1-4.amzn2023.0.3.x86_64
+- package curl-minimal-8.11.1-4.amzn2023.0.3.x86_64 from @System conflicts with curl
 ```
 
-### 2. npm install 실패
-
-**증상**: `npm install` 실행 시 오류 발생, 특히 pdfjs-dist 관련 오류
-
-**해결 방법**:
+**즉시 해결 방법**:
 ```bash
-# 1. Node.js 버전 확인
-node --version  # v20.9.0 이상이어야 함
+# 방법 1: 자동 해결 스크립트 실행
+./fix-amazon-linux-curl-conflict.sh
 
-# 2. npm 캐시 정리
-npm cache clean --force
-sudo npm cache clean --force
+# 방법 2: 수동 해결
+sudo dnf remove -y curl-minimal
+sudo dnf install -y curl --allowerasing
 
-# 3. 권한 문제 해결
-sudo chown -R $USER:$USER ~/.npm
-sudo chown -R $USER:$USER /opt/msp-checklist
-
-# 4. 메모리 부족 해결
-export NODE_OPTIONS="--max-old-space-size=2048"
-
-# 5. 의존성 재설치 (서버 최적화)
-cd msp-checklist
-rm -rf node_modules package-lock.json
-npm install --no-optional --legacy-peer-deps
-
-# 6. 네트워크 타임아웃 설정
-npm config set fetch-timeout 600000
-npm config set fetch-retry-mintimeout 10000
-npm config set fetch-retry-maxtimeout 60000
+# 방법 3: 패키지 교체
+sudo dnf swap -y curl-minimal curl
 ```
 
-### 3. 빌드 실패 (Tailwind CSS 오류)
+### 2. firewalld 서비스 누락 해결
 
-**증상**: `npm run build` 실행 시 PostCSS 또는 Tailwind 관련 오류
-
-**해결 방법**:
+**증상**:
 ```bash
-# 1. Tailwind CSS 의존성 확인
-cd msp-checklist
-npm list @tailwindcss/postcss
-
-# 2. PostCSS 설정 확인
-cat postcss.config.mjs
-
-# 3. 캐시 정리 후 재빌드
-rm -rf .next
-npm run build
-
-# 4. 메모리 부족 시
-export NODE_OPTIONS="--max-old-space-size=4096"
-npm run build
+Failed to start firewalld.service: Unit firewalld.service not found.
 ```
 
-### 4. 서버 시작 실패
-
-**증상**: `./restart-server.sh` 실행 시 서버가 시작되지 않음
-
 **해결 방법**:
 ```bash
-# 1. 로그 확인
-tail -f server.log
-tail -f admin-server.log
+# firewalld 설치
+sudo dnf install -y firewalld
 
-# 2. 포트 충돌 확인
-sudo ss -tlnp | grep :3010
-sudo ss -tlnp | grep :3011
+# 서비스 데몬 리로드
+sudo systemctl daemon-reload
 
-# 3. 충돌하는 프로세스 종료
-sudo pkill -f "node.*3010"
-sudo pkill -f "node.*3011"
-
-# 4. 환경 변수 확인
-cat msp-checklist/.env.local
-cat admin/.env.local
-
-# 5. 권한 확인
-chmod +x *.sh
-chmod +x msp-checklist/*.sh
-```
-
-## 🔧 Amazon Linux 2023 특화 문제
-
-### 1. dnf 패키지 관리자 문제
-
-**해결 방법**:
-```bash
-# 1. dnf 캐시 정리
-sudo dnf clean all
-
-# 2. 저장소 업데이트
-sudo dnf update -y
-
-# 3. EPEL 저장소 활성화 (필요한 경우)
-sudo dnf install -y epel-release
-
-# 4. 개발 도구 설치
-sudo dnf groupinstall -y "Development Tools"
-```
-
-### 2. firewalld vs iptables 충돌
-
-**해결 방법**:
-```bash
-# 1. firewalld 상태 확인
-sudo systemctl status firewalld
-
-# 2. iptables 비활성화 (firewalld 사용)
-sudo systemctl stop iptables 2>/dev/null || true
-sudo systemctl disable iptables 2>/dev/null || true
-
-# 3. firewalld 활성화
+# 서비스 시작 및 활성화
 sudo systemctl start firewalld
 sudo systemctl enable firewalld
 
-# 4. 포트 설정
+# 포트 허용
 sudo firewall-cmd --permanent --add-port=3010/tcp
 sudo firewall-cmd --permanent --add-port=3011/tcp
 sudo firewall-cmd --reload
 ```
 
-### 3. SELinux 문제
-
-**해결 방법**:
+**대체 방법 (iptables 사용)**:
 ```bash
-# 1. SELinux 상태 확인
-getenforce
-
-# 2. SELinux 로그 확인
-sudo tail -f /var/log/audit/audit.log | grep denied
-
-# 3. HTTP 연결 허용 (Nginx 사용 시)
-sudo setsebool -P httpd_can_network_connect 1
-
-# 4. 임시로 SELinux 비활성화 (권장하지 않음)
-sudo setenforce 0
-
-# 5. 영구 비활성화 (권장하지 않음)
-sudo sed -i 's/SELINUX=enforcing/SELINUX=permissive/' /etc/selinux/config
+# firewalld 실패 시 iptables 사용
+sudo iptables -A INPUT -p tcp --dport 3010 -j ACCEPT
+sudo iptables -A INPUT -p tcp --dport 3011 -j ACCEPT
 ```
 
-## 📊 성능 문제
+### 4. admin 디렉토리 경로 문제 해결
 
-### 1. 메모리 부족
+**증상**:
+```bash
+./amazon-linux-robust-install.sh: line 306: cd: ../admin: No such file or directory
+```
 
 **해결 방법**:
 ```bash
-# 1. 메모리 사용량 확인
-free -h
-ps aux --sort=-%mem | head -10
+# 자동 수정 스크립트 실행
+chmod +x fix-admin-path.sh
+./fix-admin-path.sh
 
-# 2. 스왑 파일 생성 (2GB)
+# 또는 수동 수정
+# 설치 스크립트에서 'cd ../admin'을 'cd admin'으로 변경
+```
+
+### 5. 메모리 부족 문제 해결
+
+**증상**: npm install 중 프로세스 종료, 시스템 응답 없음
+
+**해결 방법**:
+```bash
+# 스왑 파일 생성 (2GB)
 sudo dd if=/dev/zero of=/swapfile bs=1024 count=2097152
 sudo chmod 600 /swapfile
 sudo mkswap /swapfile
 sudo swapon /swapfile
 
-# 3. 영구 설정
+# 영구 설정
 echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
 
-# 4. Node.js 메모리 제한 설정
-export NODE_OPTIONS="--max-old-space-size=2048"
-
-# 5. 시스템 메모리 최적화
-sudo tee -a /etc/sysctl.conf > /dev/null <<EOF
-vm.swappiness = 10
-vm.vfs_cache_pressure = 50
-EOF
-sudo sysctl -p
+# Node.js 메모리 제한 설정
+export NODE_OPTIONS="--max-old-space-size=1536"
 ```
 
-### 2. 디스크 공간 부족
+## 🔧 단계별 문제 해결
 
-**해결 방법**:
-```bash
-# 1. 디스크 사용량 확인
-df -h
-du -sh /opt/msp-checklist/*
-
-# 2. 로그 파일 정리
-sudo find /var/log -name "*.log" -mtime +7 -delete
-sudo journalctl --vacuum-time=7d
-
-# 3. npm 캐시 정리
-npm cache clean --force
-sudo npm cache clean --force
-
-# 4. 불필요한 패키지 제거
-sudo dnf autoremove -y
-
-# 5. 임시 파일 정리
-sudo rm -rf /tmp/*
-sudo rm -rf /var/tmp/*
-```
-
-## 🌐 네트워크 문제
-
-### 1. AWS 보안 그룹 설정
-
-**AWS CLI로 보안 그룹 설정**:
-```bash
-# 1. 현재 보안 그룹 확인
-aws ec2 describe-security-groups --group-ids sg-xxxxxxxxx
-
-# 2. 포트 3010 허용
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-xxxxxxxxx \
-    --protocol tcp \
-    --port 3010 \
-    --cidr 0.0.0.0/0
-
-# 3. 포트 3011 허용
-aws ec2 authorize-security-group-ingress \
-    --group-id sg-xxxxxxxxx \
-    --protocol tcp \
-    --port 3011 \
-    --cidr 0.0.0.0/0
-```
-
-### 2. 외부 API 연결 실패
-
-**해결 방법**:
-```bash
-# 1. DNS 확인
-nslookup api.openai.com
-nslookup generativelanguage.googleapis.com
-
-# 2. 아웃바운드 연결 테스트
-curl -I https://api.openai.com
-curl -I https://generativelanguage.googleapis.com
-
-# 3. 방화벽 아웃바운드 확인
-sudo firewall-cmd --list-all
-
-# 4. 프록시 설정 확인
-echo $http_proxy
-echo $https_proxy
-
-# 5. API 키 확인
-grep -r "API_KEY" msp-checklist/.env.local admin/.env.local
-```
-
-## 🔒 보안 문제
-
-### 1. SSH 접속 문제
-
-**해결 방법**:
-```bash
-# 1. SSH 서비스 상태 확인
-sudo systemctl status sshd
-
-# 2. SSH 설정 확인
-sudo cat /etc/ssh/sshd_config | grep -E "Port|PermitRootLogin|PasswordAuthentication"
-
-# 3. 방화벽에서 SSH 허용
-sudo firewall-cmd --permanent --add-service=ssh
-sudo firewall-cmd --reload
-
-# 4. SSH 키 권한 확인
-chmod 600 ~/.ssh/authorized_keys
-chmod 700 ~/.ssh
-```
-
-### 2. fail2ban 설정
-
-**설치 및 설정**:
-```bash
-# 1. fail2ban 설치
-sudo dnf install -y epel-release
-sudo dnf install -y fail2ban
-
-# 2. 설정 파일 생성
-sudo tee /etc/fail2ban/jail.local > /dev/null <<EOF
-[DEFAULT]
-bantime = 3600
-findtime = 600
-maxretry = 5
-
-[sshd]
-enabled = true
-port = ssh
-logpath = /var/log/secure
-EOF
-
-# 3. 서비스 시작
-sudo systemctl start fail2ban
-sudo systemctl enable fail2ban
-
-# 4. 상태 확인
-sudo fail2ban-client status
-```
-
-## 📋 자동화 스크립트
-
-### 1. 시스템 상태 모니터링
+### 1단계: 시스템 상태 확인
 
 ```bash
-# monitor-system.sh 생성
-tee monitor-system.sh > /dev/null <<EOF
-#!/bin/bash
+# OS 버전 확인
+cat /etc/os-release
 
-echo "=== MSP Checklist 시스템 상태 ($(date)) ==="
-echo ""
-
-echo "=== 프로세스 상태 ==="
-ps aux | grep -E "(node|npm)" | grep -v grep
-
-echo ""
-echo "=== 포트 상태 ==="
-sudo ss -tlnp | grep -E ":301[01]"
-
-echo ""
-echo "=== 방화벽 상태 ==="
-sudo firewall-cmd --list-ports
-
-echo ""
-echo "=== 메모리 사용량 ==="
+# 메모리 상태 확인
 free -h
 
-echo ""
-echo "=== 디스크 사용량 ==="
+# 디스크 공간 확인
 df -h
 
-echo ""
-echo "=== 최근 로그 (마지막 10줄) ==="
-echo "--- server.log ---"
-tail -10 server.log 2>/dev/null || echo "로그 파일 없음"
-echo "--- admin-server.log ---"
-tail -10 admin-server.log 2>/dev/null || echo "로그 파일 없음"
-
-echo ""
-echo "=== 네트워크 연결 테스트 ==="
-curl -I http://localhost:3010 2>/dev/null && echo "메인 서버: OK" || echo "메인 서버: FAIL"
-curl -I http://localhost:3011 2>/dev/null && echo "관리자 서버: OK" || echo "관리자 서버: FAIL"
-EOF
-
-chmod +x monitor-system.sh
+# 네트워크 연결 확인
+ping -c 3 8.8.8.8
 ```
 
-### 2. 자동 복구 스크립트
+### 2단계: 패키지 관리자 상태 확인
 
 ```bash
-# auto-recovery.sh 생성
-tee auto-recovery.sh > /dev/null <<EOF
-#!/bin/bash
+# dnf 캐시 정리
+sudo dnf clean all
+sudo dnf makecache
 
-LOG_FILE="/var/log/msp-checklist-recovery.log"
+# 패키지 업데이트
+sudo dnf update -y
 
-log_message() {
-    echo "$(date): \$1" >> \$LOG_FILE
-}
-
-# 메인 서버 상태 확인
-if ! curl -f http://localhost:3010 > /dev/null 2>&1; then
-    log_message "메인 서버 응답 없음 - 재시작 시도"
-    cd /opt/msp-checklist
-    ./restart-server.sh
-    sleep 15
-    
-    if curl -f http://localhost:3010 > /dev/null 2>&1; then
-        log_message "메인 서버 재시작 성공"
-    else
-        log_message "메인 서버 재시작 실패 - 관리자 확인 필요"
-    fi
-fi
-
-# 관리자 서버 상태 확인
-if ! curl -f http://localhost:3011 > /dev/null 2>&1; then
-    log_message "관리자 서버 응답 없음 - 재시작 시도"
-    cd /opt/msp-checklist
-    ./restart-server.sh
-    sleep 15
-    
-    if curl -f http://localhost:3011 > /dev/null 2>&1; then
-        log_message "관리자 서버 재시작 성공"
-    else
-        log_message "관리자 서버 재시작 실패 - 관리자 확인 필요"
-    fi
-fi
-
-# 디스크 공간 확인 (90% 이상 시 경고)
-DISK_USAGE=\$(df / | awk 'NR==2 {print \$5}' | sed 's/%//')
-if [ \$DISK_USAGE -gt 90 ]; then
-    log_message "디스크 사용량 경고: \${DISK_USAGE}%"
-fi
-
-# 메모리 사용량 확인 (90% 이상 시 경고)
-MEMORY_USAGE=\$(free | awk 'NR==2{printf "%.0f", \$3*100/\$2}')
-if [ \$MEMORY_USAGE -gt 90 ]; then
-    log_message "메모리 사용량 경고: \${MEMORY_USAGE}%"
-fi
-EOF
-
-chmod +x auto-recovery.sh
-
-# crontab에 추가 (5분마다 실행)
-(crontab -l 2>/dev/null; echo "*/5 * * * * /opt/msp-checklist/auto-recovery.sh") | crontab -
+# 손상된 패키지 확인
+sudo dnf check
 ```
 
-### 3. 백업 스크립트
+### 3단계: Node.js 환경 확인
 
 ```bash
-# backup-system.sh 생성
-tee backup-system.sh > /dev/null <<EOF
-#!/bin/bash
-
-BACKUP_DIR="/opt/msp-checklist/backups"
-DATE=\$(date +%Y%m%d_%H%M%S)
-
-mkdir -p \$BACKUP_DIR
-
-# 데이터베이스 백업
-if [ -f "msp-checklist/msp-assessment.db" ]; then
-    cp msp-checklist/msp-assessment.db \$BACKUP_DIR/msp-assessment-\$DATE.db
-fi
-
-if [ -f "msp-checklist/advice-cache.db" ]; then
-    cp msp-checklist/advice-cache.db \$BACKUP_DIR/advice-cache-\$DATE.db
-fi
-
-# 환경 변수 백업
-cp msp-checklist/.env.local \$BACKUP_DIR/env-local-\$DATE.backup 2>/dev/null || true
-cp admin/.env.local \$BACKUP_DIR/admin-env-local-\$DATE.backup 2>/dev/null || true
-
-# 7일 이상 된 백업 삭제
-find \$BACKUP_DIR -name "*.db" -mtime +7 -delete
-find \$BACKUP_DIR -name "*.backup" -mtime +7 -delete
-
-echo "백업 완료: \$DATE"
-EOF
-
-chmod +x backup-system.sh
-
-# crontab에 추가 (매일 새벽 2시)
-(crontab -l 2>/dev/null; echo "0 2 * * * /opt/msp-checklist/backup-system.sh") | crontab -
-```
-
-## 📞 지원 요청 시 수집할 정보
-
-문제 해결을 위해 지원을 요청할 때 다음 정보를 함께 제공해주세요:
-
-```bash
-# 시스템 정보 수집 스크립트
-tee collect-debug-info.sh > /dev/null <<EOF
-#!/bin/bash
-
-echo "=== 시스템 정보 ==="
-cat /etc/os-release
-uname -a
-
-echo ""
-echo "=== Node.js 정보 ==="
+# Node.js 버전 확인
 node --version
 npm --version
 
-echo ""
-echo "=== 프로세스 상태 ==="
-ps aux | grep -E "(node|npm)" | grep -v grep
+# npm 캐시 정리
+npm cache clean --force
 
-echo ""
-echo "=== 포트 상태 ==="
-sudo ss -tlnp | grep -E ":301[01]"
-
-echo ""
-echo "=== 방화벽 상태 ==="
-sudo firewall-cmd --list-all
-
-echo ""
-echo "=== 메모리 및 디스크 ==="
-free -h
-df -h
-
-echo ""
-echo "=== 최근 오류 로그 ==="
-grep -i error server.log admin-server.log 2>/dev/null | tail -20
-
-echo ""
-echo "=== 시스템 로그 ==="
-sudo journalctl -u msp-checklist --no-pager -n 20 2>/dev/null || echo "systemd 서비스 없음"
-
-echo ""
-echo "=== 네트워크 테스트 ==="
-curl -I http://localhost:3010 2>&1
-curl -I http://localhost:3011 2>&1
-EOF
-
-chmod +x collect-debug-info.sh
-./collect-debug-info.sh > debug-info.txt
+# npm 설정 확인
+npm config list
 ```
 
-이 가이드를 참조하여 Amazon Linux 2023에서 발생하는 대부분의 문제를 해결할 수 있습니다. 추가 도움이 필요하면 GitHub Issues를 통해 문의하세요.
+### 4단계: 프로세스 및 포트 확인
+
+```bash
+# 실행 중인 Node.js 프로세스 확인
+ps aux | grep node
+
+# 포트 사용 상태 확인
+sudo ss -tlnp | grep -E ':(3010|3011)'
+
+# 충돌 프로세스 종료
+sudo pkill -f "node.*msp"
+```
+
+## 🛠️ 고급 문제 해결
+
+### npm 설치 실패 해결
+
+**문제**: 의존성 설치 중 타임아웃 또는 실패
+
+**해결책**:
+```bash
+# npm 설정 최적화
+npm config set registry https://registry.npmjs.org/
+npm config set fetch-timeout 600000
+npm config set fetch-retry-mintimeout 10000
+npm config set fetch-retry-maxtimeout 60000
+npm config set fetch-retries 5
+
+# 단계별 설치
+cd /opt/msp-checklist
+rm -rf node_modules package-lock.json
+npm install --no-optional --verbose
+
+cd msp-checklist
+rm -rf node_modules package-lock.json
+npm install --no-optional --legacy-peer-deps --verbose
+```
+
+### 빌드 실패 해결
+
+**문제**: Next.js 빌드 중 오류 발생
+
+**해결책**:
+```bash
+# PostCSS 플러그인 설치
+cd /opt/msp-checklist/msp-checklist
+npm install @tailwindcss/postcss
+
+# 또는 admin 디렉토리에서
+cd /opt/msp-checklist/admin
+npm install @tailwindcss/postcss
+
+# 빌드 재시도
+npm run build
+```
+
+### 권한 문제 해결
+
+**문제**: 파일 생성 또는 수정 권한 없음
+
+**해결책**:
+```bash
+# 디렉토리 소유권 변경
+sudo chown -R $USER:$USER /opt/msp-checklist
+
+# 실행 권한 부여
+chmod +x /opt/msp-checklist/*.sh
+
+# SELinux 설정 (필요시)
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+## 🔍 진단 도구
+
+### 자동 진단 스크립트 실행
+
+```bash
+# 종합 진단
+chmod +x installation-diagnostic.sh
+./installation-diagnostic.sh
+
+# 빠른 문제 해결
+./quick-fix-amazon-linux.sh
+```
+
+### 수동 진단 체크리스트
+
+1. **시스템 리소스**
+   - [ ] 메모리 1GB 이상 사용 가능
+   - [ ] 디스크 5GB 이상 여유 공간
+   - [ ] 네트워크 연결 정상
+
+2. **패키지 상태**
+   - [ ] curl 명령어 정상 작동
+   - [ ] git 설치 확인
+   - [ ] Node.js 20.9.0 이상
+
+3. **서비스 상태**
+   - [ ] firewalld 또는 iptables 설정
+   - [ ] 포트 3010, 3011 허용
+   - [ ] 기존 프로세스 정리
+
+4. **파일 시스템**
+   - [ ] /opt 디렉토리 쓰기 권한
+   - [ ] 임시 디렉토리 접근 가능
+   - [ ] 로그 파일 생성 가능
+
+## 🚨 응급 복구 절차
+
+### 완전 초기화 및 재설치
+
+```bash
+# 1. 모든 관련 프로세스 종료
+sudo pkill -f "node.*msp"
+sudo pkill -f "npm.*start"
+pm2 kill 2>/dev/null || true
+
+# 2. 설치 디렉토리 완전 제거
+sudo rm -rf /opt/msp-checklist
+
+# 3. Node.js 완전 제거
+sudo dnf remove -y nodejs npm
+
+# 4. 캐시 정리
+sudo dnf clean all
+npm cache clean --force 2>/dev/null || true
+
+# 5. 시스템 재부팅 (권장)
+sudo reboot
+
+# 6. 재부팅 후 강화된 설치 스크립트 실행
+./amazon-linux-robust-install.sh
+```
+
+### 부분 복구 (설정 보존)
+
+```bash
+# 1. 서버 중지
+cd /opt/msp-checklist
+./stop-servers.sh
+
+# 2. node_modules 재설치
+cd msp-checklist
+rm -rf node_modules package-lock.json
+npm install --no-optional --legacy-peer-deps
+
+cd ../admin
+rm -rf node_modules package-lock.json
+npm install --no-optional
+
+# 3. 빌드 및 재시작
+npm run build
+cd ..
+./restart-servers.sh
+```
+
+## 📊 성능 모니터링
+
+### 실시간 모니터링
+
+```bash
+# 시스템 리소스 모니터링
+htop
+
+# 메모리 사용량 확인
+watch -n 1 free -h
+
+# 디스크 I/O 모니터링
+iostat -x 1
+
+# 네트워크 연결 상태
+watch -n 1 'ss -tlnp | grep -E ":(3010|3011)"'
+```
+
+### 로그 모니터링
+
+```bash
+# 설치 로그 실시간 확인
+tail -f /tmp/msp-install-*.log
+
+# 서버 로그 확인
+tail -f /opt/msp-checklist/server.log
+
+# 시스템 로그 확인
+journalctl -f -u firewalld
+```
+
+## 🆘 지원 요청 시 필요 정보
+
+### 수집해야 할 정보
+
+1. **시스템 정보**
+   ```bash
+   uname -a
+   cat /etc/os-release
+   free -h
+   df -h
+   ```
+
+2. **설치 로그**
+   ```bash
+   # 최신 설치 로그 파일 위치
+   ls -la /tmp/msp-install-*.log
+   ```
+
+3. **오류 메시지**
+   - 정확한 오류 메시지 전문
+   - 오류 발생 시점 및 상황
+   - 실행한 명령어
+
+4. **환경 설정**
+   ```bash
+   node --version
+   npm --version
+   curl --version
+   systemctl status firewalld
+   ```
+
+---
+
+**최종 업데이트**: 2024년 12월 24일  
+**적용 대상**: Amazon Linux 2023  
+**지원 버전**: MSP Checklist v2.0+

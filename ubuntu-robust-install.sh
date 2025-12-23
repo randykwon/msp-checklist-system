@@ -309,7 +309,7 @@ install_dependencies() {
     
     # 3. 관리자 시스템 의존성
     log_info "관리자 시스템 의존성 설치 중..."
-    cd ../admin
+    cd admin
     
     rm -rf node_modules package-lock.json
     retry_command "npm install --no-optional --verbose" "관리자 시스템 의존성 설치"
@@ -352,7 +352,7 @@ build_application() {
     
     # 관리자 시스템 빌드
     log_info "관리자 시스템 빌드 중..."
-    cd ../admin
+    cd admin
     retry_command "npm run build" "관리자 시스템 빌드"
     
     cd ..
