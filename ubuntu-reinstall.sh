@@ -217,8 +217,8 @@ log_success "방화벽 규칙 정리 완료"
 
 log_step "설치 1단계: 시스템 업데이트 및 필수 패키지 설치"
 sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl wget git build-essential software-properties-common
-log_success "시스템 업데이트 완료"
+sudo apt install -y curl wget git build-essential software-properties-common python3 python3-pip
+log_success "시스템 업데이트 및 빌드 도구 설치 완료"
 
 log_step "설치 2단계: Node.js 20.9.0 설치"
 if ! command -v node &> /dev/null || [[ $(node --version) < "v20.9.0" ]]; then
@@ -229,11 +229,14 @@ else
     log_info "Node.js가 이미 설치되어 있습니다: $(node --version)"
 fi
 
-# npm 설정 최적화
+# npm 설정 최적화 및 Native 모듈 빌드 설정
 npm config set registry https://registry.npmjs.org/
 npm config set fetch-timeout 600000
 npm config set fetch-retry-mintimeout 10000
 npm config set fetch-retry-maxtimeout 60000
+npm config set build-from-source true
+export npm_config_build_from_source=true
+export NODE_OPTIONS="--max-old-space-size=4096"
 
 log_step "설치 3단계: 방화벽 설정"
 sudo ufw allow 3010/tcp
@@ -272,7 +275,7 @@ else
 fi
 
 # 관리자 시스템 의존성
-cd ../admin
+cd $INSTALL_DIR/msp-checklist/admin
 npm install
 
 log_success "의존성 설치 완료"
@@ -318,11 +321,14 @@ if [[ $BACKUP_DB =~ ^[Yy]$ ]] && [ -d "$BACKUP_DIR" ]; then
 fi
 
 log_step "설치 8단계: 애플리케이션 빌드"
-cd msp-checklist
+cd $INSTALL_DIR/msp-checklist
+export NODE_OPTIONS="--max-old-space-size=4096"
 npm run build
-cd ../admin
+
+cd $INSTALL_DIR/msp-checklist/admin
 npm run build
-cd ..
+
+cd $INSTALL_DIR
 
 log_success "애플리케이션 빌드 완료"
 
