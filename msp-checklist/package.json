@@ -22,7 +22,7 @@
     "jsonwebtoken": "^9.0.3",
     "next": "16.0.10",
     "openai": "^6.13.0",
-    "pdfjs-dist": "^5.4.449",
+    "pdfjs-dist": "4.10.38",
     "react": "19.2.1",
     "react-dom": "19.2.1"
   },

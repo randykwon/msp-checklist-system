@@ -288,7 +288,7 @@ cd msp-checklist
 
 # 의존성 설치
 npm install
-cd msp-checklist/admin && npm install && cd ../..d msp-checklist && npm install && cd ..
+cd msp-checklist/admin && npm install && cd ../.. msp-checklist && npm install && cd ..
 
 
 # 환경 변수 설정

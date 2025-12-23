@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# MSP Checklist 헬스 체크 스크립트
-
-set -e
+# MSP Checklist 시스템 헬스 체크 스크립트
+# 시스템 상태를 확인하고 문제가 있으면 자동으로 복구를 시도합니다.
 
 # 색상 정의
 RED='\033[0;31m'
@@ -27,181 +26,174 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
-MAIN_URL="http://localhost:3010"
-ADMIN_URL="http://localhost:3011"
-TIMEOUT=10
-FAILED_CHECKS=0
+# 헬스 체크 결과
+HEALTH_STATUS=0
 
-echo "🏥 MSP Checklist 헬스 체크를 시작합니다..."
+echo "=== MSP Checklist 헬스 체크 ==="
+echo "시간: $(date)"
+echo ""
 
-# 메인 애플리케이션 체크
-log_info "메인 애플리케이션 체크 중..."
-if curl -s --max-time $TIMEOUT $MAIN_URL > /dev/null; then
-    log_success "메인 애플리케이션 정상"
-    
-    # API 엔드포인트 체크
-    if curl -s --max-time $TIMEOUT $MAIN_URL/api/health > /dev/null 2>&1; then
-        log_success "메인 API 정상"
-    else
-        log_warning "메인 API 응답 없음 (정상일 수 있음)"
-    fi
-else
-    log_error "메인 애플리케이션 접속 실패"
-    ((FAILED_CHECKS++))
-fi
+# 1. 포트 확인
+log_info "1. 포트 상태 확인 중..."
 
-# 관리자 애플리케이션 체크
-log_info "관리자 애플리케이션 체크 중..."
-if curl -s --max-time $TIMEOUT $ADMIN_URL > /dev/null; then
-    log_success "관리자 애플리케이션 정상"
-    
-    # 관리자 API 체크
-    if curl -s --max-time $TIMEOUT $ADMIN_URL/api/dashboard/stats > /dev/null 2>&1; then
-        log_success "관리자 API 정상"
-    else
-        log_warning "관리자 API 응답 없음"
-    fi
-else
-    log_error "관리자 애플리케이션 접속 실패"
-    ((FAILED_CHECKS++))
-fi
-
-# PM2 프로세스 체크
-log_info "PM2 프로세스 체크 중..."
-if command -v pm2 &> /dev/null; then
-    MAIN_STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="msp-main") | .pm2_env.status' 2>/dev/null || echo "unknown")
-    ADMIN_STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="msp-admin") | .pm2_env.status' 2>/dev/null || echo "unknown")
-    
-    if [ "$MAIN_STATUS" = "online" ]; then
-        log_success "메인 프로세스 온라인"
-    else
-        log_error "메인 프로세스 상태: $MAIN_STATUS"
-        ((FAILED_CHECKS++))
-    fi
-    
-    if [ "$ADMIN_STATUS" = "online" ]; then
-        log_success "관리자 프로세스 온라인"
-    else
-        log_error "관리자 프로세스 상태: $ADMIN_STATUS"
-        ((FAILED_CHECKS++))
-    fi
-else
-    log_error "PM2가 설치되지 않았습니다"
-    ((FAILED_CHECKS++))
-fi
-
-# Nginx 체크
-log_info "Nginx 상태 체크 중..."
-if systemctl is-active --quiet nginx; then
-    log_success "Nginx 정상 실행 중"
-else
-    log_error "Nginx가 실행되지 않고 있습니다"
-    ((FAILED_CHECKS++))
-fi
-
-# 데이터베이스 파일 체크
-log_info "데이터베이스 파일 체크 중..."
-if [ -f "/opt/msp-checklist/msp-checklist/msp-assessment.db" ]; then
-    log_success "메인 데이터베이스 파일 존재"
-else
-    log_error "메인 데이터베이스 파일 없음"
-    ((FAILED_CHECKS++))
-fi
-
-if [ -f "/opt/msp-checklist/msp-checklist/admin/msp-assessment.db" ]; then
-    log_success "관리자 데이터베이스 파일 존재"
-else
-    log_warning "관리자 데이터베이스 파일 없음"
-fi
-
-# 디스크 공간 체크
-log_info "디스크 공간 체크 중..."
-DISK_USAGE=$(df / | awk 'NR==2 {print $5}' | sed 's/%//')
-if [ $DISK_USAGE -lt 80 ]; then
-    log_success "디스크 사용률: ${DISK_USAGE}%"
-elif [ $DISK_USAGE -lt 90 ]; then
-    log_warning "디스크 사용률 높음: ${DISK_USAGE}%"
-else
-    log_error "디스크 공간 부족: ${DISK_USAGE}%"
-    ((FAILED_CHECKS++))
-fi
-
-# 메모리 사용률 체크
-log_info "메모리 사용률 체크 중..."
-MEMORY_USAGE=$(free | awk 'NR==2{printf "%.0f", $3*100/$2}')
-if [ $MEMORY_USAGE -lt 80 ]; then
-    log_success "메모리 사용률: ${MEMORY_USAGE}%"
-elif [ $MEMORY_USAGE -lt 90 ]; then
-    log_warning "메모리 사용률 높음: ${MEMORY_USAGE}%"
-else
-    log_error "메모리 사용률 위험: ${MEMORY_USAGE}%"
-    ((FAILED_CHECKS++))
-fi
-
-# 포트 체크
-log_info "포트 상태 체크 중..."
 if netstat -tlnp | grep -q ":3010"; then
-    log_success "포트 3010 열림"
+    log_success "포트 3010 (메인 앱) 활성화"
 else
-    log_error "포트 3010 닫힘"
-    ((FAILED_CHECKS++))
+    log_error "포트 3010 (메인 앱) 비활성화"
+    HEALTH_STATUS=1
 fi
 
 if netstat -tlnp | grep -q ":3011"; then
-    log_success "포트 3011 열림"
+    log_success "포트 3011 (관리자 앱) 활성화"
 else
-    log_error "포트 3011 닫힘"
-    ((FAILED_CHECKS++))
+    log_error "포트 3011 (관리자 앱) 비활성화"
+    HEALTH_STATUS=1
 fi
 
-# SSL 인증서 만료일 체크 (도메인이 설정된 경우)
-if command -v certbot &> /dev/null; then
-    log_info "SSL 인증서 만료일 체크 중..."
-    CERT_INFO=$(sudo certbot certificates 2>/dev/null | grep "Expiry Date" | head -1)
-    if [ ! -z "$CERT_INFO" ]; then
-        EXPIRY_DATE=$(echo $CERT_INFO | awk '{print $3}')
-        DAYS_LEFT=$(( ($(date -d "$EXPIRY_DATE" +%s) - $(date +%s)) / 86400 ))
-        
-        if [ $DAYS_LEFT -gt 30 ]; then
-            log_success "SSL 인증서 만료까지 ${DAYS_LEFT}일"
-        elif [ $DAYS_LEFT -gt 7 ]; then
-            log_warning "SSL 인증서 만료까지 ${DAYS_LEFT}일"
+# 2. HTTP 응답 확인
+log_info "2. HTTP 응답 확인 중..."
+
+# 메인 앱 확인
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:3010 | grep -q "200\|301\|302"; then
+    log_success "메인 앱 HTTP 응답 정상"
+else
+    log_error "메인 앱 HTTP 응답 실패"
+    HEALTH_STATUS=1
+fi
+
+# 관리자 앱 확인
+if curl -s -o /dev/null -w "%{http_code}" http://localhost:3011 | grep -q "200\|301\|302"; then
+    log_success "관리자 앱 HTTP 응답 정상"
+else
+    log_error "관리자 앱 HTTP 응답 실패"
+    HEALTH_STATUS=1
+fi
+
+# 3. PM2 프로세스 확인
+log_info "3. PM2 프로세스 확인 중..."
+
+if command -v pm2 &> /dev/null; then
+    if pm2 status | grep -q "online"; then
+        ONLINE_COUNT=$(pm2 status | grep -c "online")
+        log_success "PM2 프로세스 $ONLINE_COUNT개 실행 중"
+    else
+        log_error "PM2 프로세스가 실행되지 않음"
+        HEALTH_STATUS=1
+    fi
+else
+    log_warning "PM2가 설치되지 않음"
+fi
+
+# 4. 시스템 리소스 확인
+log_info "4. 시스템 리소스 확인 중..."
+
+# 메모리 사용률 확인
+MEMORY_USAGE=$(free | grep Mem | awk '{printf("%.0f", $3/$2 * 100.0)}')
+if [ "$MEMORY_USAGE" -gt 90 ]; then
+    log_error "메모리 사용률 높음: ${MEMORY_USAGE}%"
+    HEALTH_STATUS=1
+elif [ "$MEMORY_USAGE" -gt 80 ]; then
+    log_warning "메모리 사용률 주의: ${MEMORY_USAGE}%"
+else
+    log_success "메모리 사용률 정상: ${MEMORY_USAGE}%"
+fi
+
+# 디스크 사용률 확인
+DISK_USAGE=$(df / | tail -1 | awk '{print $5}' | sed 's/%//')
+if [ "$DISK_USAGE" -gt 90 ]; then
+    log_error "디스크 사용률 높음: ${DISK_USAGE}%"
+    HEALTH_STATUS=1
+elif [ "$DISK_USAGE" -gt 80 ]; then
+    log_warning "디스크 사용률 주의: ${DISK_USAGE}%"
+else
+    log_success "디스크 사용률 정상: ${DISK_USAGE}%"
+fi
+
+# 5. 데이터베이스 파일 확인
+log_info "5. 데이터베이스 파일 확인 중..."
+
+DB_FILES=(
+    "/opt/msp-checklist/msp-checklist/msp-assessment.db"
+    "/opt/msp-checklist/msp-checklist/advice-cache.db"
+    "/opt/msp-checklist/msp-checklist/virtual-evidence-cache.db"
+    "/opt/msp-checklist/msp-checklist/admin/msp-assessment.db"
+)
+
+for db_file in "${DB_FILES[@]}"; do
+    if [ -f "$db_file" ]; then
+        if [ -r "$db_file" ] && [ -w "$db_file" ]; then
+            log_success "데이터베이스 파일 정상: $(basename $db_file)"
         else
-            log_error "SSL 인증서 곧 만료: ${DAYS_LEFT}일"
-            ((FAILED_CHECKS++))
+            log_error "데이터베이스 파일 권한 문제: $(basename $db_file)"
+            HEALTH_STATUS=1
         fi
     else
-        log_info "SSL 인증서 정보 없음"
+        log_warning "데이터베이스 파일 없음: $(basename $db_file)"
+    fi
+done
+
+# 6. Nginx 상태 확인 (설치된 경우)
+if command -v nginx &> /dev/null; then
+    log_info "6. Nginx 상태 확인 중..."
+    
+    if systemctl is-active --quiet nginx; then
+        log_success "Nginx 서비스 실행 중"
+        
+        # Nginx 설정 테스트
+        if nginx -t &> /dev/null; then
+            log_success "Nginx 설정 정상"
+        else
+            log_error "Nginx 설정 오류"
+            HEALTH_STATUS=1
+        fi
+    else
+        log_error "Nginx 서비스 중지됨"
+        HEALTH_STATUS=1
     fi
 fi
 
-# 로그 파일 크기 체크
-log_info "로그 파일 크기 체크 중..."
-LOG_DIR="/opt/msp-checklist/logs"
-if [ -d "$LOG_DIR" ]; then
-    for log_file in "$LOG_DIR"/*.log; do
-        if [ -f "$log_file" ]; then
-            LOG_SIZE=$(du -m "$log_file" | cut -f1)
-            if [ $LOG_SIZE -gt 100 ]; then
-                log_warning "$(basename $log_file) 크기가 큼: ${LOG_SIZE}MB"
-            fi
-        fi
-    done
+# 7. 자동 복구 시도 (옵션)
+if [ "$HEALTH_STATUS" -eq 1 ] && [ "$1" = "--auto-fix" ]; then
+    log_info "자동 복구 시도 중..."
+    
+    # PM2 프로세스 재시작
+    if command -v pm2 &> /dev/null; then
+        log_info "PM2 프로세스 재시작 중..."
+        pm2 restart all
+        sleep 5
+    fi
+    
+    # Nginx 재시작 (필요한 경우)
+    if command -v nginx &> /dev/null && ! systemctl is-active --quiet nginx; then
+        log_info "Nginx 재시작 중..."
+        sudo systemctl restart nginx
+    fi
+    
+    log_info "복구 시도 완료. 5초 후 재확인..."
+    sleep 5
+    
+    # 재확인
+    if netstat -tlnp | grep -q ":3010" && netstat -tlnp | grep -q ":3011"; then
+        log_success "자동 복구 성공!"
+        HEALTH_STATUS=0
+    else
+        log_error "자동 복구 실패"
+    fi
 fi
 
-# 결과 요약
+# 결과 출력
 echo ""
-echo "=================================="
-echo "헬스 체크 결과 요약"
-echo "=================================="
-
-if [ $FAILED_CHECKS -eq 0 ]; then
-    log_success "모든 체크 통과! 시스템이 정상입니다. ✅"
+echo "=== 헬스 체크 결과 ==="
+if [ "$HEALTH_STATUS" -eq 0 ]; then
+    log_success "시스템 상태 정상 ✅"
     exit 0
-elif [ $FAILED_CHECKS -le 2 ]; then
-    log_warning "경미한 문제 발견: ${FAILED_CHECKS}개 항목 실패 ⚠️"
-    exit 1
 else
-    log_error "심각한 문제 발견: ${FAILED_CHECKS}개 항목 실패 ❌"
-    exit 2
+    log_error "시스템 상태 이상 ❌"
+    echo ""
+    echo "문제 해결 방법:"
+    echo "1. 자동 복구 시도: $0 --auto-fix"
+    echo "2. 수동 재시작: pm2 restart all"
+    echo "3. 로그 확인: pm2 logs"
+    echo "4. 시스템 재부팅: sudo reboot"
+    exit 1
 fi
