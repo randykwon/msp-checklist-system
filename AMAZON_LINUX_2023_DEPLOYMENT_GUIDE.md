@@ -1,463 +1,279 @@
 # Amazon Linux 2023 배포 가이드
 
-AWS EC2 Amazon Linux 2023에서 MSP Checklist 시스템을 배포하는 완전한 가이드입니다.
+Amazon Linux 2023에서 MSP Checklist 시스템을 설치하고 배포하는 완전한 가이드입니다.
 
-## 🚀 빠른 시작 (자동 배포)
-
-### 1단계: EC2 인스턴스 준비
-
-**권장 인스턴스 사양:**
-- **인스턴스 타입**: t3.medium 이상 (2 vCPU, 4GB RAM)
-- **스토리지**: 20GB 이상
-- **AMI**: Amazon Linux 2023 (최신 버전)
-
-**보안 그룹 설정:**
-```
-인바운드 규칙:
-- SSH (22): 0.0.0.0/0 또는 특정 IP
-- HTTP (80): 0.0.0.0/0
-- HTTPS (443): 0.0.0.0/0
-- Custom TCP (3010): 0.0.0.0/0 (개발용, 선택사항)
-- Custom TCP (3011): 0.0.0.0/0 (개발용, 선택사항)
-```
-
-### 2단계: 자동 배포 스크립트 실행
+## 🚀 빠른 설치 (자동화 스크립트)
 
 ```bash
-# EC2 인스턴스에 SSH 접속
-ssh -i your-key.pem ec2-user@your-ec2-ip
+# 자동 설치 스크립트 다운로드 및 실행
+curl -fsSL https://raw.githubusercontent.com/randykwon/msp-checklist-system/main/amazon-linux-install.sh | bash
 
-# 프로젝트 클론
-git clone https://github.com/your-username/msp-checklist-system.git
+# 또는 저장소를 먼저 클론한 경우
+git clone https://github.com/randykwon/msp-checklist-system.git
 cd msp-checklist-system
-
-# 자동 배포 스크립트 실행
-chmod +x deploy/amazon-linux-2023-deploy.sh
-./deploy/amazon-linux-2023-deploy.sh
+chmod +x amazon-linux-install.sh
+./amazon-linux-install.sh
 ```
 
-**스크립트가 자동으로 수행하는 작업:**
-1. ✅ 시스템 업데이트 및 필수 패키지 설치
-2. ✅ Node.js 20.9.0 설치
-3. ✅ PM2 프로세스 관리자 설치
-4. ✅ 프로젝트 의존성 설치 (재시도 로직 포함)
-5. ✅ 애플리케이션 빌드
-6. ✅ PM2 설정 및 프로세스 시작
-7. ✅ Nginx 리버스 프록시 설정
-8. ✅ 방화벽 설정
-9. ✅ SSL 인증서 설정 (선택사항)
-10. ✅ 시스템 서비스 등록
-11. ✅ 자동 백업 및 모니터링 설정
+## 📋 시스템 요구사항
 
-### 3단계: 배포 완료 확인
+- **OS**: Amazon Linux 2023 (권장)
+- **인스턴스 타입**: 최소 t3.small, 권장 t3.medium
+- **RAM**: 최소 2GB, 권장 4GB
+- **CPU**: 최소 1 vCPU, 권장 2 vCPU
+- **디스크**: 최소 10GB 여유 공간
+- **네트워크**: 포트 3010, 3011 접근 허용 (보안 그룹 설정)
 
-배포가 완료되면 다음 주소로 접속할 수 있습니다:
-- **메인 서비스**: `http://your-ec2-ip` 또는 `http://your-domain`
-- **관리자 시스템**: `http://your-ec2-ip/admin` 또는 `http://your-domain/admin`
+## 🔧 수동 설치 단계
 
-## 🔧 수동 배포 (단계별)
-
-자동 배포 스크립트를 사용하지 않고 수동으로 배포하려는 경우:
-
-### 1단계: 시스템 준비
+### 1단계: 시스템 업데이트
 
 ```bash
-# 시스템 업데이트
+# 시스템 패키지 업데이트
 sudo dnf update -y
 
-# 개발 도구 설치
+# 필수 패키지 설치
+sudo dnf install -y curl wget git gcc gcc-c++ make
 sudo dnf groupinstall -y "Development Tools"
-sudo dnf install -y git curl wget unzip tar gcc-c++ make python3 python3-pip sqlite nginx firewalld htop vim
 ```
 
-### 2단계: Node.js 설치
+### 2단계: Node.js 20.9.0 설치
 
 ```bash
-# Node.js 20.9.0 설치
+# NodeSource 저장소 추가
 curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
+
+# Node.js 설치
 sudo dnf install -y nodejs
 
 # 버전 확인
-node --version  # v20.9.0
-npm --version   # 10.x
+node --version  # v20.9.0 이상
+npm --version   # 10.x 이상
+
+# npm 설정 최적화
+npm config set registry https://registry.npmjs.org/
+npm config set fetch-timeout 600000
+npm config set fetch-retry-mintimeout 10000
+npm config set fetch-retry-maxtimeout 60000
 ```
 
-### 3단계: PM2 설치
+### 3단계: 방화벽 설정
 
 ```bash
-# PM2 전역 설치
-sudo npm install -g pm2
+# firewalld 방화벽 설정
+sudo systemctl start firewalld
+sudo systemctl enable firewalld
+
+# 필요한 포트 열기
+sudo firewall-cmd --permanent --add-port=22/tcp    # SSH
+sudo firewall-cmd --permanent --add-port=3010/tcp  # 메인 서비스
+sudo firewall-cmd --permanent --add-port=3011/tcp  # 관리자 시스템
+sudo firewall-cmd --permanent --add-port=80/tcp    # HTTP (Nginx 사용 시)
+sudo firewall-cmd --permanent --add-port=443/tcp   # HTTPS (SSL 사용 시)
+
+# 방화벽 규칙 적용
+sudo firewall-cmd --reload
+
+# 상태 확인
+sudo firewall-cmd --list-ports
 ```
 
 ### 4단계: 프로젝트 설정
 
 ```bash
-# 애플리케이션 디렉토리 생성
+# 작업 디렉토리 생성
 sudo mkdir -p /opt/msp-checklist
 sudo chown -R $USER:$USER /opt/msp-checklist
-cd /opt/msp-checklist
 
 # 프로젝트 클론
-git clone https://github.com/your-username/msp-checklist-system.git .
+cd /opt/msp-checklist
+git clone https://github.com/randykwon/msp-checklist-system.git .
+
+# 실행 권한 부여
+chmod +x *.sh
+chmod +x msp-checklist/*.sh 2>/dev/null || true
 ```
 
 ### 5단계: 의존성 설치
 
 ```bash
-# npm 설정 최적화
-npm config set fetch-timeout 600000
-npm config set fetch-retry-mintimeout 10000
-npm config set fetch-retry-maxtimeout 60000
-
-# 루트 프로젝트 의존성
+# 프로젝트 루트 의존성 설치
 npm install
 
-# 메인 앱 의존성
+# MSP 체크리스트 의존성 설치
 cd msp-checklist
-rm -rf node_modules package-lock.json  # 기존 정리
-npm install --no-optional --legacy-peer-deps
+if [ -f "install-server.sh" ]; then
+    chmod +x install-server.sh
+    ./install-server.sh
+else
+    # 수동 설치
+    rm -rf node_modules package-lock.json
+    npm install --no-optional --legacy-peer-deps
+fi
 
-# 관리자 앱 의존성
-cd admin
-rm -rf node_modules package-lock.json  # 기존 정리
-npm install --no-optional --legacy-peer-deps
-cd ..
+# 관리자 시스템 의존성 설치
+cd ../admin
+npm install
 ```
 
 ### 6단계: 환경 변수 설정
 
 ```bash
-# 메인 앱 환경 변수
+# MSP 체크리스트 환경 변수
+cd /opt/msp-checklist/msp-checklist
 cp .env.local.example .env.local
-nano .env.local  # 필요한 API 키 설정
+nano .env.local
 
-# 관리자 앱 환경 변수
-cd admin
+# 관리자 시스템 환경 변수
+cd ../admin
 cp .env.local.example .env.local
-cd ..
+nano .env.local
 ```
 
-### 7단계: 애플리케이션 빌드
-
+환경 변수 예시:
 ```bash
-# 메인 앱 빌드
-npm run build
+# LLM 제공업체 선택
+LLM_PROVIDER=openai
 
-# 관리자 앱 빌드
-cd admin
-npm run build
-cd ..
+# API 키 설정
+OPENAI_API_KEY=your_api_key_here
+
+# 기타 설정
+NODE_ENV=production
 ```
 
-### 8단계: PM2 설정
+### 7단계: 빌드 및 시작
 
 ```bash
-# PM2 ecosystem 파일 생성
-cat > ecosystem.config.js << 'EOF'
-module.exports = {
-  apps: [
-    {
-      name: 'msp-checklist',
-      script: 'npm',
-      args: 'start',
-      cwd: '/opt/msp-checklist/msp-checklist',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '1G',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3010
-      }
-    },
-    {
-      name: 'msp-admin',
-      script: 'npm',
-      args: 'start',
-      cwd: '/opt/msp-checklist/msp-checklist/admin',
-      instances: 1,
-      autorestart: true,
-      watch: false,
-      max_memory_restart: '1G',
-      env: {
-        NODE_ENV: 'production',
-        PORT: 3011
-      }
-    }
-  ]
-};
+# 프로젝트 루트로 이동
+cd /opt/msp-checklist
+
+# 애플리케이션 빌드
+cd msp-checklist && npm run build
+cd ../admin && npm run build
+cd ..
+
+# 서버 시작
+./restart-server.sh
+
+# 상태 확인
+./server-status.sh
+```
+
+## 🔄 서비스 관리
+
+### 기본 명령어
+
+```bash
+# 서버 시작
+./restart-server.sh
+
+# 서버 중지
+./stop-server.sh
+
+# 서버 상태 확인
+./server-status.sh
+
+# 로그 확인
+tail -f server.log
+tail -f admin-server.log
+```
+
+### systemd 서비스 설정 (자동 시작)
+
+```bash
+# 서비스 파일 생성
+sudo tee /etc/systemd/system/msp-checklist.service > /dev/null <<EOF
+[Unit]
+Description=MSP Checklist Application
+After=network.target
+
+[Service]
+Type=forking
+User=$USER
+WorkingDirectory=/opt/msp-checklist
+ExecStart=/opt/msp-checklist/restart-server.sh
+ExecStop=/opt/msp-checklist/stop-server.sh
+Restart=always
+RestartSec=10
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
 EOF
 
-# PM2로 애플리케이션 시작
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
+# 서비스 활성화
+sudo systemctl daemon-reload
+sudo systemctl enable msp-checklist
+sudo systemctl start msp-checklist
+
+# 서비스 상태 확인
+sudo systemctl status msp-checklist
 ```
 
-### 9단계: Nginx 설정
+## 🌐 Nginx 리버스 프록시 설정 (선택사항)
+
+### Nginx 설치
 
 ```bash
-# Nginx 설정 파일 생성
-sudo tee /etc/nginx/conf.d/msp-checklist.conf > /dev/null << 'EOF'
-upstream msp_checklist {
-    server 127.0.0.1:3010;
-}
+sudo dnf install -y nginx
+```
 
-upstream msp_admin {
-    server 127.0.0.1:3011;
-}
+### 설정 파일 생성
 
+```bash
+sudo tee /etc/nginx/conf.d/msp-checklist.conf > /dev/null <<EOF
 server {
     listen 80;
-    server_name _;
+    server_name your-domain.com;  # 도메인 또는 IP 주소로 변경
 
     # 보안 헤더
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
 
-    # 관리자 시스템
-    location /admin {
-        proxy_pass http://msp_admin;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
     # 메인 애플리케이션
     location / {
-        proxy_pass http://msp_checklist;
+        proxy_pass http://localhost:3010;
         proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+        proxy_read_timeout 86400;
+    }
+
+    # 관리자 시스템
+    location /admin {
+        proxy_pass http://localhost:3011;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_cache_bypass \$http_upgrade;
+        proxy_read_timeout 86400;
     }
 }
 EOF
 
-# Nginx 시작
+# Nginx 설정 테스트 및 시작
 sudo nginx -t
-sudo systemctl enable nginx
 sudo systemctl start nginx
+sudo systemctl enable nginx
 ```
 
-### 10단계: 방화벽 설정
+### SSL 인증서 설정 (Let's Encrypt)
 
 ```bash
-# 방화벽 시작
-sudo systemctl enable firewalld
-sudo systemctl start firewalld
+# EPEL 저장소 활성화
+sudo dnf install -y epel-release
 
-# 필요한 포트 허용
-sudo firewall-cmd --permanent --add-service=ssh
-sudo firewall-cmd --permanent --add-service=http
-sudo firewall-cmd --permanent --add-service=https
-sudo firewall-cmd --reload
-```
-
-## 🔍 문제 해결
-
-### npm install 실패 시
-
-**1. 캐시 정리:**
-```bash
-npm cache clean --force
-rm -rf node_modules package-lock.json
-```
-
-**2. 메모리 부족:**
-```bash
-# Node.js 메모리 제한 증가
-export NODE_OPTIONS="--max-old-space-size=2048"
-npm install
-```
-
-**3. 네트워크 타임아웃:**
-```bash
-npm config set fetch-timeout 600000
-npm config set fetch-retry-mintimeout 10000
-npm config set fetch-retry-maxtimeout 60000
-```
-
-**4. 레지스트리 문제:**
-```bash
-npm config set registry https://registry.npmjs.org/
-```
-
-### 빌드 실패 시
-
-**1. TypeScript 오류:**
-```bash
-# 타입 체크 건너뛰기
-npm run build -- --no-type-check
-```
-
-**2. 메모리 부족:**
-```bash
-export NODE_OPTIONS="--max-old-space-size=4096"
-npm run build
-```
-
-### 서비스 실행 문제
-
-**1. 포트 충돌:**
-```bash
-# 포트 사용 확인
-sudo netstat -tlnp | grep :3010
-sudo netstat -tlnp | grep :3011
-
-# 프로세스 종료
-sudo kill -9 $(sudo lsof -t -i:3010)
-sudo kill -9 $(sudo lsof -t -i:3011)
-```
-
-**2. PM2 문제:**
-```bash
-# PM2 재시작
-pm2 delete all
-pm2 start ecosystem.config.js
-
-# PM2 로그 확인
-pm2 logs
-```
-
-**3. 권한 문제:**
-```bash
-# 디렉토리 권한 설정
-sudo chown -R $USER:$USER /opt/msp-checklist
-chmod +x /opt/msp-checklist/*.sh
-```
-
-### 데이터베이스 문제
-
-**1. SQLite 권한:**
-```bash
-# 데이터베이스 파일 권한 설정
-chmod 664 /opt/msp-checklist/msp-checklist/*.db
-chmod 664 /opt/msp-checklist/msp-checklist/admin/*.db
-```
-
-**2. 데이터베이스 초기화:**
-```bash
-# 데이터베이스 백업 후 재생성
-cp *.db backup/
-rm *.db
-# 애플리케이션 재시작하면 자동 생성됨
-```
-
-## 📊 모니터링 및 관리
-
-### 시스템 상태 확인
-
-```bash
-# PM2 상태
-pm2 status
-pm2 logs
-
-# 시스템 리소스
-htop
-free -h
-df -h
-
-# 네트워크 연결
-netstat -tlnp | grep :301
-```
-
-### 로그 관리
-
-```bash
-# 애플리케이션 로그
-tail -f /opt/msp-checklist/logs/msp-checklist.log
-tail -f /opt/msp-checklist/logs/msp-admin.log
-
-# Nginx 로그
-sudo tail -f /var/log/nginx/access.log
-sudo tail -f /var/log/nginx/error.log
-
-# 시스템 로그
-sudo journalctl -u nginx -f
-sudo journalctl -u msp-checklist -f
-```
-
-### 백업 및 복구
-
-```bash
-# 수동 백업
-./backup.sh
-
-# 데이터베이스 복구
-cp backup/db_backup_YYYYMMDD_HHMMSS/*.db ./
-
-# 설정 파일 백업
-tar -czf config_backup.tar.gz .env.local admin/.env.local ecosystem.config.js
-```
-
-## 🔄 업데이트 및 배포
-
-### 코드 업데이트
-
-```bash
-cd /opt/msp-checklist
-
-# 코드 업데이트
-git pull origin main
-
-# 의존성 업데이트 (필요한 경우)
-npm install
-cd msp-checklist && npm install
-cd admin && npm install && cd ..
-
-# 애플리케이션 재빌드
-cd msp-checklist
-npm run build
-cd admin && npm run build && cd ..
-
-# 서비스 재시작
-pm2 restart all
-```
-
-### 무중단 배포
-
-```bash
-# Blue-Green 배포를 위한 스크립트
-cat > deploy-update.sh << 'EOF'
-#!/bin/bash
-set -e
-
-echo "무중단 배포 시작..."
-
-# 코드 업데이트
-git pull origin main
-
-# 빌드
-cd msp-checklist
-npm run build
-cd admin && npm run build && cd ..
-
-# PM2 무중단 재시작
-pm2 reload ecosystem.config.js
-
-echo "무중단 배포 완료!"
-EOF
-
-chmod +x deploy-update.sh
-./deploy-update.sh
-```
-
-## 🔒 보안 강화
-
-### SSL 인증서 설정
-
-```bash
 # Certbot 설치
 sudo dnf install -y certbot python3-certbot-nginx
 
@@ -465,70 +281,210 @@ sudo dnf install -y certbot python3-certbot-nginx
 sudo certbot --nginx -d your-domain.com
 
 # 자동 갱신 설정
-echo "0 12 * * * /usr/bin/certbot renew --quiet" | sudo crontab -
+sudo crontab -e
+# 다음 줄 추가:
+# 0 12 * * * /usr/bin/certbot renew --quiet
 ```
 
-### 방화벽 강화
+## 📊 모니터링 설정
+
+### PM2 프로세스 매니저 설치
 
 ```bash
-# 특정 IP만 SSH 허용
-sudo firewall-cmd --permanent --remove-service=ssh
-sudo firewall-cmd --permanent --add-rich-rule="rule family='ipv4' source address='YOUR_IP' service name='ssh' accept"
+# PM2 전역 설치
+sudo npm install -g pm2
 
-# 개발 포트 제거 (프로덕션)
-sudo firewall-cmd --permanent --remove-port=3010/tcp
-sudo firewall-cmd --permanent --remove-port=3011/tcp
+# PM2로 애플리케이션 관리
+cd /opt/msp-checklist
+pm2 start msp-checklist/server.js --name "msp-main"
+pm2 start admin/server.js --name "msp-admin"
 
-sudo firewall-cmd --reload
+# PM2 자동 시작 설정
+pm2 startup
+pm2 save
+
+# PM2 모니터링
+pm2 monit
 ```
 
-### 시스템 보안
+### CloudWatch 로그 설정 (선택사항)
 
 ```bash
-# 자동 보안 업데이트 설정
-sudo dnf install -y dnf-automatic
-sudo systemctl enable --now dnf-automatic.timer
+# CloudWatch 에이전트 설치
+sudo dnf install -y amazon-cloudwatch-agent
 
-# fail2ban 설치 (SSH 보호)
-sudo dnf install -y epel-release
-sudo dnf install -y fail2ban
-sudo systemctl enable --now fail2ban
+# 설정 파일 생성
+sudo tee /opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json > /dev/null <<EOF
+{
+    "logs": {
+        "logs_collected": {
+            "files": {
+                "collect_list": [
+                    {
+                        "file_path": "/opt/msp-checklist/server.log",
+                        "log_group_name": "msp-checklist-main",
+                        "log_stream_name": "{instance_id}"
+                    },
+                    {
+                        "file_path": "/opt/msp-checklist/admin-server.log",
+                        "log_group_name": "msp-checklist-admin",
+                        "log_stream_name": "{instance_id}"
+                    }
+                ]
+            }
+        }
+    }
+}
+EOF
+
+# CloudWatch 에이전트 시작
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+    -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/etc/amazon-cloudwatch-agent.json -s
+```
+
+## 🔧 문제 해결
+
+### 포트 충돌
+
+```bash
+# 포트 사용 프로세스 확인
+sudo ss -tlnp | grep :3010
+sudo ss -tlnp | grep :3011
+
+# 프로세스 종료
+sudo kill -9 <PID>
+```
+
+### 권한 문제
+
+```bash
+# 디렉토리 권한 설정
+sudo chown -R $USER:$USER /opt/msp-checklist
+chmod +x /opt/msp-checklist/*.sh
+
+# SELinux 문제 (필요한 경우)
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+### 메모리 부족
+
+```bash
+# 스왑 파일 생성 (2GB)
+sudo dd if=/dev/zero of=/swapfile bs=1024 count=2097152
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+
+# 영구 설정
+echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+
+# Node.js 메모리 제한 증가
+export NODE_OPTIONS="--max-old-space-size=2048"
+```
+
+### npm 설치 실패
+
+```bash
+# npm 캐시 정리
+npm cache clean --force
+
+# 권한 문제 해결
+sudo chown -R $USER:$USER ~/.npm
+
+# 네트워크 타임아웃 설정
+npm config set fetch-timeout 600000
+npm config set fetch-retry-mintimeout 10000
+npm config set fetch-retry-maxtimeout 60000
 ```
 
 ## 📈 성능 최적화
 
-### PM2 클러스터 모드
+### 시스템 튜닝
 
 ```bash
-# ecosystem.config.js 수정
-module.exports = {
-  apps: [
-    {
-      name: 'msp-checklist',
-      script: 'npm',
-      args: 'start',
-      instances: 'max',  // CPU 코어 수만큼 인스턴스 생성
-      exec_mode: 'cluster'
-    }
-  ]
-};
+# 파일 디스크립터 제한 증가
+echo "* soft nofile 65536" | sudo tee -a /etc/security/limits.conf
+echo "* hard nofile 65536" | sudo tee -a /etc/security/limits.conf
+
+# 커널 매개변수 최적화
+sudo tee -a /etc/sysctl.conf > /dev/null <<EOF
+net.core.somaxconn = 65536
+net.ipv4.tcp_max_syn_backlog = 65536
+net.ipv4.ip_local_port_range = 1024 65535
+vm.swappiness = 10
+EOF
+
+sudo sysctl -p
 ```
 
-### Nginx 캐싱
+### Node.js 클러스터 모드
 
 ```bash
-# Nginx 설정에 캐싱 추가
-location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-    expires 1y;
-    add_header Cache-Control "public, immutable";
-    access_log off;
-}
-
-# Gzip 압축 활성화
-gzip on;
-gzip_vary on;
-gzip_min_length 1024;
-gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
+# PM2 클러스터 모드로 실행
+pm2 start msp-checklist/server.js --name "msp-main" -i max
+pm2 start admin/server.js --name "msp-admin" -i 2
 ```
 
-이 가이드를 따라하면 Amazon Linux 2023에서 MSP Checklist 시스템을 안정적으로 배포하고 운영할 수 있습니다.
+## 🔒 보안 설정
+
+### 기본 보안 강화
+
+```bash
+# 불필요한 서비스 비활성화
+sudo systemctl disable httpd 2>/dev/null || true
+
+# SSH 보안 강화 (선택사항)
+sudo sed -i 's/#PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+sudo sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+sudo systemctl restart sshd
+
+# fail2ban 설치 (EPEL 필요)
+sudo dnf install -y fail2ban
+sudo systemctl enable fail2ban
+sudo systemctl start fail2ban
+```
+
+### AWS 보안 그룹 설정
+
+```bash
+# AWS CLI로 보안 그룹 규칙 추가 (선택사항)
+# 보안 그룹 ID를 확인한 후 실행
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-xxxxxxxxx \
+    --protocol tcp \
+    --port 3010 \
+    --cidr 0.0.0.0/0
+
+aws ec2 authorize-security-group-ingress \
+    --group-id sg-xxxxxxxxx \
+    --protocol tcp \
+    --port 3011 \
+    --cidr 0.0.0.0/0
+```
+
+## 📋 배포 후 체크리스트
+
+- [ ] Node.js 버전 확인 (v20.9.0+)
+- [ ] 포트 3010, 3011 접근 가능
+- [ ] 방화벽 설정 완료 (firewalld)
+- [ ] AWS 보안 그룹 설정 완료
+- [ ] 환경 변수 설정 완료
+- [ ] 애플리케이션 빌드 성공
+- [ ] 서버 정상 시작
+- [ ] 웹 브라우저 접속 확인
+- [ ] SSL 인증서 설정 (도메인 사용 시)
+- [ ] 자동 시작 서비스 등록
+- [ ] CloudWatch 로그 설정 (선택사항)
+- [ ] 백업 계획 수립
+
+## 🆘 지원 및 문의
+
+문제가 발생하면 다음을 확인하세요:
+
+1. **로그 파일**: `/opt/msp-checklist/server.log`, `/opt/msp-checklist/admin-server.log`
+2. **시스템 로그**: `sudo journalctl -u msp-checklist -f`
+3. **포트 상태**: `sudo ss -tlnp | grep :301`
+4. **프로세스 상태**: `ps aux | grep node`
+5. **방화벽 상태**: `sudo firewall-cmd --list-ports`
+
+추가 지원이 필요하면 GitHub Issues를 통해 문의하세요.
