@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Electron용 설정 - standalone으로 변경하여 API 라우트 지원
+  // 서버 배포용 설정 - standalone으로 API 라우트 지원
   output: 'standalone',
   trailingSlash: true,
   images: {

@@ -77,7 +77,7 @@ AWS 관리형 서비스 제공업체(MSP) 파트너 프로그램 검증 체크�
 
 ### 필수 요구사항
 
-- **Node.js 22.x 이상** (LTS 권장)
+- **Node.js 20.9.0 이상** (LTS 권장)
 - **npm 10.x 이상** 또는 **yarn 4.x 이상** 패키지 매니저
 - **지원 OS**: Ubuntu 22.04 LTS, Amazon Linux 2023, macOS, Windows (WSL2)
 - **LLM API 키** (AI 기능 사용 시 - OpenAI, Gemini, Claude, 또는 AWS Bedrock 중 선택)
@@ -91,8 +91,8 @@ AWS 관리형 서비스 제공업체(MSP) 파트너 프로그램 검증 체크�
 
 #### Ubuntu 22.04 LTS
 ```bash
-# Node.js 22 설치 (필요한 경우)
-curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
+# Node.js 20.9.0 설치 (필요한 경우)
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt-get install -y nodejs
 
 # 프로젝트 루트 디렉토리에서
@@ -116,8 +116,8 @@ npm run restart
 
 #### Amazon Linux 2023
 ```bash
-# Node.js 22 설치 (필요한 경우)
-curl -fsSL https://rpm.nodesource.com/setup_22.x | sudo bash -
+# Node.js 20.9.0 설치 (필요한 경우)
+curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -
 sudo dnf install -y nodejs
 
 # 프로젝트 루트 디렉토리에서
