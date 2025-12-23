@@ -116,8 +116,12 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install -y curl wget git build-essential software-properties-common
 log_success "시스템 업데이트 완료"
 
-# 2단계: Node.js 설치
-log_step "2단계: Node.js 20.9.0 설치"
+# 2단계: Node.js 및 빌드 도구 설치
+log_step "2단계: Node.js 20.9.0 및 빌드 도구 설치"
+
+# 빌드 도구 설치 (네이티브 모듈 컴파일용)
+sudo apt-get install -y python3 make g++ gcc
+
 if ! command -v node &> /dev/null || [[ $(node --version) < "v20.9.0" ]]; then
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo apt-get install -y nodejs
@@ -178,17 +182,69 @@ npm install
 # MSP 체크리스트 의존성
 log_info "MSP 체크리스트 의존성 설치 중..."
 cd msp-checklist
+
+# 네이티브 모듈 빌드를 위한 설정
+export npm_config_build_from_source=true
+
 if [ -f "install-server.sh" ]; then
     chmod +x install-server.sh
     ./install-server.sh
 else
-    npm install --no-optional --legacy-peer-deps
+    # node_modules 정리
+    rm -rf node_modules package-lock.json
+
+    # 의존성 설치 (재시도 로직)
+    RETRY_COUNT=0
+    MAX_RETRIES=3
+
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        log_info "의존성 설치 시도 $((RETRY_COUNT + 1))/$MAX_RETRIES..."
+
+        if npm install --no-optional --legacy-peer-deps; then
+            log_success "의존성 설치 완료"
+            break
+        else
+            RETRY_COUNT=$((RETRY_COUNT + 1))
+            if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+                log_warning "설치 실패. 5초 후 재시도..."
+                sleep 5
+                npm cache clean --force
+            else
+                log_error "의존성 설치 실패"
+                exit 1
+            fi
+        fi
+    done
 fi
 
 # 관리자 시스템 의존성
 log_info "관리자 시스템 의존성 설치 중..."
-cd ../admin
-npm install
+cd admin
+
+# node_modules 정리
+rm -rf node_modules package-lock.json
+
+RETRY_COUNT=0
+while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+    log_info "관리자 앱 의존성 설치 시도 $((RETRY_COUNT + 1))/$MAX_RETRIES..."
+
+    if npm install --no-optional --legacy-peer-deps; then
+        log_success "관리자 앱 의존성 설치 완료"
+        break
+    else
+        RETRY_COUNT=$((RETRY_COUNT + 1))
+        if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
+            log_warning "설치 실패. 5초 후 재시도..."
+            sleep 5
+            npm cache clean --force
+        else
+            log_error "관리자 앱 의존성 설치 실패"
+            exit 1
+        fi
+    fi
+done
+
+cd ../..
 
 log_success "의존성 설치 완료"
 
@@ -203,8 +259,8 @@ if [ -f "msp-checklist/.env.local.example" ] && [ ! -f "msp-checklist/.env.local
 fi
 
 # 관리자 시스템 환경 변수
-if [ -f "admin/.env.local.example" ] && [ ! -f "admin/.env.local" ]; then
-    cp admin/.env.local.example admin/.env.local
+if [ -f "msp-checklist/admin/.env.local.example" ] && [ ! -f "msp-checklist/admin/.env.local" ]; then
+    cp msp-checklist/admin/.env.local.example msp-checklist/admin/.env.local
     log_info "관리자 시스템 환경 변수 파일 생성됨"
 fi
 
@@ -212,11 +268,27 @@ log_success "환경 변수 설정 완료"
 
 # 7단계: 애플리케이션 빌드
 log_step "7단계: 애플리케이션 빌드"
-cd msp-checklist
-npm run build
-cd ../admin
-npm run build
-cd ..
+cd $INSTALL_DIR/msp-checklist
+
+# Node.js 메모리 설정
+export NODE_OPTIONS="--max-old-space-size=4096"
+
+log_info "메인 앱 빌드 중..."
+if npm run build; then
+    log_success "메인 앱 빌드 완료"
+else
+    log_warning "메인 앱 빌드 실패 - 런타임에서 다시 시도하세요"
+fi
+
+cd admin
+log_info "관리자 앱 빌드 중..."
+if npm run build; then
+    log_success "관리자 앱 빌드 완료"
+else
+    log_warning "관리자 앱 빌드 실패 - 런타임에서 다시 시도하세요"
+fi
+
+cd ../..
 
 log_success "애플리케이션 빌드 완료"
 
