@@ -447,9 +447,9 @@ build_application() {
     
     # LightningCSS 문제 사전 해결
     if ! retry_command "npm run build" "MSP 체크리스트 빌드"; then
-        log_warning "빌드 실패 감지. LightningCSS 문제 해결 시도 중..."
+        log_warning "빌드 실패 감지. 호환성 문제 해결 시도 중..."
         
-        # Tailwind CSS v4에서 v3로 다운그레이드
+        # 첫 번째 시도: Tailwind CSS v4에서 v3로 다운그레이드
         log_info "Tailwind CSS 호환성 문제 해결 중..."
         npm uninstall @tailwindcss/postcss tailwindcss 2>/dev/null || true
         npm install tailwindcss@^3.4.0 postcss autoprefixer --save-dev
@@ -486,7 +486,69 @@ EOF
         log_success "Tailwind CSS v3로 다운그레이드 완료"
         
         # 재빌드 시도
-        retry_command "npm run build" "MSP 체크리스트 빌드 (Tailwind v3)"
+        if ! retry_command "npm run build" "MSP 체크리스트 빌드 (Tailwind v3)"; then
+            log_warning "여전히 빌드 실패. Next.js 설정 문제 해결 시도 중..."
+            
+            # 두 번째 시도: Next.js fs 모듈 문제 해결
+            log_info "Next.js fs 모듈 문제 해결 중..."
+            
+            # next.config.ts 수정 (fs 모듈 문제 해결)
+            cat > next.config.ts << 'EOF'
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  output: 'standalone',
+  trailingSlash: true,
+  images: {
+    unoptimized: true
+  },
+  
+  // Turbopack 비활성화 (호환성 문제 해결)
+  experimental: {
+    turbo: false
+  },
+  
+  webpack: (config: any, { isServer }: any) => {
+    // Node.js 모듈을 클라이언트에서 제외
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        path: false,
+        crypto: false,
+        stream: false,
+        util: false,
+        buffer: false,
+        process: false,
+      };
+    }
+    
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      canvas: false,
+    };
+    
+    config.externals = config.externals || [];
+    if (isServer) {
+      config.externals.push('better-sqlite3');
+    }
+    
+    return config;
+  },
+  
+  serverExternalPackages: ['better-sqlite3']
+};
+
+export default nextConfig;
+EOF
+
+            # 빌드 캐시 정리
+            rm -rf .next
+            
+            # Turbopack 비활성화하여 빌드
+            export TURBOPACK=0
+            retry_command "TURBOPACK=0 npm run build" "MSP 체크리스트 빌드 (Webpack 모드)"
+        fi
     fi
     
     # 최소 설치 모드에서 빌드 후 개발 의존성 정리
