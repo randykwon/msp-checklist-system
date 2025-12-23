@@ -81,12 +81,23 @@ check_system_requirements() {
         exit 1
     fi
     
-    # 디스크 공간 확인 (최소 5GB)
+    # 디스크 공간 확인 (최소 5GB, 최소 설치 모드에서는 3GB)
     DISK_AVAILABLE=$(df / | awk 'NR==2 {print $4}')
     DISK_GB=$((DISK_AVAILABLE / 1024 / 1024))
     
-    if [ $DISK_GB -lt 5 ]; then
-        log_error "최소 5GB 디스크 공간이 필요합니다. 현재: ${DISK_GB}GB"
+    REQUIRED_DISK=5
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        REQUIRED_DISK=3
+        log_info "최소 설치 모드: 디스크 요구사항 ${REQUIRED_DISK}GB로 조정"
+    fi
+    
+    if [ $DISK_GB -lt $REQUIRED_DISK ]; then
+        log_error "최소 ${REQUIRED_DISK}GB 디스크 공간이 필요합니다. 현재: ${DISK_GB}GB"
+        echo ""
+        echo "해결 방법:"
+        echo "1. 디스크 공간 최적화: ./optimize-disk-space.sh"
+        echo "2. 최소 설치 모드: MSP_MINIMAL_INSTALL=true ./amazon-linux-robust-install.sh"
+        echo "3. 더 큰 인스턴스 사용 또는 EBS 볼륨 확장"
         exit 1
     fi
     
@@ -365,7 +376,11 @@ install_dependencies() {
     
     # 1. 프로젝트 루트 의존성
     log_info "프로젝트 루트 의존성 설치 중..."
-    retry_command "npm install --no-optional" "프로젝트 루트 의존성 설치"
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        retry_command "npm install --production --no-optional" "프로젝트 루트 의존성 설치 (최소 모드)"
+    else
+        retry_command "npm install --no-optional" "프로젝트 루트 의존성 설치"
+    fi
     
     # 2. MSP 체크리스트 의존성
     log_info "MSP 체크리스트 의존성 설치 중..."
@@ -375,14 +390,22 @@ install_dependencies() {
     rm -rf node_modules package-lock.json
     
     # 단계별 설치
-    retry_command "npm install --no-optional --legacy-peer-deps --verbose" "MSP 체크리스트 의존성 설치"
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        retry_command "npm install --production --no-optional --legacy-peer-deps" "MSP 체크리스트 의존성 설치 (최소 모드)"
+    else
+        retry_command "npm install --no-optional --legacy-peer-deps --verbose" "MSP 체크리스트 의존성 설치"
+    fi
     
     # 3. 관리자 시스템 의존성
     log_info "관리자 시스템 의존성 설치 중..."
     cd admin
     
     rm -rf node_modules package-lock.json
-    retry_command "npm install --no-optional --verbose" "관리자 시스템 의존성 설치"
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        retry_command "npm install --production --no-optional" "관리자 시스템 의존성 설치 (최소 모드)"
+    else
+        retry_command "npm install --no-optional --verbose" "관리자 시스템 의존성 설치"
+    fi
     
     cd ..
     log_success "의존성 설치 완료"
