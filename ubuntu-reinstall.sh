@@ -234,9 +234,11 @@ npm config set registry https://registry.npmjs.org/
 npm config set fetch-timeout 600000
 npm config set fetch-retry-mintimeout 10000
 npm config set fetch-retry-maxtimeout 60000
-npm config set build-from-source true
+
+# Native 모듈 빌드를 위한 환경 변수 설정
 export npm_config_build_from_source=true
 export NODE_OPTIONS="--max-old-space-size=4096"
+log_success "npm 설정 및 빌드 환경 완료"
 
 log_step "설치 3단계: 방화벽 설정"
 sudo ufw allow 3010/tcp
