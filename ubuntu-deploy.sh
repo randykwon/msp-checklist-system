@@ -276,8 +276,32 @@ log_info "메인 애플리케이션 빌드 중..."
 if npm run build; then
     log_success "메인 애플리케이션 빌드 완료"
 else
-    log_error "메인 애플리케이션 빌드 실패"
-    exit 1
+    log_warning "빌드 실패. Tailwind CSS 호환성 문제 해결 중..."
+    
+    # Tailwind CSS v3로 다운그레이드
+    npm uninstall @tailwindcss/postcss tailwindcss 2>/dev/null || true
+    npm install tailwindcss@^3.4.0 postcss autoprefixer --save-dev
+    
+    # 호환 설정 파일 생성
+    cat > postcss.config.js << 'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+EOF
+    
+    rm -f postcss.config.mjs
+    log_success "Tailwind CSS v3로 다운그레이드 완료"
+    
+    # 재빌드
+    if npm run build; then
+        log_success "메인 애플리케이션 빌드 완료 (호환성 수정 후)"
+    else
+        log_error "메인 애플리케이션 빌드 실패"
+        exit 1
+    fi
 fi
 
 # 관리자 앱 빌드

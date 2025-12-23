@@ -325,7 +325,31 @@ fi
 log_step "설치 8단계: 애플리케이션 빌드"
 cd $INSTALL_DIR/msp-checklist
 export NODE_OPTIONS="--max-old-space-size=4096"
-npm run build
+
+# LightningCSS 문제 해결 포함 빌드
+if ! npm run build; then
+    log_warning "빌드 실패. Tailwind CSS 호환성 문제 해결 중..."
+    
+    # Tailwind CSS v3로 다운그레이드
+    npm uninstall @tailwindcss/postcss tailwindcss 2>/dev/null || true
+    npm install tailwindcss@^3.4.0 postcss autoprefixer --save-dev
+    
+    # 호환 설정 파일 생성
+    cat > postcss.config.js << 'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+EOF
+    
+    rm -f postcss.config.mjs
+    log_success "Tailwind CSS v3로 다운그레이드 완료"
+    
+    # 재빌드
+    npm run build
+fi
 
 cd $INSTALL_DIR/msp-checklist/admin
 npm run build

@@ -348,7 +348,50 @@ build_application() {
     # MSP 체크리스트 빌드
     log_info "MSP 체크리스트 빌드 중..."
     cd msp-checklist
-    retry_command "npm run build" "MSP 체크리스트 빌드"
+    
+    # LightningCSS 문제 사전 해결
+    if ! retry_command "npm run build" "MSP 체크리스트 빌드"; then
+        log_warning "빌드 실패 감지. LightningCSS 문제 해결 시도 중..."
+        
+        # Tailwind CSS v4에서 v3로 다운그레이드
+        log_info "Tailwind CSS 호환성 문제 해결 중..."
+        npm uninstall @tailwindcss/postcss tailwindcss 2>/dev/null || true
+        npm install tailwindcss@^3.4.0 postcss autoprefixer --save-dev
+        
+        # postcss.config.js 생성
+        cat > postcss.config.js << 'EOF'
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+EOF
+
+        # tailwind.config.js 생성
+        cat > tailwind.config.js << 'EOF'
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+EOF
+
+        # postcss.config.mjs 제거 (있는 경우)
+        rm -f postcss.config.mjs
+        
+        log_success "Tailwind CSS v3로 다운그레이드 완료"
+        
+        # 재빌드 시도
+        retry_command "npm run build" "MSP 체크리스트 빌드 (Tailwind v3)"
+    fi
     
     # 관리자 시스템 빌드
     log_info "관리자 시스템 빌드 중..."
