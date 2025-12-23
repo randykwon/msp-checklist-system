@@ -91,9 +91,24 @@ check_system_requirements() {
     fi
     
     # 네트워크 연결 확인
-    if ! curl -s --connect-timeout 10 https://github.com > /dev/null; then
-        log_error "GitHub에 연결할 수 없습니다. 네트워크 연결을 확인하세요."
+    if ! ping -c 1 8.8.8.8 > /dev/null 2>&1; then
+        log_error "인터넷 연결 없음"
         exit 1
+    fi
+    
+    # GitHub 연결 확인 (curl 또는 wget 사용)
+    if command -v curl > /dev/null; then
+        if ! curl -s --connect-timeout 10 https://github.com > /dev/null; then
+            log_error "GitHub 연결 실패"
+            exit 1
+        fi
+    elif command -v wget > /dev/null; then
+        if ! wget --timeout=10 --tries=1 -q --spider https://github.com; then
+            log_error "GitHub 연결 실패"
+            exit 1
+        fi
+    else
+        log_warning "curl 또는 wget이 없어 GitHub 연결을 확인할 수 없습니다"
     fi
     
     log_success "시스템 요구사항 검증 완료"
@@ -225,8 +240,16 @@ install_nodejs() {
     # 기존 Node.js 제거
     sudo dnf remove -y nodejs npm 2>/dev/null || true
     
-    # NodeSource 저장소 추가 및 설치
-    retry_command "curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -" "NodeSource 저장소 추가"
+    # NodeSource 저장소 추가 및 설치 (curl 또는 wget 사용)
+    if command -v curl > /dev/null; then
+        retry_command "curl -fsSL https://rpm.nodesource.com/setup_20.x | sudo bash -" "NodeSource 저장소 추가"
+    elif command -v wget > /dev/null; then
+        retry_command "wget -qO- https://rpm.nodesource.com/setup_20.x | sudo bash -" "NodeSource 저장소 추가"
+    else
+        log_error "curl 또는 wget이 필요합니다"
+        exit 1
+    fi
+    
     retry_command "sudo dnf install -y nodejs" "Node.js 설치"
     
     # 버전 확인
@@ -365,21 +388,37 @@ start_server() {
     # 시작 대기
     sleep 15
     
-    # 상태 확인
-    if curl -f http://localhost:3010 > /dev/null 2>&1; then
-        log_success "메인 서버가 정상적으로 실행 중입니다!"
+    # 상태 확인 (curl 또는 wget 사용)
+    if command -v curl > /dev/null; then
+        if curl -f http://localhost:3010 > /dev/null 2>&1; then
+            log_success "메인 서버가 정상적으로 실행 중입니다!"
+        else
+            log_warning "메인 서버 상태를 확인할 수 없습니다."
+        fi
+        
+        if curl -f http://localhost:3011 > /dev/null 2>&1; then
+            log_success "관리자 서버가 정상적으로 실행 중입니다!"
+        else
+            log_warning "관리자 서버 상태를 확인할 수 없습니다."
+        fi
+    elif command -v wget > /dev/null; then
+        if wget --timeout=5 --tries=1 -q --spider http://localhost:3010; then
+            log_success "메인 서버가 정상적으로 실행 중입니다!"
+        else
+            log_warning "메인 서버 상태를 확인할 수 없습니다."
+        fi
+        
+        if wget --timeout=5 --tries=1 -q --spider http://localhost:3011; then
+            log_success "관리자 서버가 정상적으로 실행 중입니다!"
+        else
+            log_warning "관리자 서버 상태를 확인할 수 없습니다."
+        fi
     else
-        log_warning "메인 서버 상태를 확인할 수 없습니다."
-    fi
-    
-    if curl -f http://localhost:3011 > /dev/null 2>&1; then
-        log_success "관리자 서버가 정상적으로 실행 중입니다!"
-    else
-        log_warning "관리자 서버 상태를 확인할 수 없습니다."
+        log_warning "curl 또는 wget이 없어 서버 상태를 확인할 수 없습니다."
     fi
 }
 
-# 설치 후 검증
+# 설치 검증
 verify_installation() {
     log_step "설치 검증 중..."
     
@@ -403,6 +442,23 @@ verify_installation() {
     
     if ! pgrep -f "node.*3011" > /dev/null; then
         log_warning "관리자 서버 프로세스를 찾을 수 없습니다."
+    fi
+    
+    # 네트워크 연결 확인 (curl 또는 wget 사용)
+    if command -v curl > /dev/null; then
+        if curl -f http://localhost:3010 > /dev/null 2>&1; then
+            log_success "메인 서버 연결 확인 완료"
+        fi
+        if curl -f http://localhost:3011 > /dev/null 2>&1; then
+            log_success "관리자 서버 연결 확인 완료"
+        fi
+    elif command -v wget > /dev/null; then
+        if wget --timeout=5 --tries=1 -q --spider http://localhost:3010; then
+            log_success "메인 서버 연결 확인 완료"
+        fi
+        if wget --timeout=5 --tries=1 -q --spider http://localhost:3011; then
+            log_success "관리자 서버 연결 확인 완료"
+        fi
     fi
     
     log_success "설치 검증 완료"
@@ -465,7 +521,13 @@ main() {
     log_info "설치 시간: ${MINUTES}분 ${SECONDS}초"
     
     # 접속 정보 표시
-    PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "YOUR_SERVER_IP")
+    if command -v curl > /dev/null; then
+        PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "YOUR_SERVER_IP")
+    elif command -v wget > /dev/null; then
+        PUBLIC_IP=$(wget -qO- http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "YOUR_SERVER_IP")
+    else
+        PUBLIC_IP="YOUR_SERVER_IP"
+    fi
     echo ""
     echo "🌐 서비스 접속 주소:"
     echo "- 메인 서비스: http://$PUBLIC_IP:3010"
