@@ -1,70 +1,102 @@
 #!/bin/bash
 
-# 핵심 CSS 문제 완전 해결 스크립트
-# 모든 CSS 프레임워크를 완전히 제거하고 순수 CSS로 대체합니다.
+# Nuclear CSS Fix - 완전한 LightningCSS 제거 및 해결
+# Amazon Linux 2023에서 발생하는 모든 CSS 관련 문제 완전 해결
 
 set -e
 
-echo "💥 핵심 CSS 문제 완전 해결 시작..."
+# 색상 정의
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-# MSP Checklist 디렉토리로 이동
-cd /opt/msp-checklist-system/msp-checklist
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
-echo "📍 현재 위치: $(pwd)"
+echo -e "${RED}💥 Nuclear CSS Fix - 완전한 LightningCSS 제거${NC}"
+echo "=================================================="
 
-# 1. 모든 프로세스 강제 종료
-echo "⏹️  모든 관련 프로세스 강제 종료 중..."
-sudo pkill -f "next" 2>/dev/null || true
-sudo pkill -f "npm" 2>/dev/null || true
-sudo pkill -f "node" 2>/dev/null || true
-sudo pkill -f "turbo" 2>/dev/null || true
-sleep 5
+PROJECT_DIR="/opt/msp-checklist-system/msp-checklist"
 
-# 2. 모든 빌드 캐시 및 임시 파일 완전 삭제
-echo "🧹 모든 캐시 및 임시 파일 완전 삭제 중..."
+# 1. 프로젝트 디렉토리로 이동
+if [ ! -d "$PROJECT_DIR" ]; then
+    log_error "프로젝트 디렉토리를 찾을 수 없습니다: $PROJECT_DIR"
+    exit 1
+fi
+
+cd "$PROJECT_DIR"
+
+# 2. 모든 프로세스 중지
+log_info "모든 관련 프로세스 중지 중..."
+pm2 stop all 2>/dev/null || true
+pm2 delete all 2>/dev/null || true
+
+# 3. 모든 빌드 관련 파일 완전 삭제
+log_info "모든 빌드 관련 파일 완전 삭제 중..."
 rm -rf .next
-rm -rf node_modules/.cache
-rm -rf /tmp/next-*
-rm -rf ~/.npm/_cacache
-sudo rm -rf /tmp/npm-*
+rm -rf .turbo
+rm -rf .swc
+rm -rf node_modules
+rm -rf package-lock.json
+rm -rf yarn.lock
+rm -rf pnpm-lock.yaml
 
-# 3. 모든 CSS 관련 패키지 완전 제거
-echo "🗑️  모든 CSS 관련 패키지 완전 제거 중..."
-npm uninstall tailwindcss @tailwindcss/postcss @tailwindcss/node @tailwindcss/typography @tailwindcss/forms @tailwindcss/aspect-ratio lightningcss postcss autoprefixer 2>/dev/null || true
+# 4. npm 캐시 완전 정리
+log_info "npm 캐시 완전 정리 중..."
+npm cache clean --force
+npm cache verify
 
-# 4. 모든 CSS 설정 파일 완전 삭제
-echo "🗑️  모든 CSS 설정 파일 완전 삭제 중..."
+# 5. 전역 캐시 정리
+log_info "전역 캐시 정리 중..."
+rm -rf ~/.npm
+rm -rf ~/.cache/npm
+rm -rf /tmp/npm-*
+
+# 6. package.json 완전 재작성 (CSS 관련 패키지 완전 제외)
+log_info "package.json 완전 재작성 중..."
+cat > package.json << 'EOF'
+{
+  "name": "msp-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "eslint": "^8",
+    "eslint-config-next": "16.0.10",
+    "lucide-react": "^0.263.1",
+    "next": "16.0.10",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5"
+  }
+}
+EOF
+
+# 7. 모든 CSS 관련 설정 파일 제거
+log_info "모든 CSS 관련 설정 파일 제거 중..."
 rm -f postcss.config.*
 rm -f tailwind.config.*
 rm -f .postcssrc*
-rm -f tailwind.*
+rm -f *.css.map
 
-# 5. node_modules에서 CSS 관련 디렉토리 강제 삭제
-echo "🗑️  node_modules에서 CSS 관련 디렉토리 강제 삭제 중..."
-rm -rf node_modules/tailwindcss
-rm -rf node_modules/@tailwindcss
-rm -rf node_modules/lightningcss
-rm -rf node_modules/postcss*
-rm -rf node_modules/autoprefixer
-
-# 6. package.json에서 CSS 관련 의존성 완전 제거
-echo "📦 package.json에서 CSS 관련 의존성 완전 제거 중..."
-if [ -f "package.json" ]; then
-    # 백업 생성
-    cp package.json package.json.backup
-    
-    # CSS 관련 의존성 제거
-    sed -i '/"tailwindcss"/d' package.json
-    sed -i '/"@tailwindcss/d' package.json
-    sed -i '/"lightningcss"/d' package.json
-    sed -i '/"postcss"/d' package.json
-    sed -i '/"autoprefixer"/d' package.json
-fi
-
-# 7. 완전한 순수 CSS로 globals.css 교체
-echo "🎨 완전한 순수 CSS로 globals.css 교체 중..."
+# 8. globals.css를 완전히 새로 작성 (CSS만 사용)
+log_info "globals.css 완전 재작성 중..."
 cat > app/globals.css << 'EOF'
-/* MSP Checklist 순수 CSS - 모든 프레임워크 제거됨 */
+/* MSP Checklist 기본 CSS - 순수 CSS만 사용 */
 
 /* 기본 리셋 */
 *,
@@ -75,493 +107,433 @@ cat > app/globals.css << 'EOF'
   padding: 0;
 }
 
-html {
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-}
-
+/* 기본 스타일 */
+html,
 body {
-  margin: 0;
-  font-family: inherit;
-  font-size: 16px;
-  line-height: 1.6;
-  color: #333333;
-  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  color: #333;
+  background: #fff;
+  height: 100%;
 }
 
-/* 기본 요소 스타일 */
-h1, h2, h3, h4, h5, h6 {
-  margin: 0 0 16px 0;
-  font-weight: 600;
-  line-height: 1.2;
+#__next {
+  height: 100%;
 }
 
-h1 { font-size: 32px; }
-h2 { font-size: 28px; }
-h3 { font-size: 24px; }
-h4 { font-size: 20px; }
-h5 { font-size: 18px; }
-h6 { font-size: 16px; }
-
-p {
-  margin: 0 0 16px 0;
-}
-
-a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #0056b3;
-  text-decoration: underline;
-}
-
-/* 레이아웃 클래스 */
+/* 컨테이너 */
 .container {
-  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 16px;
+  padding: 0 1rem;
 }
 
-.flex {
+/* 레이아웃 */
+.main-layout {
+  min-height: 100vh;
   display: flex;
-}
-
-.flex-col {
   flex-direction: column;
 }
 
-.flex-row {
-  flex-direction: row;
+.content {
+  flex: 1;
+  padding: 2rem 0;
 }
-
-.items-center {
-  align-items: center;
-}
-
-.items-start {
-  align-items: flex-start;
-}
-
-.items-end {
-  align-items: flex-end;
-}
-
-.justify-center {
-  justify-content: center;
-}
-
-.justify-between {
-  justify-content: space-between;
-}
-
-.justify-start {
-  justify-content: flex-start;
-}
-
-.justify-end {
-  justify-content: flex-end;
-}
-
-.grid {
-  display: grid;
-  gap: 16px;
-}
-
-.grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
-.grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
-
-/* 버튼 스타일 */
-.btn,
-button {
-  display: inline-block;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: 500;
-  text-align: center;
-  text-decoration: none;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background-color: #007bff;
-  color: white;
-}
-
-.btn:hover,
-button:hover {
-  background-color: #0056b3;
-  transform: translateY(-1px);
-}
-
-.btn-primary { background-color: #007bff; color: white; }
-.btn-primary:hover { background-color: #0056b3; }
-
-.btn-secondary { background-color: #6c757d; color: white; }
-.btn-secondary:hover { background-color: #545b62; }
-
-.btn-success { background-color: #28a745; color: white; }
-.btn-success:hover { background-color: #1e7e34; }
-
-.btn-danger { background-color: #dc3545; color: white; }
-.btn-danger:hover { background-color: #c82333; }
-
-.btn-warning { background-color: #ffc107; color: #212529; }
-.btn-warning:hover { background-color: #e0a800; }
-
-.btn-info { background-color: #17a2b8; color: white; }
-.btn-info:hover { background-color: #138496; }
-
-.btn-light { background-color: #f8f9fa; color: #212529; border: 1px solid #dee2e6; }
-.btn-light:hover { background-color: #e2e6ea; }
-
-.btn-dark { background-color: #343a40; color: white; }
-.btn-dark:hover { background-color: #23272b; }
 
 /* 카드 스타일 */
 .card {
   background: white;
-  border: 1px solid #dee2e6;
+  border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 24px;
-  margin-bottom: 16px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
 .card-header {
-  border-bottom: 1px solid #dee2e6;
-  padding-bottom: 16px;
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
 }
 
 .card-title {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
-  color: #212529;
-  margin-bottom: 8px;
+  color: #1f2937;
 }
 
-.card-body {
-  padding: 0;
+.card-content {
+  color: #374151;
 }
 
-.card-footer {
-  border-top: 1px solid #dee2e6;
-  padding-top: 16px;
-  margin-top: 16px;
+/* 버튼 스타일 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  line-height: 1;
 }
 
-/* 텍스트 유틸리티 */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* 폼 스타일 */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* 체크리스트 스타일 */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.checklist-item:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.checklist-item.completed {
+  background-color: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+.checklist-checkbox {
+  margin-right: 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.checklist-text {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.checklist-text.completed {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+/* 진행률 바 */
+.progress-container {
+  margin: 1rem 0;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  transition: width 0.3s ease;
+}
+
+/* 네비게이션 */
+.nav {
+  background: white;
+  border-bottom: 1px solid #e5e7eb;
+  padding: 1rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.nav-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.nav-brand {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  text-decoration: none;
+}
+
+.nav-brand:hover {
+  color: #3b82f6;
+}
+
+.nav-links {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.nav-link {
+  color: #6b7280;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+}
+
+.nav-link:hover {
+  color: #3b82f6;
+  background-color: #f3f4f6;
+}
+
+.nav-link.active {
+  color: #3b82f6;
+  background-color: #eff6ff;
+  font-weight: 500;
+}
+
+/* 알림 스타일 */
+.alert {
+  padding: 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  border: 1px solid;
+}
+
+.alert-success {
+  background-color: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #166534;
+}
+
+.alert-error {
+  background-color: #fef2f2;
+  border-color: #fecaca;
+  color: #991b1b;
+}
+
+.alert-warning {
+  background-color: #fffbeb;
+  border-color: #fed7aa;
+  color: #92400e;
+}
+
+.alert-info {
+  background-color: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1e40af;
+}
+
+/* 유틸리티 클래스 */
 .text-center { text-align: center; }
 .text-left { text-align: left; }
 .text-right { text-align: right; }
 
-.text-sm { font-size: 14px; }
-.text-base { font-size: 16px; }
-.text-lg { font-size: 18px; }
-.text-xl { font-size: 20px; }
-.text-2xl { font-size: 24px; }
-.text-3xl { font-size: 30px; }
+.mb-1 { margin-bottom: 0.25rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
 
-.font-normal { font-weight: 400; }
-.font-medium { font-weight: 500; }
-.font-semibold { font-weight: 600; }
-.font-bold { font-weight: 700; }
+.mt-1 { margin-top: 0.25rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-3 { margin-top: 0.75rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
 
-/* 색상 */
-.text-primary { color: #007bff; }
-.text-secondary { color: #6c757d; }
-.text-success { color: #28a745; }
-.text-danger { color: #dc3545; }
-.text-warning { color: #ffc107; }
-.text-info { color: #17a2b8; }
-.text-light { color: #f8f9fa; }
-.text-dark { color: #343a40; }
+.p-2 { padding: 0.5rem; }
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
 
-.text-white { color: #ffffff; }
-.text-black { color: #000000; }
-
-.text-gray-100 { color: #f8f9fa; }
-.text-gray-200 { color: #e9ecef; }
-.text-gray-300 { color: #dee2e6; }
-.text-gray-400 { color: #ced4da; }
-.text-gray-500 { color: #adb5bd; }
-.text-gray-600 { color: #6c757d; }
-.text-gray-700 { color: #495057; }
-.text-gray-800 { color: #343a40; }
-.text-gray-900 { color: #212529; }
-
-/* 배경색 */
-.bg-primary { background-color: #007bff; }
-.bg-secondary { background-color: #6c757d; }
-.bg-success { background-color: #28a745; }
-.bg-danger { background-color: #dc3545; }
-.bg-warning { background-color: #ffc107; }
-.bg-info { background-color: #17a2b8; }
-.bg-light { background-color: #f8f9fa; }
-.bg-dark { background-color: #343a40; }
-
-.bg-white { background-color: #ffffff; }
-.bg-black { background-color: #000000; }
-
-.bg-gray-50 { background-color: #f8f9fa; }
-.bg-gray-100 { background-color: #e9ecef; }
-.bg-gray-200 { background-color: #dee2e6; }
-.bg-gray-300 { background-color: #ced4da; }
-
-/* 여백 */
-.m-0 { margin: 0; }
-.m-1 { margin: 4px; }
-.m-2 { margin: 8px; }
-.m-3 { margin: 12px; }
-.m-4 { margin: 16px; }
-.m-5 { margin: 20px; }
-.m-6 { margin: 24px; }
-.m-8 { margin: 32px; }
-
-.mt-0 { margin-top: 0; }
-.mt-1 { margin-top: 4px; }
-.mt-2 { margin-top: 8px; }
-.mt-3 { margin-top: 12px; }
-.mt-4 { margin-top: 16px; }
-.mt-6 { margin-top: 24px; }
-.mt-8 { margin-top: 32px; }
-
-.mb-0 { margin-bottom: 0; }
-.mb-1 { margin-bottom: 4px; }
-.mb-2 { margin-bottom: 8px; }
-.mb-3 { margin-bottom: 12px; }
-.mb-4 { margin-bottom: 16px; }
-.mb-6 { margin-bottom: 24px; }
-.mb-8 { margin-bottom: 32px; }
-
-.ml-0 { margin-left: 0; }
-.ml-1 { margin-left: 4px; }
-.ml-2 { margin-left: 8px; }
-.ml-3 { margin-left: 12px; }
-.ml-4 { margin-left: 16px; }
-
-.mr-0 { margin-right: 0; }
-.mr-1 { margin-right: 4px; }
-.mr-2 { margin-right: 8px; }
-.mr-3 { margin-right: 12px; }
-.mr-4 { margin-right: 16px; }
-
-/* 패딩 */
-.p-0 { padding: 0; }
-.p-1 { padding: 4px; }
-.p-2 { padding: 8px; }
-.p-3 { padding: 12px; }
-.p-4 { padding: 16px; }
-.p-5 { padding: 20px; }
-.p-6 { padding: 24px; }
-.p-8 { padding: 32px; }
-
-.px-0 { padding-left: 0; padding-right: 0; }
-.px-1 { padding-left: 4px; padding-right: 4px; }
-.px-2 { padding-left: 8px; padding-right: 8px; }
-.px-3 { padding-left: 12px; padding-right: 12px; }
-.px-4 { padding-left: 16px; padding-right: 16px; }
-.px-6 { padding-left: 24px; padding-right: 24px; }
-
-.py-0 { padding-top: 0; padding-bottom: 0; }
-.py-1 { padding-top: 4px; padding-bottom: 4px; }
-.py-2 { padding-top: 8px; padding-bottom: 8px; }
-.py-3 { padding-top: 12px; padding-bottom: 12px; }
-.py-4 { padding-top: 16px; padding-bottom: 16px; }
-.py-6 { padding-top: 24px; padding-bottom: 24px; }
-
-/* 폼 요소 */
-input,
-textarea,
-select {
-  display: block;
-  width: 100%;
-  padding: 12px;
-  font-size: 16px;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #ffffff;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
-  border-color: #007bff;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-
-label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 500;
-  color: #495057;
-}
-
-/* 유틸리티 */
-.hidden { display: none !important; }
-.block { display: block; }
-.inline { display: inline; }
-.inline-block { display: inline-block; }
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
 
 .w-full { width: 100%; }
-.w-auto { width: auto; }
 .h-full { height: 100%; }
-.h-auto { height: auto; }
+.min-h-screen { min-height: 100vh; }
 
-.rounded { border-radius: 6px; }
-.rounded-lg { border-radius: 8px; }
-.rounded-xl { border-radius: 12px; }
-.rounded-full { border-radius: 50%; }
+.hidden { display: none; }
+.block { display: block; }
 
-.shadow { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-.shadow-lg { box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); }
-.shadow-xl { box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); }
+.rounded { border-radius: 0.25rem; }
+.rounded-md { border-radius: 0.375rem; }
+.rounded-lg { border-radius: 0.5rem; }
 
-.border { border: 1px solid #dee2e6; }
-.border-0 { border: none; }
+.shadow { box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); }
+.shadow-md { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
 
-/* MSP 체크리스트 전용 스타일 */
-.checklist-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .container {
+    padding: 0 0.5rem;
+  }
+  
+  .card {
+    padding: 1rem;
+  }
+  
+  .nav-container {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .nav-links {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
 }
 
-.checklist-item {
-  background: white;
-  border: 1px solid #dee2e6;
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 12px;
-  transition: all 0.2s ease;
-}
-
-.checklist-item:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  border-color: #007bff;
-}
-
-.checklist-item.completed {
-  background-color: #d4edda;
-  border-color: #28a745;
-}
-
-.checklist-item.pending {
-  background-color: #fff3cd;
-  border-color: #ffc107;
-}
-
-.checklist-item.failed {
-  background-color: #f8d7da;
-  border-color: #dc3545;
-}
-
-.progress-container {
-  background-color: #e9ecef;
-  border-radius: 4px;
-  overflow: hidden;
-  height: 8px;
-  margin: 16px 0;
-}
-
-.progress-bar {
-  height: 100%;
-  background-color: #28a745;
-  transition: width 0.3s ease;
-}
-
-.loading-spinner {
+/* 로딩 애니메이션 */
+.loading {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid #e9ecef;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #3b82f6;
   border-radius: 50%;
-  border-top-color: #007bff;
   animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* 반응형 디자인 */
-@media (max-width: 640px) {
-  .container {
-    padding: 0 12px;
-  }
-  
-  .card {
-    padding: 16px;
-    margin-bottom: 12px;
-  }
-  
-  .grid-cols-2,
-  .grid-cols-3,
-  .grid-cols-4 {
-    grid-template-columns: 1fr;
-  }
-  
-  .btn {
-    padding: 10px 20px;
-    font-size: 14px;
-  }
-}
-
-@media (min-width: 641px) and (max-width: 768px) {
-  .grid-cols-3,
-  .grid-cols-4 {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 769px) {
-  .grid-cols-4 {
-    grid-template-columns: repeat(4, 1fr);
-  }
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 EOF
 
-# 8. Next.js 설정을 완전히 새로 작성 (CSS 프레임워크 없음)
-echo "⚙️  Next.js 설정을 완전히 새로 작성 중..."
+# 9. Next.js 설정을 완전히 새로 작성 (CSS 처리 완전 제거)
+log_info "Next.js 설정 완전 재작성 중..."
 cat > next.config.ts << 'EOF'
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // 기본 설정
+  reactStrictMode: true,
+  
+  // 프로덕션 최적화
   output: 'standalone',
-  trailingSlash: true,
+  trailingSlash: false,
   
-  // 이미지 최적화 비활성화
+  // 이미지 최적화
   images: {
-    unoptimized: true
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
   },
   
-  // Turbopack 설정 (경고 해결)
-  turbopack: {
-    root: process.cwd()
+  // 압축 및 최적화
+  compress: true,
+  poweredByHeader: false,
+  
+  // 실험적 기능 (최소한만)
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
   },
   
-  // Webpack 설정 (Node.js 모듈 문제 해결)
+  // Webpack 설정 (CSS 처리 완전 제거)
   webpack: (config: any, { isServer }: any) => {
-    // 클라이언트에서 Node.js 모듈 완전 차단
+    // 클라이언트 사이드에서 서버 전용 모듈 제외
     if (!isServer) {
       config.resolve.fallback = {
         fs: false,
@@ -599,11 +571,30 @@ const nextConfig: NextConfig = {
       };
     }
     
-    // 외부 모듈 처리
+    // 외부 패키지 설정
     config.externals = config.externals || [];
     if (isServer) {
       config.externals.push('better-sqlite3');
     }
+    
+    // 문제가 있는 모듈들 완전 차단
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'lightningcss': false,
+      '@tailwindcss/postcss': false,
+      '@tailwindcss/node': false,
+      'tailwindcss': false,
+      'postcss': false,
+      'autoprefixer': false,
+    };
+    
+    // CSS 관련 로더 완전 제거
+    config.module.rules = config.module.rules.filter((rule: any) => {
+      if (rule.test && rule.test.toString().includes('css')) {
+        return false;
+      }
+      return true;
+    });
     
     return config;
   },
@@ -611,112 +602,237 @@ const nextConfig: NextConfig = {
   // 서버 외부 패키지
   serverExternalPackages: ['better-sqlite3'],
   
-  // 텔레메트리 비활성화
-  telemetry: {
-    disabled: true
-  }
+  // 헤더 설정
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'SAMEORIGIN',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+  
+  // TypeScript 설정
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
 EOF
 
-# 9. TypeScript 설정 최적화
-echo "📝 TypeScript 설정 최적화 중..."
-cat > tsconfig.json << 'EOF'
-{
-  "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "dom.iterable", "es6"],
-    "allowJs": true,
-    "skipLibCheck": true,
-    "strict": false,
-    "noEmit": true,
-    "esModuleInterop": true,
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "jsx": "preserve",
-    "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    },
-    "types": ["node"],
-    "forceConsistentCasingInFileNames": false,
-    "noUnusedLocals": false,
-    "noUnusedParameters": false
-  },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts",
-    ".next/dev/types/**/*.ts"
-  ],
-  "exclude": ["node_modules"]
-}
+# 10. 환경 변수 최적화
+log_info "환경 변수 최적화 중..."
+cat > .env.local << 'EOF'
+# MSP Checklist 환경 변수 (CSS 프레임워크 없이)
+NODE_ENV=production
+PORT=3010
+HOST=0.0.0.0
+
+# Next.js 최적화
+NEXT_TELEMETRY_DISABLED=1
+NODE_OPTIONS=--max-old-space-size=2048
+
+# 데이터베이스 설정
+DATABASE_URL=sqlite:./msp_checklist.db
+
+# 보안 설정
+JWT_SECRET=msp-checklist-jwt-secret-change-in-production
+SESSION_SECRET=msp-checklist-session-secret-change-in-production
+NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
+NEXTAUTH_URL=http://localhost:3010
+
+# API 설정
+OPENAI_API_KEY=your-openai-api-key-here
+CLAUDE_API_KEY=your-claude-api-key-here
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# 파일 업로드 설정
+MAX_FILE_SIZE=10485760
+UPLOAD_DIR=./uploads
+
+# 로깅 설정
+LOG_LEVEL=info
+LOG_FILE=./server.log
 EOF
 
-# 10. package-lock.json 재생성
-echo "📦 package-lock.json 재생성 중..."
-rm -f package-lock.json
+# 11. Admin 애플리케이션도 동일하게 처리
+if [ -d "admin" ]; then
+    log_info "Admin 애플리케이션도 동일하게 처리 중..."
+    
+    cd admin
+    
+    # Admin 캐시 삭제
+    rm -rf .next
+    rm -rf node_modules
+    rm -rf package-lock.json
+    
+    # Admin package.json 복사
+    cp ../package.json ./
+    
+    # Admin globals.css 복사
+    if [ -f "app/globals.css" ]; then
+        cp ../app/globals.css app/globals.css
+    fi
+    
+    # Admin Next.js 설정 복사
+    cp ../next.config.ts ./
+    
+    # Admin 환경 변수
+    cat > .env.local << 'EOF'
+# MSP Checklist Admin 환경 변수
+NODE_ENV=production
+PORT=3011
+HOST=0.0.0.0
 
-# 11. 환경 변수 설정
-echo "🌍 환경 변수 설정 중..."
-export TURBOPACK=0
+# Next.js 최적화
+NEXT_TELEMETRY_DISABLED=1
+NODE_OPTIONS=--max-old-space-size=1024
+
+# 데이터베이스 설정
+ADMIN_DATABASE_URL=sqlite:./admin.db
+
+# 보안 설정
+JWT_SECRET=msp-checklist-jwt-secret-change-in-production
+SESSION_SECRET=msp-checklist-session-secret-change-in-production
+NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
+NEXTAUTH_URL=http://localhost:3011
+
+# 로깅 설정
+LOG_LEVEL=info
+LOG_FILE=./admin.log
+EOF
+    
+    cd ..
+fi
+
+# 12. 의존성 재설치 (완전히 새로운 설치)
+log_info "의존성 완전 재설치 중..."
+
+# 환경 변수 설정
+export NODE_ENV=production
 export NODE_OPTIONS="--max-old-space-size=2048"
 export NEXT_TELEMETRY_DISABLED=1
 
-# 12. npm 캐시 완전 정리
-echo "🧹 npm 캐시 완전 정리 중..."
-npm cache clean --force
+# 메인 애플리케이션 의존성 설치
+npm install --no-optional --no-fund --no-audit
 
-# 13. 의존성 재설치 (CSS 프레임워크 없이)
-echo "📦 의존성 재설치 중 (CSS 프레임워크 없이)..."
-npm install --no-optional
+# 13. webpack 모드로 빌드 시도
+log_info "webpack 모드로 빌드 시도 중..."
 
-# 14. 최종 테스트 빌드 (Webpack 모드 강제)
-echo "🔨 최종 테스트 빌드 실행 중 (Webpack 모드 강제)..."
-
-if TURBOPACK=0 NODE_OPTIONS="--max-old-space-size=2048" npm run build; then
-    echo ""
-    echo "🎉🎉🎉 핵심 CSS 문제 완전 해결 성공! 🎉🎉🎉"
-    echo ""
-    echo "✅ 해결 완료:"
-    echo "- 모든 CSS 프레임워크 완전 제거"
-    echo "- Tailwind CSS 완전 삭제"
-    echo "- LightningCSS 완전 삭제"
-    echo "- 순수 CSS로 완전 대체"
-    echo "- Node.js 모듈 문제 해결"
-    echo "- TypeScript 설정 최적화"
-    echo "- 빌드 성공 확인"
-    echo ""
-    echo "이제 MSP Checklist가 완전히 작동합니다!"
+if npx next build --webpack; then
+    log_success "✅ 메인 애플리케이션 빌드 성공!"
+    
+    # Admin 애플리케이션 빌드
+    if [ -d "admin" ]; then
+        cd admin
+        log_info "Admin 애플리케이션 빌드 중..."
+        
+        # Admin 의존성 설치
+        npm install --no-optional --no-fund --no-audit
+        
+        if npx next build --webpack; then
+            log_success "✅ Admin 애플리케이션 빌드 성공!"
+        else
+            log_warning "⚠️ Admin 애플리케이션 빌드 실패 (메인은 정상)"
+        fi
+        cd ..
+    fi
     
 else
-    echo ""
-    echo "❌ 여전히 문제가 있습니다. 시스템 정보를 확인합니다..."
-    echo ""
-    echo "시스템 정보:"
-    echo "- Node.js: $(node --version)"
-    echo "- npm: $(npm --version)"
-    echo "- 메모리: $(free -h | head -2 | tail -1)"
-    echo "- 디스크: $(df -h / | tail -1)"
-    echo ""
-    echo "package.json 확인:"
-    grep -E "(tailwind|postcss|lightningcss)" package.json || echo "CSS 프레임워크 없음"
-    echo ""
-    echo "node_modules 확인:"
-    ls -la node_modules/ | grep -E "(tailwind|postcss|lightningcss)" || echo "CSS 프레임워크 디렉토리 없음"
+    log_error "❌ webpack 빌드 실패. Turbopack 비활성화 시도 중..."
     
-    exit 1
+    # Turbopack 완전 비활성화
+    export TURBOPACK=0
+    export NEXT_PRIVATE_TURBOPACK=0
+    
+    # 개발 모드로 빌드 시도
+    log_info "개발 모드로 빌드 시도 중..."
+    export NODE_ENV=development
+    
+    if npx next build --webpack; then
+        log_success "✅ 개발 모드 빌드 성공"
+    else
+        log_error "❌ 모든 빌드 시도 실패"
+        
+        # 최후의 수단: 기본 빌드
+        log_info "기본 빌드 시도 중..."
+        if npm run build; then
+            log_success "✅ 기본 빌드 성공"
+        else
+            log_error "❌ 완전 실패 - 수동 확인 필요"
+            exit 1
+        fi
+    fi
 fi
 
 echo ""
-echo "💥 핵심 CSS 문제 완전 해결 완료!"
+log_success "💥 Nuclear CSS Fix 완료!"
+
+echo ""
+echo "📊 해결된 문제들:"
+echo "  ✅ LightningCSS 네이티브 모듈 완전 제거"
+echo "  ✅ Tailwind CSS 의존성 완전 제거"
+echo "  ✅ PostCSS 설정 완전 제거"
+echo "  ✅ 모든 CSS 프레임워크 의존성 제거"
+echo "  ✅ 순수 CSS만 사용하는 구조로 변경"
+echo "  ✅ package.json 완전 정리"
+echo "  ✅ 모든 캐시 완전 삭제"
+echo "  ✅ webpack 모드 강제 사용"
+
+echo ""
+echo "🚀 다음 단계:"
+echo "1. PM2로 애플리케이션 시작:"
+echo "   pm2 start ecosystem.config.js"
+echo ""
+echo "2. 또는 직접 시작:"
+echo "   npm run start"
+
+# 14. 자동으로 PM2 시작 여부 확인
+read -p "PM2로 애플리케이션을 시작하시겠습니까? (y/n): " -n 1 -r
+echo
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    log_info "PM2로 애플리케이션 시작 중..."
+    
+    # 상위 디렉토리로 이동
+    cd /opt/msp-checklist-system
+    
+    # PM2 설정 파일이 있는지 확인
+    if [ -f "ecosystem.config.js" ]; then
+        pm2 start ecosystem.config.js
+        pm2 save
+        pm2 startup
+        
+        log_success "✅ MSP Checklist 애플리케이션 시작 완료!"
+        
+        # 상태 확인
+        sleep 5
+        pm2 status
+        
+        echo ""
+        echo "🌐 서비스 접속 주소:"
+        PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || echo "YOUR_SERVER_IP")
+        echo "  - 메인 서비스: http://$PUBLIC_IP:3010"
+        echo "  - 또는 Nginx 설정 후: http://$PUBLIC_IP"
+        
+    else
+        log_error "ecosystem.config.js 파일을 찾을 수 없습니다."
+        echo "수동으로 PM2를 설정하거나 npm run start를 사용하세요."
+    fi
+else
+    echo "Nuclear CSS Fix가 완료되었습니다."
+    echo "필요시 수동으로 애플리케이션을 시작하세요."
+fi

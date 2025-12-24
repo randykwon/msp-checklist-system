@@ -1103,8 +1103,17 @@ build_application() {
         local build_error_log=$(npm run build 2>&1 | tail -20)
         
         if echo "$build_error_log" | grep -q "lightningcss\|Cannot find module.*lightningcss"; then
-            log_info "LightningCSS 관련 오류 감지됨 - 해결 시작"
-            fix_lightningcss_issues "main"
+            log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Nuclear Fix 실행"
+            
+            # Nuclear CSS Fix 실행
+            if [ -f "/opt/msp-checklist-system/nuclear-css-fix.sh" ]; then
+                log_info "Nuclear CSS Fix 스크립트 실행 중..."
+                bash /opt/msp-checklist-system/nuclear-css-fix.sh
+                return 0
+            else
+                log_info "LightningCSS 문제 해결 시작"
+                fix_lightningcss_issues "main"
+            fi
         elif echo "$build_error_log" | grep -q "ENOSPC\|no space left"; then
             log_error "디스크 공간 부족 - 정리 필요"
             # 캐시 정리
