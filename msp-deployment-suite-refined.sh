@@ -5,7 +5,25 @@
 # Ubuntu 22.04 LTS 및 Amazon Linux 2023 지원
 # 모든 알려진 문제 해결 기능 통합
 
+# Better error handling instead of set -e
+set -o pipefail
 set -e
+
+# Error trap for debugging
+error_handler() {
+    local line_number=$1
+    local error_code=$2
+    local command="$3"
+    echo -e "\033[0;31m[ERROR]\033[0m ❌ 스크립트 실행 오류 발생!"
+    echo -e "\033[0;31m[ERROR]\033[0m    라인: $line_number"
+    echo -e "\033[0;31m[ERROR]\033[0m    오류 코드: $error_code"
+    echo -e "\033[0;31m[ERROR]\033[0m    명령어: $command"
+    echo -e "\033[0;31m[ERROR]\033[0m    현재 디렉토리: $(pwd)"
+    echo -e "\033[0;31m[ERROR]\033[0m    사용자: $(whoami)"
+    exit $error_code
+}
+
+trap 'error_handler ${LINENO} $? "$BASH_COMMAND"' ERR
 
 # 색상 정의
 RED='\033[0;31m'
@@ -424,7 +442,7 @@ setup_project() {
     sudo git clone https://github.com/randykwon/msp-checklist-system.git
     
     # 소유권 설정
-    sudo chown -R $USER_NAME:$USER_NAME msp-checklist-system
+    sudo chown -R "$USER_NAME:$USER_NAME" msp-checklist-system
     
     # 실행 권한 부여
     cd msp-checklist-system
@@ -437,7 +455,7 @@ setup_project() {
 setup_environment_variables() {
     log_step "환경 변수 설정 중..."
     
-    cd $PROJECT_DIR
+    cd "$PROJECT_DIR"
     
     # 통합 환경 변수 파일 생성
     cat > .env.unified << 'EOF'
@@ -1060,7 +1078,7 @@ build_application() {
     
     log_step "MSP Checklist 애플리케이션 빌드 중..."
     
-    cd $PROJECT_DIR/msp-checklist
+    cd "$PROJECT_DIR/msp-checklist"
     
     # 환경 변수 설정
     export NODE_OPTIONS="--max-old-space-size=2048"
@@ -1896,553 +1914,24 @@ EOF
 }
 
 # 애플리케이션 시작
-
-/* 기본 스타일 */
-html,
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
-  color: #333;
-  background: #fff;
-  height: 100%;
-}
-
-#__next {
-  height: 100%;
-}
-
-/* 컨테이너 */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-}
-
-/* 레이아웃 */
-.main-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-.content {
-  flex: 1;
-  padding: 2rem 0;
-}
-
-/* 카드 스타일 */
-.card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.card-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #1f2937;
-}
-
-.card-content {
-  color: #374151;
-}
-
-/* 버튼 스타일 */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
-  line-height: 1;
-}
-
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.btn-primary {
-  background-color: #3b82f6;
-  color: white;
-}
-
-.btn-primary:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.btn-secondary {
-  background-color: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover:not(:disabled) {
-  background-color: #4b5563;
-}
-
-.btn-success {
-  background-color: #10b981;
-  color: white;
-}
-
-.btn-success:hover:not(:disabled) {
-  background-color: #059669;
-}
-
-.btn-danger {
-  background-color: #ef4444;
-  color: white;
-}
-
-.btn-danger:hover:not(:disabled) {
-  background-color: #dc2626;
-}
-
-/* 폼 스타일 */
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-  font-size: 0.875rem;
-}
-
-.form-input,
-.form-select,
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  background-color: white;
-  transition: border-color 0.2s ease;
-}
-
-.form-input:focus,
-.form-select:focus,
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-textarea {
-  resize: vertical;
-  min-height: 100px;
-}
-
-/* 체크리스트 스타일 */
-.checklist-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
-  background-color: white;
-}
-
-.checklist-item:hover {
-  background-color: #f9fafb;
-  border-color: #d1d5db;
-}
-
-.checklist-item.completed {
-  background-color: #f0f9ff;
-  border-color: #3b82f6;
-}
-
-.checklist-checkbox {
-  margin-right: 0.75rem;
-  width: 1.25rem;
-  height: 1.25rem;
-  cursor: pointer;
-}
-
-.checklist-text {
-  flex: 1;
-  font-size: 0.875rem;
-}
-
-.checklist-text.completed {
-  text-decoration: line-through;
-  color: #6b7280;
-}
-
-/* 진행률 바 */
-.progress-container {
-  margin: 1rem 0;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: #374151;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #3b82f6;
-  transition: width 0.3s ease;
-}
-
-/* 통계 카드 */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.stat-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #3b82f6;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.5rem;
-}
-
-/* 네비게이션 */
-.nav {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 0;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-brand {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #1f2937;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-link {
-  color: #6b7280;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-  color: #3b82f6;
-  background-color: #f3f4f6;
-}
-
-.nav-link.active {
-  color: #3b82f6;
-  background-color: #eff6ff;
-}
-
-/* 유틸리티 클래스 */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 0.75rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-5 { margin-bottom: 1.25rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 0.75rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-5 { margin-top: 1.25rem; }
-.mt-6 { margin-top: 1.5rem; }
-
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-4 { padding: 1rem; }
-.p-5 { padding: 1.25rem; }
-.p-6 { padding: 1.5rem; }
-
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-
-.hidden { display: none; }
-.block { display: block; }
-.inline-block { display: inline-block; }
-
-/* 반응형 디자인 */
-@media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-  
-  .card {
-    padding: 1rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .nav-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-/* 로딩 애니메이션 */
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 알림 스타일 */
-.alert {
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-.alert-success {
-  background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-}
-
-.alert-warning {
-  background-color: #fffbeb;
-  border: 1px solid #fed7aa;
-  color: #92400e;
-}
-
-.alert-info {
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
-}
-EOF
-    
-    # Next.js 설정 최적화 (LightningCSS 없이)
-    log_info "Next.js 설정 최적화 중..."
-    
-    cat > next.config.ts << 'EOF'
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
-  // 프로덕션 최적화
-  output: 'standalone',
-  trailingSlash: false,
-  
-  // 이미지 최적화 (AWS 환경 호환)
-  images: {
-    unoptimized: true,
-    domains: ['localhost'],
-  },
-  
-  // 압축 및 최적화
-  compress: true,
-  poweredByHeader: false,
-  
-  // 실험적 기능 (LightningCSS 제외)
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-  
-  // Webpack 설정 (Amazon Linux 2023 호환)
-  webpack: (config: any, { isServer }: any) => {
-    // 클라이언트 사이드에서 서버 전용 모듈 제외
-    if (!isServer) {
-      config.resolve.fallback = {
-        fs: false,
-        path: false,
-        crypto: false,
-        stream: false,
-        util: false,
-        buffer: false,
-        process: false,
-        os: false,
-        events: false,
-        url: false,
-        querystring: false,
-        http: false,
-        https: false,
-        zlib: false,
-        net: false,
-        tls: false,
-        child_process: false,
-        dns: false,
-        cluster: false,
-        module: false,
-        readline: false,
-        repl: false,
-        vm: false,
-        constants: false,
-        domain: false,
-        punycode: false,
-        string_decoder: false,
-        sys: false,
-        timers: false,
-        tty: false,
-        dgram: false,
-        assert: false,
-      };
-    }
-    
-    // 외부 패키지 설정
-    config.externals = config.externals || [];
-    if (isServer) {
-      config.externals.push('better-sqlite3');
-    }
-    
-    // 네이티브 모듈 문제 해결
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'lightningcss': false,
-      '@tailwindcss/postcss': false,
-    };
-    
-    return config;
-  },
-  
-  // 서버 외부 패키지
-  serverExternalPackages: ['better-sqlite3'],
-  
-  // 헤더 설정
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ];
-  },
-};
-
-export default nextConfig;
-EOF
-    
-    # package.json에서 문제가 있는 의존성 제거
-    log_info "package.json에서 문제가 있는 의존성 제거 중..."
-    
-    if command -v jq > /dev/null 2>&1; then
-        # jq가 있는 경우
-        jq 'del(.dependencies.lightningcss, .dependencies."@tailwindcss/postcss", .dependencies."@tailwindcss/node", .dependencies.tailwindcss, .dependencies.postcss, .dependencies.autoprefixer)' package.json > package.json.tmp && mv package.json.tmp package.json
-    else
-        # jq가 없는 경우 sed 사용
-        sed -i '/"lightningcss"/d; /"@tailwindcss/d; /"tailwindcss"/d; /"postcss"/d; /"autoprefixer"/d' package.json
-    fi
-    
-    # 의존성 재설치
-    log_info "의존성 재설치 중..."
-    rm -rf node_modules package-lock.json
-    npm install --omit=optional --legacy-peer-deps
-    
-    log_success "✅ LightningCSS 문제 해결 완료 ($app_type)"
-}
-
-# 애플리케이션 시작
 start_applications() {
     log_step "MSP Checklist 애플리케이션 시작 중..."
     
-    cd $PROJECT_DIR
+    # Debug information
+    log_debug "PROJECT_DIR: $PROJECT_DIR"
+    log_debug "Current directory: $(pwd)"
+    log_debug "User: $(whoami)"
+    
+    # Check if directory exists
+    if [ ! -d "$PROJECT_DIR" ]; then
+        log_error "프로젝트 디렉토리가 존재하지 않습니다: $PROJECT_DIR"
+        return 1
+    fi
+    
+    cd "$PROJECT_DIR" || {
+        log_error "디렉토리 변경 실패: $PROJECT_DIR"
+        return 1
+    }
     
     # PM2로 애플리케이션 시작
     pm2 start ecosystem.config.js
@@ -2633,17 +2122,17 @@ show_completion_info() {
     echo ""
     echo "🔧 관리 명령어:"
     echo "  - 전체 상태 확인: sudo /usr/local/bin/msp-status.sh"
-    echo "  - 애플리케이션 재시작: cd $PROJECT_DIR && ./restart-all.sh"
-    echo "  - 로그 확인: cd $PROJECT_DIR && ./view-logs.sh"
+    echo "  - 애플리케이션 재시작: cd \"$PROJECT_DIR\" && ./restart-all.sh"
+    echo "  - 로그 확인: cd \"$PROJECT_DIR\" && ./view-logs.sh"
     echo "  - PM2 상태: pm2 status"
     echo "  - Nginx 상태: sudo systemctl status nginx"
     
     echo ""
     echo "📝 다음 단계:"
     echo "1. AWS 보안 그룹에서 포트 80, 443 인바운드 규칙 확인"
-    echo "2. 환경 변수 설정: nano $PROJECT_DIR/.env.unified"
+    echo "2. 환경 변수 설정: nano \"$PROJECT_DIR\"/.env.unified"
     echo "3. 실제 API 키 설정 (OpenAI, Claude, Gemini)"
-    echo "4. 관리자 계정 생성: cd $PROJECT_DIR && node create-admin.cjs"
+    echo "4. 관리자 계정 생성: cd \"$PROJECT_DIR\" && node create-admin.cjs"
     
     if [ "$SETUP_SSL" = false ] && [ "$DOMAIN_NAME" = "" ]; then
         echo "5. SSL 인증서 설정 (권장): $0 --ssl --domain your-domain.com --email your@email.com"
@@ -2729,7 +2218,11 @@ main() {
     fi
     
     if [ "$INSTALL_DEPS" = true ]; then
-        start_applications
+        log_step "애플리케이션 시작 단계 진입..."
+        start_applications || {
+            log_error "애플리케이션 시작 실패"
+            return 1
+        }
     fi
     
     test_connections
