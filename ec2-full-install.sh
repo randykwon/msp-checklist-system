@@ -144,6 +144,47 @@ detect_os() {
     fi
 }
 
+# Nginx 설치 상태 확인
+check_nginx_installation() {
+    log_info "Nginx 설치 상태 확인 중..."
+    
+    if command -v nginx > /dev/null 2>&1; then
+        NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+        log_success "✅ Nginx 설치됨: 버전 $NGINX_VERSION"
+        return 0
+    else
+        log_warning "❌ Nginx가 설치되지 않음"
+        return 1
+    fi
+}
+
+# Nginx 설치 함수
+install_nginx() {
+    log_info "Nginx 설치 중..."
+    
+    if [[ "$OS_TYPE" == "ubuntu" ]]; then
+        sudo apt update
+        sudo apt install -y nginx
+        
+    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
+        sudo dnf update -y
+        sudo dnf install -y nginx
+    fi
+    
+    # Nginx 서비스 활성화
+    sudo systemctl enable nginx
+    sudo systemctl start nginx
+    
+    # 설치 확인
+    if command -v nginx > /dev/null 2>&1; then
+        NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+        log_success "Nginx 설치 완료: 버전 $NGINX_VERSION"
+    else
+        log_error "Nginx 설치 실패"
+        return 1
+    fi
+}
+
 # Node.js 설치 함수
 install_nodejs() {
     log_info "Node.js 20.9.0 설치 중..."
@@ -245,7 +286,16 @@ install_dependencies() {
         # Ubuntu 의존성 설치
         sudo apt update -y
         sudo apt upgrade -y
-        sudo apt install -y curl wget git nginx sqlite3 htop unzip build-essential
+        sudo apt install -y curl wget git sqlite3 htop unzip build-essential
+        
+        # Nginx 별도 설치 및 확인
+        if ! check_nginx_installation; then
+            sudo apt install -y nginx
+            if ! check_nginx_installation; then
+                log_error "Nginx 설치 실패"
+                return 1
+            fi
+        fi
         
     elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
         # Amazon Linux 2023 의존성 설치
@@ -258,12 +308,25 @@ install_dependencies() {
             sudo dnf install -y curl --allowerasing 2>/dev/null || true
         fi
         
-        sudo dnf install -y curl wget git nginx sqlite htop unzip gcc gcc-c++ make
+        sudo dnf install -y curl wget git sqlite htop unzip gcc gcc-c++ make
         sudo dnf groupinstall -y 'Development Tools'
+        
+        # Nginx 별도 설치 및 확인
+        if ! check_nginx_installation; then
+            sudo dnf install -y nginx
+            if ! check_nginx_installation; then
+                log_error "Nginx 설치 실패"
+                return 1
+            fi
+        fi
     fi
     
     # Node.js 설치
     install_nodejs
+    
+    # Nginx 서비스 시작 및 활성화
+    sudo systemctl enable nginx
+    sudo systemctl start nginx
     
     log_success "의존성 설치 완료"
 }
@@ -423,65 +486,222 @@ EOF
 setup_nginx() {
     log_info "Nginx 리버스 프록시 설정 중..."
     
-    # Nginx 설정 파일 생성
-    sudo tee /etc/nginx/sites-available/msp-checklist > /dev/null << 'EOF'
+    # Nginx 설치 상태 재확인
+    if ! check_nginx_installation; then
+        log_info "Nginx가 설치되지 않았습니다. 설치를 시도합니다..."
+        install_nginx || {
+            log_error "Nginx 설치 실패"
+            return 1
+        }
+    fi
+    
+    # 기존 설정 백업
+    if [ -f /etc/nginx/nginx.conf ]; then
+        sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)
+        log_info "기존 nginx.conf 백업 생성됨"
+    fi
+    
+    # OS별 설정 파일 생성
+    if [[ "$OS_TYPE" == "ubuntu" ]]; then
+        # Ubuntu 스타일 설정
+        sudo tee /etc/nginx/sites-available/msp-checklist > /dev/null << 'EOF'
+# MSP Checklist Nginx 설정 (Ubuntu)
+# 메인 서버: 포트 3010
+# 관리자 서버: 포트 3011
+
+# 업스트림 서버 정의
+upstream msp_main {
+    server 127.0.0.1:3010 fail_timeout=5s max_fails=3;
+    keepalive 32;
+}
+
+upstream msp_admin {
+    server 127.0.0.1:3011 fail_timeout=5s max_fails=3;
+    keepalive 32;
+}
+
 server {
     listen 80;
     server_name _;
-    
-    # 메인 애플리케이션 (포트 3010)
-    location / {
-        proxy_pass http://localhost:3010;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        proxy_read_timeout 86400;
-    }
-    
-    # 관리자 시스템 (포트 3011)
-    location /admin {
-        proxy_pass http://localhost:3011;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-        proxy_read_timeout 86400;
-    }
-    
-    # 정적 파일 캐싱
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-        proxy_pass http://localhost:3010;
-        proxy_set_header Host $host;
-    }
     
     # 보안 헤더
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline'" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'" always;
+    
+    # 클라이언트 최대 업로드 크기
+    client_max_body_size 50M;
+    
+    # 타임아웃 설정
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    
+    # 관리자 시스템 라우팅
+    location /admin {
+        rewrite ^/admin(/.*)$ $1 break;
+        
+        proxy_pass http://msp_admin;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 메인 애플리케이션 (기본)
+    location / {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 정적 파일 캐싱
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        proxy_pass http://msp_main;
+        proxy_set_header Host $host;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+    
+    # API 라우트 최적화
+    location /api/ {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+    
+    # 헬스체크 엔드포인트
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # 로그 설정
+    access_log /var/log/nginx/msp-checklist-access.log;
+    error_log /var/log/nginx/msp-checklist-error.log;
 }
 EOF
 
-    # Ubuntu의 경우 sites-enabled 링크 생성
-    if [[ "$OS_TYPE" == "ubuntu" ]]; then
+        # sites-enabled 링크 생성
         sudo ln -sf /etc/nginx/sites-available/msp-checklist /etc/nginx/sites-enabled/
         sudo rm -f /etc/nginx/sites-enabled/default
+        
     elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
-        # Amazon Linux의 경우 nginx.conf 수정
-        sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup
-        sudo tee /etc/nginx/conf.d/msp-checklist.conf > /dev/null < /etc/nginx/sites-available/msp-checklist
+        # Amazon Linux 스타일 설정
+        sudo tee /etc/nginx/conf.d/msp-checklist.conf > /dev/null << 'EOF'
+# MSP Checklist Nginx 설정 (Amazon Linux 2023)
+# 메인 서버: 포트 3010
+# 관리자 서버: 포트 3011
+
+# 업스트림 서버 정의
+upstream msp_main {
+    server 127.0.0.1:3010 fail_timeout=5s max_fails=3;
+    keepalive 32;
+}
+
+upstream msp_admin {
+    server 127.0.0.1:3011 fail_timeout=5s max_fails=3;
+    keepalive 32;
+}
+
+server {
+    listen 80;
+    server_name _;
+    
+    # 보안 헤더
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'" always;
+    
+    # 클라이언트 최대 업로드 크기
+    client_max_body_size 50M;
+    
+    # 타임아웃 설정
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    
+    # 관리자 시스템 라우팅
+    location /admin {
+        rewrite ^/admin(/.*)$ $1 break;
+        
+        proxy_pass http://msp_admin;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 메인 애플리케이션 (기본)
+    location / {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 정적 파일 캐싱
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
+        proxy_pass http://msp_main;
+        proxy_set_header Host $host;
+        expires 30d;
+        add_header Cache-Control "public, no-transform";
+    }
+    
+    # API 라우트 최적화
+    location /api/ {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+    
+    # 헬스체크 엔드포인트
+    location /health {
+        access_log off;
+        return 200 "healthy\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # 로그 설정
+    access_log /var/log/nginx/msp-checklist-access.log;
+    error_log /var/log/nginx/msp-checklist-error.log;
+}
+EOF
+
+        # 기본 설정 비활성화
+        sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled 2>/dev/null || true
     fi
     
     # Nginx 설정 테스트
@@ -489,12 +709,24 @@ EOF
         log_success "Nginx 설정 검증 완료"
     else
         log_error "Nginx 설정에 오류가 있습니다"
+        echo "설정 오류 내용:"
+        sudo nginx -t
         return 1
     fi
     
     # Nginx 서비스 시작 및 활성화
     sudo systemctl enable nginx
     sudo systemctl restart nginx
+    
+    # 서비스 상태 확인
+    sleep 2
+    if sudo systemctl is-active --quiet nginx; then
+        log_success "Nginx 서비스 시작 완료"
+    else
+        log_error "Nginx 서비스 시작 실패"
+        sudo systemctl status nginx --no-pager -l
+        return 1
+    fi
     
     log_success "Nginx 설정 완료"
 }
@@ -1276,8 +1508,44 @@ main() {
     }
     
     setup_nginx || {
-        log_warning "Nginx 설정에 문제가 있지만 계속 진행합니다."
-        handle_error
+        log_warning "Nginx 설정에 문제가 있습니다. 기본 설정으로 재시도합니다."
+        
+        # 기본 Nginx 설정으로 재시도
+        if [[ "$OS_TYPE" == "ubuntu" ]]; then
+            sudo rm -f /etc/nginx/sites-enabled/msp-checklist
+            sudo rm -f /etc/nginx/sites-available/msp-checklist
+        elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
+            sudo rm -f /etc/nginx/conf.d/msp-checklist.conf
+        fi
+        
+        # 간단한 기본 설정 생성
+        if [[ "$OS_TYPE" == "ubuntu" ]]; then
+            sudo tee /etc/nginx/sites-available/msp-checklist > /dev/null << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    location / { proxy_pass http://localhost:3010; }
+    location /admin { proxy_pass http://localhost:3011; }
+}
+EOF
+            sudo ln -sf /etc/nginx/sites-available/msp-checklist /etc/nginx/sites-enabled/
+        elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
+            sudo tee /etc/nginx/conf.d/msp-checklist.conf > /dev/null << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    location / { proxy_pass http://localhost:3010; }
+    location /admin { proxy_pass http://localhost:3011; }
+}
+EOF
+        fi
+        
+        if sudo nginx -t && sudo systemctl restart nginx; then
+            log_success "기본 Nginx 설정 완료"
+        else
+            log_warning "Nginx 설정 실패, 수동 설정이 필요합니다."
+            handle_error
+        fi
     }
     
     setup_firewall || {
