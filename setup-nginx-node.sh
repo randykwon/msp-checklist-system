@@ -208,7 +208,7 @@ check_nodejs_servers() {
     # PM2 프로세스 확인
     if command -v pm2 > /dev/null 2>&1; then
         PM2_PROCESSES=$(pm2 list 2>/dev/null | grep -c "online" || echo "0")
-        if [ "$PM2_PROCESSES" -gt 0 ]; then
+        if [ "$PM2_PROCESSES" -gt 0 ] 2>/dev/null; then
             log_success "✅ PM2 프로세스 $PM2_PROCESSES개 실행 중"
         else
             log_warning "⚠️ PM2 프로세스 실행되지 않음"
@@ -414,19 +414,25 @@ restart_nginx() {
     log_info "Nginx 설정 테스트 및 재시작 중..."
     
     # 설정 파일 문법 검사
+    log_info "Nginx 설정 파일 문법 검사 중..."
     if sudo nginx -t; then
         log_success "✅ Nginx 설정 파일 문법 검사 통과"
         
         # Nginx 재시작
+        log_info "Nginx 서비스 재시작 중..."
         sudo systemctl reload nginx
         sudo systemctl restart nginx
+        
+        # 잠시 대기 후 상태 확인
+        sleep 2
         
         # 상태 확인
         if sudo systemctl is-active --quiet nginx; then
             log_success "✅ Nginx 서비스 재시작 완료"
         else
             log_error "❌ Nginx 서비스 재시작 실패"
-            sudo systemctl status nginx
+            log_info "Nginx 상태 확인 중..."
+            sudo systemctl status nginx --no-pager -l
             return 1
         fi
     else
@@ -434,8 +440,94 @@ restart_nginx() {
         echo ""
         echo "설정 파일 확인:"
         sudo nginx -t
-        return 1
+        echo ""
+        log_info "설정 오류 자동 수정 시도 중..."
+        
+        # 자동 수정 시도
+        fix_nginx_configuration_errors
+        
+        # 재시도
+        if sudo nginx -t; then
+            log_success "✅ 설정 오류 수정 완료"
+            sudo systemctl restart nginx
+            if sudo systemctl is-active --quiet nginx; then
+                log_success "✅ Nginx 서비스 시작 완료"
+            else
+                log_error "❌ Nginx 서비스 시작 실패"
+                return 1
+            fi
+        else
+            log_error "❌ 설정 오류 수정 실패"
+            return 1
+        fi
     fi
+}
+
+# Nginx 설정 오류 자동 수정 함수
+fix_nginx_configuration_errors() {
+    log_info "Nginx 설정 오류 자동 수정 중..."
+    
+    # 1. 문제가 있는 performance.conf 파일 제거 후 재생성
+    sudo rm -f /etc/nginx/conf.d/performance.conf
+    
+    # 2. 올바른 performance.conf 파일 생성
+    sudo tee /etc/nginx/conf.d/performance.conf > /dev/null << 'EOF'
+# Nginx 성능 최적화 설정 (HTTP 블록 내 설정만)
+
+# 파일 전송 최적화
+sendfile on;
+tcp_nopush on;
+tcp_nodelay on;
+
+# 타임아웃 설정
+keepalive_timeout 65;
+keepalive_requests 100;
+
+# 압축 설정
+gzip on;
+gzip_vary on;
+gzip_min_length 1024;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_types
+    text/plain
+    text/css
+    text/xml
+    text/javascript
+    application/json
+    application/javascript
+    application/xml+rss
+    application/atom+xml
+    image/svg+xml;
+
+# 버퍼 크기 최적화
+client_body_buffer_size 128k;
+client_max_body_size 50m;
+client_header_buffer_size 1k;
+large_client_header_buffers 4 4k;
+
+# 보안 설정
+server_tokens off;
+
+# 레이트 리미팅
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
+EOF
+
+    # 3. nginx.conf에서 중복된 설정 제거
+    if grep -q "worker_processes" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
+        sudo sed -i '/worker_processes/d' /etc/nginx/conf.d/performance.conf
+    fi
+    
+    if grep -q "events {" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
+        sudo sed -i '/events {/,/}/d' /etc/nginx/conf.d/performance.conf
+    fi
+    
+    if grep -q "http {" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
+        sudo sed -i '/http {/,/}/d' /etc/nginx/conf.d/performance.conf
+    fi
+    
+    log_success "✅ Nginx 설정 오류 자동 수정 완료"
 }
 
 # 방화벽 설정
@@ -515,68 +607,67 @@ setup_ssl_certificate() {
 optimize_nginx_performance() {
     log_info "Nginx 성능 최적화 설정 중..."
     
-    # nginx.conf 최적화 설정 추가
+    # 기존 문제가 있는 설정 파일 제거
+    sudo rm -f /etc/nginx/conf.d/performance.conf
+    
+    # HTTP 블록 내에서만 사용할 수 있는 설정들만 포함
     sudo tee /etc/nginx/conf.d/performance.conf > /dev/null << 'EOF'
-# Nginx 성능 최적화 설정
+# Nginx 성능 최적화 설정 (HTTP 블록 내 설정만)
 
-# 워커 프로세스 수 (CPU 코어 수에 맞춤)
-worker_processes auto;
+# 파일 전송 최적화
+sendfile on;
+tcp_nopush on;
+tcp_nodelay on;
 
-# 워커 연결 수
-events {
-    worker_connections 1024;
-    use epoll;
-    multi_accept on;
-}
+# 타임아웃 설정
+keepalive_timeout 65;
+keepalive_requests 100;
 
-# HTTP 설정
-http {
-    # 파일 전송 최적화
-    sendfile on;
-    tcp_nopush on;
-    tcp_nodelay on;
-    
-    # 타임아웃 설정
-    keepalive_timeout 65;
-    keepalive_requests 100;
-    
-    # 압축 설정
-    gzip on;
-    gzip_vary on;
-    gzip_min_length 1024;
-    gzip_proxied any;
-    gzip_comp_level 6;
-    gzip_types
-        text/plain
-        text/css
-        text/xml
-        text/javascript
-        application/json
-        application/javascript
-        application/xml+rss
-        application/atom+xml
-        image/svg+xml;
-    
-    # 버퍼 크기 최적화
-    client_body_buffer_size 128k;
-    client_max_body_size 50m;
-    client_header_buffer_size 1k;
-    large_client_header_buffers 4 4k;
-    output_buffers 1 32k;
-    postpone_output 1460;
-    
-    # 로그 최적화
-    access_log /var/log/nginx/access.log combined buffer=16k flush=2m;
-    error_log /var/log/nginx/error.log warn;
-    
-    # 보안 설정
-    server_tokens off;
-    
-    # 레이트 리미팅
-    limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-    limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
-}
+# 압축 설정
+gzip on;
+gzip_vary on;
+gzip_min_length 1024;
+gzip_proxied any;
+gzip_comp_level 6;
+gzip_types
+    text/plain
+    text/css
+    text/xml
+    text/javascript
+    application/json
+    application/javascript
+    application/xml+rss
+    application/atom+xml
+    image/svg+xml;
+
+# 버퍼 크기 최적화
+client_body_buffer_size 128k;
+client_max_body_size 50m;
+client_header_buffer_size 1k;
+large_client_header_buffers 4 4k;
+
+# 보안 설정
+server_tokens off;
+
+# 레이트 리미팅
+limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
+limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
 EOF
+
+    # 메인 nginx.conf 파일의 worker_processes 설정 업데이트
+    log_info "nginx.conf 워커 프로세스 설정 확인 중..."
+    if ! grep -q "worker_processes auto" /etc/nginx/nginx.conf; then
+        log_info "worker_processes를 auto로 설정 중..."
+        sudo sed -i 's/worker_processes [0-9]*;/worker_processes auto;/' /etc/nginx/nginx.conf
+    fi
+    
+    # events 블록 최적화
+    log_info "events 블록 최적화 중..."
+    if ! grep -q "use epoll" /etc/nginx/nginx.conf; then
+        sudo sed -i '/events {/,/}/ {
+            /worker_connections/a\    use epoll;\n    multi_accept on;
+        }' /etc/nginx/nginx.conf
+    fi
 
     log_success "✅ Nginx 성능 최적화 설정 완료"
 }
@@ -669,33 +760,55 @@ EOF
 test_connection() {
     log_info "연결 테스트 중..."
     
+    # 잠시 대기 (서비스 안정화)
+    sleep 3
+    
     # 로컬 연결 테스트
     echo ""
     echo "🔍 로컬 연결 테스트:"
     
     # Nginx 테스트
-    if curl -s -o /dev/null -w "%{http_code}" http://localhost | grep -q "200\|301\|302"; then
-        log_success "✅ Nginx (포트 80): 응답 정상"
+    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost 2>/dev/null || echo "000")
+    if [[ "$HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
+        log_success "✅ Nginx (포트 80): 응답 정상 (HTTP $HTTP_CODE)"
     else
-        log_warning "⚠️ Nginx (포트 80): 응답 없음"
+        log_warning "⚠️ Nginx (포트 80): 응답 없음 (HTTP $HTTP_CODE)"
     fi
     
     # 메인 서버 직접 테스트
     if [ "$MAIN_SERVER_RUNNING" = true ]; then
-        if curl -s -o /dev/null -w "%{http_code}" http://localhost:3010 | grep -q "200\|301\|302"; then
-            log_success "✅ 메인 서버 (포트 3010): 응답 정상"
+        MAIN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3010 2>/dev/null || echo "000")
+        if [[ "$MAIN_HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
+            log_success "✅ 메인 서버 (포트 3010): 응답 정상 (HTTP $MAIN_HTTP_CODE)"
         else
-            log_warning "⚠️ 메인 서버 (포트 3010): 응답 없음"
+            log_warning "⚠️ 메인 서버 (포트 3010): 응답 없음 (HTTP $MAIN_HTTP_CODE)"
         fi
+    else
+        log_warning "⚠️ 메인 서버 (포트 3010): 실행되지 않음"
     fi
     
     # 관리자 서버 직접 테스트
     if [ "$ADMIN_SERVER_RUNNING" = true ]; then
-        if curl -s -o /dev/null -w "%{http_code}" http://localhost:3011 | grep -q "200\|301\|302"; then
-            log_success "✅ 관리자 서버 (포트 3011): 응답 정상"
+        ADMIN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3011 2>/dev/null || echo "000")
+        if [[ "$ADMIN_HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
+            log_success "✅ 관리자 서버 (포트 3011): 응답 정상 (HTTP $ADMIN_HTTP_CODE)"
         else
-            log_warning "⚠️ 관리자 서버 (포트 3011): 응답 없음"
+            log_warning "⚠️ 관리자 서버 (포트 3011): 응답 없음 (HTTP $ADMIN_HTTP_CODE)"
         fi
+    else
+        log_warning "⚠️ 관리자 서버 (포트 3011): 실행되지 않음"
+    fi
+    
+    # 프록시 테스트
+    echo ""
+    echo "🔄 프록시 연동 테스트:"
+    
+    # 관리자 경로 프록시 테스트
+    ADMIN_PROXY_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/admin 2>/dev/null || echo "000")
+    if [[ "$ADMIN_PROXY_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
+        log_success "✅ 관리자 경로 프록시 (/admin): 응답 정상 (HTTP $ADMIN_PROXY_CODE)"
+    else
+        log_warning "⚠️ 관리자 경로 프록시 (/admin): 응답 없음 (HTTP $ADMIN_PROXY_CODE)"
     fi
     
     # 공용 IP 확인
@@ -806,13 +919,26 @@ main() {
     check_nodejs_servers
     
     # Nginx 설정 생성
-    create_nginx_config
+    create_nginx_config || {
+        log_error "Nginx 설정 생성 실패"
+        exit 1
+    }
     
     # 성능 최적화 설정
-    optimize_nginx_performance
+    optimize_nginx_performance || {
+        log_warning "성능 최적화 설정에 문제가 있지만 계속 진행합니다."
+    }
     
     # Nginx 재시작
-    restart_nginx
+    restart_nginx || {
+        log_error "Nginx 재시작 실패. 설정을 확인하세요."
+        echo ""
+        echo "문제 해결 방법:"
+        echo "1. 설정 확인: sudo nginx -t"
+        echo "2. 로그 확인: sudo tail -f /var/log/nginx/error.log"
+        echo "3. 수동 재시작: sudo systemctl restart nginx"
+        exit 1
+    }
     
     # 방화벽 설정
     setup_firewall

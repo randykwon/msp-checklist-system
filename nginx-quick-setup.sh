@@ -119,12 +119,78 @@ fi
 
 # 설정 테스트 및 재시작
 log_info "Nginx 재시작 중..."
+
+# 설정 파일 문법 검사
 if sudo nginx -t; then
     sudo systemctl restart nginx
     log_success "✅ Nginx 설정 완료!"
 else
-    log_error "❌ Nginx 설정 오류"
-    exit 1
+    log_error "❌ Nginx 설정 오류 - 자동 수정 시도 중..."
+    
+    # 기본 설정으로 복구 시도
+    sudo rm -f /etc/nginx/sites-available/msp-checklist
+    sudo rm -f /etc/nginx/sites-enabled/msp-checklist
+    sudo rm -f /etc/nginx/conf.d/msp-checklist.conf
+    
+    # 다시 기본 설정 생성
+    sudo tee /etc/nginx/sites-available/msp-checklist > /dev/null << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    
+    # 메인 애플리케이션
+    location / {
+        proxy_pass http://localhost:3010;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 관리자 시스템
+    location /admin {
+        rewrite ^/admin(/.*)$ $1 break;
+        proxy_pass http://localhost:3011;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 정적 파일 캐싱
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
+        proxy_pass http://localhost:3010;
+        expires 1d;
+        add_header Cache-Control "public";
+    }
+}
+EOF
+
+    # Ubuntu의 경우 sites-enabled 링크 생성
+    if [[ "$OS_TYPE" == "ubuntu" ]]; then
+        sudo ln -sf /etc/nginx/sites-available/msp-checklist /etc/nginx/sites-enabled/
+        sudo rm -f /etc/nginx/sites-enabled/default
+    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
+        sudo cp /etc/nginx/sites-available/msp-checklist /etc/nginx/conf.d/msp-checklist.conf
+    fi
+    
+    # 재시도
+    if sudo nginx -t; then
+        sudo systemctl restart nginx
+        log_success "✅ Nginx 설정 복구 완료!"
+    else
+        log_error "❌ Nginx 설정 복구 실패"
+        sudo nginx -t
+        exit 1
+    fi
 fi
 
 # 방화벽 설정
