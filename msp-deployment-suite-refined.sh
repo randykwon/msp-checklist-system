@@ -1117,13 +1117,19 @@ build_application() {
     else
         log_warning "메인 애플리케이션 빌드 실패 - 자동 문제 해결 시작..."
         
-        # 빌드 실패 원인 분석 (ESLint 충돌 감지 추가)
+        # 빌드 실패 원인 분석 (webpack 플래그 + ESLint 충돌 감지 추가)
         local build_error_log=$(npm run build 2>&1 | tail -20)
         
         if echo "$build_error_log" | grep -q "lightningcss\|Cannot find module.*lightningcss"; then
             log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Nuclear CSS Fix 실행"
             
             # Nuclear CSS Fix 실행
+            nuclear_css_fix "main"
+            return 0
+        elif echo "$build_error_log" | grep -q "unknown option.*--webpack\|error.*--webpack"; then
+            log_error "❌ Next.js 15+ webpack 플래그 호환성 문제 감지됨 - Nuclear CSS Fix 실행"
+            
+            # Nuclear CSS Fix 실행 (webpack 플래그 문제 해결 포함)
             nuclear_css_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "ERESOLVE.*eslint\|peer eslint.*>=9\|eslint.*dependency conflict"; then
@@ -1196,17 +1202,29 @@ nuclear_css_fix() {
     # 현재 디렉토리 저장
     local current_dir=$(pwd)
     
-    # ESLint 충돌 사전 감지 및 해결
-    log_info "🔍 ESLint 의존성 충돌 사전 검사 중..."
+    # ESLint 충돌 및 webpack 플래그 사전 감지 및 해결
+    log_info "🔍 Next.js 호환성 및 의존성 충돌 사전 검사 중..."
     if [ -f package.json ]; then
         # 현재 package.json 백업
         cp package.json package.json.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
         log_info "✅ package.json 백업 생성됨"
         
+        # webpack 플래그 문제 확인
+        if grep -q '"build".*"next build --webpack"' package.json; then
+            log_warning "⚠️ 구식 --webpack 플래그 감지됨 (Next.js 15+ 호환 문제)"
+            log_info "🔧 Next.js 15+ 호환 빌드 스크립트로 자동 수정 중..."
+        fi
+        
         # ESLint 버전 충돌 확인
         if grep -q '"eslint".*"\\^8' package.json && grep -q '"eslint-config-next".*"1[6-9]' package.json; then
             log_warning "⚠️ ESLint 버전 충돌 감지됨 (ESLint ^8 vs eslint-config-next ^16+)"
             log_info "🔧 호환 가능한 버전으로 자동 수정 중..."
+        fi
+        
+        # Next.js 보안 취약점 버전 확인
+        if grep -q '"next".*"15\.1\.0"' package.json; then
+            log_warning "⚠️ Next.js 보안 취약점 버전 감지됨 (CVE-2025-66478)"
+            log_info "🔧 보안 패치 버전으로 자동 업데이트 중..."
         fi
     fi
     
@@ -1236,8 +1254,8 @@ nuclear_css_fix() {
     rm -rf ~/.cache/npm 2>/dev/null || true
     rm -rf /tmp/npm-* 2>/dev/null || true
     
-    # package.json 완전 재작성 (ESLint 충돌 해결 + CSS 관련 패키지 완전 제외)
-    log_info "📝 package.json 완전 재작성 중 (ESLint 충돌 해결)..."
+    # package.json 완전 재작성 (Next.js 15+ 호환 + ESLint 충돌 해결 + 보안 패치)
+    log_info "📝 package.json 완전 재작성 중 (Next.js 15+ 호환 + 보안 패치)..."
     cat > package.json << 'EOF'
 {
   "name": "msp-checklist",
@@ -1869,8 +1887,8 @@ EOF
         cd ..
     fi
     
-    # 의존성 재설치 (ESLint 충돌 해결 포함)
-    log_info "📦 의존성 완전 재설치 중 (ESLint 충돌 해결)..."
+    # 의존성 재설치 (Next.js 15+ 호환 + ESLint 충돌 해결)
+    log_info "📦 의존성 완전 재설치 중 (Next.js 15+ 호환 + 보안 패치)..."
     
     # npm 캐시 완전 정리 (더 강력한 정리)
     log_info "🧹 npm 캐시 완전 정리 중..."
