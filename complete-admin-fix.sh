@@ -8,7 +8,7 @@ set -e
 echo "🔧 Admin 시스템 완전 해결 시작..."
 
 # MSP Checklist admin 디렉토리로 이동
-cd /opt/msp-checklist/msp-checklist/admin
+cd /opt/msp-checklist-system/msp-checklist/admin
 
 echo "📍 현재 위치: $(pwd)"
 
