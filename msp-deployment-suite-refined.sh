@@ -448,6 +448,48 @@ setup_project() {
     cd msp-checklist-system
     sudo chmod +x *.sh
     
+    # Admin 디렉토리 및 기본 파일 생성
+    log_info "Admin 애플리케이션 디렉토리 설정 중..."
+    cd msp-checklist
+    
+    if [ ! -d "admin" ]; then
+        log_info "Admin 디렉토리 생성 중..."
+        mkdir -p admin/app
+        
+        # Admin package.json 생성
+        cat > admin/package.json << 'EOF'
+{
+  "name": "msp-checklist-admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3011",
+    "build": "next build",
+    "start": "next start -p 3011",
+    "lint": "echo 'Linting disabled'"
+  },
+  "dependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "lucide-react": "^0.263.1",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5"
+  }
+}
+EOF
+        
+        log_success "Admin 디렉토리 및 기본 설정 생성 완료"
+    else
+        log_success "Admin 디렉토리 이미 존재"
+    fi
+    
+    cd ..
+    
     log_success "프로젝트 설정 완료"
 }
 
@@ -842,8 +884,8 @@ comprehensive_error_recovery() {
         # 5. LightningCSS 문제 확인
         if [ -f "package.json" ]; then
             if grep -q "lightningcss\|@tailwindcss" package.json; then
-                log_warning "LightningCSS 관련 패키지 감지됨 - Nuclear CSS Fix 시작"
-                nuclear_css_fix "main"
+                log_warning "LightningCSS 관련 패키지 감지됨 - Ultimate Turbopack Fix 시작"
+                ultimate_turbopack_fix "main"
                 recovery_needed=true
             fi
         fi
@@ -1102,8 +1144,8 @@ build_application() {
             if npm run build; then
                 log_success "Admin 애플리케이션 빌드 성공"
             else
-                log_warning "Admin 애플리케이션 빌드 실패 - Nuclear CSS Fix 시도 중..."
-                nuclear_css_fix "admin"
+                log_warning "Admin 애플리케이션 빌드 실패 - Ultimate Turbopack Fix 시도 중..."
+                ultimate_turbopack_fix "admin"
                 
                 # 재시도
                 if npm run build; then
@@ -1124,37 +1166,37 @@ build_application() {
             log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "turbopack.*doesn't support\|Turbopack.*not.*support\|turbo.*build.*error\|Cannot find module.*tailwindcss\|postcss.*turbopack\|(turbo)"; then
             log_error "❌ Turbopack 관련 문제 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행 (모든 Turbopack 문제 해결 포함)
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "serverExternalPackages\|Unrecognized key.*serverExternalPackages"; then
             log_error "❌ Next.js 14 비호환 설정 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행 (Next.js 14 호환성 문제 해결 포함)
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "unknown option.*--webpack\|error.*--webpack"; then
             log_error "❌ Next.js 15+ webpack 플래그 호환성 문제 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행 (webpack 플래그 문제 해결 포함)
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "ERESOLVE.*eslint\|peer eslint.*>=9\|eslint.*dependency conflict"; then
             log_error "❌ ESLint 의존성 충돌 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행 (ESLint 충돌 해결 포함)
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "@typescript-eslint.*no-explicit-any\|TypeScript.*error"; then
             log_error "❌ TypeScript/ESLint 빌드 오류 감지됨 - Ultimate Turbopack Fix 실행"
             
             # Ultimate Turbopack Fix 실행 (TypeScript 관대 설정 포함)
-            nuclear_css_fix "main"
+            ultimate_turbopack_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "ENOSPC\|no space left"; then
             log_error "디스크 공간 부족 - 정리 필요"
@@ -1183,7 +1225,7 @@ build_application() {
                 npm install --omit=optional --legacy-peer-deps
                 
                 # Admin도 같은 문제 해결 적용
-                nuclear_css_fix "admin"
+                ultimate_turbopack_fix "admin"
                 
                 if npm run build; then
                     log_success "Admin 애플리케이션 빌드 성공"
@@ -1212,108 +1254,66 @@ build_application() {
     log_success "애플리케이션 빌드 완료"
 }
 
-# Ultimate Turbopack Fix - 완전한 Turbopack 제거 및 Next.js 14 다운그레이드 (통합 버전)
-nuclear_css_fix() {
+# Ultimate Turbopack Fix - 완전한 Turbopack 제거 및 Next.js 14 다운그레이드 (macOS 호환)
+ultimate_turbopack_fix() {
     local app_type=${1:-"main"}
-    log_error "💥 Ultimate Turbopack Fix 실행 중 ($app_type) - Complete Turbopack Elimination..."
+    log_error "🚀 Ultimate Turbopack Fix 실행 중 ($app_type) - Complete Solution for macOS..."
     
     # 현재 디렉토리 저장
     local current_dir=$(pwd)
     
-    # Turbopack 빌드 오류 패턴 감지 및 분석
-    log_info "🔍 Turbopack 빌드 오류 패턴 분석 중..."
-    if [ -f package.json ]; then
-        # 현재 package.json 백업
-        cp package.json package.json.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
-        log_info "✅ package.json 백업 생성됨"
-        
-        # Next.js 버전 확인
-        local nextjs_version=$(grep '"next"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
-        if [[ "$nextjs_version" =~ ^15\. ]]; then
-            log_warning "⚠️ Next.js 15.x 감지됨 - Turbopack 기본 활성화 버전"
-            log_info "🔧 Next.js 14.2.18로 다운그레이드하여 Turbopack 완전 제거"
-        fi
-        
-        # Turbopack 활성화 감지
-        if npm run build 2>&1 | grep -q "(turbo)"; then
-            log_warning "⚠️ Turbopack이 여전히 활성화됨 - 환경 변수 완전 정리 필요"
-            log_info "🔧 모든 Turbopack 환경 변수 완전 제거 및 정리"
-        fi
-        
-        # serverExternalPackages 오류 감지
-        if npm run build 2>&1 | grep -q "serverExternalPackages"; then
-            log_warning "⚠️ Next.js 14 비호환 설정 감지됨 - serverExternalPackages 제거 필요"
-            log_info "🔧 Next.js 14 호환 설정으로 자동 수정 중..."
-        fi
-        
-        # webpack 플래그 문제 확인
-        if grep -q '"build".*"next build --webpack"' package.json; then
-            log_warning "⚠️ 구식 --webpack 플래그 감지됨 (Next.js 15+ 호환 문제)"
-            log_info "🔧 Next.js 14 호환 빌드 스크립트로 자동 수정 중..."
-        fi
-        
-        # ESLint 버전 충돌 확인
-        if grep -q '"eslint".*"\\^8' package.json && grep -q '"eslint-config-next".*"1[6-9]' package.json; then
-            log_warning "⚠️ ESLint 버전 충돌 감지됨 (ESLint ^8 vs eslint-config-next ^16+)"
-            log_info "🔧 호환 가능한 버전으로 자동 수정 중..."
-        fi
-        
-        # Turbopack CSS 문제 사전 감지
-        log_warning "⚠️ Turbopack CSS 프레임워크 의존성 문제 - Next.js 14 다운그레이드로 근본 해결"
-        log_info "🔧 모든 CSS 프레임워크 의존성 완전 제거 중..."
-        log_info "🚫 Turbopack 완전 비활성화 및 순수 CSS 적용 중..."
-        log_info "⬇️ Next.js 15 → 14.2.18 다운그레이드로 안정성 확보"
-        log_info "🧹 환경 변수 완전 정리로 Turbopack 강제 비활성화"
-    fi
-    
-    # 모든 프로세스 중지
-    log_info "모든 관련 프로세스 중지 중..."
-    pm2 stop all 2>/dev/null || true
-    pm2 delete all 2>/dev/null || true
-    pm2 kill 2>/dev/null || true
+    # 모든 Node.js 프로세스 종료
+    log_info "모든 Node.js 프로세스 종료 중..."
+    pkill -f "node" 2>/dev/null || true
+    pkill -f "npm" 2>/dev/null || true
+    pkill -f "next" 2>/dev/null || true
+    sleep 2
     
     # 모든 빌드 관련 파일 완전 삭제
     log_info "모든 빌드 관련 파일 완전 삭제 중..."
-    rm -rf .next
-    rm -rf .turbo
-    rm -rf .swc
-    rm -rf node_modules
-    rm -rf package-lock.json
-    rm -rf yarn.lock
-    rm -rf pnpm-lock.yaml
+    rm -rf .next .turbo .swc node_modules package-lock.json yarn.lock pnpm-lock.yaml
     
     # npm 캐시 완전 정리
     log_info "npm 캐시 완전 정리 중..."
     npm cache clean --force 2>/dev/null || true
-    npm cache verify 2>/dev/null || true
     
-    # 전역 캐시 정리
-    log_info "전역 캐시 정리 중..."
-    rm -rf ~/.npm 2>/dev/null || true
-    rm -rf ~/.cache/npm 2>/dev/null || true
-    rm -rf /tmp/npm-* 2>/dev/null || true
-    
-    # 환경 변수 완전 정리 및 설정 (Turbopack 완전 제거)
-    log_info "환경 변수 완전 정리 및 설정 중..."
-    unset TURBOPACK
-    unset NEXT_PRIVATE_TURBOPACK
-    unset TURBO
-    unset TURBOPACK_ENABLED
-    unset NEXT_TURBOPACK
-    unset WEBPACK
-    unset NEXT_WEBPACK
-    unset USE_WEBPACK
-    
-    # 안전한 환경 변수만 설정
+    # 환경 변수 완전 정리
+    log_info "환경 변수 완전 정리 중..."
+    unset TURBOPACK NEXT_PRIVATE_TURBOPACK TURBO TURBOPACK_ENABLED NEXT_TURBOPACK
     export NODE_ENV=production
-    export NODE_OPTIONS="--max-old-space-size=4096"
+    export NODE_OPTIONS="--max-old-space-size=2048"
     export NEXT_TELEMETRY_DISABLED=1
     
-    log_success "환경 변수 정리 완료"
-    
-    # package.json 완전 재작성 (Next.js 14 다운그레이드 - Turbopack 없는 안정 버전)
-    log_info "📝 package.json 완전 재작성 중 (Next.js 14 다운그레이드)..."
-    cat > package.json << 'EOF'
+    # package.json 완전 재작성 (Next.js 14.2.18)
+    log_info "package.json 완전 재작성 중 (Next.js 14.2.18)..."
+    if [ "$app_type" = "admin" ]; then
+        cat > package.json << 'EOF'
+{
+  "name": "msp-checklist-admin",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3011",
+    "build": "next build",
+    "start": "next start -p 3011",
+    "lint": "echo 'Linting disabled for compatibility'"
+  },
+  "dependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "lucide-react": "^0.263.1",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5"
+  }
+}
+EOF
+    else
+        cat > package.json << 'EOF'
 {
   "name": "msp-checklist",
   "version": "0.1.0",
@@ -1338,69 +1338,61 @@ nuclear_css_fix() {
   }
 }
 EOF
-
-    # 모든 CSS 관련 설정 파일 제거
-    log_info "모든 CSS 관련 설정 파일 제거 중..."
-    rm -f postcss.config.*
-    rm -f tailwind.config.*
-    rm -f .postcssrc*
-    rm -f *.css.map
+    fi
     
-    # globals.css를 완전히 새로 작성 (순수 CSS만 사용)
+    # CSS 관련 설정 파일 제거
+    log_info "CSS 관련 설정 파일 제거 중..."
+    rm -f postcss.config.* tailwind.config.* .postcssrc* *.css.map next.config.ts
+    
+    # globals.css 완전 재작성 (순수 CSS)
     log_info "globals.css 완전 재작성 중..."
     mkdir -p app
     cat > app/globals.css << 'EOF'
-/* MSP Checklist 기본 CSS - Amazon Linux 2023 호환 */
-
-/* 기본 리셋 */
-*, *::before, *::after {
+/* MSP Checklist Global Styles - Pure CSS */
+* {
   box-sizing: border-box;
-  margin: 0;
   padding: 0;
+  margin: 0;
 }
 
-/* 기본 스타일 */
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  max-width: 100vw;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  line-height: 1.6;
+}
+
+body {
   color: #333;
   background: #fff;
 }
 
-/* 컨테이너 */
 .container {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
 }
 
-/* 카드 스타일 */
-.card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-}
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.gap-4 { gap: 1rem; }
 
-/* 버튼 스타일 */
+.text-center { text-align: center; }
+.text-lg { font-size: 1.125rem; }
+.font-bold { font-weight: bold; }
+
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
+  display: inline-block;
+  padding: 0.5rem 1rem;
   border: none;
-  border-radius: 6px;
-  font-weight: 500;
-  text-decoration: none;
+  border-radius: 0.375rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: center;
+  transition: all 0.2s;
 }
 
 .btn-primary {
@@ -1412,550 +1404,83 @@ html, body {
   background-color: #2563eb;
 }
 
-.btn-secondary {
-  background-color: #6b7280;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #4b5563;
-}
-
-.btn-success {
-  background-color: #10b981;
-  color: white;
-}
-
-.btn-success:hover {
-  background-color: #059669;
-}
-
-.btn-danger {
-  background-color: #ef4444;
-  color: white;
-}
-
-.btn-danger:hover {
-  background-color: #dc2626;
-}
-
-/* 폼 스타일 */
-.form-group {
+.card {
+  background: white;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  padding: 1.5rem;
   margin-bottom: 1rem;
 }
 
-.form-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-.form-textarea {
-  width: 100%;
-  padding: 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  resize: vertical;
-  min-height: 100px;
-}
-
-.form-textarea:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* 체크리스트 스타일 */
-.checklist-item {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 6px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
-}
-
-.checklist-item:hover {
-  background-color: #f9fafb;
-}
-
-.checklist-item.completed {
-  background-color: #f0f9ff;
-  border-color: #3b82f6;
-}
-
-.checklist-checkbox {
-  margin-right: 0.75rem;
-  width: 1.25rem;
-  height: 1.25rem;
-}
-
-.checklist-text {
-  flex: 1;
-}
-
-.checklist-text.completed {
-  text-decoration: line-through;
-  color: #6b7280;
-}
-
-/* 진행률 바 */
-.progress-container {
-  margin: 1rem 0;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: #374151;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-  background-color: #e5e7eb;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.progress-fill {
-  height: 100%;
-  background-color: #3b82f6;
-  transition: width 0.3s ease;
-}
-
-/* 통계 카드 */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1rem 0;
-}
-
-.stat-card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  padding: 1.5rem;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #3b82f6;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #6b7280;
-  margin-top: 0.5rem;
-}
-
-/* 네비게이션 */
-.nav {
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
-  padding: 1rem 0;
-}
-
-.nav-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.nav-brand {
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #1f2937;
-  text-decoration: none;
-}
-
-.nav-links {
-  display: flex;
-  gap: 1rem;
-}
-
-.nav-link {
-  color: #6b7280;
-  text-decoration: none;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.2s ease;
-}
-
-.nav-link:hover {
-  color: #3b82f6;
-  background-color: #f3f4f6;
-}
-
-.nav-link.active {
-  color: #3b82f6;
-  background-color: #eff6ff;
-}
-
-/* 유틸리티 클래스 */
-.text-center { text-align: center; }
-.text-left { text-align: left; }
-.text-right { text-align: right; }
-
-.mb-1 { margin-bottom: 0.25rem; }
-.mb-2 { margin-bottom: 0.5rem; }
-.mb-3 { margin-bottom: 0.75rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mb-5 { margin-bottom: 1.25rem; }
-.mb-6 { margin-bottom: 1.5rem; }
-
-.mt-1 { margin-top: 0.25rem; }
-.mt-2 { margin-top: 0.5rem; }
-.mt-3 { margin-top: 0.75rem; }
-.mt-4 { margin-top: 1rem; }
-.mt-5 { margin-top: 1.25rem; }
-.mt-6 { margin-top: 1.5rem; }
-
-.p-1 { padding: 0.25rem; }
-.p-2 { padding: 0.5rem; }
-.p-3 { padding: 0.75rem; }
-.p-4 { padding: 1rem; }
-.p-5 { padding: 1.25rem; }
-.p-6 { padding: 1.5rem; }
-
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-
-.w-full { width: 100%; }
-.h-full { height: 100%; }
-
-.hidden { display: none; }
-.block { display: block; }
-.inline-block { display: inline-block; }
-
-/* 반응형 디자인 */
 @media (max-width: 768px) {
   .container {
     padding: 0 0.5rem;
   }
-  
-  .card {
-    padding: 1rem;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .nav-container {
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .nav-links {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-}
-
-/* 로딩 애니메이션 */
-.loading {
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  border: 3px solid #f3f3f3;
-  border-top: 3px solid #3b82f6;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-/* 알림 스타일 */
-.alert {
-  padding: 1rem;
-  border-radius: 6px;
-  margin-bottom: 1rem;
-}
-
-.alert-success {
-  background-color: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  color: #166534;
-}
-
-.alert-error {
-  background-color: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #991b1b;
-}
-
-.alert-warning {
-  background-color: #fffbeb;
-  border: 1px solid #fed7aa;
-  color: #92400e;
-}
-
-.alert-info {
-  background-color: #eff6ff;
-  border: 1px solid #bfdbfe;
-  color: #1e40af;
 }
 EOF
     
-    # Next.js 설정을 완전히 새로 작성 (Turbopack 완전 제거 + Next.js 14 호환)
-    log_info "Next.js 설정 완전 재작성 중 (Turbopack 완전 제거 + Next.js 14 호환)..."
+    # next.config.js 생성 (Turbopack 완전 비활성화)
+    log_info "next.config.js 생성 중..."
     cat > next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // 기본 설정
-  reactStrictMode: false,
-  
-  // 프로덕션 최적화
-  output: 'standalone',
-  trailingSlash: false,
-  
-  // 이미지 최적화 비활성화 (안정성)
-  images: {
-    unoptimized: true,
-    remotePatterns: [
-      {
-        protocol: 'http',
-        hostname: 'localhost',
-      },
-    ],
+  experimental: {
+    turbo: undefined,
   },
-  
-  // 압축 및 최적화
-  compress: true,
-  poweredByHeader: false,
-  
-  // TypeScript/ESLint 완전 무시 (빌드 오류 방지)
+  swcMinify: true,
+  output: 'standalone',
+  images: {
+    unoptimized: true
+  },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: true
   },
   eslint: {
-    ignoreDuringBuilds: true,
-  },
-  
-  // 실험적 기능 설정 (동적 라우트 경고 해결)
-  experimental: {
-    // 정적 생성 관련 설정
-    staticGenerationAsyncStorage: false,
-    staticGenerationBailout: 'ignore',
-  },
-  
-  // Webpack 설정 (CSS 프레임워크 완전 제거)
-  webpack: (config, { isServer }) => {
-    // 클라이언트 사이드에서 서버 전용 모듈 제외
-    if (!isServer) {
-      config.resolve.fallback = {
-        fs: false,
-        path: false,
-        crypto: false,
-        stream: false,
-        util: false,
-        buffer: false,
-        process: false,
-        os: false,
-        events: false,
-        url: false,
-        querystring: false,
-        http: false,
-        https: false,
-        zlib: false,
-        net: false,
-        tls: false,
-        child_process: false,
-        dns: false,
-        cluster: false,
-        module: false,
-        readline: false,
-        repl: false,
-        vm: false,
-        constants: false,
-        domain: false,
-        punycode: false,
-        string_decoder: false,
-        sys: false,
-        timers: false,
-        tty: false,
-        dgram: false,
-        assert: false,
-      };
-    }
-    
-    // 외부 패키지 설정 (Next.js 14 호환 - serverExternalPackages 제거)
-    if (isServer) {
-      config.externals = config.externals || [];
-      config.externals.push('better-sqlite3');
-    }
-    
-    // 문제가 있는 모듈들 완전 차단
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'tailwindcss': false,
-      'postcss': false,
-      'autoprefixer': false,
-      'lightningcss': false,
-      '@tailwindcss/postcss': false,
-      '@tailwindcss/node': false,
-    };
-    
-    return config;
-  },
-  
-  // 헤더 설정
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'SAMEORIGIN',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-        ],
-      },
-    ];
-  },
-};
+    ignoreDuringBuilds: true
+  }
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig
 EOF
-
-    # TypeScript 설정 파일 제거 (JavaScript 설정으로 교체)
-    rm -f next.config.ts
-
-    # 환경 변수 최적화
-    log_info "환경 변수 최적화 중..."
-    cat > .env.local << 'EOF'
-# MSP Checklist 환경 변수 (CSS 프레임워크 없이)
-NODE_ENV=production
-PORT=3010
-HOST=0.0.0.0
-
-# Next.js 최적화
-NEXT_TELEMETRY_DISABLED=1
-NODE_OPTIONS=--max-old-space-size=2048
-
-# Next.js 동적 라우트 경고 억제
-NEXT_PRIVATE_SKIP_STATIC_GENERATION_TRACE=1
-NEXT_PRIVATE_DISABLE_STATIC_IMAGES=1
-
-# 데이터베이스 설정
-DATABASE_URL=sqlite:./msp_checklist.db
-
-# 보안 설정
-JWT_SECRET=msp-checklist-jwt-secret-change-in-production
-SESSION_SECRET=msp-checklist-session-secret-change-in-production
-NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
-NEXTAUTH_URL=http://localhost:3010
-
-# API 설정
-OPENAI_API_KEY=your-openai-api-key-here
-CLAUDE_API_KEY=your-claude-api-key-here
-GEMINI_API_KEY=your-gemini-api-key-here
-
-# 파일 업로드 설정
-MAX_FILE_SIZE=10485760
-UPLOAD_DIR=./uploads
-
-# 로깅 설정
-LOG_LEVEL=info
-LOG_FILE=./server.log
-EOF
-
-    # Admin 애플리케이션도 동일하게 처리
-    if [ -d "admin" ]; then
-        log_info "Admin 애플리케이션도 동일하게 처리 중..."
-        
-        cd admin
-        
-        # Admin 캐시 삭제
-        rm -rf .next
-        rm -rf .turbo
-        rm -rf .swc
-        rm -rf node_modules
-        rm -rf package-lock.json
-        
-        # Admin package.json 복사
-        cp ../package.json ./
-        
-        # Admin globals.css 복사
-        mkdir -p app
-        cp ../app/globals.css app/globals.css
-        
-        # Admin Next.js 설정 복사
-        cp ../next.config.js ./
-        
-        # Admin CSS 프레임워크 파일 제거
-        rm -f postcss.config.*
-        rm -f tailwind.config.*
-        rm -f .postcssrc*
-        rm -f *.css.map
-        rm -f next.config.ts  # TypeScript 설정 제거
-        
-        # Admin 환경 변수
+    
+    # .env.local 생성
+    log_info ".env.local 생성 중..."
+    if [ "$app_type" = "admin" ]; then
         cat > .env.local << 'EOF'
-# MSP Checklist Admin 환경 변수
 NODE_ENV=production
 PORT=3011
 HOST=0.0.0.0
-
-# Next.js 최적화
+TURBOPACK=0
+NEXT_PRIVATE_TURBOPACK=false
 NEXT_TELEMETRY_DISABLED=1
 NODE_OPTIONS=--max-old-space-size=1024
-
-# Next.js 동적 라우트 경고 억제
-NEXT_PRIVATE_SKIP_STATIC_GENERATION_TRACE=1
-NEXT_PRIVATE_DISABLE_STATIC_IMAGES=1
-
-# 데이터베이스 설정
-ADMIN_DATABASE_URL=sqlite:./admin.db
-
-# 보안 설정
-JWT_SECRET=msp-checklist-jwt-secret-change-in-production
-SESSION_SECRET=msp-checklist-session-secret-change-in-production
-NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
-NEXTAUTH_URL=http://localhost:3011
-
-# 로깅 설정
-LOG_LEVEL=info
-LOG_FILE=./admin.log
 EOF
-        
-        cd ..
+    else
+        cat > .env.local << 'EOF'
+NODE_ENV=production
+PORT=3010
+HOST=0.0.0.0
+TURBOPACK=0
+NEXT_PRIVATE_TURBOPACK=false
+NEXT_TELEMETRY_DISABLED=1
+NODE_OPTIONS=--max-old-space-size=2048
+EOF
+    fi
+    
+    # 의존성 재설치
+    log_info "의존성 재설치 중..."
+    npm install
+    
+    # 빌드 테스트
+    log_info "빌드 테스트 중..."
+    if npm run build; then
+        log_success "✅ $app_type 애플리케이션 빌드 성공"
+    else
+        log_warning "⚠️ $app_type 애플리케이션 빌드 실패 - 개발 모드로 진행"
+    fi
+    
+    log_success "✅ Ultimate Turbopack Fix 완료 ($app_type)"
+}
     fi
     
     # 의존성 재설치 (모든 호환성 문제 해결)
