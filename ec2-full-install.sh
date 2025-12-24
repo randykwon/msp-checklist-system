@@ -143,7 +143,7 @@ detect_os() {
         exit 1
     fi
 }
-
+ㅣㄴ
 # Nginx 설치 상태 확인
 check_nginx_installation() {
     log_info "Nginx 설치 상태 확인 중..."
