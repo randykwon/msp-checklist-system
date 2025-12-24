@@ -146,6 +146,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // 실험적 기능 설정 (동적 라우트 경고 해결)
+  experimental: {
+    // 정적 생성 관련 설정
+    staticGenerationAsyncStorage: false,
+    staticGenerationBailout: 'ignore',
+  },
+  
   // Webpack 설정 (CSS 프레임워크 완전 제거)
   webpack: (config, { isServer }) => {
     // 클라이언트 사이드에서 서버 전용 모듈 제외

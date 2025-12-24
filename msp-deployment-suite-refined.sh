@@ -1764,6 +1764,13 @@ const nextConfig = {
     ignoreDuringBuilds: true,
   },
   
+  // 실험적 기능 설정 (동적 라우트 경고 해결)
+  experimental: {
+    // 정적 생성 관련 설정
+    staticGenerationAsyncStorage: false,
+    staticGenerationBailout: 'ignore',
+  },
+  
   // Webpack 설정 (CSS 프레임워크 완전 제거)
   webpack: (config, { isServer }) => {
     // 클라이언트 사이드에서 서버 전용 모듈 제외
@@ -1862,6 +1869,10 @@ HOST=0.0.0.0
 NEXT_TELEMETRY_DISABLED=1
 NODE_OPTIONS=--max-old-space-size=2048
 
+# Next.js 동적 라우트 경고 억제
+NEXT_PRIVATE_SKIP_STATIC_GENERATION_TRACE=1
+NEXT_PRIVATE_DISABLE_STATIC_IMAGES=1
+
 # 데이터베이스 설정
 DATABASE_URL=sqlite:./msp_checklist.db
 
@@ -1925,6 +1936,10 @@ HOST=0.0.0.0
 # Next.js 최적화
 NEXT_TELEMETRY_DISABLED=1
 NODE_OPTIONS=--max-old-space-size=1024
+
+# Next.js 동적 라우트 경고 억제
+NEXT_PRIVATE_SKIP_STATIC_GENERATION_TRACE=1
+NEXT_PRIVATE_DISABLE_STATIC_IMAGES=1
 
 # 데이터베이스 설정
 ADMIN_DATABASE_URL=sqlite:./admin.db
