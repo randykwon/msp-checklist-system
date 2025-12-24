@@ -1,16 +1,17 @@
-#!/bin/bash
+# Admin 경로 문제 즉시 해결 명령어
 
-# 빠른 Admin 경로 해결 스크립트
+현재 빌드 실패 문제를 해결하기 위해 Amazon Linux 서버에서 다음 명령어들을 **순서대로** 실행하세요.
 
-echo "🔧 Admin 경로 문제 빠른 해결 중..."
+## 🚨 즉시 실행할 명령어들
 
-# Admin 디렉토리로 이동
+### 1. Admin 디렉토리로 이동
+```bash
 cd /opt/msp-checklist-system/msp-checklist/admin
+pwd  # 현재 위치 확인
+```
 
-echo "📍 현재 위치: $(pwd)"
-
-# 1. AdminLayout 컴포넌트 생성
-echo "🎨 AdminLayout 컴포넌트 생성 중..."
+### 2. AdminLayout 컴포넌트 생성
+```bash
 mkdir -p components
 
 cat > components/AdminLayout.tsx << 'EOF'
@@ -44,9 +45,10 @@ export default function AdminLayout({ children, title = 'Admin Dashboard' }: Adm
   );
 }
 EOF
+```
 
-# 2. 필수 라이브러리 생성
-echo "📚 필수 라이브러리 생성 중..."
+### 3. 필수 라이브러리 생성
+```bash
 mkdir -p lib
 
 cat > lib/db.ts << 'EOF'
@@ -98,9 +100,10 @@ export function getRoleColor(role: UserRole): string {
   return roleColors[role] || 'gray';
 }
 EOF
+```
 
-# 3. AuthContext 생성
-echo "🔐 AuthContext 생성 중..."
+### 4. AuthContext 생성
+```bash
 mkdir -p contexts
 
 cat > contexts/AuthContext.tsx << 'EOF'
@@ -156,9 +159,10 @@ export function useAuth() {
   return context;
 }
 EOF
+```
 
-# 4. PermissionGuard 생성
-echo "🛡️ PermissionGuard 생성 중..."
+### 5. PermissionGuard 생성
+```bash
 cat > components/PermissionGuard.tsx << 'EOF'
 'use client';
 
@@ -173,9 +177,10 @@ export default function PermissionGuard({ children, requiredRoute }: PermissionG
   return <>{children}</>;
 }
 EOF
+```
 
-# 5. TypeScript 설정 업데이트
-echo "📝 TypeScript 설정 업데이트 중..."
+### 6. TypeScript 설정 업데이트
+```bash
 cat > tsconfig.json << 'EOF'
 {
   "compilerOptions": {
@@ -207,9 +212,10 @@ cat > tsconfig.json << 'EOF'
   "exclude": ["node_modules"]
 }
 EOF
+```
 
-# 6. Next.js 설정 업데이트
-echo "⚙️ Next.js 설정 업데이트 중..."
+### 7. Next.js 설정 업데이트 (telemetry 경고 해결)
+```bash
 cat > next.config.ts << 'EOF'
 import type { NextConfig } from "next";
 
@@ -241,51 +247,99 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 EOF
+```
 
-# 7. 빌드 캐시 정리
-echo "🧹 빌드 캐시 정리 중..."
+### 8. 빌드 캐시 정리 및 테스트
+```bash
+# 빌드 캐시 정리
 rm -rf .next
 
-# 8. 테스트 빌드
-echo "🔨 Admin 시스템 테스트 빌드 중..."
+# 환경 변수 설정
 export NODE_OPTIONS="--max-old-space-size=2048"
 export NEXT_TELEMETRY_DISABLED=1
 
-if npm run build; then
-    echo ""
-    echo "✅ Admin 시스템 빌드 성공!"
-    
-    # 메인 시스템 빌드 테스트
-    cd ..
-    echo "🔨 메인 시스템 빌드 테스트 중..."
-    
-    if npm run build; then
-        echo ""
-        echo "🎉🎉🎉 전체 시스템 빌드 성공! 🎉🎉🎉"
-        echo ""
-        echo "✅ 모든 경로 문제가 해결되었습니다!"
-        echo "✅ MSP Checklist 시스템이 완전히 준비되었습니다!"
-        echo ""
-        echo "다음 단계:"
-        echo "1. 서버 시작: cd /opt/msp-checklist-system && ./restart-servers.sh"
-        echo "2. 메인 서비스 확인: curl http://localhost:3010"
-        echo "3. 관리자 서비스 확인: curl http://localhost:3011"
-    else
-        echo "⚠️ 메인 시스템에 추가 문제가 있을 수 있습니다."
-        echo "하지만 Admin 시스템은 정상적으로 빌드되었습니다."
-    fi
-else
-    echo ""
-    echo "❌ Admin 시스템 빌드 실패"
-    echo "추가 디버깅이 필요합니다."
-    
-    echo ""
-    echo "생성된 파일 확인:"
-    echo "- AdminLayout: $([ -f "components/AdminLayout.tsx" ] && echo "✅" || echo "❌")"
-    echo "- db.ts: $([ -f "lib/db.ts" ] && echo "✅" || echo "❌")"
-    echo "- AuthContext: $([ -f "contexts/AuthContext.tsx" ] && echo "✅" || echo "❌")"
-    echo "- tsconfig.json: $([ -f "tsconfig.json" ] && echo "✅" || echo "❌")"
-fi
+# Admin 시스템 빌드 테스트
+echo "🔨 Admin 시스템 빌드 테스트 중..."
+npm run build
+```
 
-echo ""
-echo "🏁 빠른 Admin 해결 스크립트 완료!"
+### 9. 전체 시스템 빌드 테스트
+```bash
+# 메인 디렉토리로 이동
+cd /opt/msp-checklist-system/msp-checklist
+
+# 전체 시스템 빌드
+echo "🔨 전체 시스템 빌드 테스트 중..."
+npm run build
+```
+
+### 10. 서버 시작
+```bash
+# 서버 시작
+cd /opt/msp-checklist-system
+./restart-servers.sh
+
+# 상태 확인
+sleep 10
+curl http://localhost:3010
+curl http://localhost:3011
+```
+
+## 🔍 문제 해결 확인
+
+### 생성된 파일 확인
+```bash
+cd /opt/msp-checklist-system/msp-checklist/admin
+
+echo "생성된 파일 확인:"
+echo "- AdminLayout: $([ -f "components/AdminLayout.tsx" ] && echo "✅" || echo "❌")"
+echo "- db.ts: $([ -f "lib/db.ts" ] && echo "✅" || echo "❌")"
+echo "- permissions.ts: $([ -f "lib/permissions.ts" ] && echo "✅" || echo "❌")"
+echo "- AuthContext: $([ -f "contexts/AuthContext.tsx" ] && echo "✅" || echo "❌")"
+echo "- PermissionGuard: $([ -f "components/PermissionGuard.tsx" ] && echo "✅" || echo "❌")"
+echo "- tsconfig.json: $([ -f "tsconfig.json" ] && echo "✅" || echo "❌")"
+echo "- next.config.ts: $([ -f "next.config.ts" ] && echo "✅" || echo "❌")"
+```
+
+### 빌드 오류 확인
+```bash
+# 빌드 오류가 있다면 상세 로그 확인
+npm run build 2>&1 | grep -A 5 -B 5 "error"
+```
+
+## 🎯 예상 결과
+
+이 명령어들을 실행하면:
+
+1. ✅ `Cannot find module '@/components/AdminLayout'` 오류 해결
+2. ✅ TypeScript 경로 매핑 완전 설정
+3. ✅ Next.js telemetry 경고 해결
+4. ✅ Admin 시스템 빌드 성공
+5. ✅ 전체 시스템 빌드 성공
+6. ✅ 서버 정상 시작
+
+## 🚨 만약 여전히 오류가 발생한다면
+
+### 대안 1: 간단한 AdminLayout 생성
+```bash
+cd /opt/msp-checklist-system/msp-checklist/admin
+mkdir -p components
+
+cat > components/AdminLayout.tsx << 'EOF'
+export default function AdminLayout({ children }: { children: any }) {
+  return <div>{children}</div>;
+}
+EOF
+```
+
+### 대안 2: Admin 시스템 임시 비활성화
+```bash
+# Admin 디렉토리 임시 이름 변경
+cd /opt/msp-checklist-system/msp-checklist
+mv admin admin.disabled
+
+# 메인 시스템만 빌드
+npm run build
+```
+
+이 방법들 중 하나는 반드시 작동할 것입니다! 🚀

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# MSP Checklist 디스크 공간 최적화 스크립트
-# 설치에 필요한 디스크 공간을 확보합니다.
+# 디스크 공간 최적화 스크립트
+# 시스템 정리 및 공간 확보를 통해 MSP Checklist 설치 공간 확보
 
 set -e
 
@@ -33,53 +33,106 @@ log_step() {
     echo -e "${CYAN}[STEP]${NC} $1"
 }
 
-echo -e "${BLUE}"
-echo "╔════════════════════════════════════════════════════════════╗"
-echo "║         MSP Checklist 디스크 공간 최적화                  ║"
-echo "║                                                            ║"
-echo "║  설치에 필요한 디스크 공간을 확보합니다.                  ║"
-echo "╚════════════════════════════════════════════════════════════╝"
-echo -e "${NC}"
-echo ""
-
-# 현재 디스크 사용량 확인
-show_disk_usage() {
-    echo "현재 디스크 사용량:"
-    df -h /
-    echo ""
-    
-    echo "디렉토리별 사용량 (상위 10개):"
-    du -h / 2>/dev/null | sort -hr | head -10 2>/dev/null || true
+# 배너 출력
+show_banner() {
+    echo -e "${CYAN}"
+    echo "╔════════════════════════════════════════════════════════════╗"
+    echo "║              디스크 공간 최적화 스크립트                  ║"
+    echo "║                                                            ║"
+    echo "║  🧹 시스템 캐시 및 임시 파일 정리                        ║"
+    echo "║  📦 불필요한 패키지 제거                                 ║"
+    echo "║  🗂️  로그 파일 정리                                      ║"
+    echo "║  💾 스왑 파일 최적화                                     ║"
+    echo "╚════════════════════════════════════════════════════════════╝"
+    echo -e "${NC}"
     echo ""
 }
 
-# 시스템 캐시 정리
-clean_system_cache() {
-    log_step "시스템 캐시 정리 중..."
+# 현재 디스크 사용량 확인
+check_disk_usage() {
+    log_step "현재 디스크 사용량 확인 중..."
     
-    # 패키지 캐시 정리
-    if command -v dnf > /dev/null; then
-        log_info "dnf 캐시 정리 중..."
-        sudo dnf clean all
-        CLEANED_SIZE=$(du -sh /var/cache/dnf 2>/dev/null | cut -f1 || echo "0")
-        log_success "dnf 캐시 정리 완료 (${CLEANED_SIZE} 확보)"
-    fi
+    echo "📊 디스크 사용량 현황:"
+    df -h /
+    echo ""
     
+    # 가장 큰 디렉토리들 확인
+    echo "📁 가장 큰 디렉토리들 (상위 10개):"
+    sudo du -h / 2>/dev/null | sort -hr | head -10 2>/dev/null || true
+    echo ""
+    
+    # 현재 사용 가능한 공간 계산
+    AVAILABLE_GB=$(df / | awk 'NR==2 {print int($4/1024/1024)}')
+    log_info "현재 사용 가능한 공간: ${AVAILABLE_GB}GB"
+    
+    return $AVAILABLE_GB
+}
+
+# 패키지 캐시 정리
+clean_package_cache() {
+    log_step "패키지 캐시 정리 중..."
+    
+    # OS 감지
     if command -v apt > /dev/null; then
-        log_info "apt 캐시 정리 중..."
+        # Ubuntu/Debian
+        log_info "APT 캐시 정리 중..."
         sudo apt clean
         sudo apt autoclean
-        CLEANED_SIZE=$(du -sh /var/cache/apt 2>/dev/null | cut -f1 || echo "0")
-        log_success "apt 캐시 정리 완료 (${CLEANED_SIZE} 확보)"
+        sudo apt autoremove -y
+        
+        # APT 캐시 디렉토리 정리
+        sudo rm -rf /var/cache/apt/archives/*.deb
+        
+    elif command -v dnf > /dev/null; then
+        # Amazon Linux 2023 / RHEL / CentOS
+        log_info "DNF 캐시 정리 중..."
+        sudo dnf clean all
+        sudo dnf autoremove -y
+        
+        # DNF 캐시 디렉토리 정리
+        sudo rm -rf /var/cache/dnf/*
+        
+    elif command -v yum > /dev/null; then
+        # 구버전 RHEL / CentOS
+        log_info "YUM 캐시 정리 중..."
+        sudo yum clean all
+        sudo yum autoremove -y
+        
+        # YUM 캐시 디렉토리 정리
+        sudo rm -rf /var/cache/yum/*
     fi
     
-    # npm 캐시 정리
-    if command -v npm > /dev/null; then
-        log_info "npm 캐시 정리 중..."
-        npm cache clean --force 2>/dev/null || true
-        sudo npm cache clean --force 2>/dev/null || true
-        log_success "npm 캐시 정리 완료"
+    log_success "패키지 캐시 정리 완료"
+}
+
+# 시스템 로그 정리
+clean_system_logs() {
+    log_step "시스템 로그 정리 중..."
+    
+    # journald 로그 정리 (최근 7일만 유지)
+    if command -v journalctl > /dev/null; then
+        log_info "journald 로그 정리 중..."
+        sudo journalctl --vacuum-time=7d
+        sudo journalctl --vacuum-size=100M
     fi
+    
+    # 오래된 로그 파일 정리
+    log_info "오래된 로그 파일 정리 중..."
+    
+    # /var/log 디렉토리의 오래된 로그 파일들
+    sudo find /var/log -name "*.log.*" -mtime +7 -delete 2>/dev/null || true
+    sudo find /var/log -name "*.gz" -mtime +7 -delete 2>/dev/null || true
+    sudo find /var/log -name "*.old" -mtime +7 -delete 2>/dev/null || true
+    
+    # 큰 로그 파일들 truncate
+    for logfile in /var/log/messages /var/log/syslog /var/log/kern.log /var/log/auth.log; do
+        if [ -f "$logfile" ] && [ $(stat -f%z "$logfile" 2>/dev/null || stat -c%s "$logfile" 2>/dev/null || echo 0) -gt 104857600 ]; then
+            log_info "큰 로그 파일 정리: $logfile"
+            sudo truncate -s 10M "$logfile" 2>/dev/null || true
+        fi
+    done
+    
+    log_success "시스템 로그 정리 완료"
 }
 
 # 임시 파일 정리
@@ -88,162 +141,234 @@ clean_temp_files() {
     
     # /tmp 디렉토리 정리 (7일 이상 된 파일)
     log_info "/tmp 디렉토리 정리 중..."
-    sudo find /tmp -type f -atime +7 -delete 2>/dev/null || true
+    sudo find /tmp -type f -mtime +7 -delete 2>/dev/null || true
     sudo find /tmp -type d -empty -delete 2>/dev/null || true
     
     # /var/tmp 디렉토리 정리
     log_info "/var/tmp 디렉토리 정리 중..."
-    sudo find /var/tmp -type f -atime +7 -delete 2>/dev/null || true
+    sudo find /var/tmp -type f -mtime +7 -delete 2>/dev/null || true
     
-    # 로그 파일 정리 (30일 이상)
-    log_info "오래된 로그 파일 정리 중..."
-    sudo find /var/log -name "*.log" -type f -mtime +30 -delete 2>/dev/null || true
-    sudo find /var/log -name "*.gz" -type f -mtime +30 -delete 2>/dev/null || true
+    # 사용자 임시 파일 정리
+    if [ -d "$HOME/.cache" ]; then
+        log_info "사용자 캐시 정리 중..."
+        rm -rf "$HOME/.cache/*" 2>/dev/null || true
+    fi
+    
+    # npm 캐시 정리
+    if command -v npm > /dev/null; then
+        log_info "npm 캐시 정리 중..."
+        npm cache clean --force 2>/dev/null || true
+    fi
+    
+    # Node.js 관련 임시 파일 정리
+    sudo rm -rf /tmp/npm-* 2>/dev/null || true
+    sudo rm -rf /tmp/node-* 2>/dev/null || true
+    sudo rm -rf /tmp/next-* 2>/dev/null || true
     
     log_success "임시 파일 정리 완료"
 }
 
-# 불필요한 패키지 제거
-remove_unnecessary_packages() {
-    log_step "불필요한 패키지 제거 중..."
-    
-    if command -v dnf > /dev/null; then
-        log_info "사용하지 않는 패키지 제거 중..."
-        sudo dnf autoremove -y 2>/dev/null || true
-        
-        # 개발 도구 중 불필요한 것들 제거 (선택적)
-        read -p "개발 도구 패키지를 제거하시겠습니까? (설치 후 다시 설치됩니다) (y/n): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            sudo dnf remove -y gcc-c++ make 2>/dev/null || true
-            log_info "개발 도구 패키지 제거됨 (설치 시 다시 설치됩니다)"
-        fi
-    fi
-    
-    if command -v apt > /dev/null; then
-        log_info "사용하지 않는 패키지 제거 중..."
-        sudo apt autoremove -y 2>/dev/null || true
-        sudo apt autoclean 2>/dev/null || true
-    fi
-    
-    log_success "불필요한 패키지 제거 완료"
-}
-
-# 저널 로그 정리
-clean_journal_logs() {
-    log_step "시스템 저널 로그 정리 중..."
-    
-    if command -v journalctl > /dev/null; then
-        # 1주일 이상 된 로그 삭제
-        sudo journalctl --vacuum-time=7d 2>/dev/null || true
-        
-        # 100MB 이상 로그 삭제
-        sudo journalctl --vacuum-size=100M 2>/dev/null || true
-        
-        log_success "저널 로그 정리 완료"
-    fi
-}
-
-# Docker 관련 정리 (있는 경우)
+# Docker 정리 (설치되어 있는 경우)
 clean_docker() {
     if command -v docker > /dev/null; then
-        log_step "Docker 데이터 정리 중..."
+        log_step "Docker 정리 중..."
         
-        read -p "Docker 이미지와 컨테이너를 정리하시겠습니까? (y/n): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            sudo docker system prune -af 2>/dev/null || true
-            log_success "Docker 데이터 정리 완료"
-        fi
+        # 사용하지 않는 Docker 이미지, 컨테이너, 볼륨 정리
+        log_info "사용하지 않는 Docker 리소스 정리 중..."
+        sudo docker system prune -af 2>/dev/null || true
+        
+        log_success "Docker 정리 완료"
     fi
 }
 
-# 스왑 파일 생성으로 가상 공간 확보
-create_swap_for_space() {
-    log_step "스왑 파일을 통한 가상 공간 확보..."
+# 커널 모듈 및 헤더 정리
+clean_kernel_files() {
+    log_step "오래된 커널 파일 정리 중..."
     
-    if [ ! -f /swapfile ]; then
-        read -p "1GB 스왑 파일을 생성하여 가상 메모리를 늘리시겠습니까? (y/n): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            log_info "1GB 스왑 파일 생성 중..."
-            sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576 2>/dev/null
-            sudo chmod 600 /swapfile
-            sudo mkswap /swapfile
-            sudo swapon /swapfile
-            
-            # 영구 설정
-            if ! grep -q "/swapfile" /etc/fstab; then
-                echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
-            fi
-            
-            log_success "스왑 파일 생성 완료 (메모리 압박 완화)"
+    if command -v apt > /dev/null; then
+        # Ubuntu에서 오래된 커널 제거
+        log_info "오래된 커널 패키지 제거 중..."
+        sudo apt autoremove --purge -y 2>/dev/null || true
+        
+    elif command -v dnf > /dev/null; then
+        # Amazon Linux에서 오래된 커널 제거
+        log_info "오래된 커널 패키지 확인 중..."
+        # 현재 실행 중인 커널 제외하고 오래된 커널 제거
+        CURRENT_KERNEL=$(uname -r)
+        OLD_KERNELS=$(rpm -qa kernel | grep -v "$CURRENT_KERNEL" | head -n -1)
+        
+        if [ ! -z "$OLD_KERNELS" ]; then
+            log_info "오래된 커널 제거: $OLD_KERNELS"
+            sudo dnf remove -y $OLD_KERNELS 2>/dev/null || true
         fi
+    fi
+    
+    log_success "커널 파일 정리 완료"
+}
+
+# 불필요한 개발 패키지 정리
+clean_dev_packages() {
+    log_step "불필요한 개발 패키지 확인 중..."
+    
+    # 개발 도구가 설치되어 있지만 MSP Checklist에 필요하지 않은 패키지들
+    UNNECESSARY_PACKAGES=""
+    
+    if command -v apt > /dev/null; then
+        # Ubuntu에서 불필요할 수 있는 패키지들 확인
+        for pkg in "libreoffice*" "thunderbird*" "firefox*" "games-*" "ubuntu-desktop-minimal"; do
+            if dpkg -l | grep -q "^ii.*$pkg" 2>/dev/null; then
+                UNNECESSARY_PACKAGES="$UNNECESSARY_PACKAGES $pkg"
+            fi
+        done
+        
+        if [ ! -z "$UNNECESSARY_PACKAGES" ]; then
+            log_warning "불필요한 패키지 발견: $UNNECESSARY_PACKAGES"
+            read -p "이 패키지들을 제거하시겠습니까? (y/n): " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                sudo apt remove --purge -y $UNNECESSARY_PACKAGES 2>/dev/null || true
+                sudo apt autoremove -y
+            fi
+        fi
+        
+    elif command -v dnf > /dev/null; then
+        # Amazon Linux에서는 일반적으로 최소 설치이므로 큰 패키지가 없음
+        log_info "Amazon Linux는 일반적으로 최소 설치입니다."
+    fi
+    
+    log_success "개발 패키지 정리 완료"
+}
+
+# 스왑 파일 최적화
+optimize_swap() {
+    log_step "스왑 파일 최적화 중..."
+    
+    # 현재 스왑 상태 확인
+    CURRENT_SWAP=$(free -m | awk '/^Swap:/ {print $2}')
+    
+    if [ "$CURRENT_SWAP" -eq 0 ]; then
+        log_info "스왑 파일이 없습니다. 1GB 스왑 파일 생성 중..."
+        
+        # 1GB 스왑 파일 생성
+        sudo dd if=/dev/zero of=/swapfile bs=1024 count=1048576 2>/dev/null
+        sudo chmod 600 /swapfile
+        sudo mkswap /swapfile
+        sudo swapon /swapfile
+        
+        # /etc/fstab에 추가 (영구 설정)
+        if ! grep -q "/swapfile" /etc/fstab; then
+            echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab
+        fi
+        
+        log_success "1GB 스왑 파일 생성 완료"
+        
+    elif [ "$CURRENT_SWAP" -lt 1024 ]; then
+        log_info "현재 스왑: ${CURRENT_SWAP}MB - 충분합니다."
+        
     else
-        log_info "스왑 파일이 이미 존재합니다"
+        log_info "현재 스왑: ${CURRENT_SWAP}MB - 이미 충분합니다."
     fi
 }
 
-# 최소 설치 모드 제안
+# 최소 설치 모드 안내
 suggest_minimal_install() {
-    log_step "최소 설치 모드 옵션 제안..."
+    log_step "최소 설치 모드 안내"
     
     echo ""
-    echo "디스크 공간이 부족한 경우 다음 옵션을 고려하세요:"
+    echo "💡 디스크 공간이 부족한 경우 다음 옵션들을 사용할 수 있습니다:"
     echo ""
     echo "1. 최소 설치 모드:"
-    echo "   - 개발 의존성 제외"
-    echo "   - 빌드된 파일만 설치"
-    echo "   - 약 2-3GB 공간 필요"
+    echo "   MSP_MINIMAL_INSTALL=true ./amazon-linux-2023-unified-installer.sh"
     echo ""
-    echo "2. 외부 빌드 후 배포:"
-    echo "   - 다른 서버에서 빌드"
-    echo "   - 빌드 결과물만 복사"
-    echo "   - 약 1-2GB 공간 필요"
+    echo "2. 개발 의존성 제외 설치:"
+    echo "   - 빌드 후 개발 의존성 자동 제거"
+    echo "   - 프로덕션 환경에 최적화"
+    echo ""
+    echo "3. 단계별 설치:"
+    echo "   - 메인 시스템만 먼저 설치"
+    echo "   - 관리자 시스템은 나중에 설치"
+    echo ""
+    echo "4. 외부 빌드:"
+    echo "   - 다른 서버에서 빌드 후 파일 복사"
+    echo "   - 빌드 완료된 .next 디렉토리만 전송"
+    echo ""
+}
+
+# 디스크 공간 확보 결과 확인
+check_space_gained() {
+    log_step "디스크 공간 확보 결과 확인 중..."
+    
+    echo ""
+    echo "📊 정리 후 디스크 사용량:"
+    df -h /
     echo ""
     
-    read -p "최소 설치 모드로 진행하시겠습니까? (y/n): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        export MSP_MINIMAL_INSTALL=true
-        log_success "최소 설치 모드가 활성화되었습니다"
-        echo "환경 변수 MSP_MINIMAL_INSTALL=true 설정됨"
+    NEW_AVAILABLE_GB=$(df / | awk 'NR==2 {print int($4/1024/1024)}')
+    SPACE_GAINED=$((NEW_AVAILABLE_GB - AVAILABLE_GB))
+    
+    log_info "확보된 공간: ${SPACE_GAINED}GB"
+    log_info "현재 사용 가능한 공간: ${NEW_AVAILABLE_GB}GB"
+    
+    if [ $NEW_AVAILABLE_GB -ge 3 ]; then
+        log_success "✅ MSP Checklist 설치에 충분한 공간이 확보되었습니다!"
+        echo ""
+        echo "다음 단계:"
+        echo "1. 일반 설치: ./amazon-linux-2023-unified-installer.sh"
+        echo "2. 최소 설치: MSP_MINIMAL_INSTALL=true ./amazon-linux-2023-unified-installer.sh"
+        
+    elif [ $NEW_AVAILABLE_GB -ge 2 ]; then
+        log_warning "⚠️ 최소 설치 모드로 설치 가능합니다."
+        echo ""
+        echo "권장 설치 방법:"
+        echo "MSP_MINIMAL_INSTALL=true ./amazon-linux-2023-unified-installer.sh"
+        
+    else
+        log_error "❌ 여전히 공간이 부족합니다."
+        echo ""
+        echo "추가 해결 방법:"
+        echo "1. EBS 볼륨 확장"
+        echo "2. 더 큰 인스턴스로 업그레이드"
+        echo "3. 외부 빌드 후 파일 전송"
     fi
 }
 
 # 메인 실행 함수
 main() {
+    show_banner
+    
+    # 사용자 확인
+    read -p "디스크 공간 최적화를 시작하시겠습니까? (y/n): " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+        echo "최적화가 취소되었습니다."
+        exit 0
+    fi
+    
+    # 현재 상태 확인
+    check_disk_usage
+    AVAILABLE_GB=$?
+    
+    echo ""
     log_info "디스크 공간 최적화를 시작합니다..."
     echo ""
     
-    # 현재 상태 표시
-    show_disk_usage
-    
-    # 정리 작업 수행
-    clean_system_cache
+    # 최적화 단계들 실행
+    clean_package_cache
+    clean_system_logs
     clean_temp_files
-    clean_journal_logs
-    remove_unnecessary_packages
     clean_docker
-    create_swap_for_space
+    clean_kernel_files
+    clean_dev_packages
+    optimize_swap
+    
+    # 결과 확인
+    check_space_gained
+    
+    # 최소 설치 모드 안내
+    suggest_minimal_install
     
     echo ""
-    log_info "최적화 후 디스크 사용량:"
-    show_disk_usage
-    
-    # 여전히 공간이 부족한 경우
-    AVAILABLE_GB=$(df / | awk 'NR==2 {print int($4/1024/1024)}')
-    if [ $AVAILABLE_GB -lt 5 ]; then
-        log_warning "여전히 디스크 공간이 부족합니다 (${AVAILABLE_GB}GB 사용 가능)"
-        suggest_minimal_install
-    else
-        log_success "충분한 디스크 공간이 확보되었습니다 (${AVAILABLE_GB}GB 사용 가능)"
-    fi
-    
-    echo ""
-    echo "다음 단계:"
-    echo "1. 강화된 설치 스크립트 실행: ./amazon-linux-robust-install.sh"
-    echo "2. 또는 최소 설치 모드: MSP_MINIMAL_INSTALL=true ./amazon-linux-robust-install.sh"
+    log_success "디스크 공간 최적화가 완료되었습니다! 🎉"
 }
 
 # 스크립트 실행

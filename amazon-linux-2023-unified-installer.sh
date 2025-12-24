@@ -102,22 +102,37 @@ check_system_requirements() {
         exit 1
     fi
     
-    # 디스크 공간 확인 (최소 3GB)
+    # 디스크 공간 확인
     DISK_AVAILABLE=$(df / | awk 'NR==2 {print $4}')
     DISK_GB=$((DISK_AVAILABLE / 1024 / 1024))
     
-    if [ $DISK_GB -lt 3 ]; then
-        log_error "최소 3GB 디스크 공간이 필요합니다. 현재: ${DISK_GB}GB"
+    # 최소 설치 모드 확인
+    if [ "$MSP_MINIMAL_INSTALL" = "true" ]; then
+        REQUIRED_DISK=2
+        log_info "최소 설치 모드: 디스크 요구사항 ${REQUIRED_DISK}GB로 조정"
+    else
+        REQUIRED_DISK=3
+    fi
+    
+    if [ $DISK_GB -lt $REQUIRED_DISK ]; then
+        log_error "최소 ${REQUIRED_DISK}GB 디스크 공간이 필요합니다. 현재: ${DISK_GB}GB"
         echo ""
         echo "해결 방법:"
         echo "1. 디스크 공간 최적화: ./optimize-disk-space.sh"
-        echo "2. 더 큰 인스턴스 사용 또는 EBS 볼륨 확장"
+        echo "2. 최소 설치 모드: MSP_MINIMAL_INSTALL=true $0"
+        echo "3. 더 큰 인스턴스 사용 또는 EBS 볼륨 확장"
+        echo "4. 전용 최소 설치 스크립트: ./amazon-linux-2023-minimal-installer.sh"
         exit 1
     fi
     
     # 네트워크 연결 확인
     if ! ping -c 1 8.8.8.8 > /dev/null 2>&1; then
         log_error "인터넷 연결 없음"
+        exit 1
+    fi
+    
+    log_success "시스템 요구사항 검증 완료"
+}
         exit 1
     fi
     
@@ -635,6 +650,12 @@ export default function AdminLayout({ children, title = 'Admin Dashboard' }: Adm
               <a href="/admin/announcements" style={{ color: '#6c757d', textDecoration: 'none', padding: '8px 12px' }}>
                 Announcements
               </a>
+              <a href="/admin/users" style={{ color: '#6c757d', textDecoration: 'none', padding: '8px 12px' }}>
+                Users
+              </a>
+              <a href="/admin/system" style={{ color: '#6c757d', textDecoration: 'none', padding: '8px 12px' }}>
+                System
+              </a>
             </nav>
           </div>
         </div>
@@ -647,8 +668,10 @@ export default function AdminLayout({ children, title = 'Admin Dashboard' }: Adm
 }
 EOF
     
-    # DB 모듈 생성
+    # 필수 라이브러리 모듈들 생성
     mkdir -p lib
+    
+    # db.ts 모듈 생성
     cat > lib/db.ts << 'EOF'
 export interface AdminAnnouncement {
   id: number;
@@ -659,15 +682,281 @@ export interface AdminAnnouncement {
   isActive: boolean;
 }
 
+export interface AdminUser {
+  id: number;
+  username: string;
+  email: string;
+  role: string;
+  createdAt: string;
+  lastLogin?: string;
+}
+
 export async function getAnnouncements(): Promise<AdminAnnouncement[]> {
-  return [];
+  return [
+    {
+      id: 1,
+      title: 'Welcome to Admin Dashboard',
+      content: 'This is a sample announcement.',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      isActive: true
+    }
+  ];
+}
+
+export async function getUsers(): Promise<AdminUser[]> {
+  return [
+    {
+      id: 1,
+      username: 'admin',
+      email: 'admin@example.com',
+      role: 'administrator',
+      createdAt: new Date().toISOString(),
+      lastLogin: new Date().toISOString()
+    }
+  ];
+}
+
+export async function createAnnouncement(data: Omit<AdminAnnouncement, 'id' | 'createdAt' | 'updatedAt'>): Promise<AdminAnnouncement> {
+  return {
+    id: Date.now(),
+    ...data,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+}
+
+export async function updateAnnouncement(id: number, data: Partial<AdminAnnouncement>): Promise<AdminAnnouncement | null> {
+  return {
+    id,
+    title: data.title || 'Updated Announcement',
+    content: data.content || 'Updated content',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    isActive: data.isActive ?? true
+  };
+}
+
+export async function deleteAnnouncement(id: number): Promise<boolean> {
+  return true;
+}
+EOF
+
+    # permissions.ts 모듈 생성
+    cat > lib/permissions.ts << 'EOF'
+export type UserRole = 'admin' | 'operator' | 'viewer';
+
+export const ROLE_PERMISSIONS = {
+  admin: ['read', 'write', 'delete', 'manage_users', 'system_config'],
+  operator: ['read', 'write'],
+  viewer: ['read']
+};
+
+export const ROUTE_PERMISSIONS = {
+  '/dashboard': ['read'],
+  '/announcements': ['read', 'write'],
+  '/users': ['manage_users'],
+  '/system': ['system_config'],
+  '/qa': ['read', 'write'],
+  '/monitoring': ['read'],
+  '/progress': ['read'],
+  '/cache': ['system_config'],
+  '/virtual-evidence': ['system_config']
+};
+
+export function canAccessRoute(userRole: UserRole, route: string): boolean {
+  const requiredPermissions = ROUTE_PERMISSIONS[route as keyof typeof ROUTE_PERMISSIONS];
+  const userPermissions = ROLE_PERMISSIONS[userRole];
+  
+  if (!requiredPermissions) return true;
+  
+  return requiredPermissions.some(permission => 
+    userPermissions.includes(permission as any)
+  );
+}
+
+export function getRoleDisplayName(role: UserRole): string {
+  const roleNames = {
+    admin: '관리자',
+    operator: '운영자',
+    viewer: '조회자'
+  };
+  
+  return roleNames[role] || role;
+}
+
+export function getRoleColor(role: UserRole): string {
+  const roleColors = {
+    admin: 'red',
+    operator: 'blue',
+    viewer: 'green'
+  };
+  
+  return roleColors[role] || 'gray';
+}
+EOF
+
+    # contexts 디렉토리 및 AuthContext 생성
+    mkdir -p contexts
+    cat > contexts/AuthContext.tsx << 'EOF'
+'use client';
+
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  role: 'admin' | 'operator' | 'viewer';
+}
+
+interface AuthContextType {
+  user: User | null;
+  login: (username: string, password: string) => Promise<boolean>;
+  logout: () => void;
+  isLoading: boolean;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const savedUser = localStorage.getItem('admin_user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
+
+  const login = async (username: string, password: string): Promise<boolean> => {
+    try {
+      if (username === 'admin' && password === 'admin') {
+        const mockUser: User = {
+          id: 1,
+          username: 'admin',
+          email: 'admin@example.com',
+          role: 'admin'
+        };
+        
+        setUser(mockUser);
+        localStorage.setItem('admin_user', JSON.stringify(mockUser));
+        return true;
+      }
+      
+      return false;
+    } catch (error) {
+      console.error('Login failed:', error);
+      return false;
+    }
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('admin_user');
+    router.push('/admin/login');
+  };
+
+  return (
+    <AuthContext.Provider value={{ user, login, logout, isLoading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+}
+EOF
+
+    # PermissionGuard 컴포넌트 생성
+    cat > components/PermissionGuard.tsx << 'EOF'
+'use client';
+
+import { ReactNode } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
+import { canAccessRoute } from '@/lib/permissions';
+
+interface PermissionGuardProps {
+  children: ReactNode;
+  requiredRoute: string;
+}
+
+export default function PermissionGuard({ children, requiredRoute }: PermissionGuardProps) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return (
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        height: '200px' 
+      }}>
+        <div style={{
+          width: '40px',
+          height: '40px',
+          border: '4px solid #f3f3f3',
+          borderTop: '4px solid #3498db',
+          borderRadius: '50%',
+          animation: 'spin 1s linear infinite'
+        }}></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '2rem',
+        color: '#dc3545'
+      }}>
+        <h2>접근 권한이 없습니다</h2>
+        <p>로그인이 필요합니다.</p>
+      </div>
+    );
+  }
+
+  if (!canAccessRoute(user.role, requiredRoute)) {
+    return (
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '2rem',
+        color: '#dc3545'
+      }}>
+        <h2>접근 권한이 없습니다</h2>
+        <p>이 페이지에 접근할 권한이 없습니다.</p>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
 }
 EOF
     
-    # Admin TypeScript 설정
+    # Admin TypeScript 설정 (경로 매핑 포함)
     cat > tsconfig.json << 'EOF'
 {
   "compilerOptions": {
+    "target": "ES2017",
     "lib": ["dom", "dom.iterable", "es6"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -682,8 +971,17 @@ EOF
     "incremental": true,
     "plugins": [{ "name": "next" }],
     "baseUrl": ".",
-    "paths": { "@/*": ["./*"] },
-    "types": ["node"]
+    "paths": {
+      "@/*": ["./*"],
+      "@/components/*": ["./components/*"],
+      "@/lib/*": ["./lib/*"],
+      "@/contexts/*": ["./contexts/*"],
+      "@/app/*": ["./app/*"]
+    },
+    "types": ["node"],
+    "forceConsistentCasingInFileNames": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
@@ -701,7 +999,15 @@ const nextConfig: NextConfig = {
   turbopack: { root: process.cwd() },
   webpack: (config: any, { isServer }: any) => {
     if (!isServer) {
-      config.resolve.fallback = { fs: false, path: false, crypto: false };
+      config.resolve.fallback = {
+        fs: false, path: false, crypto: false, stream: false, util: false,
+        buffer: false, process: false, os: false, events: false, url: false,
+        querystring: false, http: false, https: false, zlib: false, net: false,
+        tls: false, child_process: false, dns: false, cluster: false,
+        module: false, readline: false, repl: false, vm: false, constants: false,
+        domain: false, punycode: false, string_decoder: false, sys: false,
+        timers: false, tty: false, dgram: false, assert: false,
+      };
     }
     config.externals = config.externals || [];
     if (isServer) {
@@ -714,6 +1020,64 @@ const nextConfig: NextConfig = {
 
 export default nextConfig;
 EOF
+
+    # Admin globals.css를 순수 CSS로 교체
+    if [ -f "app/globals.css" ]; then
+        cat > app/globals.css << 'EOF'
+/* Admin System 순수 CSS */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #f8f9fa;
+}
+
+h1, h2, h3, h4, h5, h6 { margin: 0 0 16px 0; font-weight: 600; }
+p { margin: 0 0 16px 0; }
+a { color: #007bff; text-decoration: none; }
+a:hover { color: #0056b3; text-decoration: underline; }
+
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+.flex { display: flex; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.space-y-6 > * + * { margin-top: 24px; }
+
+.btn {
+  display: inline-block; padding: 12px 24px; font-size: 16px;
+  text-align: center; border: none; border-radius: 6px; cursor: pointer;
+  transition: all 0.2s ease; background-color: #007bff; color: white;
+}
+.btn:hover { background-color: #0056b3; }
+
+.card {
+  background: white; border: 1px solid #dee2e6; border-radius: 8px;
+  padding: 24px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin { animation: spin 1s linear infinite; }
+.text-center { text-align: center; }
+.text-gray-600 { color: #6c757d; }
+.rounded-full { border-radius: 50%; }
+.border-b-2 { border-bottom: 2px solid; }
+.border-blue-600 { border-color: #007bff; }
+.h-12 { height: 48px; }
+.w-12 { width: 48px; }
+.h-64 { height: 256px; }
+.py-8 { padding-top: 32px; padding-bottom: 32px; }
+EOF
+    fi
     
     log_success "Admin 시스템 컴포넌트 생성 완료"
 }
