@@ -1237,9 +1237,8 @@ EOF
     
     # globals.css를 완전히 새로 작성 (순수 CSS만 사용)
     log_info "globals.css 완전 재작성 중..."
-    if [ -f "app/globals.css" ] || [ ! -d "app" ]; then
-        mkdir -p app
-        cat > app/globals.css << 'EOF'
+    mkdir -p app
+    cat > app/globals.css << 'EOF'
 /* MSP Checklist 기본 CSS - Amazon Linux 2023 호환 */
 
 /* 기본 리셋 */
@@ -1251,8 +1250,8 @@ EOF
 
 /* 기본 스타일 */
 html, body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -1618,7 +1617,6 @@ html, body {
   color: #1e40af;
 }
 EOF
-    fi
     
     # Next.js 설정을 완전히 새로 작성 (CSS 처리 완전 제거)
     log_info "Next.js 설정 완전 재작성 중..."
@@ -1895,7 +1893,225 @@ EOF
     
     log_success "💥 Nuclear CSS Fix 완료! ($app_type)"
     return 0
-}between;
+}
+
+# 애플리케이션 시작
+/* MSP Checklist 기본 CSS - 순수 CSS만 사용 */
+
+/* 기본 리셋 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* 기본 스타일 */
+html,
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.6;
+  color: #333;
+  background: #fff;
+  height: 100%;
+}
+
+#__next {
+  height: 100%;
+}
+
+/* 컨테이너 */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* 레이아웃 */
+.main-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem 0;
+}
+
+/* 카드 스타일 */
+.card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.card-content {
+  color: #374151;
+}
+
+/* 버튼 스타일 */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  line-height: 1;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.btn-secondary {
+  background-color: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.btn-success {
+  background-color: #10b981;
+  color: white;
+}
+
+.btn-success:hover:not(:disabled) {
+  background-color: #059669;
+}
+
+.btn-danger {
+  background-color: #ef4444;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: #dc2626;
+}
+
+/* 폼 스타일 */
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.form-input,
+.form-select,
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background-color: white;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* 체크리스트 스타일 */
+.checklist-item {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  background-color: white;
+}
+
+.checklist-item:hover {
+  background-color: #f9fafb;
+  border-color: #d1d5db;
+}
+
+.checklist-item.completed {
+  background-color: #f0f9ff;
+  border-color: #3b82f6;
+}
+
+.checklist-checkbox {
+  margin-right: 0.75rem;
+  width: 1.25rem;
+  height: 1.25rem;
+  cursor: pointer;
+}
+
+.checklist-text {
+  flex: 1;
+  font-size: 0.875rem;
+}
+
+.checklist-text.completed {
+  text-decoration: line-through;
+  color: #6b7280;
+}
+
+/* 진행률 바 */
+.progress-container {
+  margin: 1rem 0;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
   color: #374151;
@@ -2100,7 +2316,6 @@ EOF
   color: #1e40af;
 }
 EOF
-    fi
     
     # Next.js 설정 최적화 (LightningCSS 없이)
     log_info "Next.js 설정 최적화 중..."
