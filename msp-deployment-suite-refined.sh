@@ -1117,37 +1117,43 @@ build_application() {
     else
         log_warning "메인 애플리케이션 빌드 실패 - 자동 문제 해결 시작..."
         
-        # 빌드 실패 원인 분석 (Turbopack + webpack 플래그 + ESLint 충돌 감지 추가)
+        # 빌드 실패 원인 분석 (Ultimate Turbopack Fix 패턴 감지 추가)
         local build_error_log=$(npm run build 2>&1 | tail -20)
         
         if echo "$build_error_log" | grep -q "lightningcss\|Cannot find module.*lightningcss"; then
-            log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Nuclear CSS Fix 실행"
+            log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Ultimate Turbopack Fix 실행"
             
-            # Nuclear CSS Fix 실행
+            # Ultimate Turbopack Fix 실행
             nuclear_css_fix "main"
             return 0
-        elif echo "$build_error_log" | grep -q "turbopack.*doesn't support\|Turbopack.*not.*support\|turbo.*build.*error\|Cannot find module.*tailwindcss\|postcss.*turbopack"; then
-            log_error "❌ Turbopack CSS 프레임워크 문제 감지됨 - Nuclear CSS Fix 실행"
+        elif echo "$build_error_log" | grep -q "turbopack.*doesn't support\|Turbopack.*not.*support\|turbo.*build.*error\|Cannot find module.*tailwindcss\|postcss.*turbopack\|(turbo)"; then
+            log_error "❌ Turbopack 관련 문제 감지됨 - Ultimate Turbopack Fix 실행"
             
-            # Nuclear CSS Fix 실행 (Turbopack CSS 문제 해결 포함)
+            # Ultimate Turbopack Fix 실행 (모든 Turbopack 문제 해결 포함)
+            nuclear_css_fix "main"
+            return 0
+        elif echo "$build_error_log" | grep -q "serverExternalPackages\|Unrecognized key.*serverExternalPackages"; then
+            log_error "❌ Next.js 14 비호환 설정 감지됨 - Ultimate Turbopack Fix 실행"
+            
+            # Ultimate Turbopack Fix 실행 (Next.js 14 호환성 문제 해결 포함)
             nuclear_css_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "unknown option.*--webpack\|error.*--webpack"; then
-            log_error "❌ Next.js 15+ webpack 플래그 호환성 문제 감지됨 - Nuclear CSS Fix 실행"
+            log_error "❌ Next.js 15+ webpack 플래그 호환성 문제 감지됨 - Ultimate Turbopack Fix 실행"
             
-            # Nuclear CSS Fix 실행 (webpack 플래그 문제 해결 포함)
+            # Ultimate Turbopack Fix 실행 (webpack 플래그 문제 해결 포함)
             nuclear_css_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "ERESOLVE.*eslint\|peer eslint.*>=9\|eslint.*dependency conflict"; then
-            log_error "❌ ESLint 의존성 충돌 감지됨 - Nuclear CSS Fix 실행"
+            log_error "❌ ESLint 의존성 충돌 감지됨 - Ultimate Turbopack Fix 실행"
             
-            # Nuclear CSS Fix 실행 (ESLint 충돌 해결 포함)
+            # Ultimate Turbopack Fix 실행 (ESLint 충돌 해결 포함)
             nuclear_css_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "@typescript-eslint.*no-explicit-any\|TypeScript.*error"; then
-            log_error "❌ TypeScript/ESLint 빌드 오류 감지됨 - Nuclear CSS Fix 실행"
+            log_error "❌ TypeScript/ESLint 빌드 오류 감지됨 - Ultimate Turbopack Fix 실행"
             
-            # Nuclear CSS Fix 실행 (TypeScript 관대 설정 포함)
+            # Ultimate Turbopack Fix 실행 (TypeScript 관대 설정 포함)
             nuclear_css_fix "main"
             return 0
         elif echo "$build_error_log" | grep -q "ENOSPC\|no space left"; then
@@ -2007,8 +2013,23 @@ EOF
         fi
     fi
     
-    # Next.js 14 빌드 시도 (Turbopack 없는 안정 버전)
-    log_info "Next.js 14 빌드 시도 중 (Turbopack 완전 제거)..."
+    # Next.js 14 빌드 시도 (환경 변수 정리 후)
+    log_info "환경 변수 정리 후 Next.js 14 빌드 시도 중 (Turbopack 완전 제거)..."
+    
+    # 모든 Turbopack 관련 환경 변수 완전 제거 (빌드 전 재확인)
+    unset TURBOPACK
+    unset NEXT_PRIVATE_TURBOPACK
+    unset TURBO
+    unset TURBOPACK_ENABLED
+    unset NEXT_TURBOPACK
+    unset WEBPACK
+    unset NEXT_WEBPACK
+    unset USE_WEBPACK
+    
+    # 안전한 환경 변수만 설정
+    export NODE_ENV=production
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    export NEXT_TELEMETRY_DISABLED=1
     
     if npm run build; then
         log_success "✅ 메인 애플리케이션 빌드 성공! (Next.js 14)"
@@ -2036,6 +2057,17 @@ EOF
                 }
             fi
             
+            # Admin 환경 변수 정리
+            unset TURBOPACK
+            unset NEXT_PRIVATE_TURBOPACK
+            unset TURBO
+            unset TURBOPACK_ENABLED
+            unset NEXT_TURBOPACK
+            
+            export NODE_ENV=production
+            export NODE_OPTIONS="--max-old-space-size=2048"
+            export NEXT_TELEMETRY_DISABLED=1
+            
             if npm run build; then
                 log_success "✅ Admin 애플리케이션 빌드 성공! (Next.js 14)"
             else
@@ -2045,7 +2077,14 @@ EOF
         fi
         
     else
-        log_error "❌ Next.js 14 빌드 실패. 개발 모드로 재시도 중..."
+        log_error "❌ Next.js 14 빌드 실패. 환경 변수 재정리 후 재시도 중..."
+        
+        # 환경 변수 완전 재정리
+        unset TURBOPACK
+        unset NEXT_PRIVATE_TURBOPACK
+        unset TURBO
+        unset TURBOPACK_ENABLED
+        unset NEXT_TURBOPACK
         
         # 개발 모드로 빌드 시도
         log_info "개발 모드로 빌드 시도 중..."
@@ -2305,7 +2344,11 @@ show_completion_info() {
     echo ""
     echo "🛠️ 통합된 문제 해결 기능:"
     echo "- Amazon Linux 2023 curl 충돌 자동 해결"
-    echo "- 💥 Nuclear CSS Fix: LightningCSS 완전 제거 및 순수 CSS 교체"
+    echo "- 💥 Ultimate Turbopack Fix: Next.js 14 다운그레이드 + Turbopack 완전 제거"
+    echo "- 순수 CSS 시스템: 모든 CSS 프레임워크 의존성 제거"
+    echo "- 환경 변수 완전 정리: Turbopack 강제 비활성화"
+    echo "- Next.js 14 호환성: serverExternalPackages 제거"
+    echo "- ESLint/TypeScript 오류 무시: 빌드 안정성 확보"
     echo "- Nginx 설정 오류 자동 복구"
     echo "- 포트 충돌 자동 감지 및 해결"
     echo "- sendfile 중복 설정 자동 방지"
@@ -2317,7 +2360,10 @@ show_completion_info() {
     echo "🔧 문제 해결:"
     echo "- 502 Bad Gateway 오류: Node.js 서버가 시작될 때까지 잠시 기다리세요"
     echo "- curl 충돌 문제: 자동으로 해결되었습니다"
-    echo "- 💥 LightningCSS 오류: Nuclear CSS Fix로 완전 해결됩니다"
+    echo "- 💥 Turbopack 빌드 오류: Ultimate Turbopack Fix로 완전 해결됩니다"
+    echo "- Next.js 15 호환성 문제: Next.js 14 다운그레이드로 안정성 확보"
+    echo "- CSS 프레임워크 오류: 순수 CSS 시스템으로 완전 교체"
+    echo "- 환경 변수 충돌: 완전 정리로 Turbopack 강제 비활성화"
     echo "- Nginx 설정 오류: 자동으로 수정되었습니다"
     echo "- 포트 충돌: 자동 감지 및 해결 시스템이 적용되었습니다"
     
