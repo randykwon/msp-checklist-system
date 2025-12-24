@@ -10,21 +10,13 @@ import {
 // POST: Activate specific version
 export async function POST(
   request: NextRequest,
-  context: { params: Promise<{ id: string }> | { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   console.log('=== ACTIVATE VERSION API START ===');
   
   try {
-    // Handle both Promise and direct params more robustly
-    let resolvedParams: { id: string };
-    
-    if (context.params && typeof context.params === 'object' && 'then' in context.params) {
-      // It's a Promise
-      resolvedParams = await context.params;
-    } else {
-      // It's a direct object
-      resolvedParams = context.params as { id: string };
-    }
+    // Handle params as Promise (Next.js 15+ requirement)
+    const resolvedParams = await context.params;
     
     console.log('1. Resolved params:', resolvedParams);
     

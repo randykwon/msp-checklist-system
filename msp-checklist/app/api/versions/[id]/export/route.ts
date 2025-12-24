@@ -8,10 +8,11 @@ import {
 // GET: Export version data
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
+    // Handle params as Promise (Next.js 15+ requirement)
+    const resolvedParams = await params;
     
     const user = await getCurrentUser();
     if (!user) {

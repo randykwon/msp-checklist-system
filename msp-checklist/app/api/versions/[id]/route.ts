@@ -10,10 +10,11 @@ import {
 // GET: Get specific version details
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
+    // Handle params as Promise (Next.js 15+ requirement)
+    const resolvedParams = await params;
     
     const user = await getCurrentUser();
     if (!user) {
@@ -79,10 +80,11 @@ export async function GET(
 // PUT: Update version metadata
 export async function PUT(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
+    // Handle params as Promise (Next.js 15+ requirement)
+    const resolvedParams = await params;
     
     const user = await getCurrentUser();
     if (!user) {
@@ -172,10 +174,11 @@ export async function PUT(
 // DELETE: Delete version
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const resolvedParams = await Promise.resolve(params);
+    // Handle params as Promise (Next.js 15+ requirement)
+    const resolvedParams = await params;
     
     const user = await getCurrentUser();
     if (!user) {
