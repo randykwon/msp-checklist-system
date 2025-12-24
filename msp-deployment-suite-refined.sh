@@ -1896,16 +1896,6 @@ EOF
 }
 
 # 애플리케이션 시작
-/* MSP Checklist 기본 CSS - 순수 CSS만 사용 */
-
-/* 기본 리셋 */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
 
 /* 기본 스타일 */
 html,
