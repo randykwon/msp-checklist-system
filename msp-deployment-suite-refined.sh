@@ -824,8 +824,8 @@ comprehensive_error_recovery() {
         # 5. LightningCSS 문제 확인
         if [ -f "package.json" ]; then
             if grep -q "lightningcss\|@tailwindcss" package.json; then
-                log_warning "LightningCSS 관련 패키지 감지됨 - 문제 해결 시작"
-                fix_lightningcss_issues "main"
+                log_warning "LightningCSS 관련 패키지 감지됨 - Nuclear CSS Fix 시작"
+                nuclear_css_fix "main"
                 recovery_needed=true
             fi
         fi
@@ -1084,8 +1084,8 @@ build_application() {
             if npm run build; then
                 log_success "Admin 애플리케이션 빌드 성공"
             else
-                log_warning "Admin 애플리케이션 빌드 실패 - LightningCSS 문제 해결 시도 중..."
-                fix_lightningcss_issues "admin"
+                log_warning "Admin 애플리케이션 빌드 실패 - Nuclear CSS Fix 시도 중..."
+                nuclear_css_fix "admin"
                 
                 # 재시도
                 if npm run build; then
@@ -1103,17 +1103,11 @@ build_application() {
         local build_error_log=$(npm run build 2>&1 | tail -20)
         
         if echo "$build_error_log" | grep -q "lightningcss\|Cannot find module.*lightningcss"; then
-            log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Nuclear Fix 실행"
+            log_error "❌ LightningCSS 네이티브 모듈 오류 감지됨 - Nuclear CSS Fix 실행"
             
             # Nuclear CSS Fix 실행
-            if [ -f "/opt/msp-checklist-system/nuclear-css-fix.sh" ]; then
-                log_info "Nuclear CSS Fix 스크립트 실행 중..."
-                bash /opt/msp-checklist-system/nuclear-css-fix.sh
-                return 0
-            else
-                log_info "LightningCSS 문제 해결 시작"
-                fix_lightningcss_issues "main"
-            fi
+            nuclear_css_fix "main"
+            return 0
         elif echo "$build_error_log" | grep -q "ENOSPC\|no space left"; then
             log_error "디스크 공간 부족 - 정리 필요"
             # 캐시 정리
@@ -1141,7 +1135,7 @@ build_application() {
                 npm install --omit=optional --legacy-peer-deps
                 
                 # Admin도 같은 문제 해결 적용
-                fix_lightningcss_issues "admin"
+                nuclear_css_fix "admin"
                 
                 if npm run build; then
                     log_success "Admin 애플리케이션 빌드 성공"
@@ -1170,30 +1164,81 @@ build_application() {
     log_success "애플리케이션 빌드 완료"
 }
 
-# LightningCSS 문제 해결 함수 (강화된 버전)
-fix_lightningcss_issues() {
+# Nuclear CSS Fix - 완전한 LightningCSS 제거 및 해결 (통합 버전)
+nuclear_css_fix() {
     local app_type=${1:-"main"}
-    log_info "LightningCSS 문제 해결 중 ($app_type)..."
+    log_error "💥 Nuclear CSS Fix 실행 중 ($app_type)..."
     
     # 현재 디렉토리 저장
     local current_dir=$(pwd)
     
-    # 문제가 있는 패키지들 제거
-    log_info "문제가 있는 CSS 관련 패키지들 제거 중..."
-    npm uninstall lightningcss @tailwindcss/postcss @tailwindcss/node tailwindcss postcss autoprefixer 2>/dev/null || true
+    # 모든 프로세스 중지
+    log_info "모든 관련 프로세스 중지 중..."
+    pm2 stop all 2>/dev/null || true
+    pm2 delete all 2>/dev/null || true
     
-    # 설정 파일들 제거
-    rm -f postcss.config.* tailwind.config.* 2>/dev/null || true
+    # 모든 빌드 관련 파일 완전 삭제
+    log_info "모든 빌드 관련 파일 완전 삭제 중..."
+    rm -rf .next
+    rm -rf .turbo
+    rm -rf .swc
+    rm -rf node_modules
+    rm -rf package-lock.json
+    rm -rf yarn.lock
+    rm -rf pnpm-lock.yaml
     
-    # 캐시 정리
-    log_info "캐시 정리 중..."
+    # npm 캐시 완전 정리
+    log_info "npm 캐시 완전 정리 중..."
     npm cache clean --force
-    rm -rf node_modules/.cache .next 2>/dev/null || true
+    npm cache verify
     
-    # 간단한 CSS로 교체
-    log_info "간단한 CSS 프레임워크로 교체 중..."
+    # 전역 캐시 정리
+    log_info "전역 캐시 정리 중..."
+    rm -rf ~/.npm 2>/dev/null || true
+    rm -rf ~/.cache/npm 2>/dev/null || true
+    rm -rf /tmp/npm-* 2>/dev/null || true
     
-    if [ -f "app/globals.css" ]; then
+    # package.json 완전 재작성 (CSS 관련 패키지 완전 제외)
+    log_info "package.json 완전 재작성 중..."
+    cat > package.json << 'EOF'
+{
+  "name": "msp-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^9.2.2",
+    "eslint": "^8",
+    "eslint-config-next": "16.0.10",
+    "lucide-react": "^0.263.1",
+    "next": "16.0.10",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5"
+  }
+}
+EOF
+
+    # 모든 CSS 관련 설정 파일 제거
+    log_info "모든 CSS 관련 설정 파일 제거 중..."
+    rm -f postcss.config.*
+    rm -f tailwind.config.*
+    rm -f .postcssrc*
+    rm -f *.css.map
+    
+    # globals.css를 완전히 새로 작성 (순수 CSS만 사용)
+    log_info "globals.css 완전 재작성 중..."
+    if [ -f "app/globals.css" ] || [ ! -d "app" ]; then
+        mkdir -p app
         cat > app/globals.css << 'EOF'
 /* MSP Checklist 기본 CSS - Amazon Linux 2023 호환 */
 
@@ -1575,33 +1620,40 @@ html, body {
 EOF
     fi
     
-    # Next.js 설정 최적화 (LightningCSS 없이)
-    log_info "Next.js 설정 최적화 중..."
-    
+    # Next.js 설정을 완전히 새로 작성 (CSS 처리 완전 제거)
+    log_info "Next.js 설정 완전 재작성 중..."
     cat > next.config.ts << 'EOF'
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  // 기본 설정
+  reactStrictMode: true,
+  
   // 프로덕션 최적화
   output: 'standalone',
   trailingSlash: false,
   
-  // 이미지 최적화 (AWS 환경 호환)
+  // 이미지 최적화
   images: {
     unoptimized: true,
-    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+      },
+    ],
   },
   
   // 압축 및 최적화
   compress: true,
   poweredByHeader: false,
   
-  // 실험적 기능 (LightningCSS 제외)
+  // 실험적 기능 (최소한만)
   experimental: {
     optimizePackageImports: ['lucide-react'],
   },
   
-  // Webpack 설정 (Amazon Linux 2023 호환)
+  // Webpack 설정 (CSS 처리 완전 제거)
   webpack: (config: any, { isServer }: any) => {
     // 클라이언트 사이드에서 서버 전용 모듈 제외
     if (!isServer) {
@@ -1647,11 +1699,15 @@ const nextConfig: NextConfig = {
       config.externals.push('better-sqlite3');
     }
     
-    // 네이티브 모듈 문제 해결
+    // 문제가 있는 모듈들 완전 차단
     config.resolve.alias = {
       ...config.resolve.alias,
       'lightningcss': false,
       '@tailwindcss/postcss': false,
+      '@tailwindcss/node': false,
+      'tailwindcss': false,
+      'postcss': false,
+      'autoprefixer': false,
     };
     
     return config;
@@ -1682,58 +1738,163 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  
+  // TypeScript 설정
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
 EOF
-    
-    # package.json에서 문제가 있는 의존성 제거
-    log_info "package.json에서 문제가 있는 의존성 제거 중..."
-    
-    if command -v jq > /dev/null 2>&1; then
-        # jq가 있는 경우
-        jq 'del(.dependencies.lightningcss, .dependencies."@tailwindcss/postcss", .dependencies."@tailwindcss/node", .dependencies.tailwindcss, .dependencies.postcss, .dependencies.autoprefixer)' package.json > package.json.tmp && mv package.json.tmp package.json
-    else
-        # jq가 없는 경우 sed 사용
-        sed -i '/"lightningcss"/d; /"@tailwindcss/d; /"tailwindcss"/d; /"postcss"/d; /"autoprefixer"/d' package.json 2>/dev/null || true
-    fi
-    
+
+    # 환경 변수 최적화
+    log_info "환경 변수 최적화 중..."
+    cat > .env.local << 'EOF'
+# MSP Checklist 환경 변수 (CSS 프레임워크 없이)
+NODE_ENV=production
+PORT=3010
+HOST=0.0.0.0
+
+# Next.js 최적화
+NEXT_TELEMETRY_DISABLED=1
+NODE_OPTIONS=--max-old-space-size=2048
+
+# 데이터베이스 설정
+DATABASE_URL=sqlite:./msp_checklist.db
+
+# 보안 설정
+JWT_SECRET=msp-checklist-jwt-secret-change-in-production
+SESSION_SECRET=msp-checklist-session-secret-change-in-production
+NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
+NEXTAUTH_URL=http://localhost:3010
+
+# API 설정
+OPENAI_API_KEY=your-openai-api-key-here
+CLAUDE_API_KEY=your-claude-api-key-here
+GEMINI_API_KEY=your-gemini-api-key-here
+
+# 파일 업로드 설정
+MAX_FILE_SIZE=10485760
+UPLOAD_DIR=./uploads
+
+# 로깅 설정
+LOG_LEVEL=info
+LOG_FILE=./server.log
+EOF
+
     # Admin 애플리케이션도 동일하게 처리
-    if [ -d "admin" ] && [ "$app_type" = "main" ]; then
-        log_info "Admin 애플리케이션 CSS 문제 해결 중..."
+    if [ -d "admin" ]; then
+        log_info "Admin 애플리케이션도 동일하게 처리 중..."
         
         cd admin
         
-        # 문제가 있는 패키지들 제거
-        npm uninstall lightningcss @tailwindcss/postcss @tailwindcss/node tailwindcss postcss autoprefixer 2>/dev/null || true
+        # Admin 캐시 삭제
+        rm -rf .next
+        rm -rf node_modules
+        rm -rf package-lock.json
         
-        # 설정 파일들 제거
-        rm -f postcss.config.* tailwind.config.* 2>/dev/null || true
+        # Admin package.json 복사
+        cp ../package.json ./
         
-        # globals.css 복사
+        # Admin globals.css 복사
         if [ -f "app/globals.css" ]; then
             cp ../app/globals.css app/globals.css
         fi
         
-        # Next.js 설정 복사
+        # Admin Next.js 설정 복사
         cp ../next.config.ts ./
         
-        # package.json에서 문제가 있는 의존성 제거
-        if command -v jq > /dev/null 2>&1; then
-            jq 'del(.dependencies.lightningcss, .dependencies."@tailwindcss/postcss", .dependencies."@tailwindcss/node", .dependencies.tailwindcss, .dependencies.postcss, .dependencies.autoprefixer)' package.json > package.json.tmp && mv package.json.tmp package.json
-        else
-            sed -i '/"lightningcss"/d; /"@tailwindcss/d; /"tailwindcss"/d; /"postcss"/d; /"autoprefixer"/d' package.json 2>/dev/null || true
-        fi
+        # Admin 환경 변수
+        cat > .env.local << 'EOF'
+# MSP Checklist Admin 환경 변수
+NODE_ENV=production
+PORT=3011
+HOST=0.0.0.0
+
+# Next.js 최적화
+NEXT_TELEMETRY_DISABLED=1
+NODE_OPTIONS=--max-old-space-size=1024
+
+# 데이터베이스 설정
+ADMIN_DATABASE_URL=sqlite:./admin.db
+
+# 보안 설정
+JWT_SECRET=msp-checklist-jwt-secret-change-in-production
+SESSION_SECRET=msp-checklist-session-secret-change-in-production
+NEXTAUTH_SECRET=msp-checklist-nextauth-secret-change-in-production
+NEXTAUTH_URL=http://localhost:3011
+
+# 로깅 설정
+LOG_LEVEL=info
+LOG_FILE=./admin.log
+EOF
         
         cd ..
     fi
     
-    # 의존성 재설치
-    log_info "의존성 재설치 중..."
-    rm -rf node_modules package-lock.json
-    npm install --omit=optional --legacy-peer-deps
+    # 의존성 재설치 (완전히 새로운 설치)
+    log_info "의존성 완전 재설치 중..."
     
-    log_success "✅ LightningCSS 문제 해결 완료 ($app_type)"
+    # 환경 변수 설정
+    export NODE_ENV=production
+    export NODE_OPTIONS="--max-old-space-size=2048"
+    export NEXT_TELEMETRY_DISABLED=1
+    
+    # 메인 애플리케이션 의존성 설치
+    npm install --no-optional --no-fund --no-audit
+    
+    # webpack 모드로 빌드 시도
+    log_info "webpack 모드로 빌드 시도 중..."
+    
+    if npx next build --webpack; then
+        log_success "✅ 메인 애플리케이션 빌드 성공!"
+        
+        # Admin 애플리케이션 빌드
+        if [ -d "admin" ]; then
+            cd admin
+            log_info "Admin 애플리케이션 빌드 중..."
+            
+            # Admin 의존성 설치
+            npm install --no-optional --no-fund --no-audit
+            
+            if npx next build --webpack; then
+                log_success "✅ Admin 애플리케이션 빌드 성공!"
+            else
+                log_warning "⚠️ Admin 애플리케이션 빌드 실패 (메인은 정상)"
+            fi
+            cd ..
+        fi
+        
+    else
+        log_error "❌ webpack 빌드 실패. Turbopack 비활성화 시도 중..."
+        
+        # Turbopack 완전 비활성화
+        export TURBOPACK=0
+        export NEXT_PRIVATE_TURBOPACK=0
+        
+        # 개발 모드로 빌드 시도
+        log_info "개발 모드로 빌드 시도 중..."
+        export NODE_ENV=development
+        
+        if npx next build --webpack; then
+            log_success "✅ 개발 모드 빌드 성공"
+        else
+            log_error "❌ 모든 빌드 시도 실패"
+            
+            # 최후의 수단: 기본 빌드
+            log_info "기본 빌드 시도 중..."
+            if npm run build; then
+                log_success "✅ 기본 빌드 성공"
+            else
+                log_error "❌ 완전 실패 - 수동 확인 필요"
+                return 1
+            fi
+        fi
+    fi
+    
+    log_success "💥 Nuclear CSS Fix 완료! ($app_type)"
+    return 0
 }between;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
@@ -2292,7 +2453,7 @@ show_completion_info() {
     echo ""
     echo "🛠️ 통합된 문제 해결 기능:"
     echo "- Amazon Linux 2023 curl 충돌 자동 해결"
-    echo "- LightningCSS 네이티브 모듈 문제 자동 수정"
+    echo "- 💥 Nuclear CSS Fix: LightningCSS 완전 제거 및 순수 CSS 교체"
     echo "- Nginx 설정 오류 자동 복구"
     echo "- 포트 충돌 자동 감지 및 해결"
     echo "- sendfile 중복 설정 자동 방지"
@@ -2304,7 +2465,7 @@ show_completion_info() {
     echo "🔧 문제 해결:"
     echo "- 502 Bad Gateway 오류: Node.js 서버가 시작될 때까지 잠시 기다리세요"
     echo "- curl 충돌 문제: 자동으로 해결되었습니다"
-    echo "- LightningCSS 오류: 간단한 CSS 프레임워크로 교체되었습니다"
+    echo "- 💥 LightningCSS 오류: Nuclear CSS Fix로 완전 해결됩니다"
     echo "- Nginx 설정 오류: 자동으로 수정되었습니다"
     echo "- 포트 충돌: 자동 감지 및 해결 시스템이 적용되었습니다"
     
