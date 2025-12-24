@@ -1206,25 +1206,32 @@ build_application() {
     log_success "애플리케이션 빌드 완료"
 }
 
-# Nuclear CSS Fix - 완전한 LightningCSS 제거 및 해결 (통합 버전)
+# Nuclear CSS Fix - 완전한 Turbopack 제거 및 Next.js 14 다운그레이드 (통합 버전)
 nuclear_css_fix() {
     local app_type=${1:-"main"}
-    log_error "💥 Nuclear CSS Fix 실행 중 ($app_type)..."
+    log_error "💥 Nuclear CSS Fix 실행 중 ($app_type) - Complete Turbopack Elimination..."
     
     # 현재 디렉토리 저장
     local current_dir=$(pwd)
     
-    # ESLint 충돌 및 webpack 플래그 사전 감지 및 해결
-    log_info "🔍 Next.js 호환성 및 의존성 충돌 사전 검사 중..."
+    # Turbopack 빌드 오류 패턴 감지 및 분석
+    log_info "🔍 Turbopack 빌드 오류 패턴 분석 중..."
     if [ -f package.json ]; then
         # 현재 package.json 백업
         cp package.json package.json.backup.$(date +%Y%m%d_%H%M%S) 2>/dev/null || true
         log_info "✅ package.json 백업 생성됨"
         
+        # Next.js 버전 확인
+        local nextjs_version=$(grep '"next"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+' | head -1)
+        if [[ "$nextjs_version" =~ ^15\. ]]; then
+            log_warning "⚠️ Next.js 15.x 감지됨 - Turbopack 기본 활성화 버전"
+            log_info "🔧 Next.js 14.2.18로 다운그레이드하여 Turbopack 완전 제거"
+        fi
+        
         # webpack 플래그 문제 확인
         if grep -q '"build".*"next build --webpack"' package.json; then
             log_warning "⚠️ 구식 --webpack 플래그 감지됨 (Next.js 15+ 호환 문제)"
-            log_info "🔧 Next.js 15+ 호환 빌드 스크립트로 자동 수정 중..."
+            log_info "🔧 Next.js 14 호환 빌드 스크립트로 자동 수정 중..."
         fi
         
         # ESLint 버전 충돌 확인
@@ -1234,9 +1241,10 @@ nuclear_css_fix() {
         fi
         
         # Turbopack CSS 문제 사전 감지
-        log_warning "⚠️ Turbopack CSS 프레임워크 의존성 문제 - 완전 제거 적용"
+        log_warning "⚠️ Turbopack CSS 프레임워크 의존성 문제 - Next.js 14 다운그레이드로 근본 해결"
         log_info "🔧 모든 CSS 프레임워크 의존성 완전 제거 중..."
         log_info "🚫 Turbopack 완전 비활성화 및 순수 CSS 적용 중..."
+        log_info "⬇️ Next.js 15 → 14.2.18 다운그레이드로 안정성 확보"
     fi
     
     # 모든 프로세스 중지
@@ -1265,8 +1273,8 @@ nuclear_css_fix() {
     rm -rf ~/.cache/npm 2>/dev/null || true
     rm -rf /tmp/npm-* 2>/dev/null || true
     
-    # package.json 완전 재작성 (CSS 프레임워크 완전 제거 + Turbopack 비활성화)
-    log_info "📝 package.json 완전 재작성 중 (CSS 프레임워크 완전 제거)..."
+    # package.json 완전 재작성 (Next.js 14 다운그레이드 - Turbopack 없는 안정 버전)
+    log_info "📝 package.json 완전 재작성 중 (Next.js 14 다운그레이드)..."
     cat > package.json << 'EOF'
 {
   "name": "msp-checklist",
@@ -1276,7 +1284,7 @@ nuclear_css_fix() {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "echo 'Linting skipped'"
+    "lint": "echo 'Linting disabled'"
   },
   "dependencies": {
     "@types/node": "^20",
@@ -1285,9 +1293,9 @@ nuclear_css_fix() {
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^9.2.2",
     "lucide-react": "^0.263.1",
-    "next": "15.1.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "next": "14.2.18",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
     "typescript": "^5"
   }
 }
@@ -1683,20 +1691,19 @@ html, body {
 }
 EOF
     
-    # Next.js 설정을 완전히 새로 작성 (CSS 처리 완전 제거)
-    log_info "Next.js 설정 완전 재작성 중..."
-    cat > next.config.ts << 'EOF'
-import type { NextConfig } from "next";
-
-const nextConfig: NextConfig = {
+    # Next.js 설정을 완전히 새로 작성 (Turbopack 완전 제거)
+    log_info "Next.js 설정 완전 재작성 중 (Turbopack 완전 제거)..."
+    cat > next.config.js << 'EOF'
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // 기본 설정
-  reactStrictMode: true,
+  reactStrictMode: false,
   
   // 프로덕션 최적화
   output: 'standalone',
   trailingSlash: false,
   
-  // 이미지 최적화
+  // 이미지 최적화 비활성화 (안정성)
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -1711,23 +1718,16 @@ const nextConfig: NextConfig = {
   compress: true,
   poweredByHeader: false,
   
-  // TypeScript 설정 (빌드 오류 방지)
+  // TypeScript/ESLint 완전 무시 (빌드 오류 방지)
   typescript: {
-    ignoreBuildErrors: true,  // TypeScript 오류 무시하여 빌드 진행
+    ignoreBuildErrors: true,
   },
-  
-  // ESLint 설정 (빌드 오류 방지)
   eslint: {
-    ignoreDuringBuilds: true,  // ESLint 오류 무시하여 빌드 진행
+    ignoreDuringBuilds: true,
   },
   
-  // Turbopack 완전 비활성화 (강제)
-  experimental: {
-    turbo: false,  // Turbopack 강제 비활성화
-  },
-  
-  // Webpack 설정 (CSS 처리 완전 제거)
-  webpack: (config: any, { isServer }: any) => {
+  // Webpack 설정 (CSS 프레임워크 완전 제거)
+  webpack: (config, { isServer }) => {
     // 클라이언트 사이드에서 서버 전용 모듈 제외
     if (!isServer) {
       config.resolve.fallback = {
@@ -1767,20 +1767,20 @@ const nextConfig: NextConfig = {
     }
     
     // 외부 패키지 설정
-    config.externals = config.externals || [];
     if (isServer) {
+      config.externals = config.externals || [];
       config.externals.push('better-sqlite3');
     }
     
     // 문제가 있는 모듈들 완전 차단
     config.resolve.alias = {
       ...config.resolve.alias,
-      'lightningcss': false,
-      '@tailwindcss/postcss': false,
-      '@tailwindcss/node': false,
       'tailwindcss': false,
       'postcss': false,
       'autoprefixer': false,
+      'lightningcss': false,
+      '@tailwindcss/postcss': false,
+      '@tailwindcss/node': false,
     };
     
     return config;
@@ -1803,27 +1803,13 @@ const nextConfig: NextConfig = {
             key: 'X-Content-Type-Options',
             value: 'nosniff',
           },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
         ],
       },
     ];
   },
-  
-  // TypeScript 설정 (빌드 오류 방지)
-  typescript: {
-    ignoreBuildErrors: true,  // TypeScript 오류 무시하여 빌드 진행
-  },
-  
-  // ESLint 설정 (빌드 오류 방지)
-  eslint: {
-    ignoreDuringBuilds: true,  // ESLint 오류 무시하여 빌드 진행
-  },
 };
 
-export default nextConfig;
+module.exports = nextConfig;
 EOF
 
     # 환경 변수 최적화
@@ -1881,7 +1867,7 @@ EOF
         fi
         
         # Admin Next.js 설정 복사
-        cp ../next.config.ts ./
+        cp ../next.config.js ./
         
         # Admin 환경 변수
         cat > .env.local << 'EOF'
@@ -1924,11 +1910,18 @@ EOF
     export NODE_ENV=production
     export NODE_OPTIONS="--max-old-space-size=2048"
     export NEXT_TELEMETRY_DISABLED=1
+    
+    # Turbopack 관련 모든 환경 변수 비활성화
     export TURBOPACK=0
     export NEXT_PRIVATE_TURBOPACK=0
     export TURBO=0
+    export TURBOPACK_ENABLED=false
+    export NEXT_TURBOPACK=false
+    
+    # Webpack 강제 활성화
     export WEBPACK=1
     export NEXT_WEBPACK=1
+    export USE_WEBPACK=true
     
     # 메인 애플리케이션 의존성 설치 (ESLint 충돌 해결)
     log_info "🔧 호환 가능한 의존성 설치 중..."
@@ -1974,11 +1967,11 @@ EOF
         fi
     fi
     
-    # webpack 모드로 빌드 시도
-    log_info "Next.js 빌드 시도 중..."
+    # Next.js 14 빌드 시도 (Turbopack 없는 안정 버전)
+    log_info "Next.js 14 빌드 시도 중 (Turbopack 완전 제거)..."
     
-    if npx next build; then
-        log_success "✅ 메인 애플리케이션 빌드 성공!"
+    if npm run build; then
+        log_success "✅ 메인 애플리케이션 빌드 성공! (Next.js 14)"
         
         # Admin 애플리케이션 빌드
         if [ -d "admin" ]; then
@@ -2003,8 +1996,8 @@ EOF
                 }
             fi
             
-            if npx next build; then
-                log_success "✅ Admin 애플리케이션 빌드 성공!"
+            if npm run build; then
+                log_success "✅ Admin 애플리케이션 빌드 성공! (Next.js 14)"
             else
                 log_warning "⚠️ Admin 애플리케이션 빌드 실패 (메인은 정상)"
             fi
@@ -2012,17 +2005,13 @@ EOF
         fi
         
     else
-        log_error "❌ webpack 빌드 실패. Turbopack 비활성화 시도 중..."
-        
-        # Turbopack 완전 비활성화
-        export TURBOPACK=0
-        export NEXT_PRIVATE_TURBOPACK=0
+        log_error "❌ Next.js 14 빌드 실패. 개발 모드로 재시도 중..."
         
         # 개발 모드로 빌드 시도
         log_info "개발 모드로 빌드 시도 중..."
         export NODE_ENV=development
         
-        if npx next build; then
+        if npm run build; then
             log_success "✅ 개발 모드 빌드 성공"
         else
             log_error "❌ 모든 빌드 시도 실패"
