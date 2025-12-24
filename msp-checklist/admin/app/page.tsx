@@ -31,6 +31,7 @@ export default function AdminHome() {
   }, [user, loading, router]);
 
   const fetchStats = async () => {
+    setLoadingStats(true);
     try {
       const response = await fetch('/api/admin/stats');
       if (response.ok) {
@@ -84,6 +85,16 @@ export default function AdminHome() {
               <p className="text-gray-600">MSP Checklist 시스템 현황을 확인하세요</p>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={fetchStats}
+                disabled={loadingStats}
+                className="flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 disabled:opacity-50 transition-colors duration-200"
+              >
+                <svg className={`w-4 h-4 mr-2 ${loadingStats ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                {loadingStats ? '새로고침 중...' : '새로고침'}
+              </button>
               <div className="text-right">
                 <p className="text-sm text-gray-500">접속자</p>
                 <p className="text-lg font-semibold text-gray-900">{user.name}</p>

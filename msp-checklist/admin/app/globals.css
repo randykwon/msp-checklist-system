@@ -1,148 +1,194 @@
-/* Admin Global Styles - Pure CSS */
+/* Global CSS for MSP Checklist Admin */
 
+/* Base styles */
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
 }
 
-html, body {
+html,
+body {
   max-width: 100vw;
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body {
-  color: #333;
-  background: #f5f5f5;
+/* Custom animations */
+@keyframes shake {
+  0%, 100% { 
+    transform: translateX(0); 
+  }
+  25% { 
+    transform: translateX(-5px); 
+  }
+  75% { 
+    transform: translateX(5px); 
+  }
 }
 
-/* 컨테이너 */
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 1rem;
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
 }
 
-/* 레이아웃 */
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-center { justify-content: center; }
-.justify-between { justify-content: space-between; }
-.gap-4 { gap: 1rem; }
-.gap-2 { gap: 0.5rem; }
-
-/* 텍스트 */
-.text-center { text-align: center; }
-.text-lg { font-size: 1.125rem; }
-.text-xl { font-size: 1.25rem; }
-.text-2xl { font-size: 1.5rem; }
-.font-bold { font-weight: bold; }
-
-/* 색상 */
-.text-blue-600 { color: #2563eb; }
-.text-green-600 { color: #16a34a; }
-.text-red-600 { color: #dc2626; }
-.bg-blue-500 { background-color: #3b82f6; }
-.bg-green-500 { background-color: #22c55e; }
-.bg-gray-100 { background-color: #f3f4f6; }
-.bg-white { background-color: white; }
-
-/* 패딩/마진 */
-.p-4 { padding: 1rem; }
-.p-6 { padding: 1.5rem; }
-.px-4 { padding-left: 1rem; padding-right: 1rem; }
-.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
-.m-4 { margin: 1rem; }
-.mb-4 { margin-bottom: 1rem; }
-.mt-8 { margin-top: 2rem; }
-
-/* 버튼 */
-.btn {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-weight: 500;
-  text-align: center;
-  transition: all 0.2s;
-  text-decoration: none;
+/* Smooth transitions */
+.transition-all {
+  transition: all 0.2s ease-in-out;
 }
 
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Focus styles for accessibility */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
+}
+
+/* Loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* Pulse animation */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.animate-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Gradient backgrounds */
+.bg-gradient-to-r {
+  background-image: linear-gradient(to right, var(--tw-gradient-stops));
+}
+
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
+}
+
+/* Backdrop blur effect */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+}
+
+/* Glass morphism effect */
+.glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Hover effects */
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* Button styles */
 .btn-primary {
-  background-color: #3b82f6;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  border: none;
+  cursor: pointer;
 }
 
 .btn-primary:hover {
-  background-color: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
 }
 
-.btn-success {
-  background-color: #22c55e;
-  color: white;
+.btn-primary:active {
+  transform: translateY(0);
 }
 
-.btn-success:hover {
-  background-color: #16a34a;
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
 }
 
-/* 카드 */
+/* Card styles */
 .card {
   background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease-in-out;
 }
 
-/* 폼 */
-.form-input {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-  font-size: 1rem;
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+/* Status indicators */
+.status-online {
+  color: #10b981;
 }
 
-/* 반응형 */
+.status-offline {
+  color: #ef4444;
+}
+
+.status-warning {
+  color: #f59e0b;
+}
+
+/* Responsive utilities */
 @media (max-width: 768px) {
-  .container {
-    padding: 0 0.5rem;
-  }
-  
-  .flex-col-mobile {
-    flex-direction: column;
+  .mobile-hidden {
+    display: none;
   }
 }
 
-/* 다크 모드 지원 */
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
+@media (min-width: 769px) {
+  .desktop-hidden {
+    display: none;
   }
-  
-  body {
-    color: #e5e7eb;
-    background: #111827;
-  }
-  
-  .card {
-    background: #1f2937;
-    color: #e5e7eb;
-  }
-  
-  .bg-gray-100 {
-    background-color: #374151;
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
   }
 }

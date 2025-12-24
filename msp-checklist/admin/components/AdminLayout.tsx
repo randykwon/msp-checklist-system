@@ -120,18 +120,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       {/* Sidebar - 고정 너비와 개선된 레이아웃 */}
       <div className={`fixed inset-y-0 left-0 z-50 w-72 bg-white shadow-2xl transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col`}>
         {/* Header - 더 큰 헤더 영역 */}
-        <div className="flex items-center justify-center h-20 px-6 bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
+        <div className="flex items-center justify-center h-20 px-6 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 shadow-lg">
           <div className="flex items-center">
             <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-md">
-                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-lg">
+                <svg className="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
             </div>
             <div className="ml-4">
-              <h1 className="text-xl font-bold text-white">MSP 헬퍼 관리자</h1>
-              <p className="text-sm text-blue-100">Admin Console</p>
+              <h1 className="text-xl font-bold text-white">MSP 헬퍼</h1>
+              <p className="text-sm text-blue-100">관리자 콘솔</p>
             </div>
           </div>
         </div>
@@ -201,18 +201,18 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       </div>
 
       {/* Mobile header - 개선된 모바일 헤더 */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30">
-        <div className="flex items-center justify-between h-16 px-4 bg-white shadow-md border-b border-gray-200">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <div className="flex items-center justify-between h-16 px-4">
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-colors duration-200"
+            className="p-2 rounded-xl text-gray-400 hover:text-gray-500 hover:bg-gray-100 transition-all duration-200"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
           <h1 className="text-lg font-semibold text-gray-900">MSP 헬퍼 관리자</h1>
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center shadow-lg">
             <span className="text-sm font-bold text-white">
               {user?.name?.charAt(0)?.toUpperCase()}
             </span>

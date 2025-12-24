@@ -60,37 +60,37 @@ export default function Home() {
   }, [checklistData, isHydrated]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b border-gray-200">
+    <div className="min-h-screen">
+      <header className="header">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+            <div className="animate-fade-in">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
                 {t('home.title')}
-                <span className="ml-3 px-3 py-1 text-base font-medium text-blue-600 bg-blue-100 rounded-full">
+                <span className="ml-3 px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
                   v{checklistData.version}
                 </span>
               </h1>
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="text-gray-600">
                 {t('home.version')} {checklistData.version} | {t('home.lastModified')}: {checklistData.lastModified.toLocaleDateString('ko-KR')}
               </p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 animate-fade-in">
               <button
                 onClick={() => setShowProgramInfoModal(true)}
-                className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg"
+                className="btn btn-success"
               >
                 {t('program.viewInfo')}
               </button>
               <button
                 onClick={() => setShowJourneyModal(true)}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white font-medium rounded-lg transition-colors shadow-md hover:shadow-lg"
+                className="btn btn-purple"
               >
                 {t('journey.viewJourney')}
               </button>
               <a
                 href="/login"
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors shadow-md hover:shadow-lg"
+                className="btn btn-primary"
               >
                 {t('home.loginSignup')}
               </a>
@@ -100,9 +100,11 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Dashboard data={checklistData} />
+        <div className="animate-fade-in">
+          <Dashboard data={checklistData} />
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-8 animate-fade-in">
           <FilterBar
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
@@ -113,7 +115,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="mt-6">
+        <div className="mt-6 animate-fade-in">
           <ChecklistView
             data={checklistData}
             setData={setChecklistData}
