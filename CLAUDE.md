@@ -315,7 +315,7 @@ See [msp-checklist/TEST_GUIDE.md](msp-checklist/TEST_GUIDE.md) for AI feature te
 ## Port Configuration
 
 Default ports (configurable in package.json scripts):
-- **Main App**: 3010 (production) / 3000 (can override with `-p` flag)
+- **Main App**: 3010 (production) / 3010 (can override with `-p` flag)
 - **Admin App**: 3011
 
 **Note**: README shows 3000 for main app, but scripts use 3010. This is intentional for production separation.

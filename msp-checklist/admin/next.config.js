@@ -1,6 +1,5 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Turbopack 완전 비활성화
   experimental: {
     turbo: undefined,
@@ -21,7 +20,17 @@ const nextConfig: NextConfig = {
   },
   eslint: {
     ignoreDuringBuilds: true
+  },
+  
+  // 웹팩 설정
+  webpack: (config) => {
+    // 외부 패키지 설정
+    if (config.externals) {
+      config.externals.push('better-sqlite3');
+    }
+    
+    return config
   }
 }
 
-export default nextConfig
+module.exports = nextConfig

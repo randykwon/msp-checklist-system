@@ -127,7 +127,7 @@ npm install
 npm run dev
 ```
 
-브라우저에서 http://localhost:3000 접속
+브라우저에서 http://localhost:3010 접속
 
 ### 4. 프로덕션 빌드
 
@@ -321,29 +321,29 @@ npm config set registry https://registry.npmjs.org/
 
 ### 포트 충돌
 
-#### 3000번 포트 충돌
+#### 3010번 포트 충돌
 ```bash
 # 다른 포트에서 실행
-PORT=3001 npm run dev
+PORT=3012 npm run dev
 ```
 
 #### 3011번 포트 충돌 (관리자 시스템)
 ```bash
 # 다른 포트에서 실행
-PORT=3012 npm run dev
+PORT=3013 npm run dev
 ```
 
 ### 방화벽 설정
 
 #### Ubuntu (ufw)
 ```bash
-sudo ufw allow 3000
+sudo ufw allow 3010
 sudo ufw allow 3011
 ```
 
 #### Amazon Linux (firewalld)
 ```bash
-sudo firewall-cmd --permanent --add-port=3000/tcp
+sudo firewall-cmd --permanent --add-port=3010/tcp
 sudo firewall-cmd --permanent --add-port=3011/tcp
 sudo firewall-cmd --reload
 ```

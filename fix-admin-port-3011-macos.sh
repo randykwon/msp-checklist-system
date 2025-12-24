@@ -33,13 +33,13 @@ log_success "✅ macOS 환경 확인됨"
 log_info "1. 현재 포트 사용 상황 확인"
 echo ""
 
-log_info "포트 3000 사용 상황:"
-PORT_3000=$(lsof -i :3000 2>/dev/null || echo "")
-if [ -n "$PORT_3000" ]; then
-    echo "$PORT_3000"
-    log_warning "⚠️ 포트 3000이 사용 중입니다"
+log_info "포트 3010 사용 상황:"
+PORT_3010=$(lsof -i :3010 2>/dev/null || echo "")
+if [ -n "$PORT_3010" ]; then
+    echo "$PORT_3010"
+    log_warning "⚠️ 포트 3010이 사용 중입니다 (메인 서버)"
 else
-    log_success "✅ 포트 3000 사용 가능"
+    log_success "✅ 포트 3010 사용 가능"
 fi
 
 echo ""
@@ -48,7 +48,7 @@ log_info "포트 3001 사용 상황:"
 PORT_3001=$(lsof -i :3001 2>/dev/null || echo "")
 if [ -n "$PORT_3001" ]; then
     echo "$PORT_3001"
-    log_warning "⚠️ 포트 3001이 사용 중입니다 (현재 Admin 서버)"
+    log_warning "⚠️ 포트 3001이 사용 중입니다 (잘못된 Admin 서버)"
 else
     log_success "✅ 포트 3001 사용 가능"
 fi
@@ -67,43 +67,22 @@ fi
 echo ""
 
 # 2. 포트 3000을 사용하는 프로세스 정리
-log_info "2. 포트 3000 사용 프로세스 정리"
-if [ -n "$PORT_3000" ]; then
-    log_info "포트 3000을 사용하는 프로세스를 종료합니다..."
-    
-    # 메인 서버인지 확인
-    if echo "$PORT_3000" | grep -q "node\|npm\|next"; then
-        log_warning "⚠️ 포트 3000에서 Node.js 프로세스 발견됨"
-        
-        # PM2 프로세스 확인 (macOS에서 PM2가 설치되어 있다면)
-        if command -v pm2 > /dev/null; then
-            PM2_MAIN=$(pm2 list 2>/dev/null | grep "msp-checklist-main" || echo "")
-            if [ -n "$PM2_MAIN" ]; then
-                log_info "PM2 메인 프로세스를 포트 3010으로 재시작합니다..."
-                pm2 stop msp-checklist-main 2>/dev/null || true
-                pm2 delete msp-checklist-main 2>/dev/null || true
-            fi
-        fi
-        
-        # 직접 실행 중인 프로세스 종료
-        PID_3000=$(lsof -t -i :3000 2>/dev/null || echo "")
-        if [ -n "$PID_3000" ]; then
-            log_info "포트 3000 프로세스 종료 중... (PID: $PID_3000)"
-            kill -TERM $PID_3000 2>/dev/null || true
-            sleep 2
-            kill -KILL $PID_3000 2>/dev/null || true
-        fi
-    fi
+# 2. 포트 3010에서 실행 중인 메인 서버 확인 (건드리지 않음)
+log_info "2. 포트 3010 메인 서버 상태 확인"
+if [ -n "$PORT_3010" ]; then
+    log_info "포트 3010에서 메인 서버가 정상 실행 중입니다."
+    log_success "✅ 메인 서버는 그대로 유지합니다"
 else
-    log_success "✅ 포트 3000 정리 불필요"
+    log_warning "⚠️ 포트 3010에서 메인 서버가 실행되지 않고 있습니다"
+    log_info "메인 서버를 먼저 시작해주세요: cd msp-checklist && PORT=3010 npm start"
 fi
 
 echo ""
 
-# 3. 포트 3001에서 실행 중인 Admin 서버 종료
-log_info "3. 현재 Admin 서버 종료"
+# 3. 포트 3001에서 실행 중인 잘못된 Admin 서버 종료
+log_info "3. 잘못된 Admin 서버 종료 (포트 3001)"
 if [ -n "$PORT_3001" ]; then
-    log_info "포트 3001에서 실행 중인 Admin 서버를 종료합니다..."
+    log_info "포트 3001에서 실행 중인 잘못된 Admin 서버를 종료합니다..."
     
     # PM2 Admin 프로세스 종료 (있다면)
     if command -v pm2 > /dev/null; then

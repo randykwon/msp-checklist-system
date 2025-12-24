@@ -241,8 +241,8 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 3000
-          ToPort: 3000
+          FromPort: 3010
+          ToPort: 3010
           SourceSecurityGroupId: !Ref ALBSecurityGroup
         - IpProtocol: tcp
           FromPort: 3011
@@ -405,7 +405,7 @@ Resources:
         - Name: main-app
           Image: !Ref MainAppImage
           PortMappings:
-            - ContainerPort: 3000
+            - ContainerPort: 3010
               Protocol: tcp
           Environment:
             - Name: NODE_ENV
@@ -504,7 +504,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub '${AWS::StackName}-main-tg'
-      Port: 3000
+      Port: 3010
       Protocol: HTTP
       VpcId: !Ref VPC
       TargetType: ip
@@ -575,7 +575,7 @@ Resources:
           AssignPublicIp: DISABLED
       LoadBalancers:
         - ContainerName: main-app
-          ContainerPort: 3000
+          ContainerPort: 3010
           TargetGroupArn: !Ref MainAppTargetGroup
       DeploymentConfiguration:
         MaximumPercent: 200

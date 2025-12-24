@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({ message: '로그아웃되었습니다.' });
     
     // Clear auth cookie
-    response.cookies.set('admin_auth_token', '', {
+    response.cookies.set('auth-token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

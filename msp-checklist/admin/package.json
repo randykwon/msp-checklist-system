@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3011",
+    "dev": "TURBOPACK=0 next dev -p 3011",
     "build": "next build",
     "start": "next start -p 3011",
     "lint": "echo 'Linting disabled for compatibility'"
@@ -14,10 +14,18 @@
     "@types/react-dom": "^18",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^9.2.2",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.263.1",
     "next": "14.2.18",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "typescript": "^5"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/jsonwebtoken": "^9.0.6",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.18"
   }
 }

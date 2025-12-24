@@ -289,8 +289,8 @@ Resources:
       VpcId: !Ref VPC
       SecurityGroupIngress:
         - IpProtocol: tcp
-          FromPort: 3000
-          ToPort: 3000
+          FromPort: 3010
+          ToPort: 3010
           SourceSecurityGroupId: !Ref ALBSecurityGroup
           Description: Main App Port
         - IpProtocol: tcp
@@ -556,7 +556,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       Name: !Sub '${AWS::StackName}-main-tg'
-      Port: 3000
+      Port: 3010
       Protocol: HTTP
       VpcId: !Ref VPC
       HealthCheckPath: /api/health

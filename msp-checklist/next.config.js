@@ -1,17 +1,12 @@
-import type { NextConfig } from 'next'
-
-const nextConfig: NextConfig = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
   // Turbopack 완전 비활성화
   experimental: {
-    turbo: undefined,
-    // serverExternalPackages 제거 (Next.js 14 호환성)
+    // Turbopack 관련 모든 설정 제거
   },
   
   // 빌드 최적화
   swcMinify: true,
-  
-  // 정적 생성 최적화
-  output: 'standalone',
   
   // 이미지 최적화 비활성화 (빌드 속도 향상)
   images: {
@@ -28,8 +23,13 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true
   },
   
-  // 웹팩 설정
-  webpack: (config: any) => {
+  // 웹팩 설정 (Turbopack 대신 Webpack 강제 사용)
+  webpack: (config, { dev, isServer }) => {
+    // 개발 모드에서 Webpack 사용 강제
+    if (dev) {
+      config.cache = false;
+    }
+    
     // CSS 관련 최적화
     config.optimization = {
       ...config.optimization,
@@ -50,4 +50,4 @@ const nextConfig: NextConfig = {
   }
 }
 
-export default nextConfig
+module.exports = nextConfig

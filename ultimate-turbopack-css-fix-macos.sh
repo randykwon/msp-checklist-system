@@ -603,12 +603,12 @@ echo ""
 # 6. 서버 시작 (포트 강제 설정)
 log_info "6. 서버 시작 중..."
 
-# 포트 3000 사용 프로세스 종료
-log_info "포트 3000 사용 프로세스 정리 중..."
-lsof -ti :3000 | xargs kill -9 2>/dev/null || true
+# 포트 3010 사용 프로세스 정리 (메인 서버용)
+log_info "포트 3010 사용 프로세스 정리 중 (메인 서버용)..."
+lsof -ti :3010 | xargs kill -9 2>/dev/null || true
 
-# 포트 3001 사용 프로세스 종료
-log_info "포트 3001 사용 프로세스 정리 중..."
+# 포트 3001 사용 프로세스 정리 (잘못된 Admin 서버)
+log_info "포트 3001 사용 프로세스 정리 중 (잘못된 Admin 서버)..."
 lsof -ti :3001 | xargs kill -9 2>/dev/null || true
 
 # 포트 3011 사용 프로세스 종료

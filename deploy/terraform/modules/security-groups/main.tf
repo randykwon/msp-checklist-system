@@ -44,8 +44,8 @@ resource "aws_security_group" "web" {
 
   ingress {
     description     = "Main App Port"
-    from_port       = 3000
-    to_port         = 3000
+    from_port       = 3010
+    to_port         = 3010
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
@@ -90,8 +90,8 @@ resource "aws_security_group" "ecs" {
 
   ingress {
     description     = "Main App Port"
-    from_port       = 3000
-    to_port         = 3000
+    from_port       = 3010
+    to_port         = 3010
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }

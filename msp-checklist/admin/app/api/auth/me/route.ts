@@ -1,44 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
-import { getUserById } from '@/lib/db';
+import { cookies } from 'next/headers';
+import jwt from 'jsonwebtoken';
+import { getDatabase } from '@/lib/database';
+
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('admin_auth_token')?.value;
-    
+    const cookieStore = cookies();
+    const token = cookieStore.get('auth-token')?.value;
+
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
 
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    
+    const db = getDatabase();
+    let user;
+    try {
+      user = db.prepare(`
+        SELECT id, email, name, role, status, phone, organization, created_at, updated_at
+        FROM users 
+        WHERE id = ?
+      `).get(decoded.userId) as any;
+    } finally {
+      db.close();
     }
 
-    const user = getUserById(payload.userId);
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // 관리자 시스템 접근 권한 재확인 (운영자 이상)
+    // 관리자 권한 확인
     if (!['operator', 'admin', 'superadmin'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin system access required' }, { status: 403 });
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    return NextResponse.json({
-      user: {
-        userId: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    });
-
-  } catch (error: any) {
-    console.error('Error getting current user:', error);
-    return NextResponse.json(
-      { error: 'Failed to get current user', details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ user });
+  } catch (error) {
+    console.error('Auth verification error:', error);
+    return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
   }
 }
