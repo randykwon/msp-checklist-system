@@ -1235,10 +1235,10 @@ nuclear_css_fix() {
     "@types/react-dom": "^18",
     "bcryptjs": "^2.4.3",
     "better-sqlite3": "^9.2.2",
-    "eslint": "^8",
-    "eslint-config-next": "16.0.10",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "15.1.0",
     "lucide-react": "^0.263.1",
-    "next": "16.0.10",
+    "next": "15.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "typescript": "^5"
@@ -1858,7 +1858,7 @@ EOF
     export NEXT_TELEMETRY_DISABLED=1
     
     # 메인 애플리케이션 의존성 설치
-    npm install --no-optional --no-fund --no-audit
+    npm install --legacy-peer-deps --no-fund --no-audit
     
     # webpack 모드로 빌드 시도
     log_info "webpack 모드로 빌드 시도 중..."
@@ -1872,7 +1872,7 @@ EOF
             log_info "Admin 애플리케이션 빌드 중..."
             
             # Admin 의존성 설치
-            npm install --no-optional --no-fund --no-audit
+            npm install --legacy-peer-deps --no-fund --no-audit
             
             if npx next build --webpack; then
                 log_success "✅ Admin 애플리케이션 빌드 성공!"
