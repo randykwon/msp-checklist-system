@@ -1206,10 +1206,10 @@ build_application() {
     log_success "애플리케이션 빌드 완료"
 }
 
-# Nuclear CSS Fix - 완전한 Turbopack 제거 및 Next.js 14 다운그레이드 (통합 버전)
+# Ultimate Turbopack Fix - 완전한 Turbopack 제거 및 Next.js 14 다운그레이드 (통합 버전)
 nuclear_css_fix() {
     local app_type=${1:-"main"}
-    log_error "💥 Nuclear CSS Fix 실행 중 ($app_type) - Complete Turbopack Elimination..."
+    log_error "💥 Ultimate Turbopack Fix 실행 중 ($app_type) - Complete Turbopack Elimination..."
     
     # 현재 디렉토리 저장
     local current_dir=$(pwd)
@@ -1226,6 +1226,18 @@ nuclear_css_fix() {
         if [[ "$nextjs_version" =~ ^15\. ]]; then
             log_warning "⚠️ Next.js 15.x 감지됨 - Turbopack 기본 활성화 버전"
             log_info "🔧 Next.js 14.2.18로 다운그레이드하여 Turbopack 완전 제거"
+        fi
+        
+        # Turbopack 활성화 감지
+        if npm run build 2>&1 | grep -q "(turbo)"; then
+            log_warning "⚠️ Turbopack이 여전히 활성화됨 - 환경 변수 완전 정리 필요"
+            log_info "🔧 모든 Turbopack 환경 변수 완전 제거 및 정리"
+        fi
+        
+        # serverExternalPackages 오류 감지
+        if npm run build 2>&1 | grep -q "serverExternalPackages"; then
+            log_warning "⚠️ Next.js 14 비호환 설정 감지됨 - serverExternalPackages 제거 필요"
+            log_info "🔧 Next.js 14 호환 설정으로 자동 수정 중..."
         fi
         
         # webpack 플래그 문제 확인
@@ -1245,12 +1257,14 @@ nuclear_css_fix() {
         log_info "🔧 모든 CSS 프레임워크 의존성 완전 제거 중..."
         log_info "🚫 Turbopack 완전 비활성화 및 순수 CSS 적용 중..."
         log_info "⬇️ Next.js 15 → 14.2.18 다운그레이드로 안정성 확보"
+        log_info "🧹 환경 변수 완전 정리로 Turbopack 강제 비활성화"
     fi
     
     # 모든 프로세스 중지
     log_info "모든 관련 프로세스 중지 중..."
     pm2 stop all 2>/dev/null || true
     pm2 delete all 2>/dev/null || true
+    pm2 kill 2>/dev/null || true
     
     # 모든 빌드 관련 파일 완전 삭제
     log_info "모든 빌드 관련 파일 완전 삭제 중..."
@@ -1264,14 +1278,32 @@ nuclear_css_fix() {
     
     # npm 캐시 완전 정리
     log_info "npm 캐시 완전 정리 중..."
-    npm cache clean --force
-    npm cache verify
+    npm cache clean --force 2>/dev/null || true
+    npm cache verify 2>/dev/null || true
     
     # 전역 캐시 정리
     log_info "전역 캐시 정리 중..."
     rm -rf ~/.npm 2>/dev/null || true
     rm -rf ~/.cache/npm 2>/dev/null || true
     rm -rf /tmp/npm-* 2>/dev/null || true
+    
+    # 환경 변수 완전 정리 및 설정 (Turbopack 완전 제거)
+    log_info "환경 변수 완전 정리 및 설정 중..."
+    unset TURBOPACK
+    unset NEXT_PRIVATE_TURBOPACK
+    unset TURBO
+    unset TURBOPACK_ENABLED
+    unset NEXT_TURBOPACK
+    unset WEBPACK
+    unset NEXT_WEBPACK
+    unset USE_WEBPACK
+    
+    # 안전한 환경 변수만 설정
+    export NODE_ENV=production
+    export NODE_OPTIONS="--max-old-space-size=4096"
+    export NEXT_TELEMETRY_DISABLED=1
+    
+    log_success "환경 변수 정리 완료"
     
     # package.json 완전 재작성 (Next.js 14 다운그레이드 - Turbopack 없는 안정 버전)
     log_info "📝 package.json 완전 재작성 중 (Next.js 14 다운그레이드)..."
@@ -1691,8 +1723,8 @@ html, body {
 }
 EOF
     
-    # Next.js 설정을 완전히 새로 작성 (Turbopack 완전 제거)
-    log_info "Next.js 설정 완전 재작성 중 (Turbopack 완전 제거)..."
+    # Next.js 설정을 완전히 새로 작성 (Turbopack 완전 제거 + Next.js 14 호환)
+    log_info "Next.js 설정 완전 재작성 중 (Turbopack 완전 제거 + Next.js 14 호환)..."
     cat > next.config.js << 'EOF'
 /** @type {import('next').NextConfig} */
 const nextConfig = {
@@ -1766,7 +1798,7 @@ const nextConfig = {
       };
     }
     
-    // 외부 패키지 설정
+    // 외부 패키지 설정 (Next.js 14 호환 - serverExternalPackages 제거)
     if (isServer) {
       config.externals = config.externals || [];
       config.externals.push('better-sqlite3');
@@ -1785,9 +1817,6 @@ const nextConfig = {
     
     return config;
   },
-  
-  // 서버 외부 패키지
-  serverExternalPackages: ['better-sqlite3'],
   
   // 헤더 설정
   async headers() {
@@ -1811,6 +1840,9 @@ const nextConfig = {
 
 module.exports = nextConfig;
 EOF
+
+    # TypeScript 설정 파일 제거 (JavaScript 설정으로 교체)
+    rm -f next.config.ts
 
     # 환경 변수 최적화
     log_info "환경 변수 최적화 중..."
@@ -1855,6 +1887,8 @@ EOF
         
         # Admin 캐시 삭제
         rm -rf .next
+        rm -rf .turbo
+        rm -rf .swc
         rm -rf node_modules
         rm -rf package-lock.json
         
@@ -1862,12 +1896,18 @@ EOF
         cp ../package.json ./
         
         # Admin globals.css 복사
-        if [ -f "app/globals.css" ]; then
-            cp ../app/globals.css app/globals.css
-        fi
+        mkdir -p app
+        cp ../app/globals.css app/globals.css
         
         # Admin Next.js 설정 복사
         cp ../next.config.js ./
+        
+        # Admin CSS 프레임워크 파일 제거
+        rm -f postcss.config.*
+        rm -f tailwind.config.*
+        rm -f .postcssrc*
+        rm -f *.css.map
+        rm -f next.config.ts  # TypeScript 설정 제거
         
         # Admin 환경 변수
         cat > .env.local << 'EOF'
@@ -1907,21 +1947,21 @@ EOF
     rm -rf ~/.npm/_cacache 2>/dev/null || true
     
     # 환경 변수 설정 (Turbopack 완전 비활성화 + CSS 프레임워크 제거)
+    
+    # 모든 Turbopack 관련 환경 변수 완전 제거
+    unset TURBOPACK
+    unset NEXT_PRIVATE_TURBOPACK
+    unset TURBO
+    unset TURBOPACK_ENABLED
+    unset NEXT_TURBOPACK
+    unset WEBPACK
+    unset NEXT_WEBPACK
+    unset USE_WEBPACK
+    
+    # 안전한 환경 변수만 설정
     export NODE_ENV=production
     export NODE_OPTIONS="--max-old-space-size=2048"
     export NEXT_TELEMETRY_DISABLED=1
-    
-    # Turbopack 관련 모든 환경 변수 비활성화
-    export TURBOPACK=0
-    export NEXT_PRIVATE_TURBOPACK=0
-    export TURBO=0
-    export TURBOPACK_ENABLED=false
-    export NEXT_TURBOPACK=false
-    
-    # Webpack 강제 활성화
-    export WEBPACK=1
-    export NEXT_WEBPACK=1
-    export USE_WEBPACK=true
     
     # 메인 애플리케이션 의존성 설치 (ESLint 충돌 해결)
     log_info "🔧 호환 가능한 의존성 설치 중..."
