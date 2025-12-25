@@ -70,9 +70,9 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
         <div className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.overallProgress')}</div>
           <div className="text-3xl font-bold text-blue-600">{overallProgress}%</div>
-          <div className="h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+          <div className="fb-progress fb-progress-xs mt-2">
             <div
-              className="h-full bg-blue-500 transition-all duration-300"
+              className="fb-progress-fill"
               style={{ width: `${overallProgress}%` }}
             />
           </div>
@@ -92,9 +92,9 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
                   {stats.total} {t('assessmentDashboard.items')} • {stats.met} {t('assessmentDashboard.met')} • {stats.notMet} {t('assessmentDashboard.notMet')} • {stats.pending} {t('assessmentDashboard.pending')}
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="flex-1 fb-progress fb-progress-xs">
                     <div
-                      className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-300"
+                      className="fb-progress-fill fb-progress-fill-success"
                       style={{ width: `${percentage}%` }}
                     />
                   </div>

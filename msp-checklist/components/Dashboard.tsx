@@ -57,21 +57,21 @@ export default function Dashboard({ data }: DashboardProps) {
         ))}
       </div>
 
-      {/* Overall Progress Bar */}
-      <div className="progress-section">
-        <div className="progress-header">
-          <h3 className="text-lg font-semibold text-gray-900">전체 진행률</h3>
-          <span className="text-lg font-bold text-purple-600">
+      {/* Overall Progress Bar - Facebook Style */}
+      <div className="fb-progress-card">
+        <div className="fb-progress-card-header">
+          <span className="fb-progress-card-title">전체 진행률</span>
+          <span className="fb-progress-card-value">
             {overallProgress.percentage.toFixed(1)}%
           </span>
         </div>
-        <div className="progress-bar">
+        <div className="fb-progress">
           <div
-            className="progress-fill"
+            className="fb-progress-fill"
             style={{ width: `${overallProgress.percentage}%` }}
           />
         </div>
-        <div className="progress-labels">
+        <div className="fb-progress-card-footer">
           <span>시작</span>
           <span>완료</span>
         </div>
@@ -91,14 +91,12 @@ export default function Dashboard({ data }: DashboardProps) {
               </div>
               
               <div className="category-progress">
-                <div className="progress-bar" style={{ height: '6px' }}>
+                <div className="fb-progress fb-progress-sm">
                   <div
-                    className="progress-fill"
+                    className="fb-progress-fill"
                     style={{ 
                       width: `${category.progress.percentage}%`,
-                      background: `linear-gradient(90deg, 
-                        ${index % 3 === 0 ? '#3b82f6' : index % 3 === 1 ? '#10b981' : '#8b5cf6'}, 
-                        ${index % 3 === 0 ? '#1d4ed8' : index % 3 === 1 ? '#047857' : '#7c3aed'})`
+                      backgroundColor: index % 3 === 0 ? 'var(--fb-primary)' : index % 3 === 1 ? 'var(--fb-success)' : '#8b5cf6'
                     }}
                   />
                 </div>

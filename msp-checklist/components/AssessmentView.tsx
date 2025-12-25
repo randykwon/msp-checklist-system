@@ -70,15 +70,15 @@ export default function AssessmentView({ items, assessmentType, onUpdate }: Asse
               </div>
 
               <div className="flex items-center gap-4">
-                {/* Progress Bar */}
+                {/* Progress Bar - Facebook Style */}
                 <div className="w-48">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-xs font-medium text-gray-600">{t('dashboard.progress')}</span>
                     <span className="text-xs font-bold text-blue-600">{progress.percentage}%</span>
                   </div>
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <div className="fb-progress fb-progress-xs">
                     <div
-                      className="h-full bg-blue-500 transition-all duration-300"
+                      className="fb-progress-fill"
                       style={{ width: `${progress.percentage}%` }}
                     />
                   </div>

@@ -41,7 +41,6 @@ export default function Header() {
         const versionsData = await versionsResponse.json();
         setActiveVersion(versionsData.activeVersion);
       } else if (versionsResponse.status === 401) {
-        // User not authenticated - this is expected, don't log error
         console.log('User not authenticated, skipping version load');
         return;
       }
@@ -60,12 +59,12 @@ export default function Header() {
         technical: technicalData.data || []
       });
     } catch (error) {
-      // Only log error if it's not an authentication issue
       if (!error.message?.includes('401') && !error.message?.includes('Not authenticated')) {
         console.error('Failed to load assessment data:', error);
       }
     }
   };
+
 
   const handleExportProgress = () => {
     const exportData = {
@@ -107,12 +106,10 @@ export default function Header() {
       const text = await file.text();
       const importData = JSON.parse(text);
 
-      // Validate import data structure
       if (!importData.data || !importData.data.prerequisites || !importData.data.technical) {
         throw new Error('Invalid file format. Please select a valid progress export file.');
       }
 
-      // Confirm import
       const confirmMessage = language === 'ko' 
         ? `진행상황을 가져오시겠습니까?\n\n파일: ${file.name}\n내보낸 날짜: ${new Date(importData.exportDate).toLocaleString()}\n프로파일: ${importData.profile?.name || 'Unknown'}\n\n현재 진행상황이 덮어씌워집니다.`
         : `Import progress data?\n\nFile: ${file.name}\nExported: ${new Date(importData.exportDate).toLocaleString()}\nProfile: ${importData.profile?.name || 'Unknown'}\n\nCurrent progress will be overwritten.`;
@@ -122,50 +119,32 @@ export default function Header() {
         return;
       }
 
-      // Import prerequisites data
       for (const item of importData.data.prerequisites) {
         await fetch('/api/assessment', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            assessmentType: 'prerequisites',
-            item: item
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assessmentType: 'prerequisites', item }),
         });
       }
 
-      // Import technical data
       for (const item of importData.data.technical) {
         await fetch('/api/assessment', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            assessmentType: 'technical',
-            item: item
-          }),
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ assessmentType: 'technical', item }),
         });
       }
 
-      // Reload data
       await loadActiveVersionAndData();
 
-      // Show success message
       alert(language === 'ko' 
         ? `진행상황을 성공적으로 가져왔습니다!\n\n사전 요구사항: ${importData.data.prerequisites.length}개 항목\n기술 검증: ${importData.data.technical.length}개 항목\n\n페이지를 새로고침하여 변경사항을 확인하세요.`
         : `Progress imported successfully!\n\nPrerequisites: ${importData.data.prerequisites.length} items\nTechnical: ${importData.data.technical.length} items\n\nPlease refresh the page to see the changes.`
       );
-
     } catch (error: any) {
       console.error('Import error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      alert(language === 'ko' 
-        ? `가져오기 실패: ${errorMessage}`
-        : `Import failed: ${errorMessage}`
-      );
+      alert(language === 'ko' ? `가져오기 실패: ${errorMessage}` : `Import failed: ${errorMessage}`);
     } finally {
       setIsImporting(false);
     }
@@ -183,7 +162,6 @@ export default function Header() {
     input.click();
   };
 
-  // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(true);
@@ -204,10 +182,7 @@ export default function Header() {
     if (jsonFile) {
       await handleFileImport(jsonFile);
     } else {
-      alert(language === 'ko' 
-        ? 'JSON 파일만 가져올 수 있습니다.'
-        : 'Only JSON files can be imported.'
-      );
+      alert(language === 'ko' ? 'JSON 파일만 가져올 수 있습니다.' : 'Only JSON files can be imported.');
     }
   };
 
@@ -231,182 +206,159 @@ export default function Header() {
 
   if (!user) return null;
 
+
   return (
     <header 
-      className={`bg-white shadow-sm border-b border-gray-200 ${isDragOver ? 'bg-blue-50 border-blue-300' : ''}`}
+      className={`fb-header ${isDragOver ? 'fb-header-drag-over' : ''}`}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
+      {/* Drag Overlay */}
       {isDragOver && (
-        <div className="absolute inset-0 bg-blue-100 bg-opacity-75 flex items-center justify-center z-50 pointer-events-none">
-          <div className="bg-white rounded-lg p-6 shadow-lg border-2 border-dashed border-blue-400">
-            <div className="text-center">
-              <svg className="w-12 h-12 text-blue-500 mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-              </svg>
-              <p className="text-lg font-medium text-blue-700">
-                {language === 'ko' ? 'JSON 파일을 여기에 놓으세요' : 'Drop JSON file here'}
-              </p>
-              <p className="text-sm text-blue-600">
-                {language === 'ko' ? '진행상황 파일을 가져옵니다' : 'Import progress data'}
-              </p>
-            </div>
+        <div className="fb-header-drag-overlay">
+          <div className="fb-header-drag-content">
+            <svg className="fb-header-drag-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+            </svg>
+            <p className="fb-header-drag-title">
+              {language === 'ko' ? 'JSON 파일을 여기에 놓으세요' : 'Drop JSON file here'}
+            </p>
+            <p className="fb-header-drag-subtitle">
+              {language === 'ko' ? '진행상황 파일을 가져옵니다' : 'Import progress data'}
+            </p>
           </div>
         </div>
       )}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center">
-              <DragonflyIcon width={40} height={40} className="text-blue-600" />
-              <span className="ml-2 px-2 py-0.5 text-sm font-medium text-blue-600 bg-blue-100 rounded-full">
-                v{mspChecklistData.version}
-              </span>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex items-center space-x-2 ml-6">
-              <Link
-                href="/versions"
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-sm"
-              >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-                {language === 'ko' ? '프로파일 관리' : 'Profile Management'}
-              </Link>
-              
-              <button
-                onClick={() => setShowProgramInfoModal(true)}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-lg transition-all duration-200 shadow-sm"
-              >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                {language === 'ko' ? '프로그램 상세' : 'Program Info'}
-              </button>
-              
-              <button
-                onClick={() => setShowJourneyModal(true)}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 rounded-lg transition-all duration-200 shadow-sm"
-              >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                </svg>
-                {language === 'ko' ? '파트너 여정 보기' : 'Partner Journey'}
-              </button>
-              
-              <button
-                onClick={handleExportProgress}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 rounded-lg transition-all duration-200 shadow-sm"
-              >
-                <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                {t('assessment.exportProgress')}
-              </button>
-              
-              <button
-                onClick={handleImportProgress}
-                disabled={isImporting}
-                className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-teal-700 hover:from-teal-700 hover:to-teal-800 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-sm"
-              >
-                {isImporting ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1.5"></div>
-                ) : (
-                  <svg className="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                  </svg>
-                )}
-                {isImporting 
-                  ? (language === 'ko' ? '가져오는 중...' : 'Importing...') 
-                  : t('assessment.importProgress')
-                }
-              </button>
-            </div>
-          </div>
 
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2 text-sm">
-              <button
-                onClick={() => setLanguage('ko')}
-                className={`px-2 py-1 ${language === 'ko' ? 'font-bold text-blue-600' : 'text-gray-600'}`}
-              >
-                한국어
-              </button>
-              <span className="text-gray-400">|</span>
-              <button
-                onClick={() => setLanguage('en')}
-                className={`px-2 py-1 ${language === 'en' ? 'font-bold text-blue-600' : 'text-gray-600'}`}
-              >
-                English
-              </button>
-            </div>
+      {/* Left Section - Logo */}
+      <div className="fb-header-left">
+        <Link href="/" className="fb-header-logo">
+          <DragonflyIcon width={40} height={40} className="fb-header-logo-icon" />
+        </Link>
+        <span className="fb-header-version">v{mspChecklistData.version}</span>
+      </div>
 
-            <div className="relative">
-              <button
-                onClick={() => setShowMenu(!showMenu)}
-                className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none"
-              >
-                <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-medium">
-                  {user.name.charAt(0).toUpperCase()}
-                </div>
-                <span className="text-sm font-medium">{user.name}</span>
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+      {/* Center Section - Action Buttons */}
+      <div className="fb-header-center">
+        <div className="fb-header-actions">
+          <Link href="/versions" className="fb-header-nav-btn">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+            </svg>
+            <span>{language === 'ko' ? '프로파일 관리' : 'Profile Management'}</span>
+          </Link>
+          
+          <button onClick={() => setShowProgramInfoModal(true)} className="fb-header-nav-btn fb-header-nav-btn-success">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{language === 'ko' ? '프로그램 상세' : 'Program Info'}</span>
+          </button>
+          
+          <button onClick={() => setShowJourneyModal(true)} className="fb-header-nav-btn fb-header-nav-btn-purple">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <span>{language === 'ko' ? '파트너 여정 보기' : 'Partner Journey'}</span>
+          </button>
+          
+          <button onClick={handleExportProgress} className="fb-header-nav-btn fb-header-nav-btn-orange">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>{t('assessment.exportProgress')}</span>
+          </button>
+          
+          <button onClick={handleImportProgress} disabled={isImporting} className="fb-header-nav-btn fb-header-nav-btn-teal">
+            {isImporting ? (
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            ) : (
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
+              </svg>
+            )}
+            <span>{isImporting ? (language === 'ko' ? '가져오는 중...' : 'Importing...') : t('assessment.importProgress')}</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Right Section - Language & User Menu */}
+      <div className="fb-header-right">
+        {/* Language Switcher */}
+        <div className="fb-header-lang">
+          <button
+            onClick={() => setLanguage('ko')}
+            className={`fb-header-lang-btn ${language === 'ko' ? 'fb-header-lang-btn-active' : ''}`}
+          >
+            한국어
+          </button>
+          <span className="fb-header-lang-divider">|</span>
+          <button
+            onClick={() => setLanguage('en')}
+            className={`fb-header-lang-btn ${language === 'en' ? 'fb-header-lang-btn-active' : ''}`}
+          >
+            English
+          </button>
+        </div>
+
+        {/* User Menu */}
+        <div className="fb-header-user">
+          <button onClick={() => setShowMenu(!showMenu)} className="fb-header-user-btn">
+            <div className="fb-header-user-avatar">
+              {user.name.charAt(0).toUpperCase()}
+            </div>
+            <span className="fb-header-user-name">{user.name}</span>
+            <svg className="fb-header-user-dropdown-icon w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
+            </svg>
+          </button>
+
+          {showMenu && (
+            <div className="fb-header-dropdown">
+              <div className="fb-header-dropdown-header">
+                <p className="fb-header-dropdown-name">{user.name}</p>
+                <p className="fb-header-dropdown-email">{user.email}</p>
+              </div>
+              <button onClick={handleLogout} className="fb-header-dropdown-item">
+                <svg className="fb-header-dropdown-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
+                {t('header.logout')}
               </button>
-
-              {showMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-10 border border-gray-200">
-                  <div className="px-4 py-2 border-b border-gray-200">
-                    <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                    <p className="text-xs text-gray-500">{user.email}</p>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                  >
-                    {t('header.logout')}
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowMenu(false);
-                      setShowDeleteConfirm(true);
-                    }}
-                    className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                  >
-                    {t('header.deleteAccount')}
-                  </button>
-                </div>
-              )}
+              <div className="fb-header-dropdown-divider"></div>
+              <button
+                onClick={() => {
+                  setShowMenu(false);
+                  setShowDeleteConfirm(true);
+                }}
+                className="fb-header-dropdown-item fb-header-dropdown-item-danger"
+              >
+                <svg className="fb-header-dropdown-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                {t('header.deleteAccount')}
+              </button>
             </div>
-          </div>
+          )}
         </div>
       </div>
 
       {/* Delete Account Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+          <div className="fb-card" style={{ maxWidth: '400px', width: '90%' }}>
+            <h3 style={{ fontSize: 'var(--fb-font-size-xl)', fontWeight: 'var(--fb-font-weight-bold)', marginBottom: 'var(--fb-spacing-md)' }}>
               {t('delete.title')}
             </h3>
-            <p className="text-sm text-gray-600 mb-6">
+            <p style={{ fontSize: 'var(--fb-font-size-base)', color: 'var(--fb-text-secondary)', marginBottom: 'var(--fb-spacing-lg)' }}>
               {t('delete.message')}
             </p>
-            <div className="flex space-x-3">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
-              >
+            <div style={{ display: 'flex', gap: 'var(--fb-spacing-md)' }}>
+              <button onClick={() => setShowDeleteConfirm(false)} className="fb-btn fb-btn-secondary" style={{ flex: 1 }}>
                 {t('delete.cancel')}
               </button>
-              <button
-                onClick={handleDeleteAccount}
-                className="flex-1 px-4 py-2 bg-red-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-red-700"
-              >
+              <button onClick={handleDeleteAccount} className="fb-btn fb-btn-danger" style={{ flex: 1 }}>
                 {t('delete.confirm')}
               </button>
             </div>
