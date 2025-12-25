@@ -9,6 +9,7 @@ import {
 
 // GET: List all versions for current user
 export async function GET(request: NextRequest) {
+  console.log('=== GET /api/versions START ===');
   try {
     console.log('GET /api/versions called');
     
@@ -97,6 +98,7 @@ export async function GET(request: NextRequest) {
     const activeVersion = getActiveVersion(user.userId);
     console.log('Active version:', activeVersion?.versionName || 'None');
     console.log('Returning versions:', versionsWithProgress.length);
+    console.log('=== GET /api/versions END ===');
 
     return NextResponse.json({ 
       versions: versionsWithProgress,
@@ -104,6 +106,7 @@ export async function GET(request: NextRequest) {
     }, { status: 200 });
   } catch (error) {
     console.error('Get versions error:', error);
+    console.log('=== GET /api/versions ERROR ===');
     return NextResponse.json(
       { error: 'Failed to get versions' },
       { status: 500 }

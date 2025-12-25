@@ -289,16 +289,31 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
           setIsOpen(!isOpen);
         }}
         disabled={isLoading}
-        className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          padding: '10px 16px',
+          fontSize: 14,
+          fontWeight: 600,
+          color: 'white',
+          background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+          border: 'none',
+          borderRadius: 10,
+          cursor: isLoading ? 'not-allowed' : 'pointer',
+          opacity: isLoading ? 0.7 : 1,
+          boxShadow: '0 2px 8px rgba(24, 119, 242, 0.3)',
+          transition: 'all 0.2s'
+        }}
       >
-        <div className="flex items-center gap-2">
-          <span className="text-blue-600">📋</span>
-          <div className="text-left">
-            <div className="font-semibold">
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span>📋</span>
+          <div style={{ textAlign: 'left' }}>
+            <div style={{ fontWeight: 700 }}>
               {activeVersion?.versionName || (language === 'ko' ? '프로파일 없음' : 'No Profile')}
             </div>
             {activeVersion?.progressSummary && (
-              <div className="text-xs text-gray-500">
+              <div style={{ fontSize: 11, opacity: 0.9 }}>
                 {activeVersion.progressSummary.completionPercentage}% 
                 {language === 'ko' ? ' 완료' : ' complete'}
               </div>
@@ -306,7 +321,12 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
           </div>
         </div>
         <svg
-          className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+          style={{ 
+            width: 16, 
+            height: 16, 
+            transition: 'transform 0.2s',
+            transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -317,7 +337,7 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute top-full left-0 mt-1 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+        <div className="absolute top-full left-0 mt-1 w-[800px] bg-white border border-gray-200 rounded-lg shadow-lg z-50">
           <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
             <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-3">
               <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,7 +380,7 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
             </div>
           </div>
           
-          <div className="max-h-64 overflow-y-auto">
+          <div className="max-h-80 overflow-y-auto p-3">
             {versions.length === 0 ? (
               <div className="p-4 text-center text-gray-500 text-sm">
                 <div className="mb-2">
@@ -377,101 +397,104 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                 </button>
               </div>
             ) : (
-              <div className="py-1">
-                {versions.map((version) => (
-                  <button
-                    key={version.id}
-                    onClick={() => {
-                      console.log('Profile selected:', version.id, version.versionName);
-                      if (!version.isActive && !isLoading) {
-                        switchVersion(version.id);
-                      } else if (version.isActive) {
-                        // If clicking on active version, just close dropdown
-                        setIsOpen(false);
-                      }
-                    }}
-                    disabled={isLoading}
-                    className={`w-full text-left px-4 py-3 transition-all duration-200 disabled:cursor-not-allowed focus:outline-none focus:bg-blue-50 ${
-                      version.isActive 
-                        ? 'bg-blue-50 text-blue-900 border-l-4 border-blue-500' 
-                        : 'text-gray-900 hover:bg-blue-50 hover:text-blue-800'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3">
-                          {/* Profile Icon */}
-                          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                            version.isActive ? 'bg-blue-500' : 'bg-gray-300'
-                          }`}>
-                            {version.isActive ? (
-                              <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                              </svg>
-                            ) : (
-                              <span className="text-xs font-medium text-gray-600">
-                                {version.versionName.charAt(0).toUpperCase()}
-                              </span>
-                            )}
-                          </div>
-                          
-                          {/* Profile Info */}
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">
-                                {version.versionName}
-                              </span>
-                              {version.isActive && (
-                                <span className="px-2 py-0.5 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
-                                  {language === 'ko' ? '현재 활성' : 'Active'}
-                                </span>
-                              )}
-                            </div>
-                            {version.description && (
-                              <div className="text-xs text-gray-500 mt-0.5">
-                                {version.description}
-                              </div>
-                            )}
-                            {version.progressSummary && (
-                              <div className="flex items-center gap-2 mt-2">
-                                <div className="flex-1 bg-gray-200 rounded-full h-1.5">
-                                  <div 
-                                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                                      version.isActive ? 'bg-blue-600' : 'bg-blue-500'
-                                    }`}
-                                    style={{ width: `${version.progressSummary.completionPercentage}%` }}
-                                  ></div>
-                                </div>
-                                <span className="text-xs font-medium text-gray-600 min-w-[35px] text-right">
-                                  {version.progressSummary.completionPercentage}%
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      {/* Action Indicator */}
-                      <div className="flex items-center ml-3">
-                        {isLoading ? (
-                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
-                        ) : version.isActive ? (
-                          <div className="text-blue-500">
-                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                            </svg>
-                          </div>
-                        ) : (
-                          <div className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                            </svg>
-                          </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                {versions.map((version, index) => {
+                  // 각 카드마다 다른 색상 적용
+                  const colors = [
+                    { bg: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', light: '#E7F3FF', accent: '#1877F2' },
+                    { bg: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', light: '#E8F5E9', accent: '#42B883' },
+                    { bg: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', light: '#FEF3C7', accent: '#F59E0B' },
+                    { bg: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', light: '#EDE9FE', accent: '#8B5CF6' },
+                    { bg: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', light: '#FCE7F3', accent: '#EC4899' },
+                    { bg: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)', light: '#CCFBF1', accent: '#14B8A6' },
+                    { bg: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', light: '#FEE2E2', accent: '#EF4444' },
+                    { bg: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', light: '#E0E7FF', accent: '#6366F1' },
+                  ];
+                  const colorScheme = colors[index % colors.length];
+                  
+                  return (
+                    <button
+                      key={version.id}
+                      onClick={() => {
+                        console.log('Profile selected:', version.id, version.versionName);
+                        if (!version.isActive && !isLoading) {
+                          switchVersion(version.id);
+                        } else if (version.isActive) {
+                          setIsOpen(false);
+                        }
+                      }}
+                      disabled={isLoading}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        textAlign: 'left',
+                        background: 'white',
+                        borderRadius: 10,
+                        overflow: 'hidden',
+                        border: version.isActive ? `2px solid ${colorScheme.accent}` : '2px solid #E4E6EB',
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                        opacity: isLoading ? 0.7 : 1,
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {/* Card Header */}
+                      <div style={{
+                        padding: '12px 14px',
+                        background: colorScheme.bg,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span style={{ color: 'white', fontWeight: 700, fontSize: 14 }}>
+                          {version.versionName}
+                        </span>
+                        {version.isActive && (
+                          <span style={{
+                            padding: '2px 8px',
+                            background: 'rgba(255,255,255,0.3)',
+                            color: 'white',
+                            borderRadius: 10,
+                            fontSize: 10,
+                            fontWeight: 600
+                          }}>
+                            ✓ {language === 'ko' ? '활성' : 'Active'}
+                          </span>
                         )}
                       </div>
-                    </div>
-                  </button>
-                ))}
+                      
+                      {/* Card Body */}
+                      <div style={{ padding: '12px 14px' }}>
+                        {version.description && (
+                          <p style={{ 
+                            fontSize: 12, 
+                            color: '#65676B', 
+                            marginBottom: 8,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {version.description}
+                          </p>
+                        )}
+                        
+                        {/* Progress */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ flex: 1, height: 6, background: '#E4E6EB', borderRadius: 3, overflow: 'hidden' }}>
+                            <div style={{
+                              height: '100%',
+                              width: `${version.progressSummary?.completionPercentage || 0}%`,
+                              background: colorScheme.bg,
+                              borderRadius: 3
+                            }}></div>
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 600, color: colorScheme.accent, minWidth: 32 }}>
+                            {version.progressSummary?.completionPercentage || 0}%
+                          </span>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

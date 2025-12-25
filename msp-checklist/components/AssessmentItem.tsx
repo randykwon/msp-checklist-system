@@ -591,36 +591,60 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {item.titleKo || item.title}
             </h4>
           </div>
-          <div className="flex flex-col items-end gap-2 min-w-[120px]">
-            <label className="text-xs font-medium text-gray-500">충족?</label>
-            <div className="flex gap-1">
+          <div className="flex flex-col items-end gap-2">
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#65676B' }}>충족?</label>
+            <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => handleMetChange(true)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                  item.met === true
-                    ? 'bg-green-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-green-100'
-                }`}
+                style={{
+                  minWidth: 70,
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderRadius: 8,
+                  border: item.met === true ? 'none' : '2px solid #E4E6EB',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  background: item.met === true ? 'linear-gradient(135deg, #42B883 0%, #2E7D32 100%)' : 'white',
+                  color: item.met === true ? 'white' : '#1C1E21',
+                  boxShadow: item.met === true ? '0 2px 8px rgba(66, 184, 131, 0.4)' : 'none'
+                }}
               >
                 예
               </button>
               <button
                 onClick={() => handleMetChange(false)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                  item.met === false
-                    ? 'bg-red-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-red-100'
-                }`}
+                style={{
+                  minWidth: 70,
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderRadius: 8,
+                  border: item.met === false ? 'none' : '2px solid #E4E6EB',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : 'white',
+                  color: item.met === false ? 'white' : '#1C1E21',
+                  boxShadow: item.met === false ? '0 2px 8px rgba(239, 68, 68, 0.4)' : 'none'
+                }}
               >
                 아니오
               </button>
               <button
                 onClick={() => handleMetChange(null)}
-                className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                  item.met === null
-                    ? 'bg-gray-500 text-white'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                style={{
+                  minWidth: 90,
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  borderRadius: 8,
+                  border: item.met === null ? 'none' : '2px solid #E4E6EB',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'white',
+                  color: item.met === null ? 'white' : '#1C1E21',
+                  boxShadow: item.met === null ? '0 2px 8px rgba(107, 114, 128, 0.4)' : 'none'
+                }}
               >
                 해당없음
               </button>
@@ -669,36 +693,60 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
         </div>
 
         {/* Met Status */}
-        <div className="flex flex-col items-end gap-2 min-w-[120px]">
-          <label className="text-xs font-medium text-gray-500">{t('assessmentItem.met')}?</label>
-          <div className="flex gap-1">
+        <div className="flex flex-col items-end gap-2">
+          <label style={{ fontSize: 13, fontWeight: 600, color: '#65676B' }}>{t('assessmentItem.met')}?</label>
+          <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => handleMetChange(true)}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                item.met === true
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-green-100'
-              }`}
+              style={{
+                minWidth: 70,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 600,
+                borderRadius: 8,
+                border: item.met === true ? 'none' : '2px solid #E4E6EB',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                background: item.met === true ? 'linear-gradient(135deg, #42B883 0%, #2E7D32 100%)' : 'white',
+                color: item.met === true ? 'white' : '#1C1E21',
+                boxShadow: item.met === true ? '0 2px 8px rgba(66, 184, 131, 0.4)' : 'none'
+              }}
             >
               {t('assessmentItem.yes')}
             </button>
             <button
               onClick={() => handleMetChange(false)}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                item.met === false
-                  ? 'bg-red-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-red-100'
-              }`}
+              style={{
+                minWidth: 70,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 600,
+                borderRadius: 8,
+                border: item.met === false ? 'none' : '2px solid #E4E6EB',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : 'white',
+                color: item.met === false ? 'white' : '#1C1E21',
+                boxShadow: item.met === false ? '0 2px 8px rgba(239, 68, 68, 0.4)' : 'none'
+              }}
             >
               {t('assessmentItem.no')}
             </button>
             <button
               onClick={() => handleMetChange(null)}
-              className={`px-3 py-1 text-sm font-medium rounded transition-colors ${
-                item.met === null
-                  ? 'bg-gray-500 text-white'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
+              style={{
+                minWidth: 90,
+                padding: '10px 16px',
+                fontSize: 14,
+                fontWeight: 600,
+                borderRadius: 8,
+                border: item.met === null ? 'none' : '2px solid #E4E6EB',
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'white',
+                color: item.met === null ? 'white' : '#1C1E21',
+                boxShadow: item.met === null ? '0 2px 8px rgba(107, 114, 128, 0.4)' : 'none'
+              }}
             >
               {t('assessmentItem.na')}
             </button>
@@ -709,24 +757,60 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       {/* Expanded Content */}
       {isExpanded && (
         <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
-          {/* Description */}
-          <div>
-            <h5 className="text-sm font-semibold text-gray-700 mb-2">{t('assessmentItem.description')}</h5>
-            <div className="text-sm text-gray-600 whitespace-pre-line bg-gray-50 p-3 rounded">
-              {renderTextWithLinks(itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description)}
+          {/* Description - 파란색 테마 */}
+          <div style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+              color: 'white'
+            }}>
+              <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                📝 {t('assessmentItem.description')}
+              </h5>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div className="text-sm text-gray-600 whitespace-pre-line">
+                {renderTextWithLinks(itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description)}
+              </div>
             </div>
           </div>
 
-          {/* Evidence Required */}
+          {/* Evidence Required - 녹색 테마 */}
           {(item.evidenceRequired || item.evidenceRequiredKo) && (
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <h5 className="text-sm font-semibold text-gray-700">{t('assessmentItem.evidenceRequired')}</h5>
-                <div className="flex gap-2">
+            <div style={{
+              borderRadius: 12,
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            }}>
+              <div style={{
+                padding: '12px 16px',
+                background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)',
+                color: 'white',
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center'
+              }}>
+                <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                  📋 {t('assessmentItem.evidenceRequired')}
+                </h5>
+                <div style={{ display: 'flex', gap: 8 }}>
                   {adviceContent && (
                     <button
                       onClick={() => setShowAdviceInline(!showAdviceInline)}
-                      className="px-3 py-1 text-xs font-medium text-green-600 bg-green-50 hover:bg-green-100 rounded-full transition-colors"
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: 'rgba(255,255,255,0.2)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: 'pointer'
+                      }}
                     >
                       {showAdviceInline ? t('assessmentItem.hideAdvice') : t('assessmentItem.showAdvice')}
                     </button>
@@ -734,66 +818,119 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <button
                     onClick={handleAdviceClick}
                     disabled={isLoadingAdvice}
-                    className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-full transition-colors"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'white',
+                      color: '#42B883',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
+                      opacity: isLoadingAdvice ? 0.7 : 1
+                    }}
                   >
-                    {isLoadingAdvice ? t('assessmentItem.generating') : 
+                    💡 {isLoadingAdvice ? t('assessmentItem.generating') : 
                      adviceContent ? t('assessmentItem.refreshAdvice') : 
                      t('assessmentItem.adviceButton')}
                   </button>
                 </div>
               </div>
-              <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded">
-                {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
-              </div>
+              <div style={{ padding: 16, background: 'white' }}>
+                <div className="text-sm text-gray-600">
+                  {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
+                </div>
               
-              {/* 인라인 조언 표시 */}
-              {showAdviceInline && adviceContent && (
-                <div className="mt-3 bg-gradient-to-r from-blue-50 to-green-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <h6 className="text-sm font-semibold text-blue-900 flex items-center gap-2">
-                      💡 {t('assessmentItem.adviceTitle')}
-                      <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
-                        {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
-                      </span>
-                    </h6>
-                    <button
-                      onClick={() => setShowAdviceInline(false)}
-                      className="text-gray-400 hover:text-gray-600 text-sm"
-                    >
-                      ✕
-                    </button>
-                  </div>
-                  <div className="text-sm text-gray-700 whitespace-pre-line">
-                    {adviceContent}
-                  </div>
-                </div>
-              )}
-
-              {/* 오류 표시 */}
-              {adviceError && (
-                <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h6 className="text-sm font-semibold text-red-900 mb-1">⚠️ {t('assessmentItem.error')}</h6>
-                      <div className="text-sm text-red-800">{adviceError}</div>
+                {/* 인라인 조언 표시 */}
+                {showAdviceInline && adviceContent && (
+                  <div style={{
+                    marginTop: 16,
+                    padding: 16,
+                    background: 'linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%)',
+                    borderRadius: 10,
+                    border: '1px solid #C8E6C9'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                      <h6 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#2E7D32', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        💡 {t('assessmentItem.adviceTitle')}
+                        <span style={{
+                          padding: '2px 8px',
+                          fontSize: 11,
+                          background: '#C8E6C9',
+                          color: '#2E7D32',
+                          borderRadius: 10
+                        }}>
+                          {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                        </span>
+                      </h6>
+                      <button
+                        onClick={() => setShowAdviceInline(false)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#65676B', fontSize: 16 }}
+                      >
+                        ✕
+                      </button>
                     </div>
-                    <button
-                      onClick={handleAdviceClick}
-                      disabled={isLoadingAdvice}
-                      className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-                    >
-                      {isLoadingAdvice ? t('assessmentItem.retrying') : t('assessmentItem.retry')}
-                    </button>
+                    <div className="text-sm text-gray-700 whitespace-pre-line">
+                      {adviceContent}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* 오류 표시 */}
+                {adviceError && (
+                  <div style={{
+                    marginTop: 16,
+                    padding: 16,
+                    background: '#FEE2E2',
+                    borderRadius: 10,
+                    border: '1px solid #FECACA'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div>
+                        <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#DC2626' }}>
+                          ⚠️ {t('assessmentItem.error')}
+                        </h6>
+                        <div style={{ fontSize: 13, color: '#B91C1C' }}>{adviceError}</div>
+                      </div>
+                      <button
+                        onClick={handleAdviceClick}
+                        disabled={isLoadingAdvice}
+                        style={{
+                          padding: '8px 16px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: '#DC2626',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 6,
+                          cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
+                          opacity: isLoadingAdvice ? 0.7 : 1
+                        }}
+                      >
+                        {isLoadingAdvice ? t('assessmentItem.retrying') : t('assessmentItem.retry')}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
-          {/* Virtual Evidence Examples */}
-          <div className="mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="text-sm font-semibold text-gray-700">
+          {/* Virtual Evidence Examples - 보라색 테마 */}
+          <div style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
                 {(() => {
                   const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
                   const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
@@ -806,12 +943,21 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     return itemLanguage === 'ko' ? '💡 가상증빙예제-참고용' : '💡 Virtual Evidence Examples';
                   }
                 })()}
-              </h4>
-              <div className="flex gap-2">
+              </h5>
+              <div style={{ display: 'flex', gap: 8 }}>
                 {virtualEvidenceContent && (
                   <button
                     onClick={() => setShowVirtualEvidence(!showVirtualEvidence)}
-                    className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer'
+                    }}
                   >
                     {showVirtualEvidence 
                       ? (itemLanguage === 'ko' ? '숨기기' : 'Hide')
@@ -822,7 +968,17 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 <button
                   onClick={generateVirtualEvidence}
                   disabled={isGeneratingVirtualEvidence}
-                  className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-full transition-colors"
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: 'white',
+                    color: '#8B5CF6',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: isGeneratingVirtualEvidence ? 'not-allowed' : 'pointer',
+                    opacity: isGeneratingVirtualEvidence ? 0.7 : 1
+                  }}
                 >
                   {(() => {
                     const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
@@ -845,128 +1001,215 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 </button>
               </div>
             </div>
-            
-            {/* 캐시된 값이 없으면 아무것도 표시하지 않음 */}
+            <div style={{ padding: 16, background: 'white' }}>
+              {/* Generated Virtual Evidence */}
+              {showVirtualEvidence && virtualEvidenceContent && (
+                <div style={{
+                  padding: 16,
+                  background: 'linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%)',
+                  borderRadius: 10,
+                  border: '1px solid #DDD6FE'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
+                    {(() => {
+                      const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                      const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                            evidenceText?.toLowerCase().includes('demonstration') ||
+                                            evidenceText?.toLowerCase().includes('demo');
+                      
+                      return (
+                        <>
+                          <span style={{ fontSize: 18, color: '#8B5CF6' }}>{isDemonstration ? '🎯' : '✨'}</span>
+                          <div>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: '#6D28D9', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                              {isDemonstration ? 
+                                (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
+                                (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
+                              }
+                              <span style={{
+                                padding: '2px 8px',
+                                fontSize: 11,
+                                background: '#C8E6C9',
+                                color: '#2E7D32',
+                                borderRadius: 10
+                              }}>
+                                {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                              </span>
+                            </p>
+                            <p style={{ fontSize: 12, color: '#7C3AED' }}>
+                              {isDemonstration ?
+                                (itemLanguage === 'ko' 
+                                  ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
+                                  : 'Specific demonstration guide generated by AI based on this item\'s description and advice.') :
+                                (itemLanguage === 'ko' 
+                                  ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 증빙자료 예제입니다.'
+                                  : 'Specific evidence examples generated by AI based on this item\'s description and advice.')
+                              }
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
+                  </div>
+                  
+                  <div style={{
+                    background: 'white',
+                    borderRadius: 8,
+                    padding: 16,
+                    border: '1px solid #E9D5FF'
+                  }}>
+                    <div style={{ fontSize: 14, color: '#581C87', whiteSpace: 'pre-line', fontFamily: 'monospace', lineHeight: 1.6 }}>
+                      {virtualEvidenceContent}
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    marginTop: 16,
+                    padding: 12,
+                    background: 'rgba(255,255,255,0.6)',
+                    borderRadius: 8,
+                    borderTop: '1px solid #DDD6FE'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <span style={{ color: '#F59E0B', fontSize: 14 }}>💡</span>
+                      <p style={{ fontSize: 12, color: '#7C3AED', fontWeight: 500 }}>
+                        {(() => {
+                          const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                          const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                                evidenceText?.toLowerCase().includes('demonstration') ||
+                                                evidenceText?.toLowerCase().includes('demo');
+                          
+                          if (isDemonstration) {
+                            return itemLanguage === 'ko' 
+                              ? '이 가이드를 참고하여 실제 시연을 준비하고, 시연 과정을 녹화하거나 스크린샷으로 기록하여 아래 "파일 추가" 버튼으로 업로드하세요.'
+                              : 'Use this guide to prepare your actual demonstration, and record the demo process or take screenshots to upload using the "Add Files" button below.';
+                          } else {
+                            return itemLanguage === 'ko' 
+                              ? '이 예제를 참고하여 실제 증빙자료를 준비하고, 아래 "파일 추가" 버튼으로 업로드하세요.'
+                              : 'Use these examples as reference to prepare your actual evidence and upload using the "Add Files" button below.';
+                          }
+                        })()}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
-            {/* Generated Virtual Evidence */}
-            {showVirtualEvidence && virtualEvidenceContent && (
-              <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4 shadow-sm">
-                <div className="flex items-start space-x-2 mb-3">
-                  {(() => {
-                    const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
-                    const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
-                                          evidenceText?.toLowerCase().includes('demonstration') ||
-                                          evidenceText?.toLowerCase().includes('demo');
-                    
-                    return (
-                      <>
-                        <span className="text-purple-600 text-lg">{isDemonstration ? '🎯' : '✨'}</span>
-                        <div>
-                          <p className="text-sm font-medium text-purple-800 mb-1 flex items-center gap-2">
-                            {isDemonstration ? 
-                              (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
-                              (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
-                            }
-                            <span className="px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
-                              {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
-                            </span>
-                          </p>
-                          <p className="text-xs text-purple-700">
-                            {isDemonstration ?
-                              (itemLanguage === 'ko' 
-                                ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
-                                : 'Specific demonstration guide generated by AI based on this item\'s description and advice.') :
-                              (itemLanguage === 'ko' 
-                                ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 증빙자료 예제입니다.'
-                                : 'Specific evidence examples generated by AI based on this item\'s description and advice.')
-                            }
-                          </p>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-                
-                <div className="bg-white bg-opacity-80 rounded-lg p-4 border border-purple-100">
-                  <div className="text-sm text-purple-900 whitespace-pre-line font-mono">
-                    {virtualEvidenceContent}
+              {/* Virtual Evidence Error */}
+              {virtualEvidenceError && (
+                <div style={{
+                  padding: 16,
+                  background: '#FEE2E2',
+                  borderRadius: 10,
+                  border: '1px solid #FECACA'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#DC2626' }}>
+                        ⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}
+                      </h6>
+                      <div style={{ fontSize: 13, color: '#B91C1C' }}>{virtualEvidenceError}</div>
+                    </div>
+                    <button
+                      onClick={generateVirtualEvidence}
+                      disabled={isGeneratingVirtualEvidence}
+                      style={{
+                        padding: '8px 16px',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        background: '#DC2626',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: isGeneratingVirtualEvidence ? 'not-allowed' : 'pointer',
+                        opacity: isGeneratingVirtualEvidence ? 0.7 : 1
+                      }}
+                    >
+                      {isGeneratingVirtualEvidence ? 
+                        (itemLanguage === 'ko' ? '재시도 중...' : 'Retrying...') : 
+                        (itemLanguage === 'ko' ? '다시 시도' : 'Retry')
+                      }
+                    </button>
                   </div>
                 </div>
-                
-                <div className="mt-4 pt-3 border-t border-purple-200 bg-white bg-opacity-40 rounded p-3">
-                  <div className="flex items-start space-x-2">
-                    <span className="text-amber-600 text-sm">💡</span>
-                    <p className="text-xs text-purple-700 font-medium">
-                      {(() => {
-                        const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
-                        const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
-                                              evidenceText?.toLowerCase().includes('demonstration') ||
-                                              evidenceText?.toLowerCase().includes('demo');
-                        
-                        if (isDemonstration) {
-                          return itemLanguage === 'ko' 
-                            ? '이 가이드를 참고하여 실제 시연을 준비하고, 시연 과정을 녹화하거나 스크린샷으로 기록하여 아래 "파일 추가" 버튼으로 업로드하세요.'
-                            : 'Use this guide to prepare your actual demonstration, and record the demo process or take screenshots to upload using the "Add Files" button below.';
-                        } else {
-                          return itemLanguage === 'ko' 
-                            ? '이 예제를 참고하여 실제 증빙자료를 준비하고, 아래 "파일 추가" 버튼으로 업로드하세요.'
-                            : 'Use these examples as reference to prepare your actual evidence and upload using the "Add Files" button below.';
-                        }
-                      })()}
-                    </p>
-                  </div>
+              )}
+              
+              {/* 캐시된 값이 없으면 안내 메시지 */}
+              {!virtualEvidenceContent && !virtualEvidenceError && !isGeneratingVirtualEvidence && (
+                <div style={{ textAlign: 'center', padding: 20, color: '#65676B' }}>
+                  <p style={{ fontSize: 13 }}>
+                    {itemLanguage === 'ko' 
+                      ? '상단의 "예제 생성" 버튼을 클릭하여 AI 가상증빙예제를 생성하세요.'
+                      : 'Click the "Generate Examples" button above to create AI virtual evidence examples.'}
+                  </p>
                 </div>
-              </div>
-            )}
-
-            {/* Virtual Evidence Error */}
-            {virtualEvidenceError && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h6 className="text-sm font-semibold text-red-900 mb-1">⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}</h6>
-                    <div className="text-sm text-red-800">{virtualEvidenceError}</div>
-                  </div>
-                  <button
-                    onClick={generateVirtualEvidence}
-                    disabled={isGeneratingVirtualEvidence}
-                    className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
-                  >
-                    {isGeneratingVirtualEvidence ? 
-                      (itemLanguage === 'ko' ? '재시도 중...' : 'Retrying...') : 
-                      (itemLanguage === 'ko' ? '다시 시도' : 'Retry')
-                    }
-                  </button>
-                </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
-          {/* Q&A Section */}
-          <QASection 
-            itemId={item.id}
-            assessmentType={assessmentType}
-          />
+          {/* Q&A Section - 주황색 테마 */}
+          <div style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+              color: 'white'
+            }}>
+              <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                💬 {itemLanguage === 'ko' ? '질의응답' : 'Q&A'}
+              </h5>
+            </div>
+            <div style={{ background: 'white' }}>
+              <QASection 
+                itemId={item.id}
+                assessmentType={assessmentType}
+              />
+            </div>
+          </div>
 
-          {/* Evidence Upload Section */}
-          <div className="border-t border-gray-200 pt-4">
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="text-sm font-semibold text-gray-700">
+          {/* Evidence Upload Section - 청록색 테마 */}
+          <div style={{
+            borderRadius: 12,
+            overflow: 'hidden',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+          }}>
+            <div style={{
+              padding: '12px 16px',
+              background: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)',
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
                 📎 {t('assessmentItem.evidenceUpload')}
               </h5>
-              <div className="flex gap-2">
+              <div style={{ display: 'flex', gap: 8 }}>
                 <input
                   ref={fileInputRef}
                   type="file"
                   multiple
                   accept="image/*,application/pdf"
                   onChange={handleFileUpload}
-                  className="hidden"
+                  style={{ display: 'none' }}
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={isProcessingPdf}
-                  className="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 disabled:bg-gray-100 disabled:text-gray-400 rounded-full transition-colors"
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    background: 'white',
+                    color: '#14B8A6',
+                    border: 'none',
+                    borderRadius: 6,
+                    cursor: isProcessingPdf ? 'not-allowed' : 'pointer',
+                    opacity: isProcessingPdf ? 0.7 : 1
+                  }}
                 >
                   {isProcessingPdf ? 
                     (itemLanguage === 'ko' ? '📄 처리 중...' : '📄 Processing...') :
@@ -976,23 +1219,33 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 {evidenceFiles.length > 0 && (
                   <button
                     onClick={() => setShowFileGallery(!showFileGallery)}
-                    className="px-3 py-1 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer'
+                    }}
                   >
                     📁 {itemLanguage === 'ko' ? `파일 보기 (${evidenceFiles.length})` : `View Files (${evidenceFiles.length})`}
                   </button>
                 )}
               </div>
             </div>
-
-            {/* File Gallery */}
-            {showFileGallery && evidenceFiles.length > 0 && (
-              <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                  {evidenceFiles.map((file) => (
-                    <div key={file.id} className="relative group">
-                      {file.fileType === 'image' ? (
-                        <img
-                          src={`data:${file.mimeType};base64,${file.base64Data}`}
+            
+            <div style={{ padding: 16, background: 'white' }}>
+              {/* File Gallery */}
+              {showFileGallery && evidenceFiles.length > 0 && (
+                <div style={{ marginBottom: 16, padding: 12, background: '#F0FDFA', borderRadius: 10 }}>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                    {evidenceFiles.map((file) => (
+                      <div key={file.id} className="relative group">
+                        {file.fileType === 'image' ? (
+                          <img
+                            src={`data:${file.mimeType};base64,${file.base64Data}`}
                           alt={file.fileName}
                           className="w-full h-24 object-cover rounded-lg border border-gray-200"
                         />
@@ -1160,6 +1413,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 }
               </div>
             )}
+            </div>
           </div>
 
           {/* Last Updated */}

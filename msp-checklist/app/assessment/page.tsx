@@ -163,11 +163,16 @@ export default function AssessmentPage() {
   };
 
 
-  // Show loading state
-  if (loading) {
+  // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
+  if (loading || !isMounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg text-gray-600">{t('assessment.loading')}</div>
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div className="loading-spinner"></div>
+          <div style={{ marginTop: 16, color: '#65676B', fontSize: 16 }}>
+            {isMounted ? (language === 'ko' ? '로딩 중...' : 'Loading...') : ''}
+          </div>
+        </div>
       </div>
     );
   }
@@ -221,15 +226,23 @@ export default function AssessmentPage() {
 
           {/* Tab Navigation */}
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <div className="flex space-x-1">
+            <div className="px-6 py-4">
+              <div className="flex space-x-3">
                 <button
                   onClick={() => setAssessmentType('prerequisites')}
-                  className={`px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${
-                    assessmentType === 'prerequisites'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    padding: '14px 24px',
+                    fontWeight: 600,
+                    borderRadius: 10,
+                    transition: 'all 0.2s',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: assessmentType === 'prerequisites' 
+                      ? 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)' 
+                      : '#F0F2F5',
+                    color: assessmentType === 'prerequisites' ? 'white' : '#65676B',
+                    boxShadow: assessmentType === 'prerequisites' ? '0 4px 12px rgba(24, 119, 242, 0.3)' : 'none'
+                  }}
                 >
                   <div className="flex items-center">
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -240,11 +253,19 @@ export default function AssessmentPage() {
                 </button>
                 <button
                   onClick={() => setAssessmentType('technical')}
-                  className={`px-6 py-3 font-semibold rounded-lg transition-all duration-200 ${
-                    assessmentType === 'technical'
-                      ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm'
-                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
-                  }`}
+                  style={{
+                    padding: '14px 24px',
+                    fontWeight: 600,
+                    borderRadius: 10,
+                    transition: 'all 0.2s',
+                    border: 'none',
+                    cursor: 'pointer',
+                    background: assessmentType === 'technical' 
+                      ? 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' 
+                      : '#F0F2F5',
+                    color: assessmentType === 'technical' ? 'white' : '#65676B',
+                    boxShadow: assessmentType === 'technical' ? '0 4px 12px rgba(66, 184, 131, 0.3)' : 'none'
+                  }}
                 >
                   <div className="flex items-center">
                     <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -254,15 +275,6 @@ export default function AssessmentPage() {
                     {t('assessment.technical')}
                   </div>
                 </button>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="px-6 py-4">
-              <div className="flex items-center justify-center">
-                <div className="text-sm text-gray-600">
-                  {assessmentType === 'prerequisites' ? t('assessment.prerequisitesProgress') : t('assessment.technicalProgress')}
-                </div>
               </div>
             </div>
           </div>

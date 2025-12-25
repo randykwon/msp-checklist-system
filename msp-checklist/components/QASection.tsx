@@ -258,11 +258,8 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
   }
 
   return (
-    <div>
+    <div style={{ padding: 16 }}>
       <div className="flex items-center justify-between mb-4">
-        <h5 className="text-sm font-semibold text-gray-700">
-          💬 {t('qa.title')}
-        </h5>
         <span className="text-xs text-gray-500">
           {questions.length} {language === 'ko' ? '개 질문' : 'questions'}
         </span>
