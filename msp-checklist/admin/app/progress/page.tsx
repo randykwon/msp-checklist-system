@@ -94,18 +94,35 @@ export default function ProgressPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* 헤더 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">진행 현황</h1>
-              <p className="text-gray-600 mt-1">사용자별 평가 진행 상황을 확인합니다</p>
-            </div>
-            <div className="flex items-center space-x-4">
+        {/* 헤더 카드 */}
+        <div style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{
+            padding: '20px 24px',
+            background: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)',
+            color: 'white'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>📈 진행 현황</h1>
+                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>사용자별 평가 진행 상황을 확인합니다</p>
+              </div>
               <select
                 value={selectedType}
                 onChange={(e) => setSelectedType(e.target.value as any)}
-                className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                style={{
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#14B8A6',
+                  background: 'white',
+                  border: 'none',
+                  borderRadius: 10,
+                  cursor: 'pointer'
+                }}
               >
                 <option value="all">전체</option>
                 <option value="prerequisites">사전 요구사항</option>
@@ -116,82 +133,58 @@ export default function ProgressPage() {
         </div>
 
         {/* 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">참여 사용자</p>
-                <p className="text-2xl font-bold text-gray-900">{filteredData.length}</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>👥 참여 사용자</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#1877F2' }}>{filteredData.length}</div>
+            </div>
+          </div>
+
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>✅ 완료율 80%+</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#42B883' }}>
+                {filteredData.filter(item => item.progressPercentage >= 80).length}
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">완료율 80% 이상</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredData.filter(item => item.progressPercentage >= 80).length}
-                </p>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>⏳ 진행 중</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#F59E0B' }}>
+                {filteredData.filter(item => item.progressPercentage > 0 && item.progressPercentage < 80).length}
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">진행 중</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredData.filter(item => item.progressPercentage > 0 && item.progressPercentage < 80).length}
-                </p>
-              </div>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>🚫 미시작</div>
             </div>
-          </div>
-
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">미시작</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {filteredData.filter(item => item.progressPercentage === 0).length}
-                </p>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#EF4444' }}>
+                {filteredData.filter(item => item.progressPercentage === 0).length}
               </div>
             </div>
           </div>
         </div>
 
         {/* 진행 현황 테이블 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">사용자별 진행 현황</h3>
+        <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+          <div style={{
+            padding: '16px 24px',
+            background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+            color: 'white'
+          }}>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📋 사용자별 진행 현황</h3>
           </div>
           
           {loadingProgress ? (

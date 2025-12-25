@@ -111,92 +111,77 @@ export default function SystemPage() {
   return (
     <AdminLayout>
       <div className="space-y-6">
-        {/* 헤더 */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">시스템 관리</h1>
-              <p className="text-gray-600 mt-1">시스템 상태 및 유지보수 기능</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm text-gray-500">시스템 상태</p>
-                <p className="text-lg font-semibold text-green-600">정상 운영</p>
+        {/* 헤더 카드 */}
+        <div style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{
+            padding: '20px 24px',
+            background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+            color: 'white'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>⚙️ 시스템 관리</h1>
+                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>시스템 상태 및 유지보수 기능</p>
+              </div>
+              <div style={{
+                background: 'rgba(255,255,255,0.2)',
+                borderRadius: 12,
+                padding: '12px 20px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: 12, opacity: 0.9 }}>시스템 상태</div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>✅ 정상 운영</div>
               </div>
             </div>
           </div>
         </div>
 
         {/* 시스템 정보 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">데이터베이스 크기</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingSystem ? '...' : formatBytes(systemInfo?.dbSize || 0)}
-                </p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>💾 데이터베이스 크기</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#1877F2' }}>
+                {loadingSystem ? '...' : formatBytes(systemInfo?.dbSize || 0)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">시스템 가동시간</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingSystem ? '...' : formatUptime(systemInfo?.systemUptime || 0)}
-                </p>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>⏱️ 시스템 가동시간</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#42B883' }}>
+                {loadingSystem ? '...' : formatUptime(systemInfo?.systemUptime || 0)}
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">조언 캐시</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingSystem ? '...' : systemInfo?.cacheStats?.adviceCache || 0}
-                </p>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>💡 조언 캐시</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#8B5CF6' }}>
+                {loadingSystem ? '...' : systemInfo?.cacheStats?.adviceCache || 0}
               </div>
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">가상증빙 캐시</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingSystem ? '...' : systemInfo?.cacheStats?.virtualEvidenceCache || 0}
-                </p>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>📄 가상증빙 캐시</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 24, fontWeight: 700, color: '#F59E0B' }}>
+                {loadingSystem ? '...' : systemInfo?.cacheStats?.virtualEvidenceCache || 0}
               </div>
             </div>
           </div>

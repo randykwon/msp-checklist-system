@@ -92,157 +92,252 @@ export default function MonitoringPage() {
     );
   }
 
+  // 카드 색상 스킴
+  const cardColors = [
+    { bg: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', accent: '#1877F2' },
+    { bg: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', accent: '#42B883' },
+    { bg: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', accent: '#F59E0B' },
+    { bg: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', accent: '#8B5CF6' },
+    { bg: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', accent: '#EC4899' },
+    { bg: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)', accent: '#14B8A6' },
+    { bg: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', accent: '#EF4444' },
+    { bg: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', accent: '#6366F1' },
+  ];
+
   return (
     <AdminLayout>
-      <div className="px-4 py-6 sm:px-0">
-        <div className="border-4 border-dashed border-gray-200 rounded-lg p-6">
-          <div className="flex justify-between items-center mb-6">
-            <h1 className="text-2xl font-bold text-gray-900">시스템 모니터링</h1>
-            <button
-              onClick={fetchStats}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-            >
-              🔄 새로고침
-            </button>
-          </div>
-
-          {statsLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">모니터링 데이터 로딩 중...</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* 헤더 카드 */}
+        <div style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{
+            padding: '20px 24px',
+            background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+            color: 'white'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>📊 시스템 모니터링</h1>
+                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>시스템 상태 및 사용자 활동을 모니터링합니다</p>
+              </div>
+              <button
+                onClick={fetchStats}
+                style={{
+                  padding: '12px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#8B5CF6',
+                  background: 'white',
+                  border: 'none',
+                  borderRadius: 10,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}
+              >
+                🔄 새로고침
+              </button>
             </div>
-          ) : stats ? (
-            <div className="space-y-8">
-              {/* 시스템 개요 */}
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 mb-4">시스템 개요</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow border">
-                    <div className="flex items-center">
-                      <span className="text-2xl mr-3">👥</span>
-                      <div>
-                        <p className="text-sm text-gray-600">전체 사용자</p>
-                        <p className="text-xl font-semibold">{stats.systemInfo.totalUsers}명</p>
-                      </div>
+          </div>
+        </div>
+
+        {statsLoading ? (
+          <div style={{ padding: 48, textAlign: 'center', background: 'white', borderRadius: 16 }}>
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p style={{ color: '#65676B' }}>모니터링 데이터 로딩 중...</p>
+          </div>
+        ) : stats ? (
+          <>
+            {/* 시스템 개요 통계 카드 */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+              {/* 전체 사용자 */}
+              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <div style={{ padding: '12px 16px', background: cardColors[0].bg, color: 'white' }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>👥 전체 사용자</div>
+                </div>
+                <div style={{ padding: 16, background: 'white' }}>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: cardColors[0].accent }}>{stats.systemInfo.totalUsers}명</div>
+                </div>
+              </div>
+              {/* 관리자 */}
+              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <div style={{ padding: '12px 16px', background: cardColors[3].bg, color: 'white' }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>🛡️ 관리자</div>
+                </div>
+                <div style={{ padding: 16, background: 'white' }}>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: cardColors[3].accent }}>{stats.systemInfo.adminUsers}명</div>
+                </div>
+              </div>
+              {/* 전체 질문 */}
+              <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+                <div style={{ padding: '12px 16px', background: cardColors[1].bg, color: 'white' }}>
+                  <div style={{ fontSize: 13, fontWeight: 500 }}>💬 전체 질문</div>
+                </div>
+                <div style={{ padding: 16, background: 'white' }}>
+                  <div style={{ fontSize: 32, fontWeight: 700, color: cardColors[1].accent }}>{stats.systemInfo.totalQuestions}개</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 캐시 관리 */}
+            <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+              <div style={{
+                padding: '16px 24px',
+                background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+                color: 'white'
+              }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>💾 캐시 관리</h3>
+              </div>
+              <div style={{ padding: 24, background: 'white' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                  {/* 조언 캐시 */}
+                  <div style={{
+                    padding: 20,
+                    borderRadius: 12,
+                    border: '2px solid #F59E0B',
+                    background: '#FEF3C7',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#92400E' }}>💡 조언 캐시</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: '#F59E0B', marginTop: 4 }}>{stats.cacheStats.adviceCache}개</div>
                     </div>
+                    <button
+                      onClick={() => clearCache('advice')}
+                      style={{
+                        padding: '10px 16px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: 'white',
+                        background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🗑️ 삭제
+                    </button>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow border">
-                    <div className="flex items-center">
-                      <span className="text-2xl mr-3">🔒</span>
-                      <div>
-                        <p className="text-sm text-gray-600">관리자</p>
-                        <p className="text-xl font-semibold">{stats.systemInfo.adminUsers}명</p>
-                      </div>
+                  {/* 가상증빙 캐시 */}
+                  <div style={{
+                    padding: 20,
+                    borderRadius: 12,
+                    border: '2px solid #8B5CF6',
+                    background: '#EDE9FE',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#5B21B6' }}>📄 가상증빙 캐시</div>
+                      <div style={{ fontSize: 28, fontWeight: 700, color: '#8B5CF6', marginTop: 4 }}>{stats.cacheStats.virtualEvidenceCache}개</div>
                     </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow border">
-                    <div className="flex items-center">
-                      <span className="text-2xl mr-3">💬</span>
-                      <div>
-                        <p className="text-sm text-gray-600">전체 질문</p>
-                        <p className="text-xl font-semibold">{stats.systemInfo.totalQuestions}개</p>
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => clearCache('virtual-evidence')}
+                      style={{
+                        padding: '10px 16px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: 'white',
+                        background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      🗑️ 삭제
+                    </button>
                   </div>
                 </div>
               </div>
+            </div>
 
-              {/* 캐시 관리 */}
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 mb-4">캐시 관리</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-white p-4 rounded-lg shadow border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="text-2xl mr-3">💡</span>
-                        <div>
-                          <p className="text-sm text-gray-600">조언 캐시</p>
-                          <p className="text-xl font-semibold">{stats.cacheStats.adviceCache}개</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => clearCache('advice')}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                      >
-                        캐시 삭제
-                      </button>
-                    </div>
-                  </div>
-                  <div className="bg-white p-4 rounded-lg shadow border">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <span className="text-2xl mr-3">📄</span>
-                        <div>
-                          <p className="text-sm text-gray-600">가상증빙 캐시</p>
-                          <p className="text-xl font-semibold">{stats.cacheStats.virtualEvidenceCache}개</p>
-                        </div>
-                      </div>
-                      <button
-                        onClick={() => clearCache('virtual-evidence')}
-                        className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded text-sm"
-                      >
-                        캐시 삭제
-                      </button>
-                    </div>
-                  </div>
-                </div>
+            {/* 사용자 활동 */}
+            <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+              <div style={{
+                padding: '16px 24px',
+                background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+                color: 'white'
+              }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>👤 사용자 활동</h3>
               </div>
-
-              {/* 사용자 활동 */}
-              <div>
-                <h2 className="text-lg font-medium text-gray-900 mb-4">사용자 활동</h2>
-                <div className="bg-white shadow overflow-hidden sm:rounded-md">
-                  <ul className="divide-y divide-gray-200">
-                    {stats.userActivity.slice(0, 10).map((userActivity) => (
-                      <li key={userActivity.id}>
-                        <div className="px-4 py-4 sm:px-6">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <div className="flex-shrink-0">
-                                <span className="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-500">
-                                  <span className="text-xs font-medium leading-none text-white">
-                                    {userActivity.name.charAt(0).toUpperCase()}
-                                  </span>
-                                </span>
-                              </div>
-                              <div className="ml-4">
-                                <div className="flex items-center">
-                                  <p className="text-sm font-medium text-gray-900">
-                                    {userActivity.name}
-                                  </p>
-                                  <span className={`ml-2 inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                                    userActivity.role === 'admin' 
-                                      ? 'bg-red-100 text-red-800' 
-                                      : 'bg-gray-100 text-gray-800'
-                                  }`}>
-                                    {userActivity.role === 'admin' ? '관리자' : '사용자'}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-500">{userActivity.email}</p>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <p className="text-sm text-gray-900">
-                                질문: {userActivity.questionsAsked}개
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                답변: {userActivity.questionsAnswered}개
-                              </p>
-                            </div>
+              <div style={{ padding: 24, background: 'white' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 16 }}>
+                  {stats.userActivity.slice(0, 10).map((userActivity, index) => {
+                    const colorScheme = cardColors[index % cardColors.length];
+                    return (
+                      <div key={userActivity.id} style={{
+                        borderRadius: 12,
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                        border: '1px solid #E4E6EB'
+                      }}>
+                        <div style={{
+                          padding: '12px 16px',
+                          background: colorScheme.bg,
+                          color: 'white',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12
+                        }}>
+                          <div style={{
+                            width: 40,
+                            height: 40,
+                            borderRadius: '50%',
+                            background: 'rgba(255,255,255,0.3)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: 16,
+                            fontWeight: 700
+                          }}>
+                            {userActivity.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 15 }}>{userActivity.name}</div>
+                            <div style={{ fontSize: 12, opacity: 0.9 }}>{userActivity.email}</div>
                           </div>
                         </div>
-                      </li>
-                    ))}
-                  </ul>
+                        <div style={{ padding: 16, background: 'white' }}>
+                          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+                            <span style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              padding: '4px 10px',
+                              borderRadius: 20,
+                              fontSize: 12,
+                              fontWeight: 600,
+                              background: userActivity.role === 'admin' 
+                                ? 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)'
+                                : 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+                              color: 'white'
+                            }}>
+                              {userActivity.role === 'admin' ? '🛡️ 관리자' : '👤 사용자'}
+                            </span>
+                          </div>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: '#65676B' }}>
+                            <span>❓ 질문: <strong style={{ color: '#1877F2' }}>{userActivity.questionsAsked}개</strong></span>
+                            <span>✅ 답변: <strong style={{ color: '#42B883' }}>{userActivity.questionsAnswered}개</strong></span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>
-          ) : (
-            <div className="text-center py-12">
-              <p className="text-gray-500">모니터링 데이터를 불러올 수 없습니다.</p>
-            </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div style={{ padding: 48, textAlign: 'center', background: 'white', borderRadius: 16 }}>
+            <p style={{ color: '#65676B' }}>모니터링 데이터를 불러올 수 없습니다.</p>
+          </div>
+        )}
       </div>
     </AdminLayout>
   );

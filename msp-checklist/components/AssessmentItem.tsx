@@ -573,186 +573,316 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   // 하이드레이션 전에는 기본 상태로 렌더링
   if (!isHydrated) {
     return (
-      <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition-all">
+      <div style={{
+        background: 'white',
+        borderRadius: 12,
+        padding: 20,
+        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+        border: '1px solid #E4E6EB',
+        marginBottom: 12
+      }}>
         {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-mono text-sm text-blue-600 font-semibold">
-                {item.id}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {/* Top Row - ID, Tags */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+            <span style={{
+              fontFamily: 'monospace',
+              fontSize: 14,
+              fontWeight: 700,
+              color: '#1877F2',
+              background: '#E7F3FF',
+              padding: '4px 10px',
+              borderRadius: 6
+            }}>
+              {item.id}
+            </span>
+            {item.isMandatory && (
+              <span style={{
+                padding: '4px 10px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: '#DC2626',
+                background: '#FEE2E2',
+                borderRadius: 6
+              }}>
+                필수
               </span>
-              {item.isMandatory && (
-                <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded">
-                  필수
-                </span>
-              )}
-            </div>
-            <h4 className="text-base font-semibold text-gray-900 mt-1">
-              {item.titleKo || item.title}
-            </h4>
+            )}
           </div>
-          <div className="flex flex-col items-end gap-2">
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#65676B' }}>충족?</label>
+
+          {/* Title */}
+          <h4 style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: '#1C1E21',
+            margin: 0,
+            cursor: 'pointer'
+          }}>
+            {item.titleKo || item.title}
+          </h4>
+
+          {/* Met Status Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 16,
+            padding: '12px 0',
+            borderTop: '1px solid #E4E6EB'
+          }}>
+            <span style={{ fontSize: 14, fontWeight: 600, color: '#65676B' }}>충족?</span>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => handleMetChange(true)}
                 style={{
-                  minWidth: 70,
-                  padding: '10px 16px',
+                  minWidth: 60,
+                  padding: '8px 16px',
                   fontSize: 14,
                   fontWeight: 600,
                   borderRadius: 8,
-                  border: item.met === true ? 'none' : '2px solid #E4E6EB',
+                  border: item.met === true ? 'none' : '2px solid #D1D5DB',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: item.met === true ? 'linear-gradient(135deg, #42B883 0%, #2E7D32 100%)' : 'white',
-                  color: item.met === true ? 'white' : '#1C1E21',
-                  boxShadow: item.met === true ? '0 2px 8px rgba(66, 184, 131, 0.4)' : 'none'
+                  background: item.met === true ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : '#F9FAFB',
+                  color: item.met === true ? 'white' : '#374151',
+                  boxShadow: item.met === true ? '0 2px 8px rgba(16, 185, 129, 0.4)' : 'none'
                 }}
               >
-                예
+                ✓ 예
               </button>
               <button
                 onClick={() => handleMetChange(false)}
                 style={{
                   minWidth: 70,
-                  padding: '10px 16px',
+                  padding: '8px 16px',
                   fontSize: 14,
                   fontWeight: 600,
                   borderRadius: 8,
-                  border: item.met === false ? 'none' : '2px solid #E4E6EB',
+                  border: item.met === false ? 'none' : '2px solid #D1D5DB',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : 'white',
-                  color: item.met === false ? 'white' : '#1C1E21',
+                  background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : '#F9FAFB',
+                  color: item.met === false ? 'white' : '#374151',
                   boxShadow: item.met === false ? '0 2px 8px rgba(239, 68, 68, 0.4)' : 'none'
                 }}
               >
-                아니오
+                ✗ 아니오
               </button>
               <button
                 onClick={() => handleMetChange(null)}
                 style={{
-                  minWidth: 90,
-                  padding: '10px 16px',
+                  minWidth: 80,
+                  padding: '8px 16px',
                   fontSize: 14,
                   fontWeight: 600,
                   borderRadius: 8,
-                  border: item.met === null ? 'none' : '2px solid #E4E6EB',
+                  border: item.met === null ? 'none' : '2px solid #D1D5DB',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
-                  background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'white',
-                  color: item.met === null ? 'white' : '#1C1E21',
+                  background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : '#F9FAFB',
+                  color: item.met === null ? 'white' : '#374151',
                   boxShadow: item.met === null ? '0 2px 8px rgba(107, 114, 128, 0.4)' : 'none'
                 }}
               >
-                해당없음
+                — 해당없음
               </button>
             </div>
           </div>
         </div>
+
+        {/* Expand/Collapse Button */}
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="mt-2 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
+          style={{
+            width: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 8,
+            fontSize: 14,
+            fontWeight: 600,
+            color: 'white',
+            background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+            border: 'none',
+            padding: '12px 20px',
+            borderRadius: 10,
+            cursor: 'pointer',
+            marginTop: 12,
+            boxShadow: '0 4px 12px rgba(24, 119, 242, 0.3)',
+            transition: 'all 0.2s'
+          }}
         >
-          ▼ 세부사항 펼치기
+          📋 세부사항 펼치기 ▼
         </button>
       </div>
     );
   }
 
   return (
-    <div className="border border-gray-200 rounded-lg p-4 hover:border-blue-400 transition-all">
+    <div style={{
+      background: 'white',
+      borderRadius: 12,
+      padding: 20,
+      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+      border: '1px solid #E4E6EB',
+      marginBottom: 12
+    }}>
       {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-sm text-blue-600 font-semibold">
-              {item.id}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+        {/* Top Row - ID, Tags, Language Toggle */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{
+            fontFamily: 'monospace',
+            fontSize: 14,
+            fontWeight: 700,
+            color: '#1877F2',
+            background: '#E7F3FF',
+            padding: '4px 10px',
+            borderRadius: 6
+          }}>
+            {item.id}
+          </span>
+          {item.isMandatory && (
+            <span style={{
+              padding: '4px 10px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#DC2626',
+              background: '#FEE2E2',
+              borderRadius: 6
+            }}>
+              {t('assessmentDashboard.mandatory')}
             </span>
-            {item.isMandatory && (
-              <span className="px-2 py-0.5 text-xs font-semibold text-red-600 bg-red-50 rounded">
-                {t('assessmentDashboard.mandatory')}
-              </span>
-            )}
-            {/* 개별 언어 토글 버튼 */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleItemLanguage();
-              }}
-              className="px-2 py-0.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 rounded-full transition-colors"
-              title={t('assessmentItem.languageToggle')}
-            >
-              {itemLanguage === 'ko' ? t('assessmentItem.switchToEnglish') : t('assessmentItem.switchToKorean')}
-            </button>
-          </div>
-          <h4 className="text-base font-semibold text-gray-900 mt-1">
-            {itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title}
-          </h4>
+          )}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleItemLanguage();
+            }}
+            style={{
+              padding: '4px 10px',
+              fontSize: 12,
+              fontWeight: 600,
+              color: '#8B5CF6',
+              background: '#EDE9FE',
+              borderRadius: 6,
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {itemLanguage === 'ko' ? '🇺🇸 English' : '🇰🇷 한국어'}
+          </button>
         </div>
 
-        {/* Met Status */}
-        <div className="flex flex-col items-end gap-2">
-          <label style={{ fontSize: 13, fontWeight: 600, color: '#65676B' }}>{t('assessmentItem.met')}?</label>
+        {/* Title */}
+        <h4 
+          onClick={() => setIsExpanded(!isExpanded)}
+          style={{
+            fontSize: 16,
+            fontWeight: 600,
+            color: '#1C1E21',
+            margin: 0,
+            cursor: 'pointer'
+          }}
+        >
+          {itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title}
+        </h4>
+
+        {/* Met Status Buttons */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          gap: 16,
+          padding: '12px 0',
+          borderTop: '1px solid #E4E6EB'
+        }}>
+          <span style={{ fontSize: 14, fontWeight: 600, color: '#65676B' }}>{t('assessmentItem.met')}?</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => handleMetChange(true)}
               style={{
-                minWidth: 70,
-                padding: '10px 16px',
+                minWidth: 60,
+                padding: '8px 16px',
                 fontSize: 14,
                 fontWeight: 600,
                 borderRadius: 8,
-                border: item.met === true ? 'none' : '2px solid #E4E6EB',
+                border: item.met === true ? 'none' : '2px solid #D1D5DB',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                background: item.met === true ? 'linear-gradient(135deg, #42B883 0%, #2E7D32 100%)' : 'white',
-                color: item.met === true ? 'white' : '#1C1E21',
-                boxShadow: item.met === true ? '0 2px 8px rgba(66, 184, 131, 0.4)' : 'none'
+                background: item.met === true ? 'linear-gradient(135deg, #10B981 0%, #059669 100%)' : '#F9FAFB',
+                color: item.met === true ? 'white' : '#374151',
+                boxShadow: item.met === true ? '0 2px 8px rgba(16, 185, 129, 0.4)' : 'none'
               }}
             >
-              {t('assessmentItem.yes')}
+              ✓ {t('assessmentItem.yes')}
             </button>
             <button
               onClick={() => handleMetChange(false)}
               style={{
                 minWidth: 70,
-                padding: '10px 16px',
+                padding: '8px 16px',
                 fontSize: 14,
                 fontWeight: 600,
                 borderRadius: 8,
-                border: item.met === false ? 'none' : '2px solid #E4E6EB',
+                border: item.met === false ? 'none' : '2px solid #D1D5DB',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : 'white',
-                color: item.met === false ? 'white' : '#1C1E21',
+                background: item.met === false ? 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)' : '#F9FAFB',
+                color: item.met === false ? 'white' : '#374151',
                 boxShadow: item.met === false ? '0 2px 8px rgba(239, 68, 68, 0.4)' : 'none'
               }}
             >
-              {t('assessmentItem.no')}
+              ✗ {t('assessmentItem.no')}
             </button>
             <button
               onClick={() => handleMetChange(null)}
               style={{
-                minWidth: 90,
-                padding: '10px 16px',
+                minWidth: 80,
+                padding: '8px 16px',
                 fontSize: 14,
                 fontWeight: 600,
                 borderRadius: 8,
-                border: item.met === null ? 'none' : '2px solid #E4E6EB',
+                border: item.met === null ? 'none' : '2px solid #D1D5DB',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : 'white',
-                color: item.met === null ? 'white' : '#1C1E21',
+                background: item.met === null ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' : '#F9FAFB',
+                color: item.met === null ? 'white' : '#374151',
                 boxShadow: item.met === null ? '0 2px 8px rgba(107, 114, 128, 0.4)' : 'none'
               }}
             >
-              {t('assessmentItem.na')}
+              — {t('assessmentItem.na')}
             </button>
           </div>
         </div>
       </div>
+
+      {/* Expand/Collapse Button */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        style={{
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 8,
+          fontSize: 14,
+          fontWeight: 600,
+          color: 'white',
+          background: isExpanded 
+            ? 'linear-gradient(135deg, #6B7280 0%, #4B5563 100%)' 
+            : 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+          border: 'none',
+          padding: '12px 20px',
+          borderRadius: 10,
+          cursor: 'pointer',
+          marginTop: 12,
+          boxShadow: isExpanded 
+            ? '0 4px 12px rgba(107, 114, 128, 0.3)' 
+            : '0 4px 12px rgba(24, 119, 242, 0.3)',
+          transition: 'all 0.2s'
+        }}
+      >
+        {isExpanded ? '📋 세부사항 접기 ▲' : '📋 세부사항 펼치기 ▼'}
+      </button>
 
       {/* Expanded Content */}
       {isExpanded && (
@@ -1422,14 +1552,6 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           </div>
         </div>
       )}
-
-      {/* Expand/Collapse Indicator */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="mt-2 w-full text-center text-sm text-blue-600 hover:text-blue-800 font-medium"
-      >
-        {isExpanded ? `▲ ${t('assessmentItem.collapse')}` : `▼ ${t('assessmentItem.expandDetails')}`}
-      </button>
 
       {/* PDF Text Edit Modal */}
       {editingPdfText && (

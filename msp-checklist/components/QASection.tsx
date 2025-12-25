@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
-import { isValidItemId } from '@/lib/assessment-validator';
 
 interface QAItem {
   id: number;
@@ -37,16 +36,11 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
   const [newAnswer, setNewAnswer] = useState('');
   const [submittingAnswer, setSubmittingAnswer] = useState(false);
   const [error, setError] = useState<string>('');
-  const [isValidItem, setIsValidItem] = useState<boolean>(true);
 
-  // Validate itemId on component mount
+  // Load questions on component mount
   useEffect(() => {
-    const valid = isValidItemId(itemId, assessmentType);
-    setIsValidItem(valid);
-    if (!valid) {
-      console.warn(`Invalid itemId '${itemId}' for assessment type '${assessmentType}'`);
-      setError(`Invalid assessment item: ${itemId}`);
-    }
+    setError(''); // 컴포넌트 마운트 시 에러 초기화
+    loadQuestions();
   }, [itemId, assessmentType]);
 
   // File handling functions
@@ -80,33 +74,24 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Load questions on component mount
-  useEffect(() => {
-    loadQuestions();
-  }, [itemId, assessmentType]);
-
   const loadQuestions = async () => {
-    // Don't load questions for invalid items
-    if (!isValidItem) {
-      setLoading(false);
-      return;
-    }
-
     try {
       setLoading(true);
-      const response = await fetch(`/api/qa?itemId=${itemId}&assessmentType=${assessmentType}`);
+      setError(''); // 로딩 시작 시 에러 클리어
+      const url = `/api/qa?itemId=${encodeURIComponent(itemId)}&assessmentType=${assessmentType}`;
+      const response = await fetch(url);
       
       if (response.ok) {
         const data = await response.json();
-        setQuestions(data.questions);
-        setError(''); // Clear any previous errors
+        setQuestions(data.questions || []);
+        setError(''); // 성공 시 에러 클리어
       } else {
         const errorData = await response.json();
-        console.error('Failed to load questions:', errorData);
+        console.error('[QASection] Failed to load questions:', errorData);
         setError(errorData.error || 'Failed to load questions');
       }
     } catch (error) {
-      console.error('Error loading questions:', error);
+      console.error('[QASection] Error loading questions:', error);
       setError('An error occurred while loading questions');
     } finally {
       setLoading(false);
@@ -114,7 +99,7 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
   };
 
   const submitQuestion = async () => {
-    if (!newQuestion.trim() || !user || !isValidItem) return;
+    if (!newQuestion.trim() || !user) return;
 
     try {
       setSubmittingQuestion(true);
@@ -235,28 +220,6 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
     );
   }
 
-  // Show warning for invalid items
-  if (!isValidItem) {
-    return (
-      <div className="border border-yellow-200 bg-yellow-50 rounded-lg p-4">
-        <div className="flex items-center">
-          <span className="text-yellow-600 text-lg mr-2">⚠️</span>
-          <div>
-            <h5 className="text-sm font-semibold text-yellow-800">
-              {language === 'ko' ? '유효하지 않은 평가 항목' : 'Invalid Assessment Item'}
-            </h5>
-            <p className="text-xs text-yellow-700 mt-1">
-              {language === 'ko' 
-                ? `항목 ID '${itemId}'는 ${assessmentType} 평가에 존재하지 않습니다.`
-                : `Item ID '${itemId}' does not exist in ${assessmentType} assessment.`
-              }
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div style={{ padding: 16 }}>
       <div className="flex items-center justify-between mb-4">
@@ -265,43 +228,45 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
         </span>
       </div>
 
-      {/* Error Display */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-          <div className="text-sm text-red-800">{error}</div>
-          <button
-            onClick={() => setError('')}
-            className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
-          >
-            {language === 'ko' ? '닫기' : 'Close'}
-          </button>
-        </div>
-      )}
-
       {/* Question Form Toggle Button */}
-      {user && isValidItem && !showQuestionForm && (
-        <div className="mb-6 text-center">
+      {user && !showQuestionForm && (
+        <div style={{ marginBottom: 24, textAlign: 'center' }}>
           <button
             onClick={() => setShowQuestionForm(true)}
-            className="inline-flex items-center px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg transform hover:scale-105"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 24px',
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'white',
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+              border: 'none',
+              borderRadius: 10,
+              cursor: 'pointer',
+              boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+              transition: 'all 0.2s'
+            }}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            {language === 'ko' ? '질문하기' : 'Ask Question'}
+            ❓ {language === 'ko' ? '질문하기' : 'Ask Question'}
           </button>
         </div>
       )}
 
       {/* New Question Form */}
-      {user && isValidItem && showQuestionForm && (
-        <div className="mb-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-blue-900 flex items-center">
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {t('qa.askQuestion')}
+      {user && showQuestionForm && (
+        <div style={{
+          marginBottom: 24,
+          padding: 24,
+          background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+          border: '2px solid #F59E0B',
+          borderRadius: 16,
+          boxShadow: '0 4px 12px rgba(245, 158, 11, 0.2)'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+            <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+              ❓ {t('qa.askQuestion')}
             </h3>
             <button
               onClick={() => {
@@ -309,109 +274,184 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
                 setNewQuestion('');
                 setAttachedFiles([]);
               }}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
+              style={{
+                background: 'rgba(146, 64, 14, 0.1)',
+                border: 'none',
+                borderRadius: 8,
+                padding: '8px 12px',
+                cursor: 'pointer',
+                color: '#92400E',
+                fontSize: 16,
+                fontWeight: 600
+              }}
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
+              ✕ 닫기
             </button>
           </div>
-          <div className="mb-4">
+          
+          {/* 질문 입력 텍스트 영역 */}
+          <div style={{ marginBottom: 20 }}>
             <textarea
               value={newQuestion}
               onChange={(e) => setNewQuestion(e.target.value)}
-              className="w-full min-h-[160px] p-4 border-2 border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-y text-sm leading-relaxed bg-white shadow-sm"
+              style={{
+                width: '100%',
+                minHeight: 200,
+                padding: 16,
+                fontSize: 15,
+                lineHeight: 1.6,
+                border: '2px solid #F59E0B',
+                borderRadius: 12,
+                resize: 'vertical',
+                background: 'white',
+                color: '#1C1E21',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
               placeholder={t('qa.questionPlaceholder')}
             />
           </div>
 
           {/* 파일 첨부 섹션 */}
-          <div className="mb-4">
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-sm font-medium text-blue-900">
-                {language === 'ko' ? '파일 첨부 (선택사항)' : 'File Attachments (Optional)'}
+          <div style={{ marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+              <label style={{ fontSize: 14, fontWeight: 600, color: '#92400E' }}>
+                📎 {language === 'ko' ? '파일 첨부 (선택사항)' : 'File Attachments (Optional)'}
               </label>
-              <span className="text-xs text-gray-500">
+              <span style={{ fontSize: 12, color: '#B45309' }}>
                 {language === 'ko' ? '최대 10MB, 여러 파일 가능' : 'Max 10MB, multiple files allowed'}
               </span>
             </div>
             
             {/* 파일 선택 버튼 */}
-            <div className="relative">
+            <div>
               <input
                 type="file"
                 multiple
                 onChange={handleFileSelect}
-                className="hidden"
+                style={{ display: 'none' }}
                 id="file-upload"
                 accept=".pdf,.doc,.docx,.txt,.png,.jpg,.jpeg,.gif,.zip,.rar"
               />
               <label
                 htmlFor="file-upload"
-                className="inline-flex items-center px-4 py-2 border-2 border-dashed border-blue-300 rounded-lg text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 cursor-pointer transition-all duration-200"
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 8,
+                  padding: '10px 16px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#92400E',
+                  background: 'white',
+                  border: '2px dashed #F59E0B',
+                  borderRadius: 10,
+                  cursor: 'pointer'
+                }}
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                </svg>
-                {language === 'ko' ? '파일 선택' : 'Choose Files'}
+                📁 {language === 'ko' ? '파일 선택' : 'Choose Files'}
               </label>
+              <span style={{ marginLeft: 12, fontSize: 13, color: '#B45309' }}>
+                {attachedFiles.length > 0 
+                  ? `${attachedFiles.length}개 파일 선택됨` 
+                  : '선택된 파일 없음'}
+              </span>
             </div>
 
             {/* 첨부된 파일 목록 */}
             {attachedFiles.length > 0 && (
-              <div className="mt-3 space-y-2">
-                <p className="text-xs font-medium text-gray-700">
-                  {language === 'ko' ? '첨부된 파일:' : 'Attached Files:'}
-                </p>
+              <div style={{ marginTop: 12 }}>
                 {attachedFiles.map((file, index) => (
-                  <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border">
-                    <div className="flex items-center space-x-2 flex-1 min-w-0">
-                      <svg className="w-4 h-4 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                      </svg>
-                      <span className="text-sm text-gray-700 truncate">{file.name}</span>
-                      <span className="text-xs text-gray-500 flex-shrink-0">({formatFileSize(file.size)})</span>
+                  <div key={index} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '8px 12px',
+                    background: 'white',
+                    borderRadius: 8,
+                    marginBottom: 8,
+                    border: '1px solid #FCD34D'
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span>📄</span>
+                      <span style={{ fontSize: 13, color: '#1C1E21' }}>{file.name}</span>
+                      <span style={{ fontSize: 11, color: '#6B7280' }}>({formatFileSize(file.size)})</span>
                     </div>
                     <button
                       onClick={() => removeFile(index)}
-                      className="ml-2 p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
-                      title={language === 'ko' ? '파일 제거' : 'Remove file'}
+                      style={{
+                        background: '#FEE2E2',
+                        border: 'none',
+                        borderRadius: 6,
+                        padding: '4px 8px',
+                        cursor: 'pointer',
+                        color: '#DC2626',
+                        fontSize: 12
+                      }}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
+                      ✕ 제거
                     </button>
                   </div>
                 ))}
               </div>
             )}
           </div>
-          <div className="flex justify-between items-center">
-            <p className="text-xs text-blue-700">
-              {language === 'ko' 
+
+          {/* 안내 메시지 및 버튼 */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            paddingTop: 16,
+            borderTop: '1px solid #FCD34D'
+          }}>
+            <p style={{ fontSize: 13, color: '#92400E', margin: 0, maxWidth: '60%' }}>
+              💡 {language === 'ko' 
                 ? '관리자가 답변을 제공할 예정입니다. 구체적이고 명확한 질문을 작성해주세요.' 
                 : 'Administrators will provide answers. Please write specific and clear questions.'}
             </p>
-            <div className="flex space-x-3">
+            <div style={{ display: 'flex', gap: 12 }}>
               <button
                 onClick={() => {
                   setShowQuestionForm(false);
                   setNewQuestion('');
                   setAttachedFiles([]);
                 }}
-                className="px-4 py-2 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                style={{
+                  padding: '12px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#92400E',
+                  background: 'white',
+                  border: '2px solid #F59E0B',
+                  borderRadius: 10,
+                  cursor: 'pointer'
+                }}
               >
-                {language === 'ko' ? '취소' : 'Cancel'}
+                취소
               </button>
               <button
                 onClick={submitQuestion}
-                disabled={!newQuestion.trim() || submittingQuestion || !isValidItem}
-                className="px-6 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-all duration-200 shadow-md hover:shadow-lg"
+                disabled={!newQuestion.trim() || submittingQuestion}
+                style={{
+                  padding: '12px 24px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white',
+                  background: !newQuestion.trim() || submittingQuestion 
+                    ? '#D1D5DB' 
+                    : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  border: 'none',
+                  borderRadius: 10,
+                  cursor: !newQuestion.trim() || submittingQuestion ? 'not-allowed' : 'pointer',
+                  boxShadow: !newQuestion.trim() || submittingQuestion 
+                    ? 'none' 
+                    : '0 4px 12px rgba(245, 158, 11, 0.3)'
+                }}
               >
-                {submittingQuestion ? 
-                  (language === 'ko' ? '등록 중...' : 'Submitting...') : 
-                  t('qa.submitQuestion')
-                }
+                {submittingQuestion 
+                  ? (language === 'ko' ? '등록 중...' : 'Submitting...') 
+                  : (language === 'ko' ? '질문 등록' : 'Submit Question')}
               </button>
             </div>
           </div>

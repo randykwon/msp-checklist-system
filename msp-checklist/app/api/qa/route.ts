@@ -1,13 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createQuestion, answerQuestion, getQuestionsForItem, deleteQuestion } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
-import { isValidItemId } from '@/lib/assessment-validator';
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const itemId = searchParams.get('itemId');
     const assessmentType = searchParams.get('assessmentType') as 'prerequisites' | 'technical';
+
+    console.log('[QA API] GET request:', { itemId, assessmentType });
 
     if (!itemId || !assessmentType) {
       return NextResponse.json(
@@ -16,19 +17,12 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Validate itemId against assessment data
-    if (!isValidItemId(itemId, assessmentType)) {
-      return NextResponse.json(
-        { error: `Invalid itemId '${itemId}' for assessment type '${assessmentType}'` },
-        { status: 400 }
-      );
-    }
-
     const questions = getQuestionsForItem(itemId, assessmentType);
+    console.log('[QA API] Questions found:', questions.length);
     return NextResponse.json({ questions });
 
   } catch (error) {
-    console.error('Error fetching Q&A:', error);
+    console.error('[QA API] Error fetching Q&A:', error);
     return NextResponse.json(
       { error: 'Failed to fetch Q&A' },
       { status: 500 }
@@ -75,14 +69,6 @@ export async function POST(request: NextRequest) {
       if (!itemId || !assessmentType || !question) {
         return NextResponse.json(
           { error: 'itemId, assessmentType, and question are required' },
-          { status: 400 }
-        );
-      }
-
-      // Validate itemId against assessment data
-      if (!isValidItemId(itemId, assessmentType)) {
-        return NextResponse.json(
-          { error: `Invalid itemId '${itemId}' for assessment type '${assessmentType}'. Please ensure the item exists in the assessment data.` },
           { status: 400 }
         );
       }
