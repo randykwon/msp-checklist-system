@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { verifyToken } from '@/lib/auth';
-import { updateUserPassword, getUserById } from '@/lib/db';
 import bcrypt from 'bcryptjs';
+import { verifyToken } from '@/lib/auth';
+import { updateUserPassword } from '@/lib/db';
 
-export async function PUT(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('admin_auth_token')?.value;
     
@@ -19,38 +19,19 @@ export async function PUT(request: NextRequest) {
     const { userId, newPassword } = await request.json();
 
     if (!userId || !newPassword) {
-      return NextResponse.json(
-        { error: 'userId and newPassword are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'userId and newPassword are required' }, { status: 400 });
     }
 
-    // Validate password strength
-    if (newPassword.length < 8) {
-      return NextResponse.json(
-        { error: 'Password must be at least 8 characters long' },
-        { status: 400 }
-      );
+    if (newPassword.length < 6) {
+      return NextResponse.json({ error: '비밀번호는 최소 6자 이상이어야 합니다.' }, { status: 400 });
     }
 
-    // Check if user exists
-    const targetUser = getUserById(userId);
-    if (!targetUser) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
-    }
-
-    // Hash the new password
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-    // Update the password
     updateUserPassword(userId, hashedPassword);
 
-    return NextResponse.json({
-      message: 'Password reset successfully',
-      userEmail: targetUser.email
+    return NextResponse.json({ 
+      message: '비밀번호가 재설정되었습니다.',
+      userId
     });
 
   } catch (error: any) {

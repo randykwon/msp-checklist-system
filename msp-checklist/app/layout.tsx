@@ -3,6 +3,7 @@ import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { AdviceProvider } from "@/contexts/AdviceContext";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 // 동적 렌더링 강제
 export const dynamic = 'force-dynamic';
@@ -21,13 +22,15 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body className="antialiased">
-        <LanguageProvider>
-          <AdviceProvider>
-            <AuthProvider>
-              {children}
-            </AuthProvider>
-          </AdviceProvider>
-        </LanguageProvider>
+        <ThemeProvider>
+          <LanguageProvider>
+            <AdviceProvider>
+              <AuthProvider>
+                {children}
+              </AuthProvider>
+            </AdviceProvider>
+          </LanguageProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -2,6 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { mspChecklistData } from '@/data/msp-checklist-data';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -11,11 +12,18 @@ import MSPPartnerJourneyModal from './MSPPartnerJourneyModal';
 import MSPProgramInfoModal from './MSPProgramInfoModal';
 
 export default function Header() {
-  const { user, logout, deleteAccount } = useAuth();
+  const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [passwordSuccess, setPasswordSuccess] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [showProgramInfoModal, setShowProgramInfoModal] = useState(false);
   const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [activeVersion, setActiveVersion] = useState<any>(null);
@@ -195,12 +203,51 @@ export default function Header() {
     }
   };
 
-  const handleDeleteAccount = async () => {
+  const handleChangePassword = async () => {
+    setPasswordError('');
+    setPasswordSuccess('');
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError(language === 'ko' ? '모든 필드를 입력해주세요.' : 'Please fill in all fields.');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordError(language === 'ko' ? '새 비밀번호가 일치하지 않습니다.' : 'New passwords do not match.');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      setPasswordError(language === 'ko' ? '비밀번호는 최소 6자 이상이어야 합니다.' : 'Password must be at least 6 characters.');
+      return;
+    }
+
+    setIsChangingPassword(true);
     try {
-      await deleteAccount();
-      router.push('/register');
+      const response = await fetch('/api/auth/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ currentPassword, newPassword })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setPasswordSuccess(language === 'ko' ? '비밀번호가 성공적으로 변경되었습니다.' : 'Password changed successfully.');
+        setCurrentPassword('');
+        setNewPassword('');
+        setConfirmPassword('');
+        setTimeout(() => {
+          setShowPasswordModal(false);
+          setPasswordSuccess('');
+        }, 2000);
+      } else {
+        setPasswordError(data.error || (language === 'ko' ? '비밀번호 변경에 실패했습니다.' : 'Failed to change password.'));
+      }
     } catch (error) {
-      console.error('Delete account failed:', error);
+      setPasswordError(language === 'ko' ? '비밀번호 변경에 실패했습니다.' : 'Failed to change password.');
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -283,8 +330,47 @@ export default function Header() {
         </div>
       </div>
 
-      {/* Right Section - Language & User Menu */}
+      {/* Right Section - Theme, Language & User Menu */}
       <div className="fb-header-right">
+        {/* Theme Toggle */}
+        <button
+          onClick={toggleTheme}
+          className="fb-header-theme-btn"
+          title={theme === 'light' ? (language === 'ko' ? '야간 모드' : 'Dark Mode') : (language === 'ko' ? '주간 모드' : 'Light Mode')}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            border: 'none',
+            background: theme === 'light' ? '#E4E6EB' : '#3A3B3C',
+            color: theme === 'light' ? '#050505' : '#E4E6EB',
+            cursor: 'pointer',
+            transition: 'all 0.3s ease',
+            marginRight: '12px'
+          }}
+        >
+          {theme === 'light' ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+            </svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          )}
+        </button>
+
         {/* Language Switcher */}
         <div className="fb-header-lang">
           <button
@@ -330,42 +416,101 @@ export default function Header() {
               <button
                 onClick={() => {
                   setShowMenu(false);
-                  setShowDeleteConfirm(true);
+                  setShowPasswordModal(true);
+                  setPasswordError('');
+                  setPasswordSuccess('');
                 }}
-                className="fb-header-dropdown-item fb-header-dropdown-item-danger"
+                className="fb-header-dropdown-item"
               >
                 <svg className="fb-header-dropdown-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
                 </svg>
-                {t('header.deleteAccount')}
+                {language === 'ko' ? '비밀번호 변경' : 'Change Password'}
               </button>
             </div>
           )}
         </div>
       </div>
 
-      {/* Delete Account Confirmation Modal */}
-      {showDeleteConfirm && (
+      {/* Password Change Modal */}
+      {showPasswordModal && (
         <div className="fb-modal-overlay">
-          <div className="fb-modal fb-modal-confirm">
-            <div className="fb-modal-body">
-              <div className="fb-modal-confirm-icon fb-modal-confirm-icon-danger">
-                ⚠️
-              </div>
-              <h3 className="fb-modal-confirm-title">
-                {t('delete.title')}
-              </h3>
-              <p className="fb-modal-confirm-message">
-                {t('delete.message')}
-              </p>
+          <div className="fb-modal" style={{ maxWidth: '420px' }}>
+            <div className="fb-modal-header" style={{ background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', color: 'white', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 700 }}>🔑 {language === 'ko' ? '비밀번호 변경' : 'Change Password'}</h3>
+              <button 
+                onClick={() => { setShowPasswordModal(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setPasswordSuccess(''); }}
+                style={{ width: '28px', height: '28px', background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', fontSize: '16px', cursor: 'pointer' }}
+              >×</button>
             </div>
-            <div className="fb-modal-footer" style={{ justifyContent: 'center' }}>
-              <button onClick={() => setShowDeleteConfirm(false)} className="fb-btn fb-btn-secondary">
-                {t('delete.cancel')}
-              </button>
-              <button onClick={handleDeleteAccount} className="fb-btn fb-btn-danger">
-                {t('delete.confirm')}
-              </button>
+            <div className="fb-modal-body" style={{ padding: '20px' }}>
+              {passwordError && (
+                <div style={{ padding: '10px 14px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '8px', marginBottom: '16px', color: '#B91C1C', fontSize: '14px' }}>
+                  ❌ {passwordError}
+                </div>
+              )}
+              {passwordSuccess && (
+                <div style={{ padding: '10px 14px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: '8px', marginBottom: '16px', color: '#047857', fontSize: '14px' }}>
+                  ✅ {passwordSuccess}
+                </div>
+              )}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
+                  {language === 'ko' ? '현재 비밀번호' : 'Current Password'}
+                </label>
+                <input 
+                  type="password" 
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  placeholder={language === 'ko' ? '현재 비밀번호 입력' : 'Enter current password'}
+                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #E4E6EB', borderRadius: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
+                  {language === 'ko' ? '새 비밀번호' : 'New Password'}
+                </label>
+                <input 
+                  type="password" 
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  placeholder={language === 'ko' ? '최소 6자 이상' : 'At least 6 characters'}
+                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
+                />
+              </div>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
+                  {language === 'ko' ? '새 비밀번호 확인' : 'Confirm New Password'}
+                </label>
+                <input 
+                  type="password" 
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder={language === 'ko' ? '비밀번호 다시 입력' : 'Re-enter new password'}
+                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
+                />
+                {confirmPassword && newPassword !== confirmPassword && (
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#EF4444' }}>❌ {language === 'ko' ? '비밀번호가 일치하지 않습니다' : 'Passwords do not match'}</p>
+                )}
+                {confirmPassword && newPassword === confirmPassword && newPassword.length >= 6 && (
+                  <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#42B883' }}>✅ {language === 'ko' ? '비밀번호가 일치합니다' : 'Passwords match'}</p>
+                )}
+              </div>
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <button 
+                  onClick={() => { setShowPasswordModal(false); setCurrentPassword(''); setNewPassword(''); setConfirmPassword(''); setPasswordError(''); setPasswordSuccess(''); }}
+                  style={{ flex: 1, padding: '10px 16px', fontSize: '14px', fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: '8px', cursor: 'pointer' }}
+                >
+                  {language === 'ko' ? '취소' : 'Cancel'}
+                </button>
+                <button 
+                  onClick={handleChangePassword}
+                  disabled={isChangingPassword || !currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6}
+                  style={{ flex: 1, padding: '10px 16px', fontSize: '14px', fontWeight: 600, color: 'white', background: (isChangingPassword || !currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6) ? '#FCD34D' : 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', border: 'none', borderRadius: '8px', cursor: (isChangingPassword || !currentPassword || !newPassword || !confirmPassword || newPassword !== confirmPassword || newPassword.length < 6) ? 'not-allowed' : 'pointer' }}
+                >
+                  {isChangingPassword ? (language === 'ko' ? '변경 중...' : 'Changing...') : (language === 'ko' ? '🔐 변경' : '🔐 Change')}
+                </button>
+              </div>
             </div>
           </div>
         </div>

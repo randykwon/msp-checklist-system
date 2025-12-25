@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
 import { updateUserStatus } from '@/lib/db';
 
-export async function PUT(request: NextRequest) {
+export async function POST(request: NextRequest) {
   try {
     const token = request.cookies.get('admin_auth_token')?.value;
     
@@ -18,30 +18,20 @@ export async function PUT(request: NextRequest) {
     const { userId, status } = await request.json();
 
     if (!userId || !status) {
-      return NextResponse.json(
-        { error: 'userId and status are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'userId and status are required' }, { status: 400 });
     }
 
-    if (!['active', 'suspended', 'inactive'].includes(status)) {
-      return NextResponse.json(
-        { error: 'Invalid status. Must be "active", "suspended", or "inactive"' },
-        { status: 400 }
-      );
-    }
-
-    // 자기 자신의 상태는 변경할 수 없음
-    if (userId === user.userId) {
-      return NextResponse.json(
-        { error: '자신의 상태는 변경할 수 없습니다.' },
-        { status: 400 }
-      );
+    if (!['active', 'inactive', 'suspended'].includes(status)) {
+      return NextResponse.json({ error: 'Invalid status' }, { status: 400 });
     }
 
     updateUserStatus(userId, status);
 
-    return NextResponse.json({ message: 'User status updated successfully' });
+    return NextResponse.json({ 
+      message: '사용자 상태가 변경되었습니다.',
+      userId,
+      status
+    });
 
   } catch (error: any) {
     console.error('Error updating user status:', error);

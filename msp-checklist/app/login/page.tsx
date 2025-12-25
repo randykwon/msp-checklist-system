@@ -5,11 +5,13 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useTheme } from '@/contexts/ThemeContext';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
   const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -62,28 +64,60 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8" style={{ backgroundColor: 'var(--theme-bg)', transition: 'background-color 0.3s ease' }}>
       <div className="max-w-md w-full space-y-8">
         <div>
-          <div className="flex justify-center mb-4">
+          <div className="flex justify-center items-center mb-4 gap-4">
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-full transition-all"
+              style={{
+                backgroundColor: theme === 'light' ? '#E4E6EB' : '#3A3B3C',
+                color: theme === 'light' ? '#050505' : '#E4E6EB'
+              }}
+              title={theme === 'light' ? (language === 'ko' ? '야간 모드' : 'Dark Mode') : (language === 'ko' ? '주간 모드' : 'Light Mode')}
+            >
+              {theme === 'light' ? (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+                </svg>
+              ) : (
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <circle cx="12" cy="12" r="5" />
+                  <line x1="12" y1="1" x2="12" y2="3" />
+                  <line x1="12" y1="21" x2="12" y2="23" />
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+                  <line x1="1" y1="12" x2="3" y2="12" />
+                  <line x1="21" y1="12" x2="23" y2="12" />
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+                </svg>
+              )}
+            </button>
+            
+            {/* Language Switcher */}
             <button
               onClick={() => setLanguage('ko')}
-              className={`px-3 py-1 text-sm ${language === 'ko' ? 'font-bold text-blue-600' : 'text-gray-600'}`}
+              className={`px-3 py-1 text-sm ${language === 'ko' ? 'font-bold text-blue-600' : ''}`}
+              style={{ color: language === 'ko' ? '#1877F2' : 'var(--theme-text-secondary)' }}
             >
               한국어
             </button>
-            <span className="mx-2 text-gray-400">|</span>
+            <span style={{ color: 'var(--theme-text-secondary)' }}>|</span>
             <button
               onClick={() => setLanguage('en')}
-              className={`px-3 py-1 text-sm ${language === 'en' ? 'font-bold text-blue-600' : 'text-gray-600'}`}
+              className={`px-3 py-1 text-sm ${language === 'en' ? 'font-bold text-blue-600' : ''}`}
+              style={{ color: language === 'en' ? '#1877F2' : 'var(--theme-text-secondary)' }}
             >
               English
             </button>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+          <h2 className="mt-6 text-center text-3xl font-extrabold" style={{ color: 'var(--theme-text-primary)' }}>
             {t('auth.login.title')}
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="mt-2 text-center text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
             {t('auth.login.subtitle')}
           </p>
         </div>
@@ -106,7 +140,12 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                className="appearance-none rounded-none relative block w-full px-3 py-2 border rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
+                style={{ 
+                  backgroundColor: 'var(--theme-input-bg)', 
+                  borderColor: 'var(--theme-border)', 
+                  color: 'var(--theme-text-primary)' 
+                }}
                 placeholder={t('auth.login.email')}
                 disabled={loading}
               />

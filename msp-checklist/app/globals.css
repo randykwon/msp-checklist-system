@@ -75,6 +75,54 @@
   --fb-header-height: 56px;
   --fb-sidebar-width: 280px;
   --fb-content-max-width: 680px;
+
+  /* Theme Colors - Light Mode (Default) */
+  --theme-bg: #F0F2F5;
+  --theme-surface: #FFFFFF;
+  --theme-surface-hover: #F5F6F7;
+  --theme-text-primary: #050505;
+  --theme-text-secondary: #65676B;
+  --theme-border: #E4E6EB;
+  --theme-card-bg: #FFFFFF;
+  --theme-input-bg: #F0F2F5;
+  --theme-modal-bg: #FFFFFF;
+  --theme-header-bg: #FFFFFF;
+  --theme-dropdown-bg: #FFFFFF;
+  --theme-shadow: rgba(0, 0, 0, 0.1);
+}
+
+/* ============================================
+   Dark Mode Theme Variables
+   ============================================ */
+[data-theme="dark"] {
+  /* Facebook Dark Mode Colors */
+  --fb-background: #18191A;
+  --fb-surface: #242526;
+  --fb-secondary: #3A3B3C;
+  --fb-secondary-hover: #4E4F50;
+  --fb-text-primary: #E4E6EB;
+  --fb-text-secondary: #B0B3B8;
+  --fb-border: #3E4042;
+  --fb-active-bg: #263951;
+  
+  /* Theme Colors - Dark Mode */
+  --theme-bg: #18191A;
+  --theme-surface: #242526;
+  --theme-surface-hover: #3A3B3C;
+  --theme-text-primary: #E4E6EB;
+  --theme-text-secondary: #B0B3B8;
+  --theme-border: #3E4042;
+  --theme-card-bg: #242526;
+  --theme-input-bg: #3A3B3C;
+  --theme-modal-bg: #242526;
+  --theme-header-bg: #242526;
+  --theme-dropdown-bg: #242526;
+  --theme-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* Dark Mode Shadows */
+  --fb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --fb-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --fb-shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.4);
 }
 
 /* ============================================
@@ -95,6 +143,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.34;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
@@ -6808,4 +6857,337 @@ textarea:focus {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+
+/* ============================================
+   Dark Mode Styles
+   ============================================ */
+
+/* Body Dark Mode */
+[data-theme="dark"] body {
+  background-color: var(--theme-bg);
+  color: var(--theme-text-primary);
+}
+
+/* Header Dark Mode */
+[data-theme="dark"] .fb-header {
+  background-color: var(--theme-header-bg);
+  border-bottom-color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-header-logo-icon {
+  filter: brightness(1.2);
+}
+
+[data-theme="dark"] .fb-header-version {
+  color: var(--theme-text-secondary);
+}
+
+[data-theme="dark"] .fb-header-nav-btn {
+  background-color: var(--fb-secondary);
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] .fb-header-nav-btn:hover {
+  background-color: var(--fb-secondary-hover);
+}
+
+[data-theme="dark"] .fb-header-lang-btn {
+  color: var(--theme-text-secondary);
+}
+
+[data-theme="dark"] .fb-header-lang-btn-active {
+  color: var(--fb-primary);
+}
+
+[data-theme="dark"] .fb-header-lang-divider {
+  color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-header-user-btn {
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] .fb-header-user-avatar {
+  background-color: var(--fb-primary);
+}
+
+[data-theme="dark"] .fb-header-dropdown {
+  background-color: var(--theme-dropdown-bg);
+  border-color: var(--theme-border);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .fb-header-dropdown-header {
+  border-bottom-color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-header-dropdown-name {
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] .fb-header-dropdown-email {
+  color: var(--theme-text-secondary);
+}
+
+[data-theme="dark"] .fb-header-dropdown-item {
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] .fb-header-dropdown-item:hover {
+  background-color: var(--fb-secondary);
+}
+
+[data-theme="dark"] .fb-header-dropdown-divider {
+  background-color: var(--theme-border);
+}
+
+/* Cards Dark Mode */
+[data-theme="dark"] .card,
+[data-theme="dark"] .fb-card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] .stat-card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] .category-card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+/* Form Elements Dark Mode */
+[data-theme="dark"] input,
+[data-theme="dark"] select,
+[data-theme="dark"] textarea {
+  background-color: var(--theme-input-bg);
+  border-color: var(--theme-border);
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+  color: var(--theme-text-secondary);
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] select:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: var(--fb-primary);
+  background-color: var(--theme-surface);
+}
+
+/* Modal Dark Mode */
+[data-theme="dark"] .fb-modal-overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+[data-theme="dark"] .fb-modal {
+  background-color: var(--theme-modal-bg);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-modal-header {
+  border-bottom-color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-modal-footer {
+  border-top-color: var(--theme-border);
+}
+
+/* Button Dark Mode */
+[data-theme="dark"] .fb-btn-secondary {
+  background-color: var(--fb-secondary);
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] .fb-btn-secondary:hover {
+  background-color: var(--fb-secondary-hover);
+}
+
+/* Text Colors Dark Mode */
+[data-theme="dark"] .text-gray-500,
+[data-theme="dark"] .text-gray-600 {
+  color: var(--theme-text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-700,
+[data-theme="dark"] .text-gray-900 {
+  color: var(--theme-text-primary) !important;
+}
+
+/* Progress Bar Dark Mode */
+[data-theme="dark"] .progress-bar {
+  background-color: var(--fb-secondary);
+}
+
+/* Filter Bar Dark Mode */
+[data-theme="dark"] .filter-bar {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+/* Checklist Dark Mode */
+[data-theme="dark"] .checklist-category {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] .checklist-category-header {
+  border-bottom-color: var(--theme-border);
+}
+
+[data-theme="dark"] .checklist-category-header:hover {
+  background-color: var(--theme-surface-hover);
+}
+
+[data-theme="dark"] .checklist-category-content {
+  background-color: var(--theme-surface);
+}
+
+/* Assessment Item Dark Mode */
+[data-theme="dark"] .fb-assessment-item {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] .fb-assessment-item-header {
+  background-color: var(--theme-surface);
+}
+
+[data-theme="dark"] .fb-assessment-item-content {
+  background-color: var(--theme-card-bg);
+}
+
+/* Dashboard Dark Mode */
+[data-theme="dark"] .fb-dashboard-card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+/* Login/Register Page Dark Mode */
+[data-theme="dark"] .fb-auth-container {
+  background-color: var(--theme-bg);
+}
+
+[data-theme="dark"] .fb-auth-card {
+  background-color: var(--theme-card-bg);
+  border-color: var(--theme-border);
+}
+
+/* Table Dark Mode */
+[data-theme="dark"] table {
+  background-color: var(--theme-card-bg);
+}
+
+[data-theme="dark"] th {
+  background-color: var(--theme-surface);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border);
+}
+
+[data-theme="dark"] td {
+  border-color: var(--theme-border);
+  color: var(--theme-text-primary);
+}
+
+[data-theme="dark"] tr:hover {
+  background-color: var(--theme-surface-hover);
+}
+
+/* Scrollbar Dark Mode */
+[data-theme="dark"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-track {
+  background: var(--theme-bg);
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb {
+  background: var(--fb-secondary);
+  border-radius: 4px;
+}
+
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+  background: var(--fb-secondary-hover);
+}
+
+/* Badge Dark Mode */
+[data-theme="dark"] .fb-badge {
+  background-color: var(--fb-secondary);
+  color: var(--theme-text-primary);
+}
+
+/* Alert/Message Dark Mode */
+[data-theme="dark"] .fb-alert {
+  background-color: var(--theme-surface);
+  border-color: var(--theme-border);
+}
+
+/* Tooltip Dark Mode */
+[data-theme="dark"] .fb-tooltip {
+  background-color: var(--theme-surface);
+  color: var(--theme-text-primary);
+  border-color: var(--theme-border);
+}
+
+/* Tab Dark Mode */
+[data-theme="dark"] .fb-tab {
+  color: var(--theme-text-secondary);
+}
+
+[data-theme="dark"] .fb-tab-active {
+  color: var(--fb-primary);
+  border-bottom-color: var(--fb-primary);
+}
+
+[data-theme="dark"] .fb-tab:hover {
+  background-color: var(--theme-surface-hover);
+}
+
+/* Divider Dark Mode */
+[data-theme="dark"] hr,
+[data-theme="dark"] .divider {
+  border-color: var(--theme-border);
+}
+
+/* Code Block Dark Mode */
+[data-theme="dark"] pre,
+[data-theme="dark"] code {
+  background-color: var(--theme-surface);
+  color: var(--theme-text-primary);
+}
+
+/* Link Dark Mode */
+[data-theme="dark"] a {
+  color: var(--fb-primary);
+}
+
+[data-theme="dark"] a:hover {
+  color: var(--fb-primary-hover);
+}
+
+/* Selection Dark Mode */
+[data-theme="dark"] ::selection {
+  background-color: var(--fb-primary);
+  color: white;
+}
+
+/* Theme Toggle Button Animation */
+.fb-header-theme-btn {
+  transition: transform 0.3s ease, background-color 0.3s ease;
+}
+
+.fb-header-theme-btn:hover {
+  transform: rotate(15deg);
+}
+
+.fb-header-theme-btn:active {
+  transform: scale(0.95);
 }
