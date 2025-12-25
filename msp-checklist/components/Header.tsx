@@ -40,6 +40,10 @@ export default function Header() {
       if (versionsResponse.ok) {
         const versionsData = await versionsResponse.json();
         setActiveVersion(versionsData.activeVersion);
+      } else if (versionsResponse.status === 401) {
+        // User not authenticated - this is expected, don't log error
+        console.log('User not authenticated, skipping version load');
+        return;
       }
 
       // Load assessment data for both types
@@ -56,7 +60,10 @@ export default function Header() {
         technical: technicalData.data || []
       });
     } catch (error) {
-      console.error('Failed to load assessment data:', error);
+      // Only log error if it's not an authentication issue
+      if (!error.message?.includes('401') && !error.message?.includes('Not authenticated')) {
+        console.error('Failed to load assessment data:', error);
+      }
     }
   };
 

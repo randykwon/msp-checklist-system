@@ -62,20 +62,20 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <header className="header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div className="animate-fade-in">
-              <h1 className="text-5xl font-bold text-gray-900 mb-3">
+        <div className="header-content">
+          <div className="header-flex">
+            <div className="header-title animate-fade-in">
+              <h1>
                 {t('home.title')}
-                <span className="ml-4 px-4 py-2 text-base font-semibold text-blue-600 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full border border-blue-200">
+                <span className="version-badge">
                   v{checklistData.version}
                 </span>
               </h1>
-              <p className="text-lg text-gray-600 leading-relaxed">
+              <p className="header-subtitle">
                 {t('home.version')} {checklistData.version} | {t('home.lastModified')}: {checklistData.lastModified.toLocaleDateString('ko-KR')}
               </p>
             </div>
-            <div className="flex gap-4 animate-fade-in">
+            <div className="header-actions animate-fade-in">
               <button
                 onClick={() => setShowProgramInfoModal(true)}
                 className="btn btn-success"
@@ -99,12 +99,12 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
-        <div className="animate-fade-in">
+      <main className="main-content">
+        <div className="content-section animate-fade-in">
           <Dashboard data={checklistData} />
         </div>
 
-        <div className="animate-fade-in">
+        <div className="content-section animate-fade-in">
           <FilterBar
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
@@ -115,7 +115,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="animate-fade-in">
+        <div className="content-section animate-fade-in">
           <ChecklistView
             data={checklistData}
             setData={setChecklistData}

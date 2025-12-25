@@ -32,17 +32,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchCurrentUser = async () => {
     try {
+      setLoading(true);
       const res = await fetch('/api/auth/me', {
-        credentials: 'include'
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
+      
       if (res.ok) {
         const data = await res.json();
         setUser(data.user);
+      } else if (res.status === 401) {
+        // Unauthorized - no token or invalid token, this is expected for non-logged-in users
+        setUser(null);
       } else {
+        console.error('Failed to fetch current user:', res.status, res.statusText);
         setUser(null);
       }
     } catch (error) {
-      console.error('Failed to fetch current user:', error);
+      console.error('Network error fetching current user:', error);
+      // Don't show error to user for initial load - they might just not be logged in
       setUser(null);
     } finally {
       setLoading(false);

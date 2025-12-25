@@ -21,16 +21,15 @@ export default function FilterBar({
   const { t } = useLanguage();
   return (
     <div className="filter-bar">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="filter-grid">
         {/* 상태 필터 */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <div className="filter-group">
+          <label className="filter-label">
             📊 {t('filter.status')}
           </label>
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value as FilterStatus)}
-            className="w-full"
           >
             <option value="all">{t('filter.all')}</option>
             <option value="not-started">{t('filter.notStarted')}</option>
@@ -41,14 +40,13 @@ export default function FilterBar({
         </div>
 
         {/* 우선순위 필터 */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <div className="filter-group">
+          <label className="filter-label">
             🎯 {t('filter.type')}
           </label>
           <select
             value={filterPriority}
             onChange={(e) => setFilterPriority(e.target.value as FilterPriority)}
-            className="w-full"
           >
             <option value="all">{t('filter.all')}</option>
             <option value="prerequisite">{t('filter.prerequisite')}</option>
@@ -57,8 +55,8 @@ export default function FilterBar({
         </div>
 
         {/* 검색 */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-3">
+        <div className="filter-group">
+          <label className="filter-label">
             🔍 {t('filter.search')}
           </label>
           <input
@@ -66,7 +64,6 @@ export default function FilterBar({
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={t('filter.searchPlaceholder')}
-            className="w-full"
           />
         </div>
       </div>

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Version {
   id: number;
@@ -22,18 +23,36 @@ interface VersionSwitcherProps {
 
 export default function VersionSwitcher({ onVersionChange, className = '' }: VersionSwitcherProps) {
   const { language, t } = useLanguage();
+  const { user, loading } = useAuth();
   const [versions, setVersions] = useState<Version[]>([]);
   const [activeVersion, setActiveVersion] = useState<Version | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string>('');
 
-  // Load versions on component mount
+  // Don't render anything if user is not authenticated or still loading
+  if (loading) {
+    return null; // Don't show anything while checking auth
+  }
+
+  if (!user) {
+    return null; // Don't show version switcher for non-authenticated users
+  }
+
+  // Load versions on component mount, but only if user is authenticated
   useEffect(() => {
-    loadVersions();
-  }, []);
+    if (user) {
+      loadVersions();
+    }
+  }, [user]);
 
   const loadVersions = async () => {
+    // Don't load if user is not authenticated
+    if (!user) {
+      console.log('No user authenticated, skipping version load');
+      return;
+    }
+
     try {
       setIsLoading(true);
       setError('');
@@ -42,6 +61,15 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
       // Include inactive versions to show all profiles
       const response = await fetch('/api/versions?include_inactive=true');
       console.log('Response status:', response.status);
+      
+      if (response.status === 401) {
+        // User not authenticated - this is normal for non-logged-in users
+        console.log('User not authenticated, hiding version switcher');
+        setVersions([]);
+        setActiveVersion(null);
+        setError(''); // Don't show error for unauthenticated users
+        return;
+      }
       
       if (!response.ok) {
         const errorText = await response.text();
@@ -67,7 +95,10 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
       }
     } catch (error: any) {
       console.error('Error loading versions:', error);
-      setError(error.message || 'Failed to load profiles');
+      // Only show error if user is authenticated and it's not an authentication issue
+      if (user && !error.message.includes('401') && !error.message.includes('Not authenticated')) {
+        setError(error.message || 'Failed to load profiles');
+      }
     } finally {
       setIsLoading(false);
     }

@@ -40,17 +40,17 @@ export default function Dashboard({ data }: DashboardProps) {
     <div className="card">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-bold text-gray-900">{t('dashboard.overallProgress')}</h2>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
           <span className="text-sm text-gray-600">실시간 업데이트</span>
         </div>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="stats-grid">
         {stats.map((stat, index) => (
           <div key={index} className="stat-card">
-            <div className="text-2xl mb-2">{stat.icon}</div>
+            <div className="stat-icon">{stat.icon}</div>
             <div className="stat-label">{stat.label}</div>
             <div className="stat-value">{stat.value}</div>
           </div>
@@ -58,8 +58,8 @@ export default function Dashboard({ data }: DashboardProps) {
       </div>
 
       {/* Overall Progress Bar */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-3">
+      <div className="progress-section">
+        <div className="progress-header">
           <h3 className="text-lg font-semibold text-gray-900">전체 진행률</h3>
           <span className="text-lg font-bold text-purple-600">
             {overallProgress.percentage.toFixed(1)}%
@@ -71,7 +71,7 @@ export default function Dashboard({ data }: DashboardProps) {
             style={{ width: `${overallProgress.percentage}%` }}
           />
         </div>
-        <div className="flex justify-between text-sm text-gray-500 mt-2">
+        <div className="progress-labels">
           <span>시작</span>
           <span>완료</span>
         </div>
@@ -80,17 +80,17 @@ export default function Dashboard({ data }: DashboardProps) {
       {/* Category Progress */}
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-4">카테고리별 진행 현황</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="category-grid">
           {data.categories.map((category, index) => (
             <div key={category.id} className="category-card">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="font-semibold text-gray-900 text-sm">{category.name}</h4>
-                <span className="text-xs font-medium text-gray-500">
+              <div className="category-header">
+                <h4 className="category-title">{category.name}</h4>
+                <span className="category-percentage">
                   {category.progress.percentage.toFixed(0)}%
                 </span>
               </div>
               
-              <div className="mb-3">
+              <div className="category-progress">
                 <div className="progress-bar" style={{ height: '6px' }}>
                   <div
                     className="progress-fill"
@@ -104,7 +104,7 @@ export default function Dashboard({ data }: DashboardProps) {
                 </div>
               </div>
               
-              <div className="flex justify-between text-xs text-gray-600">
+              <div className="category-stats">
                 <span>완료: {category.progress.completed}</span>
                 <span>전체: {category.progress.total}</span>
               </div>
