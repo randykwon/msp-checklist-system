@@ -1,4 +1,4 @@
-/* MSP Checklist Global Styles - Modern UX Design */
+/* MSP Checklist Global Styles - Enhanced Modern UX Design */
 
 * {
   box-sizing: border-box;
@@ -20,7 +20,7 @@ body {
 
 body {
   color: #1f2937;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0e7ff 50%, #f3e8ff 100%);
   min-height: 100vh;
 }
 
@@ -296,24 +296,24 @@ a {
 
 /* Modern Cards */
 .card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  padding: 2rem;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.08), 0 8px 16px -8px rgba(0, 0, 0, 0.06);
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease-in-out;
 }
 
 .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 32px 64px -12px rgba(0, 0, 0, 0.12), 0 16px 32px -8px rgba(0, 0, 0, 0.08);
 }
 
 .card-compact {
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
 }
 
 /* Progress Bars */
@@ -352,15 +352,19 @@ a {
 
 /* Stats Cards */
 .stat-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  padding: 2rem;
   text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease-in-out;
   position: relative;
   overflow: hidden;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 
 .stat-card::before {
@@ -370,20 +374,20 @@ a {
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6, #06b6d4);
 }
 
 .stat-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
+  transform: translateY(-6px);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
 }
 
 .stat-value {
-  font-size: 2.5rem;
-  font-weight: 700;
+  font-size: 3rem;
+  font-weight: 800;
   line-height: 1;
-  margin: 0.5rem 0;
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+  margin: 0.75rem 0;
+  background: linear-gradient(135deg, #3b82f6, #8b5cf6, #06b6d4);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -391,25 +395,30 @@ a {
 
 .stat-label {
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: #6b7280;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
 }
 
 /* Category Cards */
 .category-card {
-  background: rgba(255, 255, 255, 0.9);
-  backdrop-filter: blur(10px);
-  border-radius: 0.75rem;
-  padding: 1.25rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
+  padding: 1.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease-in-out;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .category-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px -8px rgba(0, 0, 0, 0.12);
 }
 
 /* Grid Layouts */
@@ -504,10 +513,99 @@ a {
 
 /* Header Styles */
 .header {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px -8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 2rem;
+}
+
+/* Enhanced Spacing */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-8 > * + * {
+  margin-top: 2rem;
+}
+
+/* Checklist Item Styles */
+.checklist-category {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  border-radius: 1.25rem;
+  box-shadow: 0 8px 25px -8px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease-in-out;
+}
+
+.checklist-category:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.12);
+}
+
+.checklist-category-header {
+  padding: 2rem;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.5);
+  transition: all 0.2s ease-in-out;
+}
+
+.checklist-category-header:hover {
+  background: rgba(249, 250, 251, 0.8);
+}
+
+.checklist-category-content {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Filter Bar Styles */
+.filter-bar {
   background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+}
+
+/* Form Elements */
+select, input {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(229, 231, 235, 0.8);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease-in-out;
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: rgba(255, 255, 255, 1);
+}
+
+/* Enhanced Typography */
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #1f2937, #4b5563);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
 }
 
 /* Utilities */

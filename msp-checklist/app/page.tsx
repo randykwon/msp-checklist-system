@@ -62,49 +62,49 @@ export default function Home() {
   return (
     <div className="min-h-screen">
       <header className="header">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center justify-between">
             <div className="animate-fade-in">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-5xl font-bold text-gray-900 mb-3">
                 {t('home.title')}
-                <span className="ml-3 px-3 py-1 text-sm font-semibold text-blue-600 bg-blue-100 rounded-full">
+                <span className="ml-4 px-4 py-2 text-base font-semibold text-blue-600 bg-gradient-to-r from-blue-100 to-purple-100 rounded-full border border-blue-200">
                   v{checklistData.version}
                 </span>
               </h1>
-              <p className="text-gray-600">
+              <p className="text-lg text-gray-600 leading-relaxed">
                 {t('home.version')} {checklistData.version} | {t('home.lastModified')}: {checklistData.lastModified.toLocaleDateString('ko-KR')}
               </p>
             </div>
-            <div className="flex gap-3 animate-fade-in">
+            <div className="flex gap-4 animate-fade-in">
               <button
                 onClick={() => setShowProgramInfoModal(true)}
                 className="btn btn-success"
               >
-                {t('program.viewInfo')}
+                📋 {t('program.viewInfo')}
               </button>
               <button
                 onClick={() => setShowJourneyModal(true)}
                 className="btn btn-purple"
               >
-                {t('journey.viewJourney')}
+                🚀 {t('journey.viewJourney')}
               </button>
               <a
                 href="/login"
                 className="btn btn-primary"
               >
-                {t('home.loginSignup')}
+                🔐 {t('home.loginSignup')}
               </a>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="animate-fade-in">
           <Dashboard data={checklistData} />
         </div>
 
-        <div className="mt-8 animate-fade-in">
+        <div className="animate-fade-in">
           <FilterBar
             filterStatus={filterStatus}
             setFilterStatus={setFilterStatus}
@@ -115,7 +115,7 @@ export default function Home() {
           />
         </div>
 
-        <div className="mt-6 animate-fade-in">
+        <div className="animate-fade-in">
           <ChecklistView
             data={checklistData}
             setData={setChecklistData}
