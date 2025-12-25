@@ -217,32 +217,36 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="p-6">
-          {/* Header */}
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">
-                {language === 'ko' ? 'AWS MSP 파트너 여정' : 'AWS MSP Partner Journey'}
-              </h2>
-              <p className="text-gray-600 mt-1">
-                {language === 'ko' 
-                  ? 'AWS Managed Service Provider 파트너가 되기 위한 단계별 가이드'
-                  : 'Step-by-step guide to becoming an AWS Managed Service Provider partner'
-                }
-              </p>
-            </div>
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-            >
-              ×
-            </button>
+    <div className="fb-modal-overlay">
+      <div className="fb-modal fb-modal-xl" style={{ maxWidth: '1100px' }}>
+        {/* Header */}
+        <div className="fb-modal-header">
+          <div>
+            <h2 className="fb-modal-title">
+              {language === 'ko' ? 'AWS MSP 파트너 여정' : 'AWS MSP Partner Journey'}
+            </h2>
+            <p className="fb-modal-subtitle">
+              {language === 'ko' 
+                ? 'AWS Managed Service Provider 파트너가 되기 위한 단계별 가이드'
+                : 'Step-by-step guide to becoming an AWS Managed Service Provider partner'
+              }
+            </p>
           </div>
+          <button
+            onClick={onClose}
+            className="fb-modal-close"
+            aria-label="Close"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div className="fb-modal-body fb-modal-scrollable" style={{ maxHeight: '70vh' }}>
 
           {/* Journey Timeline */}
-          <div className="space-y-6">
+          <div className="space-y-6" style={{ padding: '0 var(--fb-spacing-lg)' }}>
             {journeySteps.map((step, index) => (
               <div key={step.id} className="relative">
                 {/* Connector Line */}
@@ -317,42 +321,40 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
           </div>
 
           {/* Footer */}
-          <div className="mt-8 p-4 bg-blue-50 rounded-lg">
-            <div className="flex items-start gap-3">
-              <div className="text-blue-500 text-xl">💡</div>
-              <div>
-                <h4 className="font-semibold text-blue-900 mb-1">
-                  {language === 'ko' ? '도움말' : 'Helpful Tips'}
-                </h4>
-                <p className="text-sm text-blue-800">
-                  {language === 'ko' 
-                    ? '각 단계는 이전 단계의 완료를 전제로 합니다. 현재 Assessment 도구를 사용하여 Prerequisites와 Technical Validation 단계를 체계적으로 준비할 수 있습니다.'
-                    : 'Each step builds upon the completion of previous steps. Use this Assessment tool to systematically prepare for the Prerequisites and Technical Validation phases.'
-                  }
-                </p>
-              </div>
+          <div className="fb-modal-info-box" style={{ margin: 'var(--fb-spacing-lg)' }}>
+            <div className="fb-modal-info-box-icon">💡</div>
+            <div className="fb-modal-info-box-content">
+              <h4 className="fb-modal-info-box-title">
+                {language === 'ko' ? '도움말' : 'Helpful Tips'}
+              </h4>
+              <p className="fb-modal-info-box-text">
+                {language === 'ko' 
+                  ? '각 단계는 이전 단계의 완료를 전제로 합니다. 현재 Assessment 도구를 사용하여 Prerequisites와 Technical Validation 단계를 체계적으로 준비할 수 있습니다.'
+                  : 'Each step builds upon the completion of previous steps. Use this Assessment tool to systematically prepare for the Prerequisites and Technical Validation phases.'
+                }
+              </p>
             </div>
           </div>
+        </div>
 
-          {/* Action Buttons */}
-          <div className="mt-6 flex justify-end gap-3">
-            <button
-              onClick={onClose}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-            >
-              {language === 'ko' ? '닫기' : 'Close'}
-            </button>
-            <button
-              onClick={() => {
-                onClose();
-                // Navigate to assessment page
-                window.location.href = '/assessment';
-              }}
-              className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              {language === 'ko' ? '평가 시작하기' : 'Start Assessment'}
-            </button>
-          </div>
+        {/* Action Buttons */}
+        <div className="fb-modal-footer">
+          <button
+            onClick={onClose}
+            className="fb-btn fb-btn-secondary"
+          >
+            {language === 'ko' ? '닫기' : 'Close'}
+          </button>
+          <button
+            onClick={() => {
+              onClose();
+              // Navigate to assessment page
+              window.location.href = '/assessment';
+            }}
+            className="fb-btn fb-btn-primary"
+          >
+            {language === 'ko' ? '평가 시작하기' : 'Start Assessment'}
+          </button>
         </div>
       </div>
     </div>

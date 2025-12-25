@@ -263,99 +263,95 @@ export default function MSPProgramInfoModal({ isOpen, onClose }: MSPProgramInfoM
   const currentSection = mspProgramSections.find(section => section.id === selectedSection);
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg max-w-7xl w-full max-h-[90vh] overflow-hidden flex">
+    <div className="fb-modal-overlay">
+      <div className="fb-modal fb-modal-with-sidebar" style={{ maxWidth: '1100px', maxHeight: '90vh' }}>
         {/* Sidebar Navigation */}
-        <div className="w-80 bg-gray-50 border-r border-gray-200 p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-2">
-              {language === 'ko' ? 'AWS MSP 프로그램' : 'AWS MSP Program'}
-            </h2>
-            <p className="text-sm text-gray-600">
-              {language === 'ko' 
-                ? 'Managed Service Provider 파트너 프로그램 상세 정보'
-                : 'Managed Service Provider Partner Program Details'
-              }
-            </p>
+        <div className="fb-modal-sidebar">
+          <div className="fb-modal-sidebar-title">
+            {language === 'ko' ? 'AWS MSP 프로그램' : 'AWS MSP Program'}
           </div>
+          <p className="fb-modal-sidebar-subtitle">
+            {language === 'ko' 
+              ? 'Managed Service Provider 파트너 프로그램 상세 정보'
+              : 'Managed Service Provider Partner Program Details'
+            }
+          </p>
 
-          <nav className="space-y-2">
+          <nav className="fb-modal-sidebar-nav">
             {mspProgramSections.map((section) => (
               <button
                 key={section.id}
                 onClick={() => setSelectedSection(section.id)}
-                className={`w-full text-left px-4 py-3 rounded-lg transition-colors ${
-                  selectedSection === section.id
-                    ? 'bg-blue-100 text-blue-900 border border-blue-200'
-                    : 'text-gray-700 hover:bg-gray-100'
+                className={`fb-modal-sidebar-item ${
+                  selectedSection === section.id ? 'active' : ''
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-lg">{section.icon}</span>
-                  <span className="font-medium text-sm">
-                    {language === 'ko' ? section.titleKo : section.title}
-                  </span>
-                </div>
+                <span className="fb-modal-sidebar-item-icon">{section.icon}</span>
+                <span>
+                  {language === 'ko' ? section.titleKo : section.title}
+                </span>
               </button>
             ))}
           </nav>
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 flex flex-col">
+        <div className="fb-modal-main">
           {/* Header */}
-          <div className="p-6 border-b border-gray-200 bg-white">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{currentSection?.icon}</span>
-                <h3 className="text-2xl font-bold text-gray-900">
-                  {language === 'ko' ? currentSection?.titleKo : currentSection?.title}
-                </h3>
-              </div>
-              <button
-                onClick={onClose}
-                className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-              >
-                ×
-              </button>
+          <div className="fb-modal-header">
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--fb-spacing-md)' }}>
+              <span style={{ fontSize: 'var(--fb-font-size-2xl)' }}>{currentSection?.icon}</span>
+              <h3 className="fb-modal-title">
+                {language === 'ko' ? currentSection?.titleKo : currentSection?.title}
+              </h3>
             </div>
+            <button
+              onClick={onClose}
+              className="fb-modal-close"
+              aria-label="Close"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </div>
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <div className="prose prose-lg max-w-none">
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
-                {language === 'ko' ? currentSection?.contentKo : currentSection?.content}
-              </div>
+          <div className="fb-modal-body fb-modal-scrollable" style={{ flex: 1 }}>
+            <div style={{ 
+              color: 'var(--fb-text-primary)', 
+              lineHeight: '1.6', 
+              whiteSpace: 'pre-line',
+              fontSize: 'var(--fb-font-size-base)'
+            }}>
+              {language === 'ko' ? currentSection?.contentKo : currentSection?.content}
             </div>
           </div>
 
           {/* Footer */}
-          <div className="p-6 border-t border-gray-200 bg-gray-50">
-            <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
-                {language === 'ko' 
-                  ? 'AWS MSP 파트너 프로그램에 대한 자세한 정보는 AWS 파트너 포털을 참조하세요.'
-                  : 'For more detailed information about the AWS MSP Partner Program, please refer to the AWS Partner Portal.'
-                }
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={onClose}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                >
-                  {language === 'ko' ? '닫기' : 'Close'}
-                </button>
-                <button
-                  onClick={() => {
-                    onClose();
-                    window.location.href = '/assessment';
-                  }}
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  {language === 'ko' ? '평가 시작하기' : 'Start Assessment'}
-                </button>
-              </div>
+          <div className="fb-modal-footer fb-modal-footer-between" style={{ backgroundColor: 'var(--fb-background)' }}>
+            <div style={{ fontSize: 'var(--fb-font-size-sm)', color: 'var(--fb-text-secondary)' }}>
+              {language === 'ko' 
+                ? 'AWS MSP 파트너 프로그램에 대한 자세한 정보는 AWS 파트너 포털을 참조하세요.'
+                : 'For more detailed information about the AWS MSP Partner Program, please refer to the AWS Partner Portal.'
+              }
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--fb-spacing-sm)' }}>
+              <button
+                onClick={onClose}
+                className="fb-btn fb-btn-secondary"
+              >
+                {language === 'ko' ? '닫기' : 'Close'}
+              </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  window.location.href = '/assessment';
+                }}
+                className="fb-btn fb-btn-primary"
+              >
+                {language === 'ko' ? '평가 시작하기' : 'Start Assessment'}
+              </button>
             </div>
           </div>
         </div>

@@ -116,64 +116,182 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   );
 
   return (
-    <div className="min-h-screen bg-gray-100 flex">
-      {/* Sidebar - 고정 너비와 개선된 레이아웃 */}
-      <div className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-md transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:flex lg:flex-col border-r border-gray-200`}>
-        {/* Header - 더 큰 헤더 영역 */}
-        <div className="flex items-center h-16 px-4 bg-blue-600 border-b border-blue-700">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
+    <div style={{ 
+      minHeight: '100vh', 
+      backgroundColor: 'var(--fb-background)', 
+      display: 'flex' 
+    }}>
+      {/* Facebook Style Sidebar */}
+      <div 
+        className={`fb-admin-sidebar ${isSidebarOpen ? 'open' : ''}`}
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: 'var(--fb-sidebar-width)',
+          backgroundColor: 'var(--fb-surface)',
+          borderRight: '1px solid var(--fb-border)',
+          transform: isSidebarOpen ? 'translateX(0)' : undefined,
+          transition: 'transform 0.3s ease-in-out',
+          zIndex: 50,
+          display: 'flex',
+          flexDirection: 'column',
+          overflowY: 'auto'
+        }}
+      >
+        {/* Facebook Style Header */}
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          height: 'var(--fb-header-height)',
+          padding: '0 var(--fb-spacing-lg)',
+          backgroundColor: 'var(--fb-primary)',
+          borderBottom: '1px solid var(--fb-primary-hover)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              backgroundColor: 'var(--fb-surface)',
+              borderRadius: 'var(--fb-radius-lg)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <svg style={{ width: '20px', height: '20px', color: 'var(--fb-primary)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
             </div>
-            <div className="ml-3">
-              <h1 className="text-lg font-semibold text-white">MSP 헬퍼</h1>
-              <p className="text-xs text-blue-100">관리자 콘솔</p>
+            <div style={{ marginLeft: 'var(--fb-spacing-md)' }}>
+              <h1 style={{ 
+                fontSize: 'var(--fb-font-size-lg)', 
+                fontWeight: 'var(--fb-font-weight-semibold)', 
+                color: 'white',
+                margin: 0
+              }}>MSP 헬퍼</h1>
+              <p style={{ 
+                fontSize: 'var(--fb-font-size-xs)', 
+                color: 'rgba(255,255,255,0.8)',
+                margin: 0
+              }}>관리자 콘솔</p>
             </div>
           </div>
         </div>
 
-        {/* Navigation - 개선된 네비게이션 */}
-        <nav className="flex-1 px-3 py-4 overflow-y-auto">
-          <div className="space-y-1">
+        {/* Facebook Style Navigation */}
+        <nav style={{ 
+          flex: 1, 
+          padding: 'var(--fb-spacing-sm)', 
+          overflowY: 'auto' 
+        }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--fb-spacing-xs)' }}>
             {navigation.map((item) => (
               <a
                 key={item.name}
                 href={item.href}
-                className={`${
-                  pathname === item.href
-                    ? 'bg-blue-50 text-blue-700 border-l-4 border-blue-600'
-                    : 'text-gray-700 hover:bg-gray-50 hover:text-gray-900 border-l-4 border-transparent'
-                } group flex items-center px-3 py-2 text-sm font-medium transition-colors duration-150`}
                 onClick={() => setIsSidebarOpen(false)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--fb-spacing-md)',
+                  padding: 'var(--fb-spacing-sm) var(--fb-spacing-md)',
+                  borderRadius: 'var(--fb-radius-lg)',
+                  backgroundColor: pathname === item.href ? 'var(--fb-active-bg)' : 'transparent',
+                  color: pathname === item.href ? 'var(--fb-primary)' : 'var(--fb-text-primary)',
+                  fontFamily: 'var(--fb-font-family)',
+                  fontSize: 'var(--fb-font-size-base)',
+                  fontWeight: 'var(--fb-font-weight-semibold)',
+                  textDecoration: 'none',
+                  cursor: 'pointer',
+                  transition: 'all var(--fb-transition-fast)'
+                }}
+                onMouseEnter={(e) => {
+                  if (pathname !== item.href) {
+                    e.currentTarget.style.backgroundColor = 'var(--fb-background)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (pathname !== item.href) {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }
+                }}
               >
-                <span className={`${pathname === item.href ? 'text-blue-600' : 'text-gray-500 group-hover:text-gray-700'} mr-3 flex-shrink-0`}>
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: 'var(--fb-radius-full)',
+                  backgroundColor: pathname === item.href ? 'var(--fb-active-bg)' : 'var(--fb-secondary)',
+                  color: pathname === item.href ? 'var(--fb-primary)' : 'var(--fb-text-primary)',
+                  flexShrink: 0,
+                  transition: 'all var(--fb-transition-fast)'
+                }}>
                   {item.icon}
                 </span>
-                <span className="truncate">{item.name}</span>
+                <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {item.name}
+                </span>
               </a>
             ))}
           </div>
         </nav>
 
-        {/* User info - 개선된 사용자 정보 영역 */}
-        <div className="p-4 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center mb-3">
-            <div className="flex-shrink-0">
-              <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-xs font-semibold text-white">
-                  {user?.name?.charAt(0)?.toUpperCase()}
-                </span>
-              </div>
+        {/* Facebook Style User Info */}
+        <div style={{
+          padding: 'var(--fb-spacing-lg)',
+          borderTop: '1px solid var(--fb-border)',
+          backgroundColor: 'var(--fb-background)'
+        }}>
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            marginBottom: 'var(--fb-spacing-md)' 
+          }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              backgroundColor: 'var(--fb-primary)',
+              borderRadius: 'var(--fb-radius-full)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}>
+              <span style={{ 
+                fontSize: 'var(--fb-font-size-sm)', 
+                fontWeight: 'var(--fb-font-weight-semibold)', 
+                color: 'white' 
+              }}>
+                {user?.name?.charAt(0)?.toUpperCase()}
+              </span>
             </div>
-            <div className="ml-2 flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">
+            <div style={{ 
+              marginLeft: 'var(--fb-spacing-sm)', 
+              flex: 1, 
+              minWidth: 0 
+            }}>
+              <p style={{ 
+                fontSize: 'var(--fb-font-size-base)', 
+                fontWeight: 'var(--fb-font-weight-semibold)', 
+                color: 'var(--fb-text-primary)',
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
                 {user?.name}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p style={{ 
+                fontSize: 'var(--fb-font-size-xs)', 
+                color: 'var(--fb-text-secondary)',
+                margin: 0,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap'
+              }}>
                 {user?.email}
               </p>
               {user?.role && (
@@ -185,9 +303,30 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           <button
             onClick={handleLogout}
-            className="w-full flex items-center justify-center px-3 py-2 border border-gray-300 rounded text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition-colors duration-150"
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 'var(--fb-spacing-sm) var(--fb-spacing-md)',
+              backgroundColor: 'var(--fb-secondary)',
+              color: 'var(--fb-text-primary)',
+              border: 'none',
+              borderRadius: 'var(--fb-radius-md)',
+              fontFamily: 'var(--fb-font-family)',
+              fontSize: 'var(--fb-font-size-base)',
+              fontWeight: 'var(--fb-font-weight-semibold)',
+              cursor: 'pointer',
+              transition: 'all var(--fb-transition-fast)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--fb-secondary-hover)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--fb-secondary)';
+            }}
           >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '16px', height: '16px', marginRight: 'var(--fb-spacing-sm)' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
             로그아웃
@@ -195,44 +334,126 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         </div>
       </div>
 
-      {/* Mobile header - 개선된 모바일 헤더 */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-30 bg-white border-b border-gray-300">
-        <div className="flex items-center justify-between h-14 px-4">
+      {/* Facebook Style Mobile Header */}
+      <div 
+        className="lg:hidden"
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 30,
+          backgroundColor: 'var(--fb-surface)',
+          borderBottom: '1px solid var(--fb-border)',
+          boxShadow: 'var(--fb-shadow-sm)'
+        }}
+      >
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          height: 'var(--fb-header-height)',
+          padding: '0 var(--fb-spacing-lg)'
+        }}>
           <button
             onClick={() => setIsSidebarOpen(true)}
-            className="p-2 rounded text-gray-600 hover:text-gray-800 hover:bg-gray-100"
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: '40px',
+              height: '40px',
+              borderRadius: 'var(--fb-radius-full)',
+              backgroundColor: 'var(--fb-secondary)',
+              color: 'var(--fb-text-primary)',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all var(--fb-transition-fast)'
+            }}
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
             </svg>
           </button>
-          <h1 className="text-base font-semibold text-gray-900">MSP 헬퍼 관리자</h1>
-          <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
-            <span className="text-xs font-semibold text-white">
+          <h1 style={{ 
+            fontSize: 'var(--fb-font-size-lg)', 
+            fontWeight: 'var(--fb-font-weight-semibold)', 
+            color: 'var(--fb-text-primary)',
+            margin: 0
+          }}>MSP 헬퍼 관리자</h1>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            backgroundColor: 'var(--fb-primary)',
+            borderRadius: 'var(--fb-radius-full)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <span style={{ 
+              fontSize: 'var(--fb-font-size-sm)', 
+              fontWeight: 'var(--fb-font-weight-semibold)', 
+              color: 'white' 
+            }}>
               {user?.name?.charAt(0)?.toUpperCase()}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Overlay - 개선된 오버레이 */}
+      {/* Facebook Style Overlay */}
       {isSidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-gray-900 bg-opacity-50 lg:hidden"
+          className="lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
-        ></div>
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 40,
+            backgroundColor: 'rgba(0, 0, 0, 0.4)'
+          }}
+        />
       )}
 
-      {/* Main content - 개선된 메인 콘텐츠 영역 */}
-      <div className="flex-1 lg:ml-0 min-h-screen">
-        <main className="pt-16 lg:pt-0 min-h-screen">
-          <div className="h-full px-4 py-6 sm:px-6 lg:px-8">
-            <div className="max-w-none mx-auto h-full">
-              {children}
-            </div>
+      {/* Facebook Style Main Content */}
+      <div 
+        className="fb-admin-main"
+        style={{
+          flex: 1,
+          marginLeft: 'var(--fb-sidebar-width)',
+          minHeight: '100vh',
+          backgroundColor: 'var(--fb-background)'
+        }}
+      >
+        <main style={{ 
+          paddingTop: 0,
+          minHeight: '100vh'
+        }} className="lg:pt-0 pt-14">
+          <div style={{
+            height: '100%',
+            padding: 'var(--fb-spacing-lg)',
+            maxWidth: '1400px',
+            margin: '0 auto'
+          }}>
+            {children}
           </div>
         </main>
       </div>
+
+      {/* Responsive Styles */}
+      <style jsx>{`
+        @media (max-width: 1024px) {
+          .fb-admin-sidebar {
+            transform: translateX(-100%);
+          }
+          .fb-admin-sidebar.open {
+            transform: translateX(0);
+          }
+          .fb-admin-main {
+            margin-left: 0 !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

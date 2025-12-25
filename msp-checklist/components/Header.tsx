@@ -346,19 +346,24 @@ export default function Header() {
 
       {/* Delete Account Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-          <div className="fb-card" style={{ maxWidth: '400px', width: '90%' }}>
-            <h3 style={{ fontSize: 'var(--fb-font-size-xl)', fontWeight: 'var(--fb-font-weight-bold)', marginBottom: 'var(--fb-spacing-md)' }}>
-              {t('delete.title')}
-            </h3>
-            <p style={{ fontSize: 'var(--fb-font-size-base)', color: 'var(--fb-text-secondary)', marginBottom: 'var(--fb-spacing-lg)' }}>
-              {t('delete.message')}
-            </p>
-            <div style={{ display: 'flex', gap: 'var(--fb-spacing-md)' }}>
-              <button onClick={() => setShowDeleteConfirm(false)} className="fb-btn fb-btn-secondary" style={{ flex: 1 }}>
+        <div className="fb-modal-overlay">
+          <div className="fb-modal fb-modal-confirm">
+            <div className="fb-modal-body">
+              <div className="fb-modal-confirm-icon fb-modal-confirm-icon-danger">
+                ⚠️
+              </div>
+              <h3 className="fb-modal-confirm-title">
+                {t('delete.title')}
+              </h3>
+              <p className="fb-modal-confirm-message">
+                {t('delete.message')}
+              </p>
+            </div>
+            <div className="fb-modal-footer" style={{ justifyContent: 'center' }}>
+              <button onClick={() => setShowDeleteConfirm(false)} className="fb-btn fb-btn-secondary">
                 {t('delete.cancel')}
               </button>
-              <button onClick={handleDeleteAccount} className="fb-btn fb-btn-danger" style={{ flex: 1 }}>
+              <button onClick={handleDeleteAccount} className="fb-btn fb-btn-danger">
                 {t('delete.confirm')}
               </button>
             </div>

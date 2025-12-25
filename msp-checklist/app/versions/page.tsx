@@ -505,92 +505,94 @@ export default function VersionsPage() {
 
       {/* Create Version Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {language === 'ko' ? '새 프로파일 생성' : 'Create New Profile'}
-                </h3>
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                >
-                  ×
-                </button>
+        <div className="fb-modal-overlay">
+          <div className="fb-modal">
+            <div className="fb-modal-header">
+              <h3 className="fb-modal-title">
+                {language === 'ko' ? '새 프로파일 생성' : 'Create New Profile'}
+              </h3>
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="fb-modal-close"
+                aria-label="Close"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="fb-modal-body">
+              <div className="fb-modal-form-group">
+                <label className="fb-modal-form-label">
+                  {language === 'ko' ? '프로파일 이름' : 'Profile Name'} *
+                </label>
+                <input
+                  type="text"
+                  value={createForm.name}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="fb-input"
+                  placeholder={language === 'ko' ? '예: 2024 Q1 평가' : 'e.g., 2024 Q1 Assessment'}
+                />
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'ko' ? '프로파일 이름' : 'Profile Name'} *
+              <div className="fb-modal-form-group">
+                <label className="fb-modal-form-label">
+                  {language === 'ko' ? '설명' : 'Description'}
+                </label>
+                <textarea
+                  value={createForm.description}
+                  onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="fb-input"
+                  rows={3}
+                  placeholder={language === 'ko' ? '이 프로파일에 대한 설명을 입력하세요...' : 'Enter a description for this profile...'}
+                  style={{ resize: 'vertical' }}
+                />
+              </div>
+              
+              {versions.length > 0 && (
+                <div className="fb-modal-form-group">
+                  <label className="fb-modal-form-label">
+                    {language === 'ko' ? '기존 프로파일에서 복사' : 'Copy from existing profile'}
                   </label>
-                  <input
-                    type="text"
-                    value={createForm.name}
-                    onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
-                    placeholder={language === 'ko' ? '예: 2024 Q1 평가' : 'e.g., 2024 Q1 Assessment'}
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'ko' ? '설명' : 'Description'}
-                  </label>
-                  <textarea
-                    value={createForm.description}
-                    onChange={(e) => setCreateForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
-                    rows={3}
-                    placeholder={language === 'ko' ? '이 프로파일에 대한 설명을 입력하세요...' : 'Enter a description for this profile...'}
-                  />
-                </div>
-                
-                {versions.length > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      {language === 'ko' ? '기존 프로파일에서 복사' : 'Copy from existing profile'}
-                    </label>
-                    <select
-                      value={createForm.copyFromVersionId || ''}
-                      onChange={(e) => setCreateForm(prev => ({ 
-                        ...prev, 
-                        copyFromVersionId: e.target.value ? parseInt(e.target.value) : null 
-                      }))}
-                      className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    >
-                      <option value="">
-                        {language === 'ko' ? '빈 프로파일로 시작' : 'Start with empty profile'}
+                  <select
+                    value={createForm.copyFromVersionId || ''}
+                    onChange={(e) => setCreateForm(prev => ({ 
+                      ...prev, 
+                      copyFromVersionId: e.target.value ? parseInt(e.target.value) : null 
+                    }))}
+                    className="fb-input"
+                  >
+                    <option value="">
+                      {language === 'ko' ? '빈 프로파일로 시작' : 'Start with empty profile'}
+                    </option>
+                    {versions.map((version) => (
+                      <option key={version.id} value={version.id}>
+                        {version.versionName}
                       </option>
-                      {versions.map((version) => (
-                        <option key={version.id} value={version.id}>
-                          {version.versionName}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </div>
-              
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                >
-                  {language === 'ko' ? '취소' : 'Cancel'}
-                </button>
-                <button
-                  onClick={createVersion}
-                  disabled={isCreating || !createForm.name.trim()}
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isCreating ? 
-                    (language === 'ko' ? '생성 중...' : 'Creating...') :
-                    (language === 'ko' ? '생성' : 'Create')
-                  }
-                </button>
-              </div>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            
+            <div className="fb-modal-footer">
+              <button
+                onClick={() => setShowCreateModal(false)}
+                className="fb-btn fb-btn-secondary"
+              >
+                {language === 'ko' ? '취소' : 'Cancel'}
+              </button>
+              <button
+                onClick={createVersion}
+                disabled={isCreating || !createForm.name.trim()}
+                className="fb-btn fb-btn-primary"
+              >
+                {isCreating ? 
+                  (language === 'ko' ? '생성 중...' : 'Creating...') :
+                  (language === 'ko' ? '생성' : 'Create')
+                }
+              </button>
             </div>
           </div>
         </div>
@@ -598,65 +600,67 @@ export default function VersionsPage() {
 
       {/* Edit Version Modal */}
       {editingVersion && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
-            <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">
-                  {language === 'ko' ? '프로파일 편집' : 'Edit Profile'}
-                </h3>
-                <button
-                  onClick={() => setEditingVersion(null)}
-                  className="text-gray-400 hover:text-gray-600 text-2xl font-bold"
-                >
-                  ×
-                </button>
+        <div className="fb-modal-overlay">
+          <div className="fb-modal">
+            <div className="fb-modal-header">
+              <h3 className="fb-modal-title">
+                {language === 'ko' ? '프로파일 편집' : 'Edit Profile'}
+              </h3>
+              <button
+                onClick={() => setEditingVersion(null)}
+                className="fb-modal-close"
+                aria-label="Close"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="fb-modal-body">
+              <div className="fb-modal-form-group">
+                <label className="fb-modal-form-label">
+                  {language === 'ko' ? '프로파일 이름' : 'Profile Name'} *
+                </label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                  className="fb-input"
+                />
               </div>
               
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'ko' ? '프로파일 이름' : 'Profile Name'} *
-                  </label>
-                  <input
-                    type="text"
-                    value={editForm.name}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
-                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    {language === 'ko' ? '설명' : 'Description'}
-                  </label>
-                  <textarea
-                    value={editForm.description}
-                    onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
-                    className="w-full px-3 py-2 text-gray-900 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    rows={3}
-                  />
-                </div>
+              <div className="fb-modal-form-group">
+                <label className="fb-modal-form-label">
+                  {language === 'ko' ? '설명' : 'Description'}
+                </label>
+                <textarea
+                  value={editForm.description}
+                  onChange={(e) => setEditForm(prev => ({ ...prev, description: e.target.value }))}
+                  className="fb-input"
+                  rows={3}
+                  style={{ resize: 'vertical' }}
+                />
               </div>
-              
-              <div className="flex justify-end gap-3 mt-6">
-                <button
-                  onClick={() => setEditingVersion(null)}
-                  className="px-4 py-2 text-gray-600 hover:text-gray-800 font-medium"
-                >
-                  {language === 'ko' ? '취소' : 'Cancel'}
-                </button>
-                <button
-                  onClick={updateVersion}
-                  disabled={isUpdating || !editForm.name.trim()}
-                  className="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                >
-                  {isUpdating ? 
-                    (language === 'ko' ? '저장 중...' : 'Saving...') :
-                    (language === 'ko' ? '저장' : 'Save')
-                  }
-                </button>
-              </div>
+            </div>
+            
+            <div className="fb-modal-footer">
+              <button
+                onClick={() => setEditingVersion(null)}
+                className="fb-btn fb-btn-secondary"
+              >
+                {language === 'ko' ? '취소' : 'Cancel'}
+              </button>
+              <button
+                onClick={updateVersion}
+                disabled={isUpdating || !editForm.name.trim()}
+                className="fb-btn fb-btn-primary"
+              >
+                {isUpdating ? 
+                  (language === 'ko' ? '저장 중...' : 'Saving...') :
+                  (language === 'ko' ? '저장' : 'Save')
+                }
+              </button>
             </div>
           </div>
         </div>

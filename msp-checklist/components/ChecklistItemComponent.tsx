@@ -14,13 +14,6 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
   const [notes, setNotes] = useState(item.notes);
   const [assignee, setAssignee] = useState(item.assignee || '');
 
-  const statusColors = {
-    'not-started': 'bg-gray-100 text-gray-700',
-    'in-progress': 'bg-blue-100 text-blue-700',
-    'completed': 'bg-green-100 text-green-700',
-    'not-applicable': 'bg-gray-100 text-gray-500'
-  };
-
   const statusLabels = {
     'not-started': t('filter.notStarted'),
     'in-progress': t('filter.inProgress'),
@@ -37,33 +30,44 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
     setIsEditing(false);
   };
 
+  // Facebook-style status classes
+  const fbStatusClasses = {
+    'not-started': 'fb-checklist-item-status-not-started',
+    'in-progress': 'fb-checklist-item-status-in-progress',
+    'completed': 'fb-checklist-item-status-completed',
+    'not-applicable': 'fb-checklist-item-status-not-applicable'
+  };
+
+  // Determine if item is completed for background styling
+  const isCompleted = item.status === 'completed';
+
   return (
-    <div className="p-6 hover:bg-gray-50 transition-colors">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="font-mono text-sm font-semibold text-gray-700">{item.control}</span>
+    <div className={`fb-checklist-item ${isCompleted ? 'fb-checklist-item-completed' : ''}`}>
+      <div className="fb-checklist-item-header">
+        <div className="fb-checklist-item-content">
+          <div className="fb-checklist-item-control">
+            <span className="fb-checklist-item-control-number">{item.control}</span>
             {item.isPrerequisite && (
-              <span className="px-2 py-1 text-xs font-medium bg-red-100 text-red-700 rounded">
+              <span className="fb-checklist-item-prerequisite">
                 {t('filter.prerequisite')}
               </span>
             )}
-            <span className={`px-2 py-1 text-xs font-medium rounded ${statusColors[item.status]}`}>
+            <span className={`fb-checklist-item-status ${fbStatusClasses[item.status]}`}>
               {statusLabels[item.status]}
             </span>
           </div>
 
-          <h4 className="text-base font-medium text-gray-900 mb-2">
+          <h4 className="fb-checklist-item-title">
             {language === 'ko' && item.descriptionKo ? item.descriptionKo : item.description}
           </h4>
 
           {item.subcategory && (
-            <p className="text-sm text-gray-600 mb-2">{t('checklist.category')}: {item.subcategory}</p>
+            <p className="fb-checklist-item-description">{t('checklist.category')}: {item.subcategory}</p>
           )}
 
-          <div className="mt-3">
-            <p className="text-sm font-medium text-gray-700 mb-1">{t('checklist.evidenceRequired')}:</p>
-            <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+          <div className="fb-checklist-item-evidence">
+            <p className="fb-checklist-item-evidence-title">{t('checklist.evidenceRequired')}:</p>
+            <ul className="fb-checklist-item-evidence-list">
               {(language === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired).map((evidence, index) => (
                 <li key={index}>{evidence}</li>
               ))}
@@ -71,33 +75,33 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
           </div>
 
           {(item.notes || item.assignee || isEditing) && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+            <div className="fb-checklist-item-edit-form">
               {isEditing ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('checklist.assignee')}</label>
+                <div>
+                  <div className="fb-checklist-item-edit-form-field">
+                    <label className="fb-checklist-item-edit-form-label">{t('checklist.assignee')}</label>
                     <input
                       type="text"
                       value={assignee}
                       onChange={(e) => setAssignee(e.target.value)}
                       placeholder={t('checklist.assigneePlaceholder')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="fb-checklist-item-edit-form-input"
                     />
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">{t('checklist.notes')}</label>
+                  <div className="fb-checklist-item-edit-form-field">
+                    <label className="fb-checklist-item-edit-form-label">{t('checklist.notes')}</label>
                     <textarea
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       rows={3}
                       placeholder={t('checklist.notesPlaceholder')}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="fb-checklist-item-edit-form-textarea"
                     />
                   </div>
-                  <div className="flex gap-2">
+                  <div className="fb-checklist-item-edit-form-actions">
                     <button
                       onClick={handleSaveNotes}
-                      className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700 transition-colors"
+                      className="fb-btn fb-btn-primary"
                     >
                       {t('checklist.save')}
                     </button>
@@ -107,22 +111,22 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
                         setNotes(item.notes);
                         setAssignee(item.assignee || '');
                       }}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-300 transition-colors"
+                      className="fb-btn fb-btn-secondary"
                     >
                       {t('checklist.cancel')}
                     </button>
                   </div>
                 </div>
               ) : (
-                <div>
+                <div className="fb-checklist-item-notes">
                   {item.assignee && (
-                    <p className="text-sm text-gray-700 mb-2">
-                      <span className="font-medium">{t('checklist.assignee')}:</span> {item.assignee}
+                    <p className="fb-checklist-item-notes-text">
+                      <span className="fb-checklist-item-notes-label">{t('checklist.assignee')}:</span> {item.assignee}
                     </p>
                   )}
                   {item.notes && (
-                    <p className="text-sm text-gray-700">
-                      <span className="font-medium">{t('checklist.notes')}:</span> {item.notes}
+                    <p className="fb-checklist-item-notes-text">
+                      <span className="fb-checklist-item-notes-label">{t('checklist.notes')}:</span> {item.notes}
                     </p>
                   )}
                 </div>
@@ -130,16 +134,16 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
             </div>
           )}
 
-          <div className="mt-3 text-xs text-gray-500">
+          <div className="fb-checklist-item-timestamp">
             {t('checklist.lastUpdated')}: {item.lastUpdated.toLocaleDateString(language === 'ko' ? 'ko-KR' : 'en-US')} {item.lastUpdated.toLocaleTimeString(language === 'ko' ? 'ko-KR' : 'en-US')}
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="fb-checklist-item-actions">
           <select
             value={item.status}
             onChange={(e) => handleStatusChange(e.target.value as ChecklistItem['status'])}
-            className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="fb-checklist-item-select"
           >
             <option value="not-started">{t('filter.notStarted')}</option>
             <option value="in-progress">{t('filter.inProgress')}</option>
@@ -150,7 +154,7 @@ export default function ChecklistItemComponent({ item, onUpdate }: ChecklistItem
           {!isEditing && (
             <button
               onClick={() => setIsEditing(true)}
-              className="px-3 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+              className="fb-checklist-item-edit-btn"
             >
               {t('checklist.editNotes')}
             </button>

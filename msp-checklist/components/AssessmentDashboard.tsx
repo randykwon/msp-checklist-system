@@ -35,15 +35,21 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
       {/* Title */}
       <h2 className="text-3xl font-bold text-gray-900 mb-6">{title}</h2>
 
-      {/* Overall Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-        <div className="bg-white rounded-lg p-4 shadow">
+      {/* Overall Stats - Horizontal Layout */}
+      <div style={{ 
+        display: 'flex', 
+        flexDirection: 'row', 
+        gap: '16px', 
+        marginBottom: '32px',
+        flexWrap: 'wrap'
+      }}>
+        <div style={{ flex: '1 1 150px', minWidth: '150px' }} className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.totalItems')}</div>
           <div className="text-3xl font-bold text-gray-900">{totalItems}</div>
           <div className="text-xs text-gray-500 mt-1">{mandatoryItems} {t('assessmentDashboard.mandatory')}</div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow">
+        <div style={{ flex: '1 1 150px', minWidth: '150px' }} className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.met')} ✓</div>
           <div className="text-3xl font-bold text-green-600">{metItems}</div>
           <div className="text-xs text-gray-500 mt-1">
@@ -51,7 +57,7 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow">
+        <div style={{ flex: '1 1 150px', minWidth: '150px' }} className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.notMet')} ✗</div>
           <div className="text-3xl font-bold text-red-600">{notMetItems}</div>
           <div className="text-xs text-gray-500 mt-1">
@@ -59,7 +65,7 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow">
+        <div style={{ flex: '1 1 150px', minWidth: '150px' }} className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.pending')} ⏳</div>
           <div className="text-3xl font-bold text-gray-600">{pendingItems}</div>
           <div className="text-xs text-gray-500 mt-1">
@@ -67,7 +73,7 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
           </div>
         </div>
 
-        <div className="bg-white rounded-lg p-4 shadow">
+        <div style={{ flex: '1 1 150px', minWidth: '150px' }} className="bg-white rounded-lg p-4 shadow">
           <div className="text-sm font-medium text-gray-500 mb-1">{t('assessmentDashboard.overallProgress')}</div>
           <div className="text-3xl font-bold text-blue-600">{overallProgress}%</div>
           <div className="fb-progress fb-progress-xs mt-2">

@@ -1,6 +1,85 @@
-/* Global CSS for MSP Checklist Admin */
+/* MSP Checklist Admin - Facebook Style UI */
 
-/* Base styles */
+/* ============================================
+   Facebook Theme CSS Variables
+   ============================================ */
+:root {
+  /* Facebook Colors - Primary */
+  --fb-primary: #1877F2;
+  --fb-primary-hover: #166FE5;
+  
+  /* Facebook Colors - Secondary */
+  --fb-secondary: #E4E6EB;
+  --fb-secondary-hover: #D8DADF;
+  
+  /* Facebook Colors - Background & Surface */
+  --fb-background: #F0F2F5;
+  --fb-surface: #FFFFFF;
+  
+  /* Facebook Colors - Text */
+  --fb-text-primary: #050505;
+  --fb-text-secondary: #65676B;
+  
+  /* Facebook Colors - Status */
+  --fb-success: #42B72A;
+  --fb-error: #FA383E;
+  --fb-warning: #F7B928;
+  
+  /* Facebook Colors - Border & Active */
+  --fb-border: #E4E6EB;
+  --fb-active-bg: #E7F3FF;
+  
+  /* Facebook Typography - Font Family */
+  --fb-font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+  
+  /* Facebook Typography - Font Sizes */
+  --fb-font-size-xs: 12px;
+  --fb-font-size-sm: 13px;
+  --fb-font-size-base: 15px;
+  --fb-font-size-lg: 17px;
+  --fb-font-size-xl: 20px;
+  --fb-font-size-2xl: 24px;
+  --fb-font-size-3xl: 28px;
+  
+  /* Facebook Typography - Font Weights */
+  --fb-font-weight-normal: 400;
+  --fb-font-weight-semibold: 600;
+  --fb-font-weight-bold: 700;
+  
+  /* Facebook Spacing */
+  --fb-spacing-xs: 4px;
+  --fb-spacing-sm: 8px;
+  --fb-spacing-md: 12px;
+  --fb-spacing-lg: 16px;
+  --fb-spacing-xl: 20px;
+  --fb-spacing-2xl: 24px;
+
+  /* Facebook Border Radius */
+  --fb-radius-sm: 4px;
+  --fb-radius-md: 6px;
+  --fb-radius-lg: 8px;
+  --fb-radius-xl: 10px;
+  --fb-radius-pill: 20px;
+  --fb-radius-full: 50%;
+  
+  /* Facebook Shadows */
+  --fb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
+  --fb-shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --fb-shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.15);
+  
+  /* Facebook Transitions */
+  --fb-transition-fast: 200ms ease-out;
+  --fb-transition-normal: 300ms ease-out;
+  
+  /* Facebook Layout */
+  --fb-header-height: 56px;
+  --fb-sidebar-width: 280px;
+  --fb-content-max-width: 680px;
+}
+
+/* ============================================
+   Facebook Style Base Styles
+   ============================================ */
 * {
   box-sizing: border-box;
   padding: 0;
@@ -11,184 +90,1740 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  line-height: 1.34;
 }
 
-/* Custom animations */
+body {
+  color: var(--fb-text-primary);
+  background-color: var(--fb-background);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ============================================
+   Facebook Style Button Components
+   ============================================ */
+
+/* Facebook Button Base */
+.fb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--fb-radius-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  font-weight: var(--fb-font-weight-semibold);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-lg);
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+  line-height: 1.34;
+  min-height: 36px;
+}
+
+/* Facebook Primary Button */
+.fb-btn-primary {
+  background-color: var(--fb-primary);
+  color: #FFFFFF;
+}
+
+.fb-btn-primary:hover {
+  background-color: var(--fb-primary-hover);
+}
+
+.fb-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.fb-btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Facebook Secondary Button */
+.fb-btn-secondary {
+  background-color: var(--fb-secondary);
+  color: var(--fb-text-primary);
+}
+
+.fb-btn-secondary:hover {
+  background-color: var(--fb-secondary-hover);
+}
+
+.fb-btn-secondary:active {
+  transform: scale(0.98);
+}
+
+.fb-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Facebook Text Button (Ghost) */
+.fb-btn-text {
+  background-color: transparent;
+  color: var(--fb-primary);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+}
+
+.fb-btn-text:hover {
+  background-color: var(--fb-active-bg);
+}
+
+/* Facebook Button Sizes */
+.fb-btn-sm {
+  padding: var(--fb-spacing-xs) var(--fb-spacing-md);
+  font-size: var(--fb-font-size-sm);
+  min-height: 28px;
+}
+
+.fb-btn-lg {
+  padding: var(--fb-spacing-md) var(--fb-spacing-xl);
+  font-size: var(--fb-font-size-lg);
+  min-height: 44px;
+}
+
+/* Facebook Button with Icon */
+.fb-btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+}
+
+/* Facebook Icon-only Button */
+.fb-btn-icon-only {
+  padding: var(--fb-spacing-sm);
+  border-radius: var(--fb-radius-full);
+  min-width: 36px;
+  min-height: 36px;
+}
+
+.fb-btn-icon-only:hover {
+  background-color: var(--fb-background);
+}
+
+/* Facebook Success Button */
+.fb-btn-success {
+  background-color: var(--fb-success);
+  color: #FFFFFF;
+}
+
+.fb-btn-success:hover {
+  background-color: #3aa324;
+}
+
+/* Facebook Danger Button */
+.fb-btn-danger {
+  background-color: var(--fb-error);
+  color: #FFFFFF;
+}
+
+.fb-btn-danger:hover {
+  background-color: #e02d37;
+}
+
+/* Facebook Warning Button */
+.fb-btn-warning {
+  background-color: var(--fb-warning);
+  color: var(--fb-text-primary);
+}
+
+.fb-btn-warning:hover {
+  background-color: #e5a91f;
+}
+
+/* Facebook Button Focus States */
+.fb-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--fb-surface), 0 0 0 4px var(--fb-primary);
+}
+
+.fb-btn:focus:not(:focus-visible) {
+  box-shadow: none;
+}
+
+/* ============================================
+   Facebook Style Card Components
+   ============================================ */
+
+/* Facebook Card Base */
+.fb-card {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-sm);
+  padding: var(--fb-spacing-lg);
+  transition: all var(--fb-transition-fast);
+}
+
+/* Facebook Card Padding Variants */
+.fb-card-sm { padding: var(--fb-spacing-sm); }
+.fb-card-md { padding: var(--fb-spacing-md); }
+.fb-card-lg { padding: var(--fb-spacing-lg); }
+.fb-card-xl { padding: var(--fb-spacing-xl); }
+
+/* Facebook Interactive Card */
+.fb-card-interactive {
+  cursor: pointer;
+}
+
+.fb-card-interactive:hover {
+  background-color: var(--fb-background);
+}
+
+/* Facebook Card Header */
+.fb-card-header {
+  padding-bottom: var(--fb-spacing-md);
+  margin-bottom: var(--fb-spacing-md);
+  border-bottom: 1px solid var(--fb-border);
+}
+
+.fb-card-header-title {
+  font-size: var(--fb-font-size-lg);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-primary);
+  margin: 0;
+}
+
+.fb-card-header-subtitle {
+  font-size: var(--fb-font-size-sm);
+  color: var(--fb-text-secondary);
+  margin-top: var(--fb-spacing-xs);
+}
+
+/* Facebook Card Body */
+.fb-card-body {
+  color: var(--fb-text-primary);
+  font-size: var(--fb-font-size-base);
+  line-height: 1.34;
+}
+
+/* Facebook Card Footer */
+.fb-card-footer {
+  padding-top: var(--fb-spacing-md);
+  margin-top: var(--fb-spacing-md);
+  border-top: 1px solid var(--fb-border);
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+}
+
+/* Facebook Card Actions */
+.fb-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--fb-spacing-sm);
+  padding-top: var(--fb-spacing-md);
+  margin-top: var(--fb-spacing-md);
+  border-top: 1px solid var(--fb-border);
+}
+
+/* Facebook Card Elevated */
+.fb-card-elevated {
+  box-shadow: var(--fb-shadow-md);
+}
+
+.fb-card-elevated:hover {
+  box-shadow: var(--fb-shadow-lg);
+}
+
+/* Facebook Card Grid */
+.fb-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--fb-spacing-lg);
+}
+
+/* Facebook Stat Card */
+.fb-stat-card {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-sm);
+  padding: var(--fb-spacing-lg);
+  text-align: center;
+}
+
+.fb-stat-card-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto var(--fb-spacing-md);
+  border-radius: var(--fb-radius-full);
+  background-color: var(--fb-active-bg);
+  color: var(--fb-primary);
+}
+
+.fb-stat-card-value {
+  font-size: var(--fb-font-size-3xl);
+  font-weight: var(--fb-font-weight-bold);
+  color: var(--fb-text-primary);
+  line-height: 1;
+  margin-bottom: var(--fb-spacing-xs);
+}
+
+.fb-stat-card-label {
+  font-size: var(--fb-font-size-sm);
+  color: var(--fb-text-secondary);
+}
+
+/* ============================================
+   Facebook Style Input Components
+   ============================================ */
+
+/* Facebook Input Base */
+.fb-input {
+  width: 100%;
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+  line-height: 1.34;
+}
+
+.fb-input::placeholder {
+  color: var(--fb-text-secondary);
+}
+
+/* Facebook Input Focus State */
+.fb-input:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* Facebook Search Input (Pill Shape) */
+.fb-input-search {
+  border-radius: var(--fb-radius-pill);
+  padding-left: var(--fb-spacing-lg);
+  padding-right: var(--fb-spacing-lg);
+}
+
+/* Facebook Input with Border */
+.fb-input-bordered {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+}
+
+.fb-input-bordered:focus {
+  border-color: var(--fb-primary);
+  background-color: var(--fb-surface);
+}
+
+/* Facebook Input Sizes */
+.fb-input-sm {
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+  font-size: var(--fb-font-size-sm);
+}
+
+.fb-input-lg {
+  padding: var(--fb-spacing-md) var(--fb-spacing-lg);
+  font-size: var(--fb-font-size-lg);
+}
+
+/* Facebook Input States */
+.fb-input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--fb-secondary);
+}
+
+.fb-input-error {
+  border: 1px solid var(--fb-error);
+  background-color: var(--fb-surface);
+}
+
+.fb-input-error:focus {
+  border-color: var(--fb-error);
+  box-shadow: 0 0 0 2px rgba(250, 56, 62, 0.2);
+}
+
+/* Facebook Textarea */
+.fb-textarea {
+  width: 100%;
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  line-height: 1.34;
+}
+
+.fb-textarea:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* Facebook Select */
+.fb-select {
+  width: 100%;
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2365676B' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--fb-spacing-md) center;
+  padding-right: calc(var(--fb-spacing-md) + 20px);
+}
+
+.fb-select:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* Facebook Form Field */
+.fb-form-field {
+  margin-bottom: var(--fb-spacing-lg);
+}
+
+.fb-form-label {
+  display: block;
+  font-size: var(--fb-font-size-sm);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-primary);
+  margin-bottom: var(--fb-spacing-xs);
+}
+
+.fb-form-helper {
+  font-size: var(--fb-font-size-xs);
+  color: var(--fb-text-secondary);
+  margin-top: var(--fb-spacing-xs);
+}
+
+.fb-form-error {
+  font-size: var(--fb-font-size-xs);
+  color: var(--fb-error);
+  margin-top: var(--fb-spacing-xs);
+}
+
+/* Facebook Checkbox */
+.fb-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+  cursor: pointer;
+}
+
+.fb-checkbox-input {
+  width: 18px;
+  height: 18px;
+  border: 2px solid var(--fb-border);
+  border-radius: var(--fb-radius-sm);
+  background-color: var(--fb-surface);
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+}
+
+.fb-checkbox-input:checked {
+  background-color: var(--fb-primary);
+  border-color: var(--fb-primary);
+}
+
+.fb-checkbox-input:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.fb-checkbox-label {
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+}
+
+/* Apply Facebook Input Styles to Native Elements */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="date"]:focus,
+input[type="time"]:focus,
+input[type="datetime-local"]:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+select {
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+}
+
+select:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+textarea {
+  background-color: var(--fb-background);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  padding: var(--fb-spacing-md);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  transition: all var(--fb-transition-fast);
+  outline: none;
+  resize: vertical;
+}
+
+textarea:focus {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-primary);
+  box-shadow: 0 0 0 2px rgba(24, 119, 242, 0.2);
+}
+
+/* ============================================
+   Facebook Style Header Components
+   ============================================ */
+
+/* Facebook Header Base */
+.fb-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--fb-header-height);
+  background-color: var(--fb-surface);
+  box-shadow: var(--fb-shadow-md);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--fb-spacing-lg);
+}
+
+/* Facebook Header 3-Section Layout */
+.fb-header-left {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+}
+
+.fb-header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fb-header-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+}
+
+/* Facebook Header Logo */
+.fb-header-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+  text-decoration: none;
+  color: var(--fb-primary);
+}
+
+.fb-header-logo-text {
+  font-size: var(--fb-font-size-xl);
+  font-weight: var(--fb-font-weight-bold);
+  color: var(--fb-primary);
+}
+
+/* Facebook Header Action Buttons */
+.fb-header-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--fb-radius-full);
+  background-color: var(--fb-secondary);
+  color: var(--fb-text-primary);
+  border: none;
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  position: relative;
+}
+
+.fb-header-action-btn:hover {
+  background-color: var(--fb-secondary-hover);
+}
+
+/* Facebook Header User Menu */
+.fb-header-user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--fb-radius-full);
+  background-color: var(--fb-primary);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fb-font-size-sm);
+  font-weight: var(--fb-font-weight-semibold);
+}
+
+/* Facebook Header Dropdown */
+.fb-header-dropdown {
+  position: absolute;
+  top: calc(100% + var(--fb-spacing-sm));
+  right: 0;
+  min-width: 200px;
+  background-color: var(--fb-surface);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-lg);
+  border: 1px solid var(--fb-border);
+  overflow: hidden;
+  z-index: 1000;
+  animation: fb-dropdown-in var(--fb-transition-fast);
+}
+
+@keyframes fb-dropdown-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.fb-header-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-md);
+  width: 100%;
+  padding: var(--fb-spacing-sm) var(--fb-spacing-lg);
+  background-color: transparent;
+  border: none;
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  color: var(--fb-text-primary);
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  text-align: left;
+}
+
+.fb-header-dropdown-item:hover {
+  background-color: var(--fb-background);
+}
+
+/* ============================================
+   Facebook Style Navigation Components
+   ============================================ */
+
+/* Facebook Navigation Container */
+.fb-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--fb-spacing-xs);
+}
+
+/* Facebook Navigation Item Base */
+.fb-nav-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: var(--fb-spacing-sm) var(--fb-spacing-2xl);
+  border-radius: var(--fb-radius-lg);
+  color: var(--fb-text-secondary);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  font-weight: var(--fb-font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  border: none;
+  background-color: transparent;
+  position: relative;
+  gap: var(--fb-spacing-sm);
+}
+
+/* Facebook Navigation Item Hover State */
+.fb-nav-item:hover {
+  background-color: var(--fb-background);
+  color: var(--fb-text-primary);
+}
+
+/* Facebook Navigation Item Active State */
+.fb-nav-item-active {
+  color: var(--fb-primary);
+}
+
+.fb-nav-item-active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background-color: var(--fb-primary);
+  border-radius: var(--fb-radius-sm) var(--fb-radius-sm) 0 0;
+}
+
+/* Facebook Navigation - Vertical Layout */
+.fb-nav-vertical {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--fb-spacing-xs);
+}
+
+.fb-nav-vertical .fb-nav-item {
+  justify-content: flex-start;
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  border-radius: var(--fb-radius-lg);
+}
+
+.fb-nav-vertical .fb-nav-item-active::after {
+  display: none;
+}
+
+.fb-nav-vertical .fb-nav-item-active {
+  background-color: var(--fb-active-bg);
+}
+
+/* ============================================
+   Facebook Style Sidebar Components
+   ============================================ */
+
+/* Facebook Sidebar Container */
+.fb-sidebar {
+  width: var(--fb-sidebar-width);
+  padding: var(--fb-spacing-sm);
+  position: sticky;
+  top: calc(var(--fb-header-height) + var(--fb-spacing-lg));
+  height: calc(100vh - var(--fb-header-height) - var(--fb-spacing-lg) * 2);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+/* Facebook Sidebar Scrollbar */
+.fb-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.fb-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fb-sidebar::-webkit-scrollbar-thumb {
+  background-color: var(--fb-secondary);
+  border-radius: var(--fb-radius-pill);
+}
+
+/* Facebook Sidebar Section */
+.fb-sidebar-section {
+  margin-bottom: var(--fb-spacing-lg);
+}
+
+.fb-sidebar-section-title {
+  font-size: var(--fb-font-size-sm);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  margin-bottom: var(--fb-spacing-xs);
+}
+
+/* Facebook Sidebar Item Base */
+.fb-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-md);
+  padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+  border-radius: var(--fb-radius-lg);
+  color: var(--fb-text-primary);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-base);
+  font-weight: var(--fb-font-weight-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  border: none;
+  background-color: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+/* Facebook Sidebar Item Icon */
+.fb-sidebar-item-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--fb-radius-full);
+  background-color: var(--fb-secondary);
+  color: var(--fb-text-primary);
+  flex-shrink: 0;
+  transition: all var(--fb-transition-fast);
+}
+
+/* Facebook Sidebar Item Hover State */
+.fb-sidebar-item:hover {
+  background-color: var(--fb-background);
+}
+
+/* Facebook Sidebar Item Active State */
+.fb-sidebar-item-active {
+  background-color: var(--fb-active-bg);
+  color: var(--fb-primary);
+}
+
+.fb-sidebar-item-active .fb-sidebar-item-icon {
+  background-color: var(--fb-active-bg);
+  color: var(--fb-primary);
+}
+
+/* Facebook Sidebar Divider */
+.fb-sidebar-divider {
+  height: 1px;
+  background-color: var(--fb-border);
+  margin: var(--fb-spacing-sm) var(--fb-spacing-md);
+}
+
+/* ============================================
+   Facebook Style Progress Bar Components
+   ============================================ */
+
+/* Facebook Progress Bar Base */
+.fb-progress {
+  width: 100%;
+  height: 8px;
+  background-color: var(--fb-secondary);
+  border-radius: var(--fb-radius-sm);
+  overflow: hidden;
+}
+
+/* Facebook Progress Bar Fill */
+.fb-progress-fill {
+  height: 100%;
+  background-color: var(--fb-primary);
+  border-radius: var(--fb-radius-sm);
+  transition: width var(--fb-transition-normal);
+}
+
+/* Facebook Progress Bar Sizes */
+.fb-progress-xs { height: 4px; }
+.fb-progress-sm { height: 6px; }
+.fb-progress-md { height: 8px; }
+.fb-progress-lg { height: 12px; }
+.fb-progress-xl { height: 16px; }
+
+/* Facebook Progress Bar Color Variants */
+.fb-progress-fill-success { background-color: var(--fb-success); }
+.fb-progress-fill-warning { background-color: var(--fb-warning); }
+.fb-progress-fill-error { background-color: var(--fb-error); }
+
+/* Facebook Progress Bar with Label */
+.fb-progress-labeled {
+  display: flex;
+  flex-direction: column;
+  gap: var(--fb-spacing-xs);
+}
+
+.fb-progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fb-font-size-sm);
+  color: var(--fb-text-secondary);
+}
+
+.fb-progress-label-text {
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-primary);
+}
+
+.fb-progress-label-value {
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-primary);
+}
+
+/* Facebook Progress Card */
+.fb-progress-card {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+  border-radius: var(--fb-radius-lg);
+  padding: var(--fb-spacing-lg);
+}
+
+.fb-progress-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--fb-spacing-md);
+}
+
+.fb-progress-card-title {
+  font-size: var(--fb-font-size-lg);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-primary);
+}
+
+.fb-progress-card-value {
+  font-size: var(--fb-font-size-lg);
+  font-weight: var(--fb-font-weight-bold);
+  color: var(--fb-primary);
+}
+
+/* ============================================
+   Facebook Style Badge Components
+   ============================================ */
+
+/* Facebook Badge Base */
+.fb-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 var(--fb-spacing-xs);
+  border-radius: var(--fb-radius-full);
+  font-family: var(--fb-font-family);
+  font-size: var(--fb-font-size-xs);
+  font-weight: var(--fb-font-weight-semibold);
+  line-height: 1;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+/* Facebook Notification Badge */
+.fb-badge-notification {
+  background-color: var(--fb-error);
+  color: #FFFFFF;
+  min-width: 18px;
+  height: 18px;
+  border-radius: var(--fb-radius-full);
+}
+
+/* Facebook Status Badges */
+.fb-badge-success {
+  background-color: var(--fb-success);
+  color: #FFFFFF;
+  border-radius: var(--fb-radius-xl);
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+}
+
+.fb-badge-warning {
+  background-color: var(--fb-warning);
+  color: var(--fb-text-primary);
+  border-radius: var(--fb-radius-xl);
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+}
+
+.fb-badge-error {
+  background-color: var(--fb-error);
+  color: #FFFFFF;
+  border-radius: var(--fb-radius-xl);
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+}
+
+.fb-badge-info {
+  background-color: var(--fb-primary);
+  color: #FFFFFF;
+  border-radius: var(--fb-radius-xl);
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+}
+
+.fb-badge-neutral {
+  background-color: var(--fb-secondary);
+  color: var(--fb-text-secondary);
+  border-radius: var(--fb-radius-xl);
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+}
+
+/* Facebook Badge Sizes */
+.fb-badge-sm {
+  min-width: 14px;
+  height: 14px;
+  font-size: 10px;
+  padding: 0 2px;
+}
+
+.fb-badge-lg {
+  min-width: 24px;
+  height: 24px;
+  font-size: var(--fb-font-size-sm);
+  padding: 0 var(--fb-spacing-sm);
+}
+
+/* Facebook Label Badge */
+.fb-badge-label {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--fb-spacing-xs) var(--fb-spacing-sm);
+  border-radius: var(--fb-radius-md);
+  font-size: var(--fb-font-size-xs);
+  font-weight: var(--fb-font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.fb-badge-label-success {
+  background-color: rgba(66, 183, 42, 0.1);
+  color: var(--fb-success);
+}
+
+.fb-badge-label-warning {
+  background-color: rgba(247, 185, 40, 0.1);
+  color: #b38600;
+}
+
+.fb-badge-label-error {
+  background-color: rgba(250, 56, 62, 0.1);
+  color: var(--fb-error);
+}
+
+.fb-badge-label-info {
+  background-color: var(--fb-active-bg);
+  color: var(--fb-primary);
+}
+
+/* ============================================
+   Facebook Style Modal Components
+   ============================================ */
+
+/* Facebook Modal Overlay */
+.fb-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: var(--fb-spacing-lg);
+  animation: fb-modal-fade-in 200ms ease-out;
+}
+
+/* Facebook Modal Content */
+.fb-modal {
+  background-color: var(--fb-surface);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-lg);
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: fb-modal-scale-in 200ms ease-out;
+}
+
+.fb-modal-lg { max-width: 680px; }
+.fb-modal-xl { max-width: 900px; }
+.fb-modal-full { max-width: 1200px; }
+
+/* Facebook Modal Header */
+.fb-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fb-spacing-lg);
+  border-bottom: 1px solid var(--fb-border);
+  background-color: var(--fb-surface);
+  flex-shrink: 0;
+}
+
+.fb-modal-title {
+  font-size: var(--fb-font-size-xl);
+  font-weight: var(--fb-font-weight-bold);
+  color: var(--fb-text-primary);
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* Facebook Modal Close Button */
+.fb-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background-color: var(--fb-secondary);
+  border-radius: var(--fb-radius-full);
+  color: var(--fb-text-secondary);
+  cursor: pointer;
+  transition: all var(--fb-transition-fast);
+  flex-shrink: 0;
+}
+
+.fb-modal-close:hover {
+  background-color: var(--fb-secondary-hover);
+  color: var(--fb-text-primary);
+}
+
+/* Facebook Modal Body */
+.fb-modal-body {
+  padding: var(--fb-spacing-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Facebook Modal Footer */
+.fb-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--fb-spacing-sm);
+  padding: var(--fb-spacing-lg);
+  border-top: 1px solid var(--fb-border);
+  background-color: var(--fb-surface);
+  flex-shrink: 0;
+}
+
+/* Facebook Modal Animations */
+@keyframes fb-modal-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fb-modal-scale-in {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================
+   Facebook Style Table Components
+   ============================================ */
+
+/* Facebook Table */
+.fb-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: var(--fb-surface);
+  border-radius: var(--fb-radius-lg);
+  overflow: hidden;
+}
+
+.fb-table th,
+.fb-table td {
+  padding: var(--fb-spacing-md) var(--fb-spacing-lg);
+  text-align: left;
+  border-bottom: 1px solid var(--fb-border);
+}
+
+.fb-table th {
+  background-color: var(--fb-background);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-secondary);
+  font-size: var(--fb-font-size-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.fb-table td {
+  color: var(--fb-text-primary);
+  font-size: var(--fb-font-size-base);
+}
+
+.fb-table tbody tr:hover {
+  background-color: var(--fb-background);
+}
+
+.fb-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Facebook Table Card Wrapper */
+.fb-table-card {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-sm);
+  overflow: hidden;
+}
+
+.fb-table-card .fb-table {
+  border-radius: 0;
+}
+
+/* Facebook Table Header */
+.fb-table-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fb-spacing-lg);
+  border-bottom: 1px solid var(--fb-border);
+}
+
+.fb-table-title {
+  font-size: var(--fb-font-size-lg);
+  font-weight: var(--fb-font-weight-semibold);
+  color: var(--fb-text-primary);
+}
+
+/* Facebook Table Actions */
+.fb-table-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-sm);
+}
+
+/* Facebook Table Pagination */
+.fb-table-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--fb-spacing-md) var(--fb-spacing-lg);
+  border-top: 1px solid var(--fb-border);
+  background-color: var(--fb-background);
+}
+
+.fb-table-pagination-info {
+  font-size: var(--fb-font-size-sm);
+  color: var(--fb-text-secondary);
+}
+
+.fb-table-pagination-buttons {
+  display: flex;
+  align-items: center;
+  gap: var(--fb-spacing-xs);
+}
+
+/* ============================================
+   Facebook Style Layout Components
+   ============================================ */
+
+/* Facebook Main Content */
+.fb-main-content {
+  max-width: var(--fb-content-max-width);
+  margin: 0 auto;
+  padding: var(--fb-spacing-lg);
+}
+
+/* Facebook Page Layout */
+.fb-page-layout {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--fb-spacing-lg);
+}
+
+/* Facebook Page with Sidebar */
+.fb-page-with-sidebar {
+  display: flex;
+  max-width: 1920px;
+  margin: 0 auto;
+  padding: var(--fb-spacing-lg);
+  gap: var(--fb-spacing-lg);
+}
+
+.fb-page-with-sidebar .fb-main-content {
+  flex: 1;
+  max-width: var(--fb-content-max-width);
+  min-width: 0;
+}
+
+/* Facebook Admin Layout */
+.fb-admin-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.fb-admin-sidebar {
+  width: var(--fb-sidebar-width);
+  background-color: var(--fb-surface);
+  border-right: 1px solid var(--fb-border);
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.fb-admin-main {
+  flex: 1;
+  margin-left: var(--fb-sidebar-width);
+  min-height: 100vh;
+  background-color: var(--fb-background);
+}
+
+.fb-admin-content {
+  padding: var(--fb-spacing-lg);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Facebook Admin Header */
+.fb-admin-header {
+  background-color: var(--fb-surface);
+  border-bottom: 1px solid var(--fb-border);
+  padding: var(--fb-spacing-lg);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.fb-admin-header-title {
+  font-size: var(--fb-font-size-xl);
+  font-weight: var(--fb-font-weight-bold);
+  color: var(--fb-text-primary);
+}
+
+.fb-admin-header-subtitle {
+  font-size: var(--fb-font-size-sm);
+  color: var(--fb-text-secondary);
+  margin-top: var(--fb-spacing-xs);
+}
+
+/* ============================================
+   Facebook Style Utility Classes
+   ============================================ */
+
+/* Layout Utilities */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-2 { gap: 0.5rem; }
+.gap-4 { gap: 1rem; }
+.gap-6 { gap: 1.5rem; }
+.gap-8 { gap: 2rem; }
+
+/* Typography */
+.text-center { text-align: center; }
+.text-sm { font-size: 0.875rem; line-height: 1.25rem; }
+.text-base { font-size: 1rem; line-height: 1.5rem; }
+.text-lg { font-size: 1.125rem; line-height: 1.75rem; }
+.text-xl { font-size: 1.25rem; line-height: 1.75rem; }
+.text-2xl { font-size: 1.5rem; line-height: 2rem; }
+.text-3xl { font-size: 1.875rem; line-height: 2.25rem; }
+.text-4xl { font-size: 2.25rem; line-height: 2.5rem; }
+.font-medium { font-weight: 500; }
+.font-semibold { font-weight: 600; }
+.font-bold { font-weight: 700; }
+
+/* Colors */
+.text-gray-500 { color: #6b7280; }
+.text-gray-600 { color: #4b5563; }
+.text-gray-700 { color: #374151; }
+.text-gray-900 { color: #111827; }
+.text-blue-600 { color: #2563eb; }
+.text-green-600 { color: #059669; }
+.text-red-600 { color: #dc2626; }
+.text-purple-600 { color: #7c3aed; }
+.text-white { color: #ffffff; }
+
+.bg-blue-500 { background-color: #3b82f6; }
+.bg-blue-600 { background-color: #2563eb; }
+.bg-green-500 { background-color: #10b981; }
+.bg-green-600 { background-color: #059669; }
+.bg-purple-600 { background-color: #7c3aed; }
+.bg-gray-50 { background-color: #f9fafb; }
+.bg-gray-100 { background-color: #f3f4f6; }
+.bg-white { background-color: #ffffff; }
+
+/* Spacing */
+.p-4 { padding: 1rem; }
+.p-6 { padding: 1.5rem; }
+.p-8 { padding: 2rem; }
+.px-4 { padding-left: 1rem; padding-right: 1rem; }
+.px-6 { padding-left: 1.5rem; padding-right: 1.5rem; }
+.py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+.py-3 { padding-top: 0.75rem; padding-bottom: 0.75rem; }
+.py-4 { padding-top: 1rem; padding-bottom: 1rem; }
+.py-6 { padding-top: 1.5rem; padding-bottom: 1.5rem; }
+.py-8 { padding-top: 2rem; padding-bottom: 2rem; }
+.mb-2 { margin-bottom: 0.5rem; }
+.mb-3 { margin-bottom: 0.75rem; }
+.mb-4 { margin-bottom: 1rem; }
+.mb-6 { margin-bottom: 1.5rem; }
+.mb-8 { margin-bottom: 2rem; }
+.mt-2 { margin-top: 0.5rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-6 { margin-top: 1.5rem; }
+.mt-8 { margin-top: 2rem; }
+.ml-4 { margin-left: 1rem; }
+
+/* Grid Layouts */
+.grid { display: grid; }
+.grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
+.grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* Border Utilities */
+.rounded-lg { border-radius: 0.5rem; }
+.rounded-xl { border-radius: 0.75rem; }
+.border { border-width: 1px; }
+.border-gray-200 { border-color: #e5e7eb; }
+
+/* Shadow Utilities */
+.shadow-sm { box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); }
+.shadow-md { box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+.shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+
+/* Transition Utilities */
+.transition-all { transition: all 0.2s ease-in-out; }
+.transition-colors { transition: color 0.2s ease-in-out, background-color 0.2s ease-in-out; }
+
+/* ============================================
+   Facebook Style Animations
+   ============================================ */
+
+/* Shake Animation */
 @keyframes shake {
-  0%, 100% { 
-    transform: translateX(0); 
-  }
-  25% { 
-    transform: translateX(-5px); 
-  }
-  75% { 
-    transform: translateX(5px); 
-  }
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .animate-shake {
   animation: shake 0.5s ease-in-out;
 }
 
-/* Smooth transitions */
-.transition-all {
-  transition: all 0.2s ease-in-out;
-}
-
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
-  border-radius: 3px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
-}
-
-/* Focus styles for accessibility */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus {
-  outline: 2px solid #3b82f6;
-  outline-offset: 2px;
-}
-
-/* Loading spinner */
+/* Spin Animation */
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 .animate-spin {
   animation: spin 1s linear infinite;
 }
 
-/* Pulse animation */
+/* Pulse Animation */
 @keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
-/* Gradient backgrounds */
-.bg-gradient-to-r {
-  background-image: linear-gradient(to right, var(--tw-gradient-stops));
-}
-
-.bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops));
-}
-
-/* Backdrop blur effect */
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-}
-
-/* Glass morphism effect */
-.glass {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-/* Hover effects */
-.hover-lift:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-/* Button styles */
-.btn-primary {
-  background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.75rem;
-  font-weight: 600;
-  transition: all 0.2s ease-in-out;
-  border: none;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.3);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-}
-
-.btn-primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Card styles */
-.card {
-  background: white;
-  border-radius: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  transition: all 0.2s ease-in-out;
-}
-
-.card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-/* Status indicators */
-.status-online {
-  color: #10b981;
-}
-
-.status-offline {
-  color: #ef4444;
-}
-
-.status-warning {
-  color: #f59e0b;
-}
-
-/* Responsive utilities */
-@media (max-width: 768px) {
-  .mobile-hidden {
-    display: none;
+/* Fade In Animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Skeleton Loading Animation */
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.fb-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--fb-secondary) 25%,
+    var(--fb-background) 50%,
+    var(--fb-secondary) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+/* ============================================
+   Facebook Style Responsive Design
+   ============================================ */
+
+/* Responsive Grid */
+@media (min-width: 768px) {
+  .md\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .md\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1024px) {
+  .lg\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Responsive Sidebar */
+@media (max-width: 900px) {
+  .fb-sidebar-right { display: none; }
+  .fb-admin-sidebar { width: 72px; }
+  .fb-admin-main { margin-left: 72px; }
+}
+
+@media (max-width: 700px) {
+  .fb-sidebar { display: none; }
+  .fb-sidebar-left { display: none; }
+  .fb-admin-sidebar { 
+    transform: translateX(-100%);
+    width: var(--fb-sidebar-width);
+  }
+  .fb-admin-sidebar.open { transform: translateX(0); }
+  .fb-admin-main { margin-left: 0; }
+  .fb-page-with-sidebar { padding: var(--fb-spacing-md); }
+  .fb-page-with-sidebar .fb-main-content { max-width: 100%; }
+}
+
+/* Responsive Header */
+@media (max-width: 900px) {
+  .fb-header { padding: 0 var(--fb-spacing-md); }
+  .fb-header-center { display: none; }
+}
+
+@media (max-width: 700px) {
+  .fb-header {
+    height: auto;
+    min-height: var(--fb-header-height);
+    flex-wrap: wrap;
+    padding: var(--fb-spacing-sm) var(--fb-spacing-md);
+    gap: var(--fb-spacing-sm);
+  }
+  .fb-header-left { flex: 1; }
+  .fb-header-right { flex: 0 0 auto; }
+}
+
+/* Responsive Utilities */
+@media (max-width: 768px) {
+  .mobile-hidden { display: none; }
+  .container { padding: 0 0.75rem; }
+  .text-3xl { font-size: 1.5rem; line-height: 2rem; }
 }
 
 @media (min-width: 769px) {
-  .desktop-hidden {
-    display: none;
-  }
+  .desktop-hidden { display: none; }
 }
 
-/* Print styles */
+/* Print Styles */
 @media print {
-  .no-print {
-    display: none !important;
-  }
+  .no-print { display: none !important; }
+}
+
+/* ============================================
+   Facebook Style Custom Scrollbar
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--fb-background);
+  border-radius: var(--fb-radius-pill);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--fb-secondary);
+  border-radius: var(--fb-radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--fb-secondary-hover);
+}
+
+/* ============================================
+   Facebook Style Focus States
+   ============================================ */
+
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus {
+  outline: 2px solid var(--fb-primary);
+  outline-offset: 2px;
+}
+
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ============================================
+   Facebook Style Loading States
+   ============================================ */
+
+.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid var(--fb-primary);
+  border-top: 2px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* ============================================
+   Facebook Style Status Indicators
+   ============================================ */
+
+.status-online { color: var(--fb-success); }
+.status-offline { color: var(--fb-error); }
+.status-warning { color: var(--fb-warning); }
+
+/* ============================================
+   Legacy Button Styles (for compatibility)
+   ============================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--fb-spacing-sm) var(--fb-spacing-lg);
+  border: none;
+  border-radius: var(--fb-radius-md);
+  cursor: pointer;
+  font-weight: var(--fb-font-weight-semibold);
+  font-size: var(--fb-font-size-base);
+  text-align: center;
+  transition: all var(--fb-transition-fast);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}
+
+.btn-primary {
+  background-color: var(--fb-primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--fb-primary-hover);
+}
+
+.btn-success {
+  background-color: var(--fb-success);
+  color: white;
+}
+
+.btn-success:hover {
+  background-color: #3aa324;
+}
+
+.btn-secondary {
+  background-color: var(--fb-secondary);
+  color: var(--fb-text-primary);
+}
+
+.btn-secondary:hover {
+  background-color: var(--fb-secondary-hover);
+}
+
+/* Legacy Card Styles */
+.card {
+  background-color: var(--fb-surface);
+  border: 1px solid var(--fb-border);
+  border-radius: var(--fb-radius-lg);
+  box-shadow: var(--fb-shadow-sm);
+  padding: var(--fb-spacing-lg);
+  transition: all var(--fb-transition-fast);
+}
+
+.card:hover {
+  box-shadow: var(--fb-shadow-md);
 }

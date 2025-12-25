@@ -115,65 +115,65 @@ export default function ChecklistView({
         const isExpanded = expandedCategories.has(category.id);
 
         return (
-          <div key={category.id} className="checklist-category">
+          <div key={category.id} className="fb-checklist-category">
             <button
               onClick={() => toggleCategory(category.id)}
-              className="w-full checklist-category-header text-left"
+              className="w-full fb-checklist-category-header text-left"
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1">
                   <div className="flex items-center gap-4 mb-3">
-                    <h3 className="text-xl font-bold text-gray-900">
+                    <h3 className="fb-checklist-category-title">
                       {language === 'ko' && category.nameKo ? category.nameKo : category.name}
                     </h3>
-                    <span className="px-3 py-1 text-sm font-semibold bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 rounded-full border border-blue-200">
+                    <span className="fb-checklist-item-count">
                       {filteredItems.length} {t('checklist.items')}
                     </span>
                   </div>
-                  <p className="text-gray-600 mb-4 leading-relaxed">
+                  <p className="fb-checklist-category-description">
                     {language === 'ko' && category.descriptionKo ? category.descriptionKo : category.description}
                   </p>
                   
                   {/* Progress Bar */}
-                  <div className="mb-4">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm font-medium text-gray-700">진행률</span>
-                      <span className="text-sm font-bold text-purple-600">
+                  <div className="fb-checklist-progress">
+                    <div className="fb-checklist-progress-header">
+                      <span className="fb-checklist-progress-label">진행률</span>
+                      <span className="fb-checklist-progress-value">
                         {category.progress.percentage.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="progress-bar">
+                    <div className="fb-checklist-progress-bar">
                       <div
-                        className="progress-fill"
+                        className="fb-checklist-progress-fill"
                         style={{ width: `${category.progress.percentage}%` }}
                       />
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-6 text-sm">
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                      <span className="text-gray-600">
-                        {t('dashboard.completed')}: <span className="font-semibold text-green-600">{category.progress.completed}</span>
+                  <div className="fb-checklist-category-stats">
+                    <div className="fb-checklist-category-stat">
+                      <div className="fb-checklist-category-stat-dot fb-checklist-category-stat-dot-completed"></div>
+                      <span className="fb-checklist-category-stat-label">
+                        {t('dashboard.completed')}: <span className="fb-checklist-category-stat-value">{category.progress.completed}</span>
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                      <span className="text-gray-600">
-                        진행중: <span className="font-semibold text-blue-600">{category.progress.inProgress}</span>
+                    <div className="fb-checklist-category-stat">
+                      <div className="fb-checklist-category-stat-dot fb-checklist-category-stat-dot-in-progress"></div>
+                      <span className="fb-checklist-category-stat-label">
+                        진행중: <span className="fb-checklist-category-stat-value">{category.progress.inProgress}</span>
                       </span>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-3 h-3 bg-gray-300 rounded-full"></div>
-                      <span className="text-gray-600">
-                        전체: <span className="font-semibold text-gray-700">{category.progress.total}</span>
+                    <div className="fb-checklist-category-stat">
+                      <div className="fb-checklist-category-stat-dot fb-checklist-category-stat-dot-total"></div>
+                      <span className="fb-checklist-category-stat-label">
+                        전체: <span className="fb-checklist-category-stat-value">{category.progress.total}</span>
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="ml-6">
                   <svg
-                    className={`w-7 h-7 text-gray-400 transition-transform duration-300 ${isExpanded ? 'transform rotate-180' : ''}`}
+                    className={`fb-checklist-expand-icon ${isExpanded ? 'fb-checklist-expand-icon-expanded' : ''}`}
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
@@ -185,8 +185,8 @@ export default function ChecklistView({
             </button>
 
             {isExpanded && (
-              <div className="checklist-category-content border-t border-gray-100">
-                <div className="divide-y divide-gray-100">
+              <div className="fb-checklist-category-content">
+                <div className="fb-checklist-category-items">
                   {filteredItems.map(item => (
                     <ChecklistItemComponent
                       key={item.id}
@@ -203,10 +203,10 @@ export default function ChecklistView({
       })}
 
       {data.categories.every(cat => filterItems(cat.items).length === 0) && (
-        <div className="card text-center py-16">
+        <div className="fb-card text-center py-16">
           <div className="text-6xl mb-4">🔍</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">검색 결과가 없습니다</h3>
-          <p className="text-gray-500">{t('checklist.noItems')}</p>
+          <h3 className="fb-checklist-category-title mb-2">검색 결과가 없습니다</h3>
+          <p className="fb-checklist-category-description">{t('checklist.noItems')}</p>
         </div>
       )}
     </div>

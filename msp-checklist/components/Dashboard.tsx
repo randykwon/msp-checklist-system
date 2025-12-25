@@ -13,46 +13,43 @@ export default function Dashboard({ data }: DashboardProps) {
     {
       label: t('dashboard.totalItems'),
       value: overallProgress.total,
-      color: 'text-gray-600',
       icon: '📊'
     },
     {
       label: t('dashboard.completed'),
       value: overallProgress.completed,
-      color: 'text-green-600',
       icon: '✅'
     },
     {
       label: t('dashboard.inProgress'),
       value: overallProgress.inProgress,
-      color: 'text-blue-600',
       icon: '🔄'
     },
     {
       label: t('dashboard.progress'),
       value: `${overallProgress.percentage.toFixed(1)}%`,
-      color: 'text-purple-600',
       icon: '📈'
     }
   ];
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">{t('dashboard.overallProgress')}</h2>
-        <div className="flex items-center gap-2">
-          <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-          <span className="text-sm text-gray-600">실시간 업데이트</span>
+    <div className="fb-card">
+      {/* Dashboard Header - Facebook Style */}
+      <div className="fb-dashboard-header">
+        <h2 className="fb-dashboard-title">{t('dashboard.overallProgress')}</h2>
+        <div className="fb-dashboard-status">
+          <div className="fb-status-indicator"></div>
+          <span className="fb-status-text">실시간 업데이트</span>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="stats-grid">
+      {/* Stats Grid - Facebook Style */}
+      <div className="fb-stats-grid">
         {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className="stat-icon">{stat.icon}</div>
-            <div className="stat-label">{stat.label}</div>
-            <div className="stat-value">{stat.value}</div>
+          <div key={index} className="fb-stat-card">
+            <div className="fb-stat-card-icon">{stat.icon}</div>
+            <div className="fb-stat-card-value">{stat.value}</div>
+            <div className="fb-stat-card-label">{stat.label}</div>
           </div>
         ))}
       </div>
@@ -77,20 +74,20 @@ export default function Dashboard({ data }: DashboardProps) {
         </div>
       </div>
 
-      {/* Category Progress */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">카테고리별 진행 현황</h3>
-        <div className="category-grid">
+      {/* Category Progress - Facebook Style */}
+      <div className="fb-category-section">
+        <h3 className="fb-section-title">카테고리별 진행 현황</h3>
+        <div className="fb-category-grid">
           {data.categories.map((category, index) => (
-            <div key={category.id} className="category-card">
-              <div className="category-header">
-                <h4 className="category-title">{category.name}</h4>
-                <span className="category-percentage">
+            <div key={category.id} className="fb-category-card">
+              <div className="fb-category-header">
+                <h4 className="fb-category-title">{category.name}</h4>
+                <span className="fb-category-percentage">
                   {category.progress.percentage.toFixed(0)}%
                 </span>
               </div>
               
-              <div className="category-progress">
+              <div className="fb-category-progress">
                 <div className="fb-progress fb-progress-sm">
                   <div
                     className="fb-progress-fill"
@@ -102,7 +99,7 @@ export default function Dashboard({ data }: DashboardProps) {
                 </div>
               </div>
               
-              <div className="category-stats">
+              <div className="fb-category-stats">
                 <span>완료: {category.progress.completed}</span>
                 <span>전체: {category.progress.total}</span>
               </div>
@@ -111,26 +108,26 @@ export default function Dashboard({ data }: DashboardProps) {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="mt-8 p-4 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border border-blue-100">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-          <div>
-            <div className="text-2xl font-bold text-blue-600">
+      {/* Quick Stats - Facebook Style */}
+      <div className="fb-quick-stats">
+        <div className="fb-quick-stats-grid">
+          <div className="fb-quick-stat-item">
+            <div className="fb-quick-stat-value fb-quick-stat-primary">
               {Math.round((overallProgress.completed / overallProgress.total) * 100)}%
             </div>
-            <div className="text-sm text-gray-600">완료율</div>
+            <div className="fb-quick-stat-label">완료율</div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-green-600">
+          <div className="fb-quick-stat-item">
+            <div className="fb-quick-stat-value fb-quick-stat-success">
               {overallProgress.total - overallProgress.completed - overallProgress.inProgress}
             </div>
-            <div className="text-sm text-gray-600">미시작</div>
+            <div className="fb-quick-stat-label">미시작</div>
           </div>
-          <div>
-            <div className="text-2xl font-bold text-purple-600">
+          <div className="fb-quick-stat-item">
+            <div className="fb-quick-stat-value fb-quick-stat-purple">
               {data.categories.length}
             </div>
-            <div className="text-sm text-gray-600">카테고리</div>
+            <div className="fb-quick-stat-label">카테고리</div>
           </div>
         </div>
       </div>
