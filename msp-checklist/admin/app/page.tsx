@@ -32,7 +32,6 @@ export default function AdminHome() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    // 클라이언트에서만 시간 설정
     setLastUpdate(new Date().toLocaleTimeString('ko-KR'));
   }, [stats]);
 
@@ -56,288 +55,327 @@ export default function AdminHome() {
     const hours = Math.floor((seconds % 86400) / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     
-    if (days > 0) {
-      return `${days}일 ${hours}시간`;
-    } else if (hours > 0) {
-      return `${hours}시간 ${minutes}분`;
-    } else {
-      return `${minutes}분`;
-    }
+    if (days > 0) return `${days}일 ${hours}시간`;
+    if (hours > 0) return `${hours}시간 ${minutes}분`;
+    return `${minutes}분`;
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <div className="text-lg text-gray-600">로딩 중...</div>
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: '#F0F2F5'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 48,
+            height: 48,
+            border: '3px solid #E4E6EB',
+            borderTopColor: '#1877F2',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }} />
+          <p style={{ color: '#65676B', fontSize: 16 }}>로딩 중...</p>
         </div>
+        <style jsx global>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+        `}</style>
       </div>
     );
   }
 
-  if (!user) {
-    return null; // 리다이렉트 중
-  }
+  if (!user) return null;
+
+  // 통계 카드 색상
+  const statCards = [
+    { 
+      title: '총 사용자', 
+      value: stats?.totalUsers || 0, 
+      icon: '👥', 
+      desc: '등록된 전체 사용자',
+      gradient: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)'
+    },
+    { 
+      title: '활성 사용자', 
+      value: stats?.activeUsers || 0, 
+      icon: '✅', 
+      desc: '최근 7일 활동',
+      gradient: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)'
+    },
+    { 
+      title: '완료된 평가', 
+      value: stats?.completedAssessments || 0, 
+      icon: '📋', 
+      desc: '총 평가 항목',
+      gradient: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)'
+    },
+    { 
+      title: '평균 진행률', 
+      value: `${stats?.averageProgress || 0}%`, 
+      icon: '📈', 
+      desc: '전체 사용자 평균',
+      gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)'
+    }
+  ];
+
+  // 빠른 작업 메뉴
+  const quickActions = [
+    { title: '사용자 관리', desc: '사용자 권한 및 정보 관리', href: '/users', icon: '👥', gradient: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)' },
+    { title: '진행 현황', desc: '사용자별 평가 진행 상황', href: '/progress', icon: '📊', gradient: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' },
+    { title: '공지사항 관리', desc: '공지사항 작성 및 관리', href: '/announcements', icon: '📢', gradient: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)' },
+    { title: '질의응답 관리', desc: 'Q&A 답변 및 관리', href: '/qa', icon: '💬', gradient: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)' },
+    { title: '조언 캐시 관리', desc: 'AI 조언 캐시 관리', href: '/cache', icon: '💾', gradient: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)' },
+    { title: '시스템 관리', desc: '시스템 설정 및 유지보수', href: '/system', icon: '⚙️', gradient: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)' }
+  ];
 
   return (
     <AdminLayout>
-      <div className="space-y-4">
-        {/* 헤더 */}
-        <div className="bg-white rounded shadow border border-gray-300 p-5 mb-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800 mb-1">관리자 대시보드</h1>
-              <p className="text-sm text-gray-600">MSP Checklist 시스템 현황을 확인하세요</p>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                onClick={fetchStats}
-                disabled={loadingStats}
-                className="flex items-center px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded hover:bg-blue-100 disabled:opacity-50 border border-blue-200"
-              >
-                <svg className={`w-4 h-4 mr-2 ${loadingStats ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-                {loadingStats ? '새로고침 중...' : '새로고침'}
-              </button>
-              <div className="text-right">
-                <p className="text-xs text-gray-500">접속자</p>
-                <p className="text-sm font-semibold text-gray-900">{user.name}</p>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {/* 헤더 카드 */}
+        <div style={{
+          borderRadius: 16,
+          overflow: 'hidden',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{
+            padding: '24px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            color: 'white'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
+              <div>
+                <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>🏠 관리자 대시보드</h1>
+                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 15 }}>MSP 헬퍼 시스템 현황을 한눈에 확인하세요</p>
               </div>
-              <div className="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center">
-                <span className="text-sm font-semibold text-white">
-                  {user.name?.charAt(0)?.toUpperCase()}
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* 실시간 상태 표시 */}
-          <div className="mt-3 flex items-center space-x-4 text-sm">
-            <div className="flex items-center">
-              <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              <span className="text-gray-600">시스템 정상 운영</span>
-            </div>
-            {lastUpdate && (
-              <div className="flex items-center">
-                <svg className="w-4 h-4 text-gray-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-gray-600">
-                  마지막 업데이트: {lastUpdate}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* 통계 카드들 */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-blue-500 rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                <button
+                  onClick={fetchStats}
+                  disabled={loadingStats}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '10px 20px',
+                    background: 'rgba(255,255,255,0.2)',
+                    border: 'none',
+                    borderRadius: 10,
+                    color: 'white',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    cursor: loadingStats ? 'not-allowed' : 'pointer',
+                    opacity: loadingStats ? 0.7 : 1
+                  }}
+                >
+                  🔄 {loadingStats ? '새로고침 중...' : '새로고침'}
+                </button>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  background: 'rgba(255,255,255,0.15)',
+                  padding: '8px 16px',
+                  borderRadius: 12
+                }}>
+                  <div style={{
+                    width: 40,
+                    height: 40,
+                    background: 'rgba(255,255,255,0.3)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 18,
+                    fontWeight: 700
+                  }}>
+                    {user.name?.charAt(0)?.toUpperCase()}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 14, fontWeight: 600 }}>{user.name}</div>
+                    <div style={{ fontSize: 12, opacity: 0.8 }}>{user.role}</div>
+                  </div>
                 </div>
               </div>
-              <div className="ml-3">
-                <p className="text-xs font-medium text-gray-600">총 사용자</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingStats ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-10 rounded"></div>
-                  ) : (
-                    stats?.totalUsers || 0
-                  )}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">등록된 전체 사용자</p>
-              </div>
             </div>
-          </div>
-
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-green-500 rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
+            
+            {/* 실시간 상태 */}
+            <div style={{ 
+              marginTop: 16, 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 24,
+              fontSize: 13,
+              opacity: 0.9
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 8, height: 8, background: '#4ADE80', borderRadius: '50%' }} />
+                시스템 정상 운영
               </div>
-              <div className="ml-3">
-                <p className="text-xs font-medium text-gray-600">활성 사용자</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingStats ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-10 rounded"></div>
-                  ) : (
-                    stats?.activeUsers || 0
-                  )}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">최근 7일 활동</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-purple-500 rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-3">
-                <p className="text-xs font-medium text-gray-600">완료된 평가</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingStats ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-10 rounded"></div>
-                  ) : (
-                    stats?.completedAssessments || 0
-                  )}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">총 평가 항목</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <div className="w-10 h-10 bg-orange-500 rounded flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-3">
-                <p className="text-xs font-medium text-gray-600">평균 진행률</p>
-                <p className="text-2xl font-bold text-gray-900">
-                  {loadingStats ? (
-                    <div className="animate-pulse bg-gray-200 h-6 w-10 rounded"></div>
-                  ) : (
-                    `${stats?.averageProgress || 0}%`
-                  )}
-                </p>
-                <p className="text-xs text-gray-500 mt-0.5">전체 사용자 평균</p>
-              </div>
+              {lastUpdate && (
+                <div>🕐 마지막 업데이트: {lastUpdate}</div>
+              )}
             </div>
           </div>
         </div>
 
-        {/* 시스템 상태 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <h3 className="text-base font-semibold text-gray-800 mb-3">시스템 상태</h3>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">서버 상태</span>
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                  <div className="w-2 h-2 bg-green-500 rounded-full mr-1"></div>
-                  정상 운영
-                </span>
+        {/* 통계 카드 그리드 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 16 }}>
+          {statCards.map((card, index) => (
+            <div key={index} style={{
+              borderRadius: 16,
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{
+                padding: '16px 20px',
+                background: card.gradient,
+                color: 'white'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 24 }}>{card.icon}</span>
+                  <span style={{ fontSize: 14, fontWeight: 600 }}>{card.title}</span>
+                </div>
               </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">포트</span>
-                <span className="font-medium text-gray-900">3011</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">Next.js 버전</span>
-                <span className="font-medium text-gray-900">14.2.18</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-600">시스템 가동시간</span>
-                <span className="font-medium text-gray-900">
-                  {loadingStats ? '...' : formatUptime(stats?.systemUptime || 0)}
-                </span>
+              <div style={{ padding: '20px', background: 'white' }}>
+                <div style={{ fontSize: 32, fontWeight: 700, color: '#1C1E21' }}>
+                  {loadingStats ? (
+                    <div style={{ width: 60, height: 32, background: '#E4E6EB', borderRadius: 8, animation: 'pulse 1.5s infinite' }} />
+                  ) : card.value}
+                </div>
+                <div style={{ fontSize: 13, color: '#65676B', marginTop: 4 }}>{card.desc}</div>
               </div>
             </div>
-          </div>
-
-          <div className="bg-white rounded shadow border border-gray-300 p-4">
-            <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center">
-              <svg className="w-4 h-4 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              빠른 작업
-            </h3>
-            <div className="space-y-2">
-              <a
-                href="/users"
-                className="flex items-center p-3 rounded border border-gray-200 hover:border-blue-400 hover:bg-blue-50 group"
-              >
-                <div className="w-8 h-8 bg-blue-100 rounded flex items-center justify-center mr-3">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">사용자 관리</p>
-                  <p className="text-xs text-gray-500">사용자 권한 및 정보 관리</p>
-                </div>
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-
-              <a
-                href="/progress"
-                className="flex items-center p-3 rounded border border-gray-200 hover:border-green-400 hover:bg-green-50 group"
-              >
-                <div className="w-8 h-8 bg-green-100 rounded flex items-center justify-center mr-3">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">진행 현황</p>
-                  <p className="text-xs text-gray-500">사용자별 평가 진행 상황</p>
-                </div>
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-
-              <a
-                href="/system"
-                className="flex items-center p-3 rounded border border-gray-200 hover:border-purple-400 hover:bg-purple-50 group"
-              >
-                <div className="w-8 h-8 bg-purple-100 rounded flex items-center justify-center mr-3">
-                  <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-gray-900">시스템 관리</p>
-                  <p className="text-xs text-gray-500">시스템 설정 및 유지보수</p>
-                </div>
-                <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
-            </div>
-          </div>
+          ))}
         </div>
 
-        {/* 최근 활동 */}
-        <div className="bg-white rounded shadow border border-gray-300 p-4">
-          <h3 className="text-base font-semibold text-gray-800 mb-3">최근 활동</h3>
-          <div className="space-y-2">
-            {loadingStats ? (
-              <div className="text-center py-3">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-600 mx-auto"></div>
+        {/* 시스템 상태 & 빠른 작업 */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: 24 }}>
+          {/* 시스템 상태 */}
+          <div style={{
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{
+              padding: '16px 20px',
+              background: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)',
+              color: 'white'
+            }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>🖥️ 시스템 상태</h3>
+            </div>
+            <div style={{ padding: 20, background: 'white' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {[
+                  { label: '서버 상태', value: '정상 운영', badge: true },
+                  { label: '포트', value: '3011' },
+                  { label: 'Next.js 버전', value: '14.2.18' },
+                  { label: '시스템 가동시간', value: loadingStats ? '...' : formatUptime(stats?.systemUptime || 0) }
+                ].map((item, idx) => (
+                  <div key={idx} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    background: '#F0F2F5',
+                    borderRadius: 10
+                  }}>
+                    <span style={{ fontSize: 14, color: '#65676B' }}>{item.label}</span>
+                    {item.badge ? (
+                      <span style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 6,
+                        padding: '4px 12px',
+                        background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)',
+                        borderRadius: 20,
+                        color: 'white',
+                        fontSize: 12,
+                        fontWeight: 600
+                      }}>
+                        <div style={{ width: 6, height: 6, background: 'white', borderRadius: '50%' }} />
+                        {item.value}
+                      </span>
+                    ) : (
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>{item.value}</span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ) : (
-              <div className="text-sm text-gray-500 text-center py-3">
-                최근 활동 데이터를 불러오는 중...
+            </div>
+          </div>
+
+          {/* 빠른 작업 */}
+          <div style={{
+            borderRadius: 16,
+            overflow: 'hidden',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{
+              padding: '16px 20px',
+              background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+              color: 'white'
+            }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>⚡ 빠른 작업</h3>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12 }}>
+                {quickActions.map((action, idx) => (
+                  <a
+                    key={idx}
+                    href={action.href}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 12,
+                      padding: 14,
+                      background: '#F0F2F5',
+                      borderRadius: 12,
+                      textDecoration: 'none',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = '#E4E6EB';
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = '#F0F2F5';
+                      e.currentTarget.style.transform = 'translateY(0)';
+                    }}
+                  >
+                    <div style={{
+                      width: 40,
+                      height: 40,
+                      background: action.gradient,
+                      borderRadius: 10,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 20,
+                      flexShrink: 0
+                    }}>
+                      {action.icon}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>{action.title}</div>
+                      <div style={{ fontSize: 11, color: '#65676B' }}>{action.desc}</div>
+                    </div>
+                  </a>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.5; }
+        }
+      `}</style>
     </AdminLayout>
   );
 }

@@ -377,3 +377,271 @@ export default function VirtualEvidencePage() {
               </div>
             </div>
           </div>
+
+
+          {/* 캐시 버전 관리 */}
+          <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '16px 24px', background: 'linear-gradient(135deg, #14B8A6 0%, #2DD4BF 100%)', color: 'white' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📦 캐시 버전 관리</h3>
+                <span style={{ fontSize: 14, opacity: 0.9 }}>{versions.length}개의 버전</span>
+              </div>
+            </div>
+            <div style={{ padding: 24, background: 'white' }}>
+              {versions.length === 0 ? (
+                <div style={{ padding: 48, textAlign: 'center' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
+                  <p style={{ color: '#65676B', fontSize: 16 }}>생성된 캐시 버전이 없습니다.</p>
+                  <p style={{ color: '#8B8D91', fontSize: 14, marginTop: 8 }}>"새 캐시 생성" 버튼을 클릭하여 첫 번째 캐시를 생성해보세요.</p>
+                </div>
+              ) : (
+                <>
+                  {/* 버전 선택 및 캐시 내용 보기 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: 16, background: '#F0F2F5', borderRadius: 12, marginBottom: 16 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <label style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>버전 선택:</label>
+                      <select
+                        value={selectedVersion}
+                        onChange={(e) => setSelectedVersion(e.target.value)}
+                        style={{ padding: '10px 14px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, fontWeight: 600 }}
+                      >
+                        <option value="">전체 통계</option>
+                        {versions.map((version) => (
+                          <option key={version.version} value={version.version}>
+                            {version.version} ({formatDate(version.createdAt)})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    {selectedVersion && (
+                      <button
+                        onClick={() => loadCacheItems(selectedVersion, selectedLanguage)}
+                        style={{
+                          padding: '12px 24px', fontSize: 14, fontWeight: 600, color: 'white',
+                          background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                          border: 'none', borderRadius: 10, cursor: 'pointer',
+                          display: 'flex', alignItems: 'center', gap: 8
+                        }}
+                      >
+                        👁️ 캐시 내용 보기
+                      </button>
+                    )}
+                  </div>
+                  {/* 버전 목록 테이블 */}
+                  <div style={{ overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                      <thead>
+                        <tr style={{ background: '#F0F2F5' }}>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>버전</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>생성일시</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>항목 수</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>설명</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>상태</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {versions.map((version, index) => (
+                          <tr key={version.version} style={{ background: index === 0 ? '#EDE9FE' : 'white', borderBottom: '1px solid #E4E6EB' }}>
+                            <td style={{ padding: '12px 16px', fontSize: 14, fontFamily: 'monospace', color: '#1C1E21' }}>
+                              {version.version}
+                              {index === 0 && (
+                                <span style={{ marginLeft: 8, padding: '2px 8px', borderRadius: 12, fontSize: 11, fontWeight: 600, background: '#8B5CF6', color: 'white' }}>
+                                  최신
+                                </span>
+                              )}
+                            </td>
+                            <td style={{ padding: '12px 16px', fontSize: 14, color: '#1C1E21' }}>{formatDate(version.createdAt)}</td>
+                            <td style={{ padding: '12px 16px', fontSize: 14, color: '#1C1E21' }}>{version.totalItems}개</td>
+                            <td style={{ padding: '12px 16px', fontSize: 14, color: '#1C1E21' }}>{version.description}</td>
+                            <td style={{ padding: '12px 16px' }}>
+                              <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#E8F5E9', color: '#2E7D32' }}>
+                                완료
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 사용 가이드 */}
+          <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '16px 24px', background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', color: 'white' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📖 가상증빙예제 캐시 시스템 가이드</h3>
+            </div>
+            <div style={{ padding: 24, background: 'white' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 24 }}>
+                <div style={{ padding: 20, borderRadius: 12, background: '#EDE9FE', border: '1px solid #C4B5FD' }}>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#8B5CF6' }}>📝 캐시 생성</h4>
+                  <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: '#1C1E21', lineHeight: 1.8 }}>
+                    <li>모든 평가 항목에 대한 AI 가상증빙예제 생성</li>
+                    <li>한국어/영어 버전 모두 생성</li>
+                    <li>항목별 맞춤형 증빙자료 예제</li>
+                    <li>날짜 기반 버전 관리</li>
+                  </ul>
+                </div>
+                <div style={{ padding: 20, borderRadius: 12, background: '#E8F5E9', border: '1px solid #A5D6A7' }}>
+                  <h4 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#2E7D32' }}>🔄 캐시 사용</h4>
+                  <ul style={{ margin: 0, paddingLeft: 20, fontSize: 14, color: '#1C1E21', lineHeight: 1.8 }}>
+                    <li>SQLite DB에 저장되어 빠른 조회</li>
+                    <li>평가 페이지에서 자동 로드</li>
+                    <li>언어별 개별 캐시</li>
+                    <li>조언 캐시와 독립적 관리</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          {/* 캐시 내용 뷰어 모달 */}
+          {showCacheViewer && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'flex-start', justifyContent: 'center',
+              zIndex: 50, padding: '20px 0', overflowY: 'auto'
+            }}>
+              <div style={{
+                width: '95%', maxWidth: 1200, borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white'
+              }}>
+                {/* 모달 헤더 */}
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                  color: 'white', borderRadius: '16px 16px 0 0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <div>
+                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 가상증빙예제 캐시 내용 관리</h3>
+                    <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>
+                      버전: {selectedVersion} | 언어: {selectedLanguage === 'ko' ? '한국어' : '영어'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => { setShowCacheViewer(false); setCacheItems([]); setEditingItem(null); }}
+                    style={{
+                      padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#8B5CF6',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                    }}
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+                {/* 모달 바디 */}
+                <div style={{ padding: 24 }}>
+                  {/* 필터 */}
+                  <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button
+                        onClick={() => { setSelectedLanguage('ko'); loadCacheItems(selectedVersion, 'ko'); }}
+                        style={{
+                          padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                          color: selectedLanguage === 'ko' ? 'white' : '#42B883',
+                          background: selectedLanguage === 'ko' ? 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' : '#E8F5E9',
+                          border: 'none', borderRadius: 10, cursor: 'pointer'
+                        }}
+                      >
+                        🇰🇷 한국어
+                      </button>
+                      <button
+                        onClick={() => { setSelectedLanguage('en'); loadCacheItems(selectedVersion, 'en'); }}
+                        style={{
+                          padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                          color: selectedLanguage === 'en' ? 'white' : '#1877F2',
+                          background: selectedLanguage === 'en' ? 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)' : '#E7F3FF',
+                          border: 'none', borderRadius: 10, cursor: 'pointer'
+                        }}
+                      >
+                        🌐 영어
+                      </button>
+                    </div>
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="항목ID, 제목, 카테고리 검색..."
+                      style={{ flex: 1, padding: '10px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10 }}
+                    />
+                  </div>
+                  {/* 캐시 항목 목록 */}
+                  <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+                    {filteredCacheItems.length === 0 ? (
+                      <div style={{ padding: 48, textAlign: 'center' }}>
+                        <p style={{ color: '#65676B' }}>캐시 항목이 없습니다.</p>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                        {filteredCacheItems.map((item, index) => (
+                          <div key={item.id} style={{
+                            padding: 16, borderRadius: 12, border: '1px solid #E4E6EB',
+                            background: editingItem?.id === item.id ? '#EDE9FE' : 'white'
+                          }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#EDE9FE', color: '#8B5CF6' }}>
+                                  {item.itemId}
+                                </span>
+                                <span style={{ padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#E8F5E9', color: '#2E7D32' }}>
+                                  {item.category}
+                                </span>
+                              </div>
+                              <button
+                                onClick={() => editingItem?.id === item.id ? setEditingItem(null) : handleEditItem(item)}
+                                style={{
+                                  padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                                  color: editingItem?.id === item.id ? '#8B5CF6' : '#1877F2',
+                                  background: editingItem?.id === item.id ? '#EDE9FE' : '#E7F3FF',
+                                  border: 'none', borderRadius: 6, cursor: 'pointer'
+                                }}
+                              >
+                                {editingItem?.id === item.id ? '취소' : '✏️ 편집'}
+                              </button>
+                            </div>
+                            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>{item.title}</div>
+                            {editingItem?.id === item.id ? (
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <div>
+                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#65676B', marginBottom: 4 }}>가상증빙예제</label>
+                                  <textarea
+                                    value={editingItem.virtualEvidence}
+                                    onChange={(e) => setEditingItem({ ...editingItem, virtualEvidence: e.target.value })}
+                                    style={{ width: '100%', minHeight: 150, padding: 12, fontSize: 14, border: '2px solid #8B5CF6', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
+                                  />
+                                </div>
+                                <button
+                                  onClick={handleUpdateItem}
+                                  disabled={isUpdating}
+                                  style={{
+                                    padding: '12px 24px', fontSize: 14, fontWeight: 600, color: 'white',
+                                    background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                                    border: 'none', borderRadius: 10, cursor: isUpdating ? 'not-allowed' : 'pointer',
+                                    opacity: isUpdating ? 0.7 : 1
+                                  }}
+                                >
+                                  {isUpdating ? '저장 중...' : '💾 저장'}
+                                </button>
+                              </div>
+                            ) : (
+                              <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>
+                                <strong style={{ color: '#8B5CF6' }}>가상증빙예제:</strong> {item.virtualEvidence.substring(0, 300)}...
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </PermissionGuard>
+    </AdminLayout>
+  );
+}

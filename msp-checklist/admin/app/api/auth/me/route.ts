@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import jwt from 'jsonwebtoken';
+import { verifyToken } from '@/lib/auth';
 import { getDatabase } from '@/lib/database';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function GET(request: NextRequest) {
   try {
     const cookieStore = cookies();
-    const token = cookieStore.get('auth-token')?.value;
+    const token = cookieStore.get('admin_auth_token')?.value;
 
     if (!token) {
       return NextResponse.json({ error: 'No token provided' }, { status: 401 });
     }
 
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number };
+    const decoded = verifyToken(token);
+    if (!decoded) {
+      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    }
     
     const db = getDatabase();
     let user;

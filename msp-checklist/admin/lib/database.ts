@@ -4,7 +4,7 @@ import path from 'path';
 
 // 데이터베이스 연결
 export function getDatabase() {
-  const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+  const dbPath = path.join(process.cwd(), '../msp-assessment.db');
   return new Database(dbPath);
 }
 

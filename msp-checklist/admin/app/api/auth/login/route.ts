@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
+import { generateToken } from '@/lib/auth';
 import { getDatabase } from '@/lib/database';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,16 +44,17 @@ export async function POST(request: NextRequest) {
         WHERE id = ?
       `).run(user.id);
 
-      // JWT 토큰 생성
-      const token = jwt.sign(
-        { userId: user.id, email: user.email, role: user.role },
-        JWT_SECRET,
-        { expiresIn: '24h' }
-      );
+      // JWT 토큰 생성 (auth.ts의 generateToken 사용)
+      const token = generateToken({
+        userId: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      });
 
       // 쿠키 설정
       const cookieStore = cookies();
-      cookieStore.set('auth-token', token, {
+      cookieStore.set('admin_auth_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
