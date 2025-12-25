@@ -30,26 +30,18 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState<string>('');
 
-  // Don't render anything if user is not authenticated or still loading
-  if (loading) {
-    return null; // Don't show anything while checking auth
-  }
-
-  if (!user) {
-    return null; // Don't show version switcher for non-authenticated users
-  }
-
   // Load versions on component mount, but only if user is authenticated
   useEffect(() => {
-    if (user) {
+    if (user && !loading) {
       loadVersions();
     }
-  }, [user]);
+  }, [user, loading]);
 
   const loadVersions = async () => {
     // Don't load if user is not authenticated
     if (!user) {
       console.log('No user authenticated, skipping version load');
+      setError('');
       return;
     }
 
@@ -59,7 +51,13 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
       
       console.log('Loading versions...');
       // Include inactive versions to show all profiles
-      const response = await fetch('/api/versions?include_inactive=true');
+      const response = await fetch('/api/versions?include_inactive=true', {
+        method: 'GET',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
       console.log('Response status:', response.status);
       
       if (response.status === 401) {
@@ -95,9 +93,20 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
       }
     } catch (error: any) {
       console.error('Error loading versions:', error);
-      // Only show error if user is authenticated and it's not an authentication issue
-      if (user && !error.message.includes('401') && !error.message.includes('Not authenticated')) {
-        setError(error.message || 'Failed to load profiles');
+      // Don't show error for network issues or authentication problems
+      // "Failed to fetch" usually means network issue or CORS
+      const errorMessage = error.message || '';
+      const isNetworkError = errorMessage.includes('Failed to fetch') || 
+                            errorMessage.includes('NetworkError') ||
+                            errorMessage.includes('fetch');
+      const isAuthError = errorMessage.includes('401') || 
+                         errorMessage.includes('Not authenticated');
+      
+      if (!isNetworkError && !isAuthError && user) {
+        setError(errorMessage || 'Failed to load profiles');
+      } else {
+        // Clear any existing error for network/auth issues
+        setError('');
       }
     } finally {
       setIsLoading(false);
@@ -231,6 +240,15 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
     }
   };
 
+  // Don't render anything if user is not authenticated or still loading
+  if (loading) {
+    return null;
+  }
+
+  if (!user) {
+    return null;
+  }
+
   if (isLoading && !activeVersion) {
     return (
       <div className={`flex items-center gap-2 ${className}`}>
@@ -242,17 +260,17 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
     );
   }
 
-  if (error && !activeVersion) {
+  if (error && !activeVersion && user) {
     return (
       <div className={`text-sm text-red-600 ${className}`}>
         <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <div className="font-medium">프로파일 로드 오류</div>
+          <div className="font-medium">{language === 'ko' ? '프로파일 로드 오류' : 'Profile Load Error'}</div>
           <div className="text-xs mt-1">{error}</div>
           <button
             onClick={loadVersions}
             className="mt-2 text-xs text-red-600 hover:text-red-800 underline"
           >
-            다시 시도
+            {language === 'ko' ? '다시 시도' : 'Retry'}
           </button>
         </div>
       </div>

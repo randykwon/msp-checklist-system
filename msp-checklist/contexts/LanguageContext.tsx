@@ -398,9 +398,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     return translations[language][key as keyof typeof translations['en']] || key;
   };
 
+  // Always render children to avoid hydration mismatch
+  // The language will update after hydration if needed
   return (
     <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {isHydrated ? children : <div className="min-h-screen flex items-center justify-center"><div className="text-lg text-gray-600">Loading...</div></div>}
+      {children}
     </LanguageContext.Provider>
   );
 }
