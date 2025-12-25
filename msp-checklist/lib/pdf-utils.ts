@@ -5,19 +5,10 @@ export async function extractTextFromPDF(base64Data: string): Promise<string> {
     // 동적으로 pdfjs-dist 로드
     const pdfjsLib = await import('pdfjs-dist');
     
-    // Worker 설정 - 설치된 버전과 일치하는 워커 사용
+    // Worker 설정 - Next.js 환경에 최적화
     if (typeof window !== 'undefined') {
-      // 로컬 워커 파일 사용 (더 안정적)
-      try {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
-          'pdfjs-dist/build/pdf.worker.min.mjs',
-          import.meta.url
-        ).toString();
-      } catch (e) {
-        // 폴백: CDN 사용
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 
-          `https://unpkg.com/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs`;
-      }
+      // 로컬 정적 워커 파일 사용
+      pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
     }
     
     // Base64를 Uint8Array로 변환

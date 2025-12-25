@@ -36,7 +36,7 @@ const nextConfig = {
       config.cache = false;
     }
     
-    // PDF.js 워커 파일 처리
+    // PDF.js 워커 파일 처리 개선
     if (!isServer) {
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -44,6 +44,15 @@ const nextConfig = {
         path: false,
         crypto: false,
       };
+      
+      // PDF.js 워커 파일을 정적 자산으로 복사
+      config.module.rules.push({
+        test: /pdf\.worker\.(min\.)?mjs$/,
+        type: 'asset/resource',
+        generator: {
+          filename: 'static/worker/[hash][ext][query]'
+        }
+      });
     }
     
     // PDF.js 관련 설정
