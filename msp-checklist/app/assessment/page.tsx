@@ -21,9 +21,10 @@ export default function AssessmentPage() {
   const { user, loading } = useAuth();
   const { language, t } = useLanguage();
   const [assessmentType, setAssessmentType] = useState<'prerequisites' | 'technical'>('prerequisites');
-  const [prerequisitesState, setPrerequisitesState] = useState<AssessmentItem[]>(prerequisitesData);
-  const [technicalValidationState, setTechnicalValidationState] = useState<AssessmentItem[]>(technicalValidationData);
+  const [prerequisitesState, setPrerequisitesState] = useState<AssessmentItem[]>([]);
+  const [technicalValidationState, setTechnicalValidationState] = useState<AssessmentItem[]>([]);
   const [isMounted, setIsMounted] = useState(false);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const assessmentViewRef = useRef<AssessmentViewRef>(null);
@@ -147,9 +148,12 @@ export default function AssessmentPage() {
     }
   };
 
-  // 컴포넌트 마운트 후 초기화
+  // 컴포넌트 마운트 후 초기화 - 기본 데이터 설정
   useEffect(() => {
     setIsMounted(true);
+    // 클라이언트에서만 기본 데이터 설정 (hydration 문제 방지)
+    setPrerequisitesState([...prerequisitesData]);
+    setTechnicalValidationState([...technicalValidationData]);
   }, []);
 
   // 사용자 로그인 후 데이터 로드
@@ -158,6 +162,7 @@ export default function AssessmentPage() {
       console.log('Loading assessment data for user:', user.userId);
       loadUserAssessmentData('prerequisites');
       loadUserAssessmentData('technical');
+      setIsDataLoaded(true);
     }
   }, [user, loading, isMounted]);
 
@@ -264,7 +269,7 @@ export default function AssessmentPage() {
 
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
-  if (loading || !isMounted) {
+  if (loading || !isMounted || currentData.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
         <div style={{ textAlign: 'center' }}>
