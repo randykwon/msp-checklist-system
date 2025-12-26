@@ -219,7 +219,7 @@ const translations = {
     'auth.register.passwordTooShort': '비밀번호는 최소 6자 이상이어야 합니다',
 
     // Header
-    'header.title': 'AWS MSP 자체 평가 헬퍼 시스템',
+    'header.title': 'AWS MSP 자체 평가 헬퍼',
     'header.logout': '로그아웃',
     'header.deleteAccount': '계정 삭제',
 
@@ -240,7 +240,7 @@ const translations = {
     'program.subtitle': 'Managed Service Provider 파트너 프로그램 상세 정보',
 
     // Assessment page
-    'assessment.title': 'AWS MSP 자체 평가 헬퍼 시스템',
+    'assessment.title': 'AWS MSP 자체 평가 헬퍼',
     'assessment.subtitle': 'AWS MSP 파트너 프로그램 검증 요구사항 진행상황 추적',
     'assessment.prerequisites': '사전 요구사항 (15개 항목)',
     'assessment.technical': '기술 검증 (46개 항목)',
@@ -251,7 +251,7 @@ const translations = {
     'assessment.technicalProgress': '기술 검증 진행상황',
     'assessment.footer.version': 'AWS MSP Partner Program Checklist v7.1',
     'assessment.footer.storage': '데이터는 브라우저의 로컬 스토리지에 자동 저장됩니다',
-    'assessment.footer.systemName': 'AWS MSP 자체 평가 헬퍼 시스템',
+    'assessment.footer.systemName': 'AWS MSP 자체 평가 헬퍼',
     'assessment.loading': '로딩 중...',
 
 
