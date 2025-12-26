@@ -1076,28 +1076,51 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 })()}
               </h5>
               <div style={{ display: 'flex', gap: 8 }}>
-                {virtualEvidenceContent && (
-                  <button
-                    onClick={() => setShowVirtualEvidence(!showVirtualEvidence)}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background: 'rgba(255,255,255,0.2)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 6,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {showVirtualEvidence 
-                      ? (itemLanguage === 'ko' ? '숨기기' : 'Hide')
-                      : (itemLanguage === 'ko' ? '보기' : 'Show')
-                    }
-                  </button>
-                )}
                 <button
-                  onClick={generateVirtualEvidence}
+                  onClick={async () => {
+                    if (showVirtualEvidence) {
+                      // 이미 표시 중이면 숨기기
+                      setShowVirtualEvidence(false);
+                    } else if (virtualEvidenceContent) {
+                      // 캐시된 내용이 있으면 바로 표시
+                      setShowVirtualEvidence(true);
+                    } else {
+                      // 캐시가 없으면 생성 후 표시
+                      setIsGeneratingVirtualEvidence(true);
+                      setVirtualEvidenceError('');
+                      
+                      try {
+                        const response = await fetch('/api/virtual-evidence', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            itemId: item.id,
+                            title: itemLanguage === 'ko' ? item.titleKo || item.title : item.title,
+                            description: itemLanguage === 'ko' ? item.descriptionKo || item.description : item.description,
+                            evidenceRequired: itemLanguage === 'ko' ? item.evidenceRequiredKo || item.evidenceRequired : item.evidenceRequired,
+                            advice: adviceContent,
+                            language: itemLanguage
+                          }),
+                        });
+
+                        if (response.ok) {
+                          const data = await response.json();
+                          setVirtualEvidenceContent(data.virtualEvidence);
+                          setIsVirtualEvidenceFromServerCache(data.fromCache || false);
+                          setVirtualEvidence(item.id, data.virtualEvidence, itemLanguage);
+                          setShowVirtualEvidence(true); // 생성 후 자동으로 표시
+                        } else {
+                          const errorData = await response.json();
+                          setVirtualEvidenceError(errorData.error || '가상증빙예제 생성에 실패했습니다.');
+                        }
+                      } catch (error) {
+                        console.error('Error generating virtual evidence:', error);
+                        setVirtualEvidenceError('가상증빙예제 생성 중 오류가 발생했습니다.');
+                      } finally {
+                        setIsGeneratingVirtualEvidence(false);
+                      }
+                    }
+                  }}
                   disabled={isGeneratingVirtualEvidence}
                   style={{
                     padding: '6px 12px',
@@ -1112,24 +1135,43 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   }}
                 >
                   {(() => {
-                    const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
-                    const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
-                                          evidenceText?.toLowerCase().includes('demonstration') ||
-                                          evidenceText?.toLowerCase().includes('demo');
-                    
                     if (isGeneratingVirtualEvidence) {
                       return itemLanguage === 'ko' ? '⏳ 생성 중...' : '⏳ Generating...';
+                    } else if (showVirtualEvidence) {
+                      return itemLanguage === 'ko' ? '🔼 숨기기' : '🔼 Hide';
                     } else if (virtualEvidenceContent) {
-                      return itemLanguage === 'ko' ? '🔄 새로 생성' : '🔄 Regenerate';
+                      return itemLanguage === 'ko' ? '🔽 보기' : '🔽 Show';
                     } else {
+                      const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
+                      const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
+                                            evidenceText?.toLowerCase().includes('demonstration') ||
+                                            evidenceText?.toLowerCase().includes('demo');
                       if (isDemonstration) {
-                        return itemLanguage === 'ko' ? '🎯 시연 가이드 생성' : '🎯 Generate Demo Guide';
+                        return itemLanguage === 'ko' ? '🎯 시연 가이드 보기' : '🎯 View Demo Guide';
                       } else {
-                        return itemLanguage === 'ko' ? '✨ 예제 생성' : '✨ Generate Examples';
+                        return itemLanguage === 'ko' ? '✨ 예제 보기' : '✨ View Examples';
                       }
                     }
                   })()}
                 </button>
+                {/* 새로 생성 버튼 - 이미 내용이 있을 때만 표시 */}
+                {virtualEvidenceContent && !isGeneratingVirtualEvidence && (
+                  <button
+                    onClick={generateVirtualEvidence}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 12,
+                      fontWeight: 600,
+                      background: 'rgba(255,255,255,0.2)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {itemLanguage === 'ko' ? '🔄 새로 생성' : '🔄 Regenerate'}
+                  </button>
+                )}
               </div>
             </div>
             <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
@@ -1270,8 +1312,8 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 <div style={{ textAlign: 'center', padding: 20, color: 'var(--theme-text-secondary)' }}>
                   <p style={{ fontSize: 13 }}>
                     {itemLanguage === 'ko' 
-                      ? '상단의 "예제 생성" 버튼을 클릭하여 AI 가상증빙예제를 생성하세요.'
-                      : 'Click the "Generate Examples" button above to create AI virtual evidence examples.'}
+                      ? '상단의 "예제 보기" 버튼을 클릭하면 AI 가상증빙예제를 생성하여 보여줍니다.'
+                      : 'Click the "View Examples" button above to generate and display AI virtual evidence examples.'}
                   </p>
                 </div>
               )}
