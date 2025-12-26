@@ -1480,8 +1480,6 @@ EOF
     fi
     
     log_success "✅ Ultimate Turbopack Fix 완료 ($app_type)"
-}
-    fi
     
     # 의존성 재설치 (모든 호환성 문제 해결)
     log_info "📦 의존성 완전 재설치 중 (모든 호환성 문제 해결)..."
@@ -1648,6 +1646,11 @@ EOF
     
     log_success "💥 Nuclear CSS Fix 완료! ($app_type)"
     return 0
+}
+
+# Ultimate Turbopack Fix 함수 종료
+ultimate_turbopack_fix_end() {
+    log_success "Ultimate Turbopack Fix 완료"
 }
 
 # 애플리케이션 시작
