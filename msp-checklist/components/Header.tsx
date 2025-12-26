@@ -283,7 +283,6 @@ export default function Header() {
         <Link href="/" className="fb-header-logo">
           <DragonflyIcon width={40} height={40} className="fb-header-logo-icon" />
         </Link>
-        <span className="fb-header-version">v{mspChecklistData.version}</span>
       </div>
 
       {/* Center Section - Action Buttons */}
