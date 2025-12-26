@@ -945,25 +945,26 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       {showAdviceInline ? t('assessmentItem.hideAdvice') : t('assessmentItem.showAdvice')}
                     </button>
                   )}
-                  <button
-                    onClick={handleAdviceClick}
-                    disabled={isLoadingAdvice}
-                    style={{
-                      padding: '8px 14px',
-                      fontSize: 13,
-                      fontWeight: 600,
-                      background: 'white',
-                      color: '#42B883',
-                      border: 'none',
-                      borderRadius: 8,
-                      cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
-                      opacity: isLoadingAdvice ? 0.7 : 1
-                    }}
-                  >
-                    💡 {isLoadingAdvice ? t('assessmentItem.generating') : 
-                     adviceContent ? t('assessmentItem.refreshAdvice') : 
-                     t('assessmentItem.adviceButton')}
-                  </button>
+                  {/* 조언이 없을 때만 생성 버튼 표시 */}
+                  {!adviceContent && (
+                    <button
+                      onClick={handleAdviceClick}
+                      disabled={isLoadingAdvice}
+                      style={{
+                        padding: '8px 14px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        background: 'white',
+                        color: '#42B883',
+                        border: 'none',
+                        borderRadius: 8,
+                        cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
+                        opacity: isLoadingAdvice ? 0.7 : 1
+                      }}
+                    >
+                      💡 {isLoadingAdvice ? t('assessmentItem.generating') : t('assessmentItem.adviceButton')}
+                    </button>
+                  )}
                 </div>
               </div>
               <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
@@ -1154,24 +1155,6 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     }
                   })()}
                 </button>
-                {/* 새로 생성 버튼 - 이미 내용이 있을 때만 표시 */}
-                {virtualEvidenceContent && !isGeneratingVirtualEvidence && (
-                  <button
-                    onClick={generateVirtualEvidence}
-                    style={{
-                      padding: '6px 12px',
-                      fontSize: 12,
-                      fontWeight: 600,
-                      background: 'rgba(255,255,255,0.2)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 6,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {itemLanguage === 'ko' ? '🔄 새로 생성' : '🔄 Regenerate'}
-                  </button>
-                )}
               </div>
             </div>
             <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
