@@ -2,7 +2,7 @@
 
 import { AssessmentItem } from '../lib/csv-parser';
 import AssessmentItemComponent from './AssessmentItem';
-import { useState } from 'react';
+import { useState, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AssessmentViewProps {
@@ -11,9 +11,34 @@ interface AssessmentViewProps {
   onUpdate: (itemId: string, updates: Partial<AssessmentItem>) => void;
 }
 
-export default function AssessmentView({ items, assessmentType, onUpdate }: AssessmentViewProps) {
+export interface AssessmentViewRef {
+  expandAndScrollToCategory: (category: string) => void;
+}
+
+const AssessmentView = forwardRef<AssessmentViewRef, AssessmentViewProps>(({ items, assessmentType, onUpdate }, ref) => {
   const { language, t } = useLanguage();
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
+  const categoryRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // 외부에서 호출 가능한 메서드 노출
+  useImperativeHandle(ref, () => ({
+    expandAndScrollToCategory: (category: string) => {
+      // 카테고리 펼치기
+      setExpandedCategories(prev => {
+        const newSet = new Set(prev);
+        newSet.add(category);
+        return newSet;
+      });
+      
+      // 스크롤 이동 (약간의 딜레이 후)
+      setTimeout(() => {
+        const element = categoryRefs.current[category];
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    }
+  }));
 
   // 카테고리별로 그룹화
   const itemsByCategory = items.reduce((acc, item) => {
@@ -65,7 +90,8 @@ export default function AssessmentView({ items, assessmentType, onUpdate }: Asse
 
         return (
           <div 
-            key={category} 
+            key={category}
+            ref={(el) => { categoryRefs.current[category] = el; }}
             style={{
               borderRadius: 12,
               overflow: 'hidden',
@@ -169,4 +195,8 @@ export default function AssessmentView({ items, assessmentType, onUpdate }: Asse
       })}
     </div>
   );
-}
+});
+
+AssessmentView.displayName = 'AssessmentView';
+
+export default AssessmentView;

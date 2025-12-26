@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { prerequisitesData } from '../../data/assessment-data';
 import { technicalValidationData } from '../../data/technical-validation-data';
 import { mspChecklistData } from '../../data/msp-checklist-data';
 import { AssessmentItem } from '../../lib/csv-parser';
 import AssessmentDashboard from '../../components/AssessmentDashboard';
-import AssessmentView from '../../components/AssessmentView';
+import AssessmentView, { AssessmentViewRef } from '../../components/AssessmentView';
 import Header from '../../components/Header';
 import AdviceCacheStatus from '../../components/AdviceCacheStatus';
 import VersionSwitcher from '../../components/VersionSwitcher';
@@ -24,6 +24,7 @@ export default function AssessmentPage() {
   const [prerequisitesState, setPrerequisitesState] = useState<AssessmentItem[]>(prerequisitesData);
   const [technicalValidationState, setTechnicalValidationState] = useState<AssessmentItem[]>(technicalValidationData);
   const [isMounted, setIsMounted] = useState(false);
+  const assessmentViewRef = useRef<AssessmentViewRef>(null);
 
   // 현재 표시할 데이터
   const currentData = assessmentType === 'prerequisites' ? prerequisitesState : technicalValidationState;
@@ -162,6 +163,11 @@ export default function AssessmentPage() {
     });
   };
 
+  // 카테고리 클릭 핸들러 - 해당 카테고리로 스크롤하고 펼치기
+  const handleCategoryClick = (category: string) => {
+    assessmentViewRef.current?.expandAndScrollToCategory(category);
+  };
+
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
   if (loading || !isMounted) {
@@ -283,10 +289,12 @@ export default function AssessmentPage() {
         <AssessmentDashboard
           items={currentData}
           title={assessmentType === 'prerequisites' ? t('assessment.prerequisitesProgress') : t('assessment.technicalProgress')}
+          onCategoryClick={handleCategoryClick}
         />
 
         {/* Assessment Items */}
         <AssessmentView
+          ref={assessmentViewRef}
           items={currentData}
           assessmentType={assessmentType}
           onUpdate={handleUpdate}

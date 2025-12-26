@@ -6,9 +6,10 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface AssessmentDashboardProps {
   items: AssessmentItem[];
   title: string;
+  onCategoryClick?: (category: string) => void;
 }
 
-export default function AssessmentDashboard({ items, title }: AssessmentDashboardProps) {
+export default function AssessmentDashboard({ items, title, onCategoryClick }: AssessmentDashboardProps) {
   const { t } = useLanguage();
   // 전체 통계
   const totalItems = items.length;
@@ -180,12 +181,27 @@ export default function AssessmentDashboard({ items, title }: AssessmentDashboar
                   minHeight: 140
                 }}
               >
-                {/* 카드 헤더 */}
-                <div style={{
-                  padding: '14px 16px',
-                  background: colorScheme.bg,
-                  color: 'white'
-                }}>
+                {/* 카드 헤더 - 클릭 가능 */}
+                <div 
+                  onClick={() => onCategoryClick?.(category)}
+                  style={{
+                    padding: '14px 16px',
+                    background: colorScheme.bg,
+                    color: 'white',
+                    cursor: onCategoryClick ? 'pointer' : 'default',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (onCategoryClick) {
+                      e.currentTarget.style.filter = 'brightness(1.1)';
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.filter = 'brightness(1)';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
+                >
                   <div style={{ fontWeight: 700, fontSize: 16, textShadow: '0 1px 2px rgba(0,0,0,0.2)' }}>
                     {category}
                   </div>
