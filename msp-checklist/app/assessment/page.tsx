@@ -150,38 +150,6 @@ export default function AssessmentPage() {
     }
   }, [user, loading, isMounted]);
 
-  // Header에서 저장 버튼 클릭 이벤트 리스너
-  useEffect(() => {
-    const handleSaveEvent = () => {
-      handleSaveAllProgress();
-    };
-    
-    window.addEventListener('saveAllProgress', handleSaveEvent);
-    return () => {
-      window.removeEventListener('saveAllProgress', handleSaveEvent);
-    };
-  }, [handleSaveAllProgress]);
-
-  const handleUpdate = (itemId: string, updates: Partial<AssessmentItem>) => {
-    setCurrentData(prevData => {
-      const updatedData = prevData.map(item => {
-        if (item.id === itemId) {
-          const updatedItem = { ...item, ...updates };
-          // 데이터베이스에 저장
-          saveToDatabase(assessmentType, updatedItem);
-          return updatedItem;
-        }
-        return item;
-      });
-      return updatedData;
-    });
-  };
-
-  // 카테고리 클릭 핸들러 - 해당 카테고리로 스크롤하고 펼치기
-  const handleCategoryClick = (category: string) => {
-    assessmentViewRef.current?.expandAndScrollToCategory(category);
-  };
-
   // 전체 진행상황 저장
   const handleSaveAllProgress = useCallback(async () => {
     if (!user) return;
@@ -250,6 +218,38 @@ export default function AssessmentPage() {
       setIsSaving(false);
     }
   }, [user, assessmentType, prerequisitesState, technicalValidationState, language]);
+
+  // Header에서 저장 버튼 클릭 이벤트 리스너
+  useEffect(() => {
+    const handleSaveEvent = () => {
+      handleSaveAllProgress();
+    };
+    
+    window.addEventListener('saveAllProgress', handleSaveEvent);
+    return () => {
+      window.removeEventListener('saveAllProgress', handleSaveEvent);
+    };
+  }, [handleSaveAllProgress]);
+
+  const handleUpdate = (itemId: string, updates: Partial<AssessmentItem>) => {
+    setCurrentData(prevData => {
+      const updatedData = prevData.map(item => {
+        if (item.id === itemId) {
+          const updatedItem = { ...item, ...updates };
+          // 데이터베이스에 저장
+          saveToDatabase(assessmentType, updatedItem);
+          return updatedItem;
+        }
+        return item;
+      });
+      return updatedData;
+    });
+  };
+
+  // 카테고리 클릭 핸들러 - 해당 카테고리로 스크롤하고 펼치기
+  const handleCategoryClick = (category: string) => {
+    assessmentViewRef.current?.expandAndScrollToCategory(category);
+  };
 
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
