@@ -49,6 +49,7 @@ export default function AssessmentPage() {
       const response = await fetch(`/api/assessment?type=${type}`, {
         method: 'GET',
         credentials: 'include',
+        cache: 'no-store'
       });
 
       if (response.ok) {

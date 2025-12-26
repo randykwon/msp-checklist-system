@@ -44,7 +44,10 @@ export default function Header() {
   const loadActiveVersionAndData = async () => {
     try {
       // Load active version
-      const versionsResponse = await fetch('/api/versions');
+      const versionsResponse = await fetch('/api/versions', {
+        credentials: 'include',
+        cache: 'no-store'
+      });
       if (versionsResponse.ok) {
         const versionsData = await versionsResponse.json();
         setActiveVersion(versionsData.activeVersion);
@@ -55,8 +58,8 @@ export default function Header() {
 
       // Load assessment data for both types
       const [prerequisitesResponse, technicalResponse] = await Promise.all([
-        fetch('/api/assessment?type=prerequisites'),
-        fetch('/api/assessment?type=technical')
+        fetch('/api/assessment?type=prerequisites', { credentials: 'include', cache: 'no-store' }),
+        fetch('/api/assessment?type=technical', { credentials: 'include', cache: 'no-store' })
       ]);
 
       const prerequisitesData = prerequisitesResponse.ok ? await prerequisitesResponse.json() : { data: [] };
@@ -66,7 +69,7 @@ export default function Header() {
         prerequisites: prerequisitesData.data || [],
         technical: technicalData.data || []
       });
-    } catch (error) {
+    } catch (error: any) {
       if (!error.message?.includes('401') && !error.message?.includes('Not authenticated')) {
         console.error('Failed to load assessment data:', error);
       }
