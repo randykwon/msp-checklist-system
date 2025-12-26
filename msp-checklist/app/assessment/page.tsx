@@ -150,6 +150,18 @@ export default function AssessmentPage() {
     }
   }, [user, loading, isMounted]);
 
+  // Header에서 저장 버튼 클릭 이벤트 리스너
+  useEffect(() => {
+    const handleSaveEvent = () => {
+      handleSaveAllProgress();
+    };
+    
+    window.addEventListener('saveAllProgress', handleSaveEvent);
+    return () => {
+      window.removeEventListener('saveAllProgress', handleSaveEvent);
+    };
+  }, [assessmentType, prerequisitesState, technicalValidationState, user]);
+
   const handleUpdate = (itemId: string, updates: Partial<AssessmentItem>) => {
     setCurrentData(prevData => {
       const updatedData = prevData.map(item => {
@@ -283,7 +295,7 @@ export default function AssessmentPage() {
                 <p className="text-lg" style={{ color: 'var(--theme-text-secondary)' }}>
                   {t('assessment.subtitle')}
                 </p>
-                {/* Version Switcher와 저장 버튼 - 가로 배치 */}
+                {/* Version Switcher */}
                 <div className="mt-3 flex items-center gap-3 flex-wrap">
                   <VersionSwitcher 
                     onVersionChange={(version) => {
@@ -296,56 +308,6 @@ export default function AssessmentPage() {
                       }, 100); // Small delay to ensure profile switch is complete
                     }}
                   />
-                  
-                  {/* 저장 버튼 */}
-                  <button
-                    onClick={handleSaveAllProgress}
-                    disabled={isSaving}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 8,
-                      padding: '10px 16px',
-                      background: isSaving 
-                        ? '#9CA3AF' 
-                        : 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: 10,
-                      fontSize: 14,
-                      fontWeight: 600,
-                      cursor: isSaving ? 'not-allowed' : 'pointer',
-                      boxShadow: isSaving ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.3)',
-                      transition: 'all 0.2s ease'
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!isSaving) {
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(16, 185, 129, 0.4)';
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = isSaving ? 'none' : '0 2px 8px rgba(16, 185, 129, 0.3)';
-                    }}
-                  >
-                    {isSaving ? (
-                      <>
-                        <svg className="animate-spin" style={{ width: 16, height: 16 }} fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        {language === 'ko' ? '저장 중...' : 'Saving...'}
-                      </>
-                    ) : (
-                      <>
-                        <svg style={{ width: 16, height: 16 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                        </svg>
-                        {language === 'ko' ? '💾 저장' : '💾 Save'}
-                      </>
-                    )}
-                  </button>
                   
                   {/* 저장 메시지 */}
                   {saveMessage && (
