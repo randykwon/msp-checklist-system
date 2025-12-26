@@ -44,7 +44,7 @@ export default function AssessmentPage() {
     if (!user) return;
 
     try {
-      console.log(`Loading ${type} data for current profile...`);
+      console.log(`[LOAD] Loading ${type} data for current profile...`);
       const response = await fetch(`/api/assessment?type=${type}`, {
         method: 'GET',
         credentials: 'include',
@@ -52,35 +52,46 @@ export default function AssessmentPage() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log(`API response for ${type}:`, result);
+        console.log(`[LOAD] API response for ${type}:`, result);
+        console.log(`[LOAD] Data count:`, result.data?.length || 0);
         
         if (result.data && result.data.length > 0) {
           // 데이터베이스에서 로드된 데이터를 기본 데이터와 병합
           const baseData = type === 'prerequisites' ? prerequisitesData : technicalValidationData;
+          
+          // 디버깅: 저장된 데이터의 met 값 확인
+          result.data.forEach((item: AssessmentItem) => {
+            console.log(`[LOAD] Saved item ${item.id}: met = ${item.met}`);
+          });
+          
           const mergedData = baseData.map(baseItem => {
             const savedItem = result.data.find((saved: AssessmentItem) => saved.id === baseItem.id);
             if (savedItem) {
+              console.log(`[MERGE] Item ${baseItem.id}: base met = ${baseItem.met}, saved met = ${savedItem.met}`);
               return {
                 ...baseItem,
                 ...savedItem,
+                met: savedItem.met, // 명시적으로 met 값 설정
                 lastUpdated: new Date(savedItem.lastUpdated)
               };
             }
-            return baseItem;
+            // 저장되지 않은 항목도 새 객체로 반환 (React 상태 업데이트 감지를 위해)
+            return { ...baseItem };
           });
 
+          console.log(`[LOAD] Setting ${type} state with merged data`);
           if (type === 'prerequisites') {
             setPrerequisitesState(mergedData);
           } else {
             setTechnicalValidationState(mergedData);
           }
           
-          console.log(`Loaded ${type} data from database:`, result.data.length, 'items');
-          console.log(`Active profile: ${result.activeVersion?.name || 'Unknown'}`);
+          console.log(`[LOAD] Loaded ${type} data from database:`, result.data.length, 'items');
+          console.log(`[LOAD] Active profile: ${result.activeVersion?.name || 'Unknown'}`);
           return;
         } else {
           // 빈 데이터인 경우 기본 데이터로 초기화
-          console.log(`No saved data for ${type}, using default data`);
+          console.log(`[LOAD] No saved data for ${type}, using default data`);
           if (type === 'prerequisites') {
             setPrerequisitesState(prerequisitesData);
           } else {
@@ -88,7 +99,7 @@ export default function AssessmentPage() {
           }
         }
       } else {
-        console.error(`Failed to load ${type} data:`, response.status, response.statusText);
+        console.error(`[LOAD] Failed to load ${type} data:`, response.status, response.statusText);
         // API 실패 시 기본 데이터로 초기화
         if (type === 'prerequisites') {
           setPrerequisitesState(prerequisitesData);
@@ -97,7 +108,7 @@ export default function AssessmentPage() {
         }
       }
     } catch (error) {
-      console.error(`Error loading ${type} data from database:`, error);
+      console.error(`[LOAD] Error loading ${type} data from database:`, error);
       // 오류 발생 시 기본 데이터로 초기화
       if (type === 'prerequisites') {
         setPrerequisitesState(prerequisitesData);
