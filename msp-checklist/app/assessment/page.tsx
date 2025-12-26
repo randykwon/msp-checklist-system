@@ -24,6 +24,8 @@ export default function AssessmentPage() {
   const [prerequisitesState, setPrerequisitesState] = useState<AssessmentItem[]>(prerequisitesData);
   const [technicalValidationState, setTechnicalValidationState] = useState<AssessmentItem[]>(technicalValidationData);
   const [isMounted, setIsMounted] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const assessmentViewRef = useRef<AssessmentViewRef>(null);
 
   // 현재 표시할 데이터
@@ -168,6 +170,75 @@ export default function AssessmentPage() {
     assessmentViewRef.current?.expandAndScrollToCategory(category);
   };
 
+  // 전체 진행상황 저장
+  const handleSaveAllProgress = async () => {
+    if (!user) return;
+    
+    setIsSaving(true);
+    setSaveMessage(null);
+    
+    try {
+      // 현재 타입의 모든 항목 저장
+      const dataToSave = assessmentType === 'prerequisites' ? prerequisitesState : technicalValidationState;
+      
+      let savedCount = 0;
+      let errorCount = 0;
+      
+      for (const item of dataToSave) {
+        try {
+          const response = await fetch('/api/assessment', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+              assessmentType: assessmentType,
+              item: item
+            }),
+          });
+          
+          if (response.ok) {
+            savedCount++;
+          } else {
+            errorCount++;
+          }
+        } catch {
+          errorCount++;
+        }
+      }
+      
+      if (errorCount === 0) {
+        setSaveMessage({ 
+          type: 'success', 
+          text: language === 'ko' 
+            ? `✓ ${savedCount}개 항목이 저장되었습니다` 
+            : `✓ ${savedCount} items saved successfully`
+        });
+      } else {
+        setSaveMessage({ 
+          type: 'error', 
+          text: language === 'ko' 
+            ? `⚠ ${savedCount}개 저장, ${errorCount}개 실패` 
+            : `⚠ ${savedCount} saved, ${errorCount} failed`
+        });
+      }
+      
+      // 3초 후 메시지 숨기기
+      setTimeout(() => setSaveMessage(null), 3000);
+      
+    } catch (error) {
+      console.error('Error saving all progress:', error);
+      setSaveMessage({ 
+        type: 'error', 
+        text: language === 'ko' ? '저장 중 오류가 발생했습니다' : 'Error saving progress'
+      });
+      setTimeout(() => setSaveMessage(null), 3000);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
   if (loading || !isMounted) {
@@ -226,6 +297,71 @@ export default function AssessmentPage() {
                     }}
                   />
                 </div>
+              </div>
+              
+              {/* 저장 버튼 영역 */}
+              <div className="flex items-center gap-3">
+                {saveMessage && (
+                  <span style={{
+                    padding: '8px 16px',
+                    borderRadius: 8,
+                    fontSize: 14,
+                    fontWeight: 500,
+                    background: saveMessage.type === 'success' ? '#DEF7EC' : '#FDE8E8',
+                    color: saveMessage.type === 'success' ? '#03543F' : '#9B1C1C',
+                    animation: 'fadeIn 0.3s ease'
+                  }}>
+                    {saveMessage.text}
+                  </span>
+                )}
+                <button
+                  onClick={handleSaveAllProgress}
+                  disabled={isSaving}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '12px 24px',
+                    background: isSaving 
+                      ? '#9CA3AF' 
+                      : 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 15,
+                    fontWeight: 600,
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    boxShadow: isSaving ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    transition: 'all 0.2s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isSaving) {
+                      e.currentTarget.style.transform = 'translateY(-2px)';
+                      e.currentTarget.style.boxShadow = '0 6px 16px rgba(16, 185, 129, 0.4)';
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.boxShadow = isSaving ? 'none' : '0 4px 12px rgba(16, 185, 129, 0.3)';
+                  }}
+                >
+                  {isSaving ? (
+                    <>
+                      <svg className="animate-spin" style={{ width: 18, height: 18 }} fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      {language === 'ko' ? '저장 중...' : 'Saving...'}
+                    </>
+                  ) : (
+                    <>
+                      <svg style={{ width: 18, height: 18 }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                      </svg>
+                      {language === 'ko' ? '💾 진행상황 저장' : '💾 Save Progress'}
+                    </>
+                  )}
+                </button>
               </div>
             </div>
           </div>
