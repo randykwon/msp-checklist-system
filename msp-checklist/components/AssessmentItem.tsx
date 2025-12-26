@@ -894,16 +894,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
           }}>
             <div style={{
-              padding: '12px 16px',
+              padding: '14px 18px',
               background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
               color: 'white'
             }}>
-              <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+              <h5 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
                 📝 {t('assessmentItem.description')}
               </h5>
             </div>
-            <div style={{ padding: 16, background: 'white' }}>
-              <div className="text-sm text-gray-600 whitespace-pre-line">
+            <div style={{ padding: 20, background: 'white' }}>
+              <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#1F2937', whiteSpace: 'pre-line' }}>
                 {renderTextWithLinks(itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description)}
               </div>
             </div>
@@ -917,14 +917,14 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
             }}>
               <div style={{
-                padding: '12px 16px',
+                padding: '14px 18px',
                 background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)',
                 color: 'white',
                 display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
-                <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
+                <h5 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
                   📋 {t('assessmentItem.evidenceRequired')}
                 </h5>
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -932,13 +932,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     <button
                       onClick={() => setShowAdviceInline(!showAdviceInline)}
                       style={{
-                        padding: '6px 12px',
-                        fontSize: 12,
+                        padding: '8px 14px',
+                        fontSize: 13,
                         fontWeight: 600,
                         background: 'rgba(255,255,255,0.2)',
                         color: 'white',
                         border: 'none',
-                        borderRadius: 6,
+                        borderRadius: 8,
                         cursor: 'pointer'
                       }}
                     >
@@ -949,13 +949,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     onClick={handleAdviceClick}
                     disabled={isLoadingAdvice}
                     style={{
-                      padding: '6px 12px',
-                      fontSize: 12,
+                      padding: '8px 14px',
+                      fontSize: 13,
                       fontWeight: 600,
                       background: 'white',
                       color: '#42B883',
                       border: 'none',
-                      borderRadius: 6,
+                      borderRadius: 8,
                       cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
                       opacity: isLoadingAdvice ? 0.7 : 1
                     }}
@@ -967,7 +967,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 </div>
               </div>
               <div style={{ padding: 16, background: 'white' }}>
-                <div className="text-sm text-gray-600">
+                <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#374151' }}>
                   {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
                 </div>
               
@@ -975,32 +975,33 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 {showAdviceInline && adviceContent && (
                   <div style={{
                     marginTop: 16,
-                    padding: 16,
+                    padding: 20,
                     background: 'linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%)',
-                    borderRadius: 10,
-                    border: '1px solid #C8E6C9'
+                    borderRadius: 12,
+                    border: '1px solid #A5D6A7'
                   }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                      <h6 style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#2E7D32', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#1B5E20', display: 'flex', alignItems: 'center', gap: 8 }}>
                         💡 {t('assessmentItem.adviceTitle')}
                         <span style={{
-                          padding: '2px 8px',
-                          fontSize: 11,
-                          background: '#C8E6C9',
-                          color: '#2E7D32',
-                          borderRadius: 10
+                          padding: '4px 10px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: '#A5D6A7',
+                          color: '#1B5E20',
+                          borderRadius: 12
                         }}>
                           {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
                         </span>
                       </h6>
                       <button
                         onClick={() => setShowAdviceInline(false)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#65676B', fontSize: 16 }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1B5E20', fontSize: 20, fontWeight: 'bold' }}
                       >
                         ✕
                       </button>
                     </div>
-                    <div className="text-sm text-gray-700 whitespace-pre-line">
+                    <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20', whiteSpace: 'pre-line' }}>
                       {adviceContent}
                     </div>
                   </div>
@@ -1010,29 +1011,29 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 {adviceError && (
                   <div style={{
                     marginTop: 16,
-                    padding: 16,
+                    padding: 20,
                     background: '#FEE2E2',
-                    borderRadius: 10,
-                    border: '1px solid #FECACA'
+                    borderRadius: 12,
+                    border: '1px solid #F87171'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#DC2626' }}>
+                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#B91C1C' }}>
                           ⚠️ {t('assessmentItem.error')}
                         </h6>
-                        <div style={{ fontSize: 13, color: '#B91C1C' }}>{adviceError}</div>
+                        <div style={{ fontSize: 14, color: '#991B1B', lineHeight: '1.6' }}>{adviceError}</div>
                       </div>
                       <button
                         onClick={handleAdviceClick}
                         disabled={isLoadingAdvice}
                         style={{
-                          padding: '8px 16px',
-                          fontSize: 12,
+                          padding: '10px 18px',
+                          fontSize: 13,
                           fontWeight: 600,
                           background: '#DC2626',
                           color: 'white',
                           border: 'none',
-                          borderRadius: 6,
+                          borderRadius: 8,
                           cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
                           opacity: isLoadingAdvice ? 0.7 : 1
                         }}
