@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Turbopack 완전 비활성화
+  // App Router만 사용
   experimental: {
-    // Turbopack 관련 모든 설정 제거
+    // Turbopack 비활성화
+    turbo: undefined,
   },
   
   // 빌드 최적화
@@ -23,10 +24,10 @@ const nextConfig = {
     ignoreDuringBuilds: true
   },
   
-  // 정적 생성 비활성화 (동적 렌더링 강제)
+  // standalone 출력
   output: 'standalone',
   
-  // 웹팩 설정 (Turbopack 대신 Webpack 강제 사용)
+  // 웹팩 설정
   webpack: (config, { dev, isServer }) => {
     // 개발 모드에서 Webpack 사용 강제
     if (dev) {
@@ -41,22 +42,6 @@ const nextConfig = {
         path: false,
         crypto: false,
       };
-    }
-    
-    // CSS 관련 최적화
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          styles: {
-            name: 'styles',
-            test: /\.(css|scss|sass)$/,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
-      },
     }
     
     return config
