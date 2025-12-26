@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { prerequisitesData } from '../../data/assessment-data';
 import { technicalValidationData } from '../../data/technical-validation-data';
@@ -160,7 +160,7 @@ export default function AssessmentPage() {
     return () => {
       window.removeEventListener('saveAllProgress', handleSaveEvent);
     };
-  }, [assessmentType, prerequisitesState, technicalValidationState, user]);
+  }, [handleSaveAllProgress]);
 
   const handleUpdate = (itemId: string, updates: Partial<AssessmentItem>) => {
     setCurrentData(prevData => {
@@ -183,7 +183,7 @@ export default function AssessmentPage() {
   };
 
   // 전체 진행상황 저장
-  const handleSaveAllProgress = async () => {
+  const handleSaveAllProgress = useCallback(async () => {
     if (!user) return;
     
     setIsSaving(true);
@@ -249,7 +249,7 @@ export default function AssessmentPage() {
     } finally {
       setIsSaving(false);
     }
-  };
+  }, [user, assessmentType, prerequisitesState, technicalValidationState, language]);
 
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
