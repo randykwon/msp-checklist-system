@@ -574,11 +574,11 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   if (!isHydrated) {
     return (
       <div style={{
-        background: 'white',
+        background: 'var(--theme-card-bg)',
         borderRadius: 12,
         padding: 20,
-        boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-        border: '1px solid #E4E6EB',
+        boxShadow: '0 2px 8px var(--theme-shadow)',
+        border: '1px solid var(--theme-border)',
         marginBottom: 12
       }}>
         {/* Header */}
@@ -614,7 +614,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           <h4 style={{
             fontSize: 16,
             fontWeight: 600,
-            color: '#1C1E21',
+            color: 'var(--theme-text-primary)',
             margin: 0,
             cursor: 'pointer'
           }}>
@@ -627,9 +627,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             alignItems: 'center', 
             gap: 16,
             padding: '12px 0',
-            borderTop: '1px solid #E4E6EB'
+            borderTop: '1px solid var(--theme-border)'
           }}>
-            <span style={{ fontSize: 14, fontWeight: 600, color: '#65676B' }}>충족?</span>
+            <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-text-secondary)' }}>충족?</span>
             <div style={{ display: 'flex', gap: 8 }}>
               <button
                 onClick={() => handleMetChange(true)}
@@ -719,11 +719,11 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
 
   return (
     <div style={{
-      background: 'white',
+      background: 'var(--theme-card-bg)',
       borderRadius: 12,
       padding: 20,
-      boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-      border: '1px solid #E4E6EB',
+      boxShadow: '0 2px 8px var(--theme-shadow)',
+      border: '1px solid var(--theme-border)',
       marginBottom: 12
     }}>
       {/* Header */}
@@ -779,7 +779,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           style={{
             fontSize: 16,
             fontWeight: 600,
-            color: '#1C1E21',
+            color: 'var(--theme-text-primary)',
             margin: 0,
             cursor: 'pointer'
           }}
@@ -793,9 +793,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           alignItems: 'center', 
           gap: 16,
           padding: '12px 0',
-          borderTop: '1px solid #E4E6EB'
+          borderTop: '1px solid var(--theme-border)'
         }}>
-          <span style={{ fontSize: 14, fontWeight: 600, color: '#65676B' }}>{t('assessmentItem.met')}?</span>
+          <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-text-secondary)' }}>{t('assessmentItem.met')}?</span>
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => handleMetChange(true)}
@@ -886,7 +886,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="mt-4 space-y-4 border-t border-gray-200 pt-4">
+        <div className="mt-4 space-y-4 pt-4" style={{ borderTop: '1px solid var(--theme-border)' }}>
           {/* Description - 파란색 테마 */}
           <div style={{
             borderRadius: 12,
@@ -902,8 +902,8 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 📝 {t('assessmentItem.description')}
               </h5>
             </div>
-            <div style={{ padding: 20, background: 'white' }}>
-              <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#1F2937', whiteSpace: 'pre-line' }}>
+            <div style={{ padding: 20, background: 'var(--theme-card-bg)' }}>
+              <div style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-text-primary)', whiteSpace: 'pre-line' }}>
                 {renderTextWithLinks(itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description)}
               </div>
             </div>
@@ -914,7 +914,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             <div style={{
               borderRadius: 12,
               overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+              boxShadow: '0 2px 8px var(--theme-shadow)'
             }}>
               <div style={{
                 padding: '14px 18px',
@@ -966,8 +966,8 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   </button>
                 </div>
               </div>
-              <div style={{ padding: 16, background: 'white' }}>
-                <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#374151' }}>
+              <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
+                <div style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--theme-text-primary)' }}>
                   {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
                 </div>
               
@@ -1132,7 +1132,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 </button>
               </div>
             </div>
-            <div style={{ padding: 16, background: 'white' }}>
+            <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
               {/* Generated Virtual Evidence */}
               {showVirtualEvidence && virtualEvidenceContent && (
                 <div style={{
@@ -1184,12 +1184,12 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   </div>
                   
                   <div style={{
-                    background: 'white',
+                    background: 'var(--theme-card-bg)',
                     borderRadius: 8,
                     padding: 16,
                     border: '1px solid #E9D5FF'
                   }}>
-                    <div style={{ fontSize: 14, color: '#581C87', whiteSpace: 'pre-line', fontFamily: 'monospace', lineHeight: 1.6 }}>
+                    <div style={{ fontSize: 14, color: 'var(--theme-text-primary)', whiteSpace: 'pre-line', fontFamily: 'monospace', lineHeight: 1.6 }}>
                       {virtualEvidenceContent}
                     </div>
                   </div>
@@ -1267,7 +1267,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               
               {/* 캐시된 값이 없으면 안내 메시지 */}
               {!virtualEvidenceContent && !virtualEvidenceError && !isGeneratingVirtualEvidence && (
-                <div style={{ textAlign: 'center', padding: 20, color: '#65676B' }}>
+                <div style={{ textAlign: 'center', padding: 20, color: 'var(--theme-text-secondary)' }}>
                   <p style={{ fontSize: 13 }}>
                     {itemLanguage === 'ko' 
                       ? '상단의 "예제 생성" 버튼을 클릭하여 AI 가상증빙예제를 생성하세요.'
@@ -1282,7 +1282,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           <div style={{
             borderRadius: 12,
             overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            boxShadow: '0 2px 8px var(--theme-shadow)'
           }}>
             <div style={{
               padding: '12px 16px',
@@ -1293,7 +1293,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 💬 {itemLanguage === 'ko' ? '질의응답' : 'Q&A'}
               </h5>
             </div>
-            <div style={{ background: 'white' }}>
+            <div style={{ background: 'var(--theme-card-bg)' }}>
               <QASection 
                 itemId={item.id}
                 assessmentType={assessmentType}
@@ -1305,7 +1305,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           <div style={{
             borderRadius: 12,
             overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+            boxShadow: '0 2px 8px var(--theme-shadow)'
           }}>
             <div style={{
               padding: '12px 16px',
@@ -1367,10 +1367,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               </div>
             </div>
             
-            <div style={{ padding: 16, background: 'white' }}>
+            <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
               {/* File Gallery */}
               {showFileGallery && evidenceFiles.length > 0 && (
-                <div style={{ marginBottom: 16, padding: 12, background: '#F0FDFA', borderRadius: 10 }}>
+                <div style={{ marginBottom: 16, padding: 12, background: 'var(--theme-surface-hover)', borderRadius: 10 }}>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                     {evidenceFiles.map((file) => (
                       <div key={file.id} className="relative group">

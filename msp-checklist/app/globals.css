@@ -100,17 +100,17 @@
   --fb-surface: #242526;
   --fb-secondary: #3A3B3C;
   --fb-secondary-hover: #4E4F50;
-  --fb-text-primary: #E4E6EB;
-  --fb-text-secondary: #B0B3B8;
+  --fb-text-primary: #F5F6F7;
+  --fb-text-secondary: #D1D5DB;
   --fb-border: #3E4042;
   --fb-active-bg: #263951;
   
-  /* Theme Colors - Dark Mode */
+  /* Theme Colors - Dark Mode - 가독성 개선 */
   --theme-bg: #18191A;
   --theme-surface: #242526;
   --theme-surface-hover: #3A3B3C;
-  --theme-text-primary: #E4E6EB;
-  --theme-text-secondary: #B0B3B8;
+  --theme-text-primary: #F5F6F7;
+  --theme-text-secondary: #D1D5DB;
   --theme-border: #3E4042;
   --theme-card-bg: #242526;
   --theme-input-bg: #3A3B3C;

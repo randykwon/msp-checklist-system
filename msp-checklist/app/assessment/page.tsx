@@ -192,18 +192,18 @@ export default function AssessmentPage() {
       <div className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6" style={{ backgroundColor: 'var(--theme-card-bg)', borderColor: 'var(--theme-border)' }}>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div className="mb-4 lg:mb-0">
                 <div className="flex items-center mb-2">
-                  <h1 className="text-3xl font-bold text-gray-900">
+                  <h1 className="text-3xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>
                     {t('assessment.title')}
                   </h1>
                   <span className="ml-3 px-3 py-1 text-sm font-semibold text-blue-700 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full border border-blue-300">
                     v{mspChecklistData.version}
                   </span>
                 </div>
-                <p className="text-gray-600 text-lg">
+                <p className="text-lg" style={{ color: 'var(--theme-text-secondary)' }}>
                   {t('assessment.subtitle')}
                 </p>
                 {/* Version Switcher */}
@@ -225,7 +225,7 @@ export default function AssessmentPage() {
           </div>
 
           {/* Tab Navigation */}
-          <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6">
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 mb-6" style={{ backgroundColor: 'var(--theme-card-bg)', borderColor: 'var(--theme-border)' }}>
             <div className="px-6 py-4">
               <div className="flex space-x-3">
                 <button
