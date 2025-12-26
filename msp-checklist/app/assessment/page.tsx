@@ -148,22 +148,31 @@ export default function AssessmentPage() {
     }
   };
 
-  // 컴포넌트 마운트 후 초기화 - 기본 데이터 설정
+  // 컴포넌트 마운트 후 초기화 및 데이터 로드
   useEffect(() => {
-    setIsMounted(true);
-    // 클라이언트에서만 기본 데이터 설정 (hydration 문제 방지)
-    setPrerequisitesState([...prerequisitesData]);
-    setTechnicalValidationState([...technicalValidationData]);
+    const initializeData = async () => {
+      setIsMounted(true);
+      
+      // 클라이언트에서만 기본 데이터 설정 (hydration 문제 방지)
+      setPrerequisitesState([...prerequisitesData]);
+      setTechnicalValidationState([...technicalValidationData]);
+    };
+    
+    initializeData();
   }, []);
 
-  // 사용자 로그인 후 데이터 로드
+  // 사용자 로그인 후 데이터 로드 (별도 useEffect로 분리)
   useEffect(() => {
-    if (user && !loading && isMounted) {
-      console.log('Loading assessment data for user:', user.userId);
-      loadUserAssessmentData('prerequisites');
-      loadUserAssessmentData('technical');
-      setIsDataLoaded(true);
-    }
+    const loadData = async () => {
+      if (user && !loading && isMounted) {
+        console.log('[INIT] Loading assessment data for user:', user.userId);
+        await loadUserAssessmentData('prerequisites');
+        await loadUserAssessmentData('technical');
+        setIsDataLoaded(true);
+      }
+    };
+    
+    loadData();
   }, [user, loading, isMounted]);
 
   // 전체 진행상황 저장
