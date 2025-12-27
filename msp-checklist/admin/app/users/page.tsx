@@ -21,6 +21,7 @@ interface User {
 export default function UsersPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -30,6 +31,10 @@ export default function UsersPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) { router.push('/login'); return; }
@@ -90,7 +95,19 @@ export default function UsersPage() {
 
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  if (loading) return <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ textAlign: 'center' }}><div style={{ width: 48, height: 48, border: '3px solid #E4E6EB', borderTopColor: '#1877F2', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} /><p>로딩 중...</p></div><style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style></div>;
+  // Hydration 로딩 화면
+  if (!isHydrated || loading) {
+    return (
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ width: 48, height: 48, border: '3px solid #E4E6EB', borderTopColor: '#1877F2', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+          <p style={{ color: '#65676B' }}>로딩 중...</p>
+        </div>
+        <style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    );
+  }
+  
   if (!user) return null;
 
   const roleColors: Record<string, { bg: string }> = {

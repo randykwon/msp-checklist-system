@@ -26,8 +26,13 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -55,9 +60,9 @@ export default function DashboardPage() {
     }
   };
 
-  if (loading || !user) {
+  if (!isHydrated || loading || !user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">로딩 중...</p>

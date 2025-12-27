@@ -16,9 +16,14 @@ interface DashboardStats {
 export default function AdminHome() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loadingStats, setLoadingStats] = useState(true);
   const [lastUpdate, setLastUpdate] = useState<string>('');
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -60,7 +65,7 @@ export default function AdminHome() {
     return `${minutes}분`;
   };
 
-  if (loading) {
+  if (!isHydrated || loading) {
     return (
       <div style={{
         minHeight: '100vh',

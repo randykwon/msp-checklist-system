@@ -33,6 +33,7 @@ interface QAStats {
 export default function QAPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [allQuestions, setAllQuestions] = useState<QAItem[]>([]);
   const [filteredQuestions, setFilteredQuestions] = useState<QAItem[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
@@ -61,6 +62,10 @@ export default function QAPage() {
     { bg: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', light: '#FEE2E2' },
     { bg: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', light: '#E0E7FF' },
   ];
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -254,13 +259,14 @@ export default function QAPage() {
     return new Date(dateString).toLocaleString('ko-KR');
   };
 
-  if (loading || !user) {
+  if (!isHydrated || loading || !user) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
         <div style={{ textAlign: 'center' }}>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p style={{ marginTop: 16, color: '#65676B' }}>로딩 중...</p>
+          <div style={{ width: 48, height: 48, border: '3px solid #E4E6EB', borderTopColor: '#6366F1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+          <p style={{ color: '#65676B' }}>로딩 중...</p>
         </div>
+        <style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     );
   }

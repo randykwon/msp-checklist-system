@@ -42,12 +42,16 @@ interface ProgressSummary {
 export default function ProgressPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [progressData, setProgressData] = useState<ProgressSummary | null>(null);
   const [loadingProgress, setLoadingProgress] = useState(true);
   const [selectedType, setSelectedType] = useState<'all' | 'prerequisites' | 'technical'>('all');
   const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
 
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -90,7 +94,7 @@ export default function ProgressPage() {
     setShowDetailModal(true);
   };
 
-  if (loading) {
+  if (!isHydrated || loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#F0F2F5' }}>
         <div style={{ textAlign: 'center' }}>

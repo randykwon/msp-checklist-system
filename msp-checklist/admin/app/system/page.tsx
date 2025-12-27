@@ -19,8 +19,13 @@ interface SystemInfo {
 export default function SystemPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [loadingSystem, setLoadingSystem] = useState(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -93,9 +98,9 @@ export default function SystemPage() {
     }
   };
 
-  if (loading) {
+  if (!isHydrated || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
           <div className="text-lg text-gray-600">로딩 중...</div>

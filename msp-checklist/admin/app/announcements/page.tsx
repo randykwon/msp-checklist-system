@@ -27,6 +27,7 @@ const formatAnnouncementContent = (content: string): string => {
 };
 
 export default function AnnouncementsPage() {
+  const [isHydrated, setIsHydrated] = useState(false);
   const [announcements, setAnnouncements] = useState<AdminAnnouncement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -85,6 +86,7 @@ export default function AnnouncementsPage() {
   };
 
   useEffect(() => {
+    setIsHydrated(true);
     fetchAnnouncements();
   }, []);
 
@@ -194,6 +196,15 @@ export default function AnnouncementsPage() {
 
   return (
     <AdminLayout>
+      {!isHydrated ? (
+        <div style={{ minHeight: '50vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: 48, height: 48, border: '3px solid #E4E6EB', borderTopColor: '#F59E0B', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }} />
+            <p style={{ color: '#65676B' }}>로딩 중...</p>
+          </div>
+          <style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+        </div>
+      ) : (
       <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
         {/* 헤더 카드 */}
         <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
@@ -585,6 +596,7 @@ export default function AnnouncementsPage() {
           </div>
         )}
       </div>
+      )}
     </AdminLayout>
   );
 }
