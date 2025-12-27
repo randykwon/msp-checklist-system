@@ -480,7 +480,7 @@ export default function QAPage() {
                         <div style={{ padding: 16, background: 'white' }}>
                           {/* 질문 내용 */}
                           <div style={{ padding: 16, background: '#E7F3FF', borderRadius: 10, marginBottom: 16 }}>
-                            <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>{qa.question}</div>
+                            <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{qa.question}</div>
                           </div>
                           
                           {/* 답변 영역 */}

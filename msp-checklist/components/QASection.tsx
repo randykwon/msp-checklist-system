@@ -485,7 +485,7 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
                     </button>
                   )}
                 </div>
-                <div className="text-sm text-gray-800 bg-blue-50 p-3 rounded-lg">
+                <div className="text-sm text-gray-800 bg-blue-50 p-3 rounded-lg whitespace-pre-line" style={{ lineHeight: 1.8 }}>
                   {qa.question}
                 </div>
               </div>
