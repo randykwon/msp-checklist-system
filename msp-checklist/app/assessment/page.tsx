@@ -279,13 +279,17 @@ export default function AssessmentPage() {
 
 
   // Show loading state - 하이드레이션 문제 방지를 위해 isMounted 체크
-  if (loading || !isMounted || currentData.length === 0) {
+  if (!isMounted) {
+    return null;
+  }
+
+  if (loading || currentData.length === 0) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
         <div style={{ textAlign: 'center' }}>
           <div className="loading-spinner"></div>
           <div style={{ marginTop: 16, color: '#65676B', fontSize: 16 }}>
-            {isMounted ? (language === 'ko' ? '로딩 중...' : 'Loading...') : ''}
+            {language === 'ko' ? '로딩 중...' : 'Loading...'}
           </div>
         </div>
       </div>
