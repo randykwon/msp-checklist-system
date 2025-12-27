@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getUserByEmail } from '@/lib/db';
-import { verifyPassword, generateToken, setAuthCookie } from '@/lib/auth';
+import { verifyPassword, generateToken, setAuthCookieOnResponse } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
   try {
@@ -55,20 +55,22 @@ export async function POST(request: NextRequest) {
       role: user.role
     });
 
-    // Set auth cookie
-    await setAuthCookie(token);
-
-    return NextResponse.json(
+    // Create response and set cookie
+    const response = NextResponse.json(
       {
         user: {
           userId: user.id,
           email: user.email,
-          name: user.name
+          name: user.name,
+          role: user.role
         },
         message: 'Login successful'
       },
       { status: 200 }
     );
+
+    // Set auth cookie on response
+    return setAuthCookieOnResponse(response, token);
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(

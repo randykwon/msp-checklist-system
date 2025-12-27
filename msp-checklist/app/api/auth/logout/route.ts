@@ -1,14 +1,14 @@
 import { NextResponse } from 'next/server';
-import { removeAuthCookie } from '@/lib/auth';
+import { removeAuthCookieOnResponse } from '@/lib/auth';
 
 export async function POST() {
   try {
-    await removeAuthCookie();
-
-    return NextResponse.json(
+    const response = NextResponse.json(
       { message: 'Logout successful' },
       { status: 200 }
     );
+
+    return removeAuthCookieOnResponse(response);
   } catch (error) {
     console.error('Logout error:', error);
     return NextResponse.json(

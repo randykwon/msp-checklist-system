@@ -46,7 +46,23 @@ export function verifyToken(token: string): JWTPayload | null {
   }
 }
 
-// Cookie management
+// Cookie management - for use in API routes with NextResponse
+export function setAuthCookieOnResponse(response: any, token: string) {
+  const secure = isSecureEnvironment();
+  
+  response.cookies.set(COOKIE_NAME, token, {
+    httpOnly: true,
+    secure: secure,
+    sameSite: 'lax',
+    maxAge: 60 * 60 * 24 * 7, // 7 days
+    path: '/'
+  });
+  
+  console.log(`[Auth] Cookie set with secure=${secure}, NODE_ENV=${process.env.NODE_ENV}`);
+  return response;
+}
+
+// Legacy cookie management using next/headers (for server components only)
 export async function setAuthCookie(token: string) {
   const cookieStore = await cookies();
   const secure = isSecureEnvironment();
@@ -70,6 +86,12 @@ export async function getAuthCookie(): Promise<string | undefined> {
 export async function removeAuthCookie() {
   const cookieStore = await cookies();
   cookieStore.delete(COOKIE_NAME);
+}
+
+// Remove cookie on response (for API routes)
+export function removeAuthCookieOnResponse(response: any) {
+  response.cookies.delete(COOKIE_NAME);
+  return response;
 }
 
 // Get current user from cookie
