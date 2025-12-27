@@ -1,0 +1,18 @@
+[Unit]
+Description=MSP Checklist Auto Deploy Daemon
+Documentation=https://github.com/randykwon/msp-checklist-system
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/msp-checklist-system
+ExecStart=/opt/msp-checklist-system/auto-deploy-daemon.sh start
+ExecStop=/opt/msp-checklist-system/auto-deploy-daemon.sh stop
+Restart=on-failure
+RestartSec=10
+StandardOutput=append:/var/log/msp-auto-deploy.log
+StandardError=append:/var/log/msp-auto-deploy.log
+
+[Install]
+WantedBy=multi-user.target
