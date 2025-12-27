@@ -70,7 +70,14 @@ export async function POST(request: NextRequest) {
     );
 
     // Set auth cookie on response
-    return setAuthCookieOnResponse(response, token);
+    console.log('[Login] Setting cookie for user:', user.email);
+    const finalResponse = setAuthCookieOnResponse(response, token);
+    
+    // 디버깅: Set-Cookie 헤더 확인
+    const setCookieHeader = finalResponse.headers.get('Set-Cookie');
+    console.log('[Login] Set-Cookie header:', setCookieHeader);
+    
+    return finalResponse;
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
