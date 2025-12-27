@@ -23,12 +23,22 @@ export default function LoginPage() {
   // 컴포넌트 마운트 시 저장된 이메일 불러오기 (hydration 후에만)
   useEffect(() => {
     setIsHydrated(true);
-    const savedEmail = localStorage.getItem('rememberedEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
-      setRememberEmail(true);
-    }
   }, []);
+
+  useEffect(() => {
+    if (isHydrated) {
+      const savedEmail = localStorage.getItem('rememberedEmail');
+      if (savedEmail) {
+        setEmail(savedEmail);
+        setRememberEmail(true);
+      }
+    }
+  }, [isHydrated]);
+
+  // Hydration 전에는 null 반환
+  if (!isHydrated) {
+    return null;
+  }
 
   // 이메일 기억하기 체크박스 변경 처리
   const handleRememberEmailChange = (checked: boolean) => {

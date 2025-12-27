@@ -31,26 +31,32 @@ export default function Home() {
     }
   }, [user, loading, router]);
 
-  // LocalStorage에서 데이터 로드 (hydration 후에만)
+  // Hydration 완료 표시
   useEffect(() => {
     setIsHydrated(true);
-    const savedData = localStorage.getItem('msp-checklist-data');
-    if (savedData) {
-      const parsed = JSON.parse(savedData);
-      // Date 객체 복원
-      parsed.lastModified = new Date(parsed.lastModified);
-      parsed.categories.forEach((cat: any) => {
-        cat.items.forEach((item: any) => {
-          item.lastUpdated = new Date(item.lastUpdated);
-          if (item.dueDate) item.dueDate = new Date(item.dueDate);
-          item.documents.forEach((doc: any) => {
-            doc.uploadedAt = new Date(doc.uploadedAt);
+  }, []);
+
+  // LocalStorage에서 데이터 로드 (hydration 후에만)
+  useEffect(() => {
+    if (isHydrated) {
+      const savedData = localStorage.getItem('msp-checklist-data');
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        // Date 객체 복원
+        parsed.lastModified = new Date(parsed.lastModified);
+        parsed.categories.forEach((cat: any) => {
+          cat.items.forEach((item: any) => {
+            item.lastUpdated = new Date(item.lastUpdated);
+            if (item.dueDate) item.dueDate = new Date(item.dueDate);
+            item.documents.forEach((doc: any) => {
+              doc.uploadedAt = new Date(doc.uploadedAt);
+            });
           });
         });
-      });
-      setChecklistData(parsed);
+        setChecklistData(parsed);
+      }
     }
-  }, []);
+  }, [isHydrated]);
 
   // 데이터 변경 시 LocalStorage에 저장 (hydration 후에만)
   useEffect(() => {
@@ -58,6 +64,11 @@ export default function Home() {
       localStorage.setItem('msp-checklist-data', JSON.stringify(checklistData));
     }
   }, [checklistData, isHydrated]);
+
+  // Hydration 전에는 null 반환
+  if (!isHydrated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen">
