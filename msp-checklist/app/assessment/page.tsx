@@ -314,17 +314,17 @@ export default function AssessmentPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6" style={{ backgroundColor: 'var(--theme-card-bg)', borderColor: 'var(--theme-border)' }}>
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
               <div className="mb-4 lg:mb-0">
-                <div className="flex items-center mb-2">
+                <div className="flex items-center flex-wrap gap-2 mb-2">
                   <h1 className="text-3xl font-bold" style={{ color: 'var(--theme-text-primary)' }}>
                     {t('assessment.title')}
                   </h1>
-                  <span className="ml-3 px-3 py-1 text-sm font-semibold text-blue-700 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full border border-blue-300">
+                  <span className="px-3 py-1 text-sm font-semibold text-blue-700 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full border border-blue-300">
                     v{mspChecklistData.version}
                   </span>
+                  <span className="text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
+                    {t('assessment.subtitle')}
+                  </span>
                 </div>
-                <p className="text-lg" style={{ color: 'var(--theme-text-secondary)' }}>
-                  {t('assessment.subtitle')}
-                </p>
                 {/* Version Switcher */}
                 <div className="mt-3 flex items-center gap-3 flex-wrap">
                   <VersionSwitcher 
