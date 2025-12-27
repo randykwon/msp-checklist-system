@@ -269,6 +269,58 @@ export class VirtualEvidenceCacheService {
     return filepath;
   }
 
+  // 캐시 데이터 내보내기 (JSON 반환)
+  exportCacheData(version: string): { version: string; exportedAt: string; totalItems: number; koEvidence: CachedVirtualEvidence[]; enEvidence: CachedVirtualEvidence[] } {
+    const koEvidence = this.getCachedVirtualEvidenceByVersion(version, 'ko');
+    const enEvidence = this.getCachedVirtualEvidenceByVersion(version, 'en');
+    
+    return {
+      version,
+      exportedAt: new Date().toISOString(),
+      totalItems: koEvidence.length,
+      koEvidence,
+      enEvidence
+    };
+  }
+
+  // 캐시 데이터 가져오기 (JSON에서)
+  importCacheData(cacheData: { version: string; exportedAt: string; totalItems: number; koEvidence: CachedVirtualEvidence[]; enEvidence: CachedVirtualEvidence[] }): { success: boolean; version?: string; totalItems?: number; error?: string } {
+    try {
+      if (!cacheData.version || !cacheData.koEvidence || !cacheData.enEvidence) {
+        return { success: false, error: 'Invalid cache data format' };
+      }
+
+      // 버전 정보 저장
+      this.saveCacheVersion({
+        version: cacheData.version,
+        createdAt: cacheData.exportedAt || new Date().toISOString(),
+        totalItems: cacheData.koEvidence.length + cacheData.enEvidence.length,
+        description: `Imported at ${new Date().toISOString()}`
+      });
+
+      // 가상증빙 데이터 저장
+      [...cacheData.koEvidence, ...cacheData.enEvidence].forEach((evidence: CachedVirtualEvidence) => {
+        this.saveCachedVirtualEvidence({
+          itemId: evidence.itemId,
+          category: evidence.category,
+          title: evidence.title,
+          virtualEvidence: evidence.virtualEvidence,
+          language: evidence.language,
+          version: evidence.version
+        });
+      });
+
+      return { 
+        success: true, 
+        version: cacheData.version, 
+        totalItems: cacheData.koEvidence.length + cacheData.enEvidence.length 
+      };
+    } catch (error) {
+      console.error('Failed to import cache data:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
   // JSON 파일에서 캐시 가져오기
   importCacheFromFile(filepath: string): boolean {
     if (!this.db || !fs) return false;

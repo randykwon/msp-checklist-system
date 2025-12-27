@@ -35,6 +35,13 @@ export async function GET(request: NextRequest) {
         const evidenceList = cacheService.getCachedVirtualEvidenceByVersion(version, language);
         return NextResponse.json({ evidence: evidenceList });
 
+      case 'export':
+        if (!version) {
+          return NextResponse.json({ error: 'version is required for export action' }, { status: 400 });
+        }
+        const exportData = cacheService.exportCacheData(version);
+        return NextResponse.json(exportData);
+
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
     }
@@ -91,8 +98,30 @@ export async function POST(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { id, virtualEvidence } = body;
+    const { action, id, virtualEvidence, cacheData } = body;
 
+    // Import 액션 처리
+    if (action === 'import') {
+      if (!cacheData) {
+        return NextResponse.json({ error: 'cacheData is required for import' }, { status: 400 });
+      }
+
+      const cacheService = getVirtualEvidenceCacheService();
+      const result = cacheService.importCacheData(cacheData);
+
+      if (result.success) {
+        return NextResponse.json({ 
+          success: true, 
+          message: `캐시 가져오기 완료: ${result.totalItems}개 항목`,
+          version: result.version,
+          totalItems: result.totalItems
+        });
+      } else {
+        return NextResponse.json({ error: result.error || 'Failed to import cache' }, { status: 500 });
+      }
+    }
+
+    // 기존 업데이트 로직
     if (!id || !virtualEvidence) {
       return NextResponse.json({ error: 'ID and virtualEvidence are required' }, { status: 400 });
     }

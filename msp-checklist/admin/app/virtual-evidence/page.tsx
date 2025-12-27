@@ -49,6 +49,9 @@ export default function VirtualEvidencePage() {
     virtualEvidence: null
   });
   const [isSettingActiveVersion, setIsSettingActiveVersion] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -140,6 +143,88 @@ export default function VirtualEvidencePage() {
   };
   const showMessage = showMessageFunc;
 
+  // Export 캐시 기능
+  const handleExportCache = async () => {
+    if (!selectedVersion) {
+      showMessage('내보낼 버전을 선택해주세요.', 'error');
+      return;
+    }
+    
+    try {
+      setIsExporting(true);
+      showMessage('캐시 데이터를 내보내는 중...', 'info');
+      
+      const response = await fetch(`/api/virtual-evidence-cache?action=export&version=${selectedVersion}`);
+      if (response.ok) {
+        const data = await response.json();
+        
+        // JSON 파일로 다운로드
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `virtual_evidence_cache_${selectedVersion}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showMessage(`캐시 버전 ${selectedVersion}을 성공적으로 내보냈습니다.`, 'success');
+      } else {
+        const error = await response.json();
+        showMessage(`내보내기 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to export cache:', error);
+      showMessage('캐시 내보내기 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Import 캐시 기능
+  const handleImportCache = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    
+    try {
+      setIsImporting(true);
+      showMessage('캐시 데이터를 가져오는 중...', 'info');
+      
+      const fileContent = await file.text();
+      const cacheData = JSON.parse(fileContent);
+      
+      // 데이터 유효성 검사
+      if (!cacheData.version || !cacheData.koEvidence || !cacheData.enEvidence) {
+        showMessage('유효하지 않은 캐시 파일 형식입니다.', 'error');
+        return;
+      }
+      
+      const response = await fetch('/api/virtual-evidence-cache', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'import', cacheData }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        showMessage(`캐시 가져오기 완료! 버전: ${result.version}, ${result.totalItems}개 항목`, 'success');
+        setShowImportModal(false);
+        await loadCacheData();
+      } else {
+        const error = await response.json();
+        showMessage(`가져오기 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to import cache:', error);
+      showMessage('캐시 가져오기 중 오류가 발생했습니다. 파일 형식을 확인해주세요.', 'error');
+    } finally {
+      setIsImporting(false);
+      // 파일 입력 초기화
+      event.target.value = '';
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toISOString().replace('T', ' ').substring(0, 19);
@@ -225,6 +310,29 @@ export default function VirtualEvidencePage() {
                   <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>평가 항목별 AI 가상증빙예제 캐시를 독립적으로 관리합니다</p>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={() => setShowImportModal(true)}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#42B883',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6
+                    }}
+                  >
+                    📥 가져오기
+                  </button>
+                  <button
+                    onClick={handleExportCache}
+                    disabled={isExporting || !selectedVersion}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#F59E0B',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isExporting || !selectedVersion ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isExporting || !selectedVersion ? 0.7 : 1
+                    }}
+                  >
+                    {isExporting ? '⏳ 내보내는 중...' : '📤 내보내기'}
+                  </button>
                   <button
                     onClick={loadCacheData}
                     style={{
@@ -497,6 +605,75 @@ export default function VirtualEvidencePage() {
             </div>
           </div>
 
+
+          {/* Import 모달 */}
+          {showImportModal && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 50
+            }}>
+              <div style={{
+                width: '90%', maxWidth: 500, borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white'
+              }}>
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                  color: 'white', borderRadius: '16px 16px 0 0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📥 가상증빙예제 캐시 가져오기</h3>
+                  <button
+                    onClick={() => setShowImportModal(false)}
+                    style={{
+                      padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#8B5CF6',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                    }}
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+                <div style={{ padding: 24 }}>
+                  <div style={{ marginBottom: 20 }}>
+                    <p style={{ margin: '0 0 16px', fontSize: 14, color: '#65676B', lineHeight: 1.6 }}>
+                      이전에 내보낸 가상증빙예제 캐시 JSON 파일을 선택하여 가져올 수 있습니다.
+                      동일한 버전이 이미 존재하는 경우 덮어쓰기됩니다.
+                    </p>
+                    <div style={{
+                      padding: 24, borderRadius: 12, border: '2px dashed #8B5CF6',
+                      background: '#EDE9FE', textAlign: 'center'
+                    }}>
+                      <div style={{ fontSize: 48, marginBottom: 12 }}>📁</div>
+                      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5B21B6' }}>
+                        JSON 파일을 선택하세요
+                      </p>
+                      <label style={{
+                        display: 'inline-block', padding: '12px 24px', fontSize: 14, fontWeight: 600,
+                        color: 'white', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                        borderRadius: 10, cursor: isImporting ? 'not-allowed' : 'pointer',
+                        opacity: isImporting ? 0.7 : 1
+                      }}>
+                        {isImporting ? '⏳ 가져오는 중...' : '📂 파일 선택'}
+                        <input
+                          type="file"
+                          accept=".json"
+                          onChange={handleImportCache}
+                          disabled={isImporting}
+                          style={{ display: 'none' }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div style={{ padding: 16, borderRadius: 12, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
+                    <p style={{ margin: 0, fontSize: 13, color: '#92400E' }}>
+                      ⚠️ 주의: 가져온 캐시는 기존 데이터와 병합됩니다. 동일한 버전의 항목은 덮어쓰기됩니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* 캐시 내용 뷰어 모달 */}
           {showCacheViewer && (

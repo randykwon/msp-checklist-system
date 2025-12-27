@@ -262,6 +262,91 @@ export class AdviceCacheService {
     return filePath;
   }
 
+  // 캐시 데이터 내보내기 (JSON 반환)
+  exportCacheData(version: string): { version: string; exportedAt: string; koAdvice: CachedAdvice[]; enAdvice: CachedAdvice[] } {
+    // 먼저 DB에서 조회 시도
+    const koAdviceFromDb = this.getCachedAdviceByVersion(version, 'ko');
+    const enAdviceFromDb = this.getCachedAdviceByVersion(version, 'en');
+    
+    // DB에 데이터가 있으면 DB에서 반환
+    if (koAdviceFromDb.length > 0 || enAdviceFromDb.length > 0) {
+      return {
+        version,
+        exportedAt: new Date().toISOString(),
+        koAdvice: koAdviceFromDb,
+        enAdvice: enAdviceFromDb
+      };
+    }
+    
+    // DB에 데이터가 없으면 캐시 파일에서 읽기 시도
+    if (typeof window === 'undefined' && fs) {
+      const fileName = `advice_cache_${version}.json`;
+      const filePath = path.join(this.cacheDir, fileName);
+      
+      if (fs.existsSync(filePath)) {
+        try {
+          const fileContent = fs.readFileSync(filePath, 'utf-8');
+          const cacheData = JSON.parse(fileContent);
+          return {
+            version: cacheData.version,
+            exportedAt: cacheData.exportedAt || new Date().toISOString(),
+            koAdvice: cacheData.koAdvice || [],
+            enAdvice: cacheData.enAdvice || []
+          };
+        } catch (error) {
+          console.error('Failed to read cache file:', error);
+        }
+      }
+    }
+    
+    // 둘 다 없으면 빈 배열 반환
+    return {
+      version,
+      exportedAt: new Date().toISOString(),
+      koAdvice: [],
+      enAdvice: []
+    };
+  }
+
+  // 캐시 데이터 가져오기 (JSON에서)
+  importCacheData(cacheData: { version: string; exportedAt: string; koAdvice: CachedAdvice[]; enAdvice: CachedAdvice[] }): { success: boolean; version?: string; totalItems?: number; error?: string } {
+    try {
+      if (!cacheData.version || !cacheData.koAdvice || !cacheData.enAdvice) {
+        return { success: false, error: 'Invalid cache data format' };
+      }
+
+      // 버전 정보 저장
+      this.saveCacheVersion({
+        version: cacheData.version,
+        createdAt: cacheData.exportedAt || new Date().toISOString(),
+        totalItems: cacheData.koAdvice.length + cacheData.enAdvice.length,
+        description: `Imported at ${new Date().toISOString()}`
+      });
+
+      // 조언 데이터 저장
+      [...cacheData.koAdvice, ...cacheData.enAdvice].forEach((advice: CachedAdvice) => {
+        this.saveCachedAdvice({
+          itemId: advice.itemId,
+          category: advice.category,
+          title: advice.title,
+          advice: advice.advice,
+          virtualEvidence: advice.virtualEvidence,
+          language: advice.language,
+          version: advice.version
+        });
+      });
+
+      return { 
+        success: true, 
+        version: cacheData.version, 
+        totalItems: cacheData.koAdvice.length + cacheData.enAdvice.length 
+      };
+    } catch (error) {
+      console.error('Failed to import cache data:', error);
+      return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    }
+  }
+
   // 캐시 파일에서 가져오기
   importCacheFromFile(filePath: string): boolean {
     if (typeof window !== 'undefined' || !fs) {
