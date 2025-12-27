@@ -554,7 +554,7 @@ export default function QAPage() {
                                   </div>
                                 </div>
                                 <div style={{ padding: 16, background: '#E8F5E9', borderRadius: 10 }}>
-                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>{qa.answer}</div>
+                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{qa.answer}</div>
                                 </div>
                               </div>
                             )

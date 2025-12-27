@@ -498,7 +498,7 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
                     <span className="text-sm text-gray-700 font-medium">{qa.answerUserName}</span>
                     <span className="text-xs text-gray-500">{qa.answerCreatedAt && formatDate(qa.answerCreatedAt)}</span>
                   </div>
-                  <div className="text-sm text-gray-800 bg-green-50 p-3 rounded-lg">
+                  <div className="text-sm text-gray-800 bg-green-50 p-3 rounded-lg whitespace-pre-line" style={{ lineHeight: 1.8 }}>
                     {qa.answer}
                   </div>
                 </div>
