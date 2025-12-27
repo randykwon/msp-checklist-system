@@ -287,12 +287,23 @@ export default function CachePage() {
     return item.itemId.toLowerCase().includes(query) || item.title.toLowerCase().includes(query) || item.category.toLowerCase().includes(query);
   });
 
-  if (!isMounted || isLoading) {
+  if (!isMounted) {
+    return null;
+  }
+
+  if (isLoading) {
     return (
       <AdminLayout>
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 256 }}>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-        </div>
+        <PermissionGuard requiredRoute="/cache">
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 256 }}>
+            <div style={{ 
+              width: 48, height: 48, border: '4px solid #E4E6EB', 
+              borderTopColor: '#1877F2', borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }} />
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+          </div>
+        </PermissionGuard>
       </AdminLayout>
     );
   }
