@@ -1,11 +1,13 @@
 import { AssessmentItem } from './csv-parser';
 import { getAdviceCacheService, CachedAdvice } from './advice-cache';
+import { callLLM, LLMConfig, getDefaultLLMConfig, validateLLMConfig } from './llm-service';
 
 export interface AdviceGenerationOptions {
   language: 'ko' | 'en';
   includeVirtualEvidence: boolean;
   useCache: boolean;
   forceRegenerate: boolean;
+  llmConfig?: LLMConfig;
 }
 
 export interface GeneratedAdvice {
@@ -266,6 +268,44 @@ Evidence: Enterprise-grade MSP services
     }
   }
 
+  // 실제 LLM을 사용하여 조언 생성
+  private async generateAdviceWithLLM(
+    item: AssessmentItem, 
+    language: 'ko' | 'en',
+    llmConfig: LLMConfig
+  ): Promise<string> {
+    const systemPrompt = this.getMSPContext(language);
+    const userPrompt = this.generateAdvicePrompt(item, language);
+    
+    try {
+      const response = await callLLM(userPrompt, systemPrompt, llmConfig);
+      return response.content;
+    } catch (error) {
+      console.error(`[AdviceGenerator] LLM call failed for ${item.id}:`, error);
+      // LLM 호출 실패 시 더미 데이터 반환
+      return this.generateDummyAdvice(item, language);
+    }
+  }
+
+  // 실제 LLM을 사용하여 가상 증빙 생성
+  private async generateVirtualEvidenceWithLLM(
+    item: AssessmentItem, 
+    language: 'ko' | 'en',
+    llmConfig: LLMConfig
+  ): Promise<string> {
+    const systemPrompt = this.getMSPContext(language);
+    const userPrompt = this.generateVirtualEvidencePrompt(item, language);
+    
+    try {
+      const response = await callLLM(userPrompt, systemPrompt, llmConfig);
+      return response.content;
+    } catch (error) {
+      console.error(`[AdviceGenerator] LLM call failed for virtual evidence ${item.id}:`, error);
+      // LLM 호출 실패 시 더미 데이터 반환
+      return this.generateDummyVirtualEvidence(item, language);
+    }
+  }
+
   // 단일 항목에 대한 조언 생성
   async generateAdviceForItem(
     item: AssessmentItem, 
@@ -285,11 +325,29 @@ Evidence: Enterprise-grade MSP services
       }
     }
 
-    // 새로 생성 (현재는 더미 데이터 사용)
-    const advice = this.generateDummyAdvice(item, options.language);
-    const virtualEvidence = options.includeVirtualEvidence 
-      ? this.generateDummyVirtualEvidence(item, options.language)
-      : '';
+    // LLM 설정 확인
+    const llmConfig = options.llmConfig || getDefaultLLMConfig();
+    const validation = validateLLMConfig(llmConfig);
+    
+    let advice: string;
+    let virtualEvidence: string = '';
+
+    if (validation.valid) {
+      // 실제 LLM 사용
+      console.log(`[AdviceGenerator] Using ${llmConfig.provider} for ${item.id}`);
+      advice = await this.generateAdviceWithLLM(item, options.language, llmConfig);
+      
+      if (options.includeVirtualEvidence) {
+        virtualEvidence = await this.generateVirtualEvidenceWithLLM(item, options.language, llmConfig);
+      }
+    } else {
+      // LLM 설정이 유효하지 않으면 더미 데이터 사용
+      console.log(`[AdviceGenerator] Using dummy data for ${item.id} (${validation.error})`);
+      advice = this.generateDummyAdvice(item, options.language);
+      virtualEvidence = options.includeVirtualEvidence 
+        ? this.generateDummyVirtualEvidence(item, options.language)
+        : '';
+    }
 
     return {
       itemId: item.id,
@@ -309,11 +367,15 @@ Evidence: Enterprise-grade MSP services
     koAdvice: GeneratedAdvice[];
     enAdvice: GeneratedAdvice[];
   }> {
+    const llmConfig = options.llmConfig || getDefaultLLMConfig();
+    const validation = validateLLMConfig(llmConfig);
+    
     const defaultOptions: AdviceGenerationOptions = {
       language: 'ko',
       includeVirtualEvidence: true,
       useCache: false,
       forceRegenerate: true,
+      llmConfig,
       ...options
     };
 
@@ -322,13 +384,15 @@ Evidence: Enterprise-grade MSP services
 
     console.log(`🚀 Starting advice generation for ${allItems.length} items...`);
     console.log(`📅 Cache version: ${version}`);
+    console.log(`🤖 LLM Provider: ${llmConfig.provider} (${llmConfig.model})`);
+    console.log(`✅ LLM Config Valid: ${validation.valid}${validation.error ? ` - ${validation.error}` : ''}`);
 
     // 버전 정보를 먼저 저장 (FOREIGN KEY 제약 조건 때문에)
     this.cacheService.saveCacheVersion({
       version,
       createdAt: new Date().toISOString(),
       totalItems: allItems.length,
-      description: `Full advice cache generation - ${allItems.length} items in both languages`
+      description: `Generated with ${llmConfig.provider} (${llmConfig.model}) - ${allItems.length} items`
     });
 
     // 한국어 조언 생성
@@ -355,6 +419,11 @@ Evidence: Enterprise-grade MSP services
         language: 'ko',
         version
       });
+
+      // API 호출 간 딜레이 (Rate Limit 방지)
+      if (validation.valid && i < allItems.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
     }
 
     // 영어 조언 생성
@@ -381,9 +450,12 @@ Evidence: Enterprise-grade MSP services
         language: 'en',
         version
       });
-    }
 
-    // 버전 정보는 이미 저장됨
+      // API 호출 간 딜레이 (Rate Limit 방지)
+      if (validation.valid && i < allItems.length - 1) {
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+    }
 
     // 파일로 내보내기
     const exportPath = this.cacheService.exportCacheToFile(version);

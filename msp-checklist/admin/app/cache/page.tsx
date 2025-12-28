@@ -30,6 +30,53 @@ interface CachedAdviceItem {
   version: string;
 }
 
+// LLM 설정 인터페이스
+interface LLMConfig {
+  provider: 'openai' | 'gemini' | 'bedrock';
+  model: string;
+  apiKey?: string;
+  // Bedrock 전용
+  awsRegion?: string;
+  awsAccessKeyId?: string;
+  awsSecretAccessKey?: string;
+}
+
+const LLM_PROVIDERS = {
+  openai: {
+    name: 'OpenAI',
+    icon: '🤖',
+    models: [
+      { id: 'gpt-4o', name: 'GPT-4o (추천)' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+      { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
+    ],
+    color: '#10A37F',
+  },
+  gemini: {
+    name: 'Google Gemini',
+    icon: '✨',
+    models: [
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (추천)' },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
+      { id: 'gemini-pro', name: 'Gemini Pro' },
+    ],
+    color: '#4285F4',
+  },
+  bedrock: {
+    name: 'AWS Bedrock',
+    icon: '☁️',
+    models: [
+      { id: 'anthropic.claude-3-5-sonnet-20241022-v2:0', name: 'Claude 3.5 Sonnet v2 (추천)' },
+      { id: 'anthropic.claude-3-5-sonnet-20240620-v1:0', name: 'Claude 3.5 Sonnet' },
+      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus' },
+      { id: 'anthropic.claude-3-sonnet-20240229-v1:0', name: 'Claude 3 Sonnet' },
+      { id: 'anthropic.claude-3-haiku-20240307-v1:0', name: 'Claude 3 Haiku' },
+    ],
+    color: '#FF9900',
+  },
+};
+
 export default function CachePage() {
   const [versions, setVersions] = useState<CacheVersion[]>([]);
   const [stats, setStats] = useState<CacheStats | null>(null);
@@ -57,6 +104,17 @@ export default function CachePage() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailVersion, setDetailVersion] = useState<CacheVersion | null>(null);
   const [detailStats, setDetailStats] = useState<CacheStats | null>(null);
+  
+  // LLM 설정 관련 state
+  const [showLLMConfigModal, setShowLLMConfigModal] = useState(false);
+  const [llmConfig, setLLMConfig] = useState<LLMConfig>({
+    provider: 'bedrock',
+    model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    apiKey: '',
+    awsRegion: 'us-east-1',
+    awsAccessKeyId: '',
+    awsSecretAccessKey: '',
+  });
 
   useEffect(() => {
     setIsMounted(true);
@@ -95,11 +153,27 @@ export default function CachePage() {
   const generateCache = async () => {
     try {
       setIsGenerating(true);
-      showMessage('조언 캐시 생성을 시작합니다...', 'info');
+      setShowLLMConfigModal(false);
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 조언 캐시 생성을 시작합니다...`, 'info');
+      
       const response = await fetch('/api/advice-cache', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'generate', options: { includeVirtualEvidence: true, forceRegenerate: true } }),
+        body: JSON.stringify({ 
+          action: 'generate', 
+          options: { 
+            includeVirtualEvidence: true, 
+            forceRegenerate: true 
+          },
+          llmConfig: {
+            provider: llmConfig.provider,
+            model: llmConfig.model,
+            apiKey: llmConfig.apiKey,
+            awsRegion: llmConfig.awsRegion,
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+          }
+        }),
       });
       if (response.ok) {
         const result = await response.json();
@@ -115,6 +189,18 @@ export default function CachePage() {
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const openLLMConfigModal = () => {
+    setShowLLMConfigModal(true);
+  };
+
+  const handleProviderChange = (provider: 'openai' | 'gemini' | 'bedrock') => {
+    setLLMConfig({
+      ...llmConfig,
+      provider,
+      model: LLM_PROVIDERS[provider].models[0].id,
+    });
   };
 
   const setActiveVersion = async (cacheType: 'advice' | 'virtual_evidence', version: string) => {
@@ -415,7 +501,7 @@ export default function CachePage() {
                     🔄 새로고침
                   </button>
                   <button
-                    onClick={generateCache}
+                    onClick={openLLMConfigModal}
                     disabled={isGenerating}
                     style={{
                       padding: '10px 16px', fontSize: 13, fontWeight: 600, color: 'white',
@@ -838,6 +924,209 @@ export default function CachePage() {
             </div>
           )}
 
+          {/* LLM 설정 모달 */}
+          {showLLMConfigModal && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 100
+            }}>
+              <div style={{
+                width: '90%', maxWidth: 600, borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white',
+                maxHeight: '90vh', overflowY: 'auto'
+              }}>
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                  color: 'white', borderRadius: '16px 16px 0 0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>🤖 LLM 설정 및 캐시 생성</h3>
+                  <button
+                    onClick={() => setShowLLMConfigModal(false)}
+                    style={{
+                      padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#8B5CF6',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                    }}
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+                <div style={{ padding: 24 }}>
+                  {/* LLM 제공자 선택 */}
+                  <div style={{ marginBottom: 24 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>
+                      LLM 제공자 선택
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+                      {(Object.keys(LLM_PROVIDERS) as Array<keyof typeof LLM_PROVIDERS>).map((key) => {
+                        const provider = LLM_PROVIDERS[key];
+                        const isSelected = llmConfig.provider === key;
+                        return (
+                          <button
+                            key={key}
+                            onClick={() => handleProviderChange(key)}
+                            style={{
+                              padding: 16, borderRadius: 12, border: `2px solid ${isSelected ? provider.color : '#E4E6EB'}`,
+                              background: isSelected ? `${provider.color}15` : 'white',
+                              cursor: 'pointer', textAlign: 'center', transition: 'all 0.2s'
+                            }}
+                          >
+                            <div style={{ fontSize: 32, marginBottom: 8 }}>{provider.icon}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: isSelected ? provider.color : '#1C1E21' }}>
+                              {provider.name}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 모델 선택 */}
+                  <div style={{ marginBottom: 24 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                      모델 선택
+                    </label>
+                    <select
+                      value={llmConfig.model}
+                      onChange={(e) => setLLMConfig({ ...llmConfig, model: e.target.value })}
+                      style={{
+                        width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                        borderRadius: 10, background: 'white', cursor: 'pointer'
+                      }}
+                    >
+                      {LLM_PROVIDERS[llmConfig.provider].models.map((model) => (
+                        <option key={model.id} value={model.id}>{model.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* API 키 입력 (OpenAI, Gemini) */}
+                  {(llmConfig.provider === 'openai' || llmConfig.provider === 'gemini') && (
+                    <div style={{ marginBottom: 24 }}>
+                      <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                        {llmConfig.provider === 'openai' ? 'OpenAI API Key' : 'Google API Key'}
+                      </label>
+                      <input
+                        type="password"
+                        value={llmConfig.apiKey || ''}
+                        onChange={(e) => setLLMConfig({ ...llmConfig, apiKey: e.target.value })}
+                        placeholder={llmConfig.provider === 'openai' ? 'sk-...' : 'AIza...'}
+                        style={{
+                          width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                          borderRadius: 10, boxSizing: 'border-box'
+                        }}
+                      />
+                      <p style={{ margin: '8px 0 0', fontSize: 12, color: '#65676B' }}>
+                        {llmConfig.provider === 'openai' 
+                          ? '💡 OpenAI API 키는 https://platform.openai.com/api-keys 에서 발급받을 수 있습니다.'
+                          : '💡 Google API 키는 https://aistudio.google.com/app/apikey 에서 발급받을 수 있습니다.'}
+                      </p>
+                    </div>
+                  )}
+
+                  {/* AWS 자격증명 입력 (Bedrock) */}
+                  {llmConfig.provider === 'bedrock' && (
+                    <>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                          AWS Region
+                        </label>
+                        <select
+                          value={llmConfig.awsRegion || 'us-east-1'}
+                          onChange={(e) => setLLMConfig({ ...llmConfig, awsRegion: e.target.value })}
+                          style={{
+                            width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                            borderRadius: 10, background: 'white', cursor: 'pointer'
+                          }}
+                        >
+                          <option value="us-east-1">US East (N. Virginia)</option>
+                          <option value="us-west-2">US West (Oregon)</option>
+                          <option value="eu-west-1">Europe (Ireland)</option>
+                          <option value="ap-northeast-1">Asia Pacific (Tokyo)</option>
+                          <option value="ap-northeast-2">Asia Pacific (Seoul) 🇰🇷</option>
+                          <option value="ap-southeast-1">Asia Pacific (Singapore)</option>
+                          <option value="ap-southeast-2">Asia Pacific (Sydney)</option>
+                        </select>
+                      </div>
+                      <div style={{ marginBottom: 16 }}>
+                        <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                          AWS Access Key ID
+                        </label>
+                        <input
+                          type="text"
+                          value={llmConfig.awsAccessKeyId || ''}
+                          onChange={(e) => setLLMConfig({ ...llmConfig, awsAccessKeyId: e.target.value })}
+                          placeholder="AKIA..."
+                          style={{
+                            width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                            borderRadius: 10, boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                      <div style={{ marginBottom: 24 }}>
+                        <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                          AWS Secret Access Key
+                        </label>
+                        <input
+                          type="password"
+                          value={llmConfig.awsSecretAccessKey || ''}
+                          onChange={(e) => setLLMConfig({ ...llmConfig, awsSecretAccessKey: e.target.value })}
+                          placeholder="비밀 액세스 키 입력"
+                          style={{
+                            width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                            borderRadius: 10, boxSizing: 'border-box'
+                          }}
+                        />
+                      </div>
+                      <div style={{ padding: 16, borderRadius: 12, background: '#FEF3C7', border: '1px solid #F59E0B', marginBottom: 24 }}>
+                        <p style={{ margin: 0, fontSize: 13, color: '#92400E' }}>
+                          ⚠️ AWS IAM 사용자에게 <code style={{ background: '#FDE68A', padding: '2px 6px', borderRadius: 4 }}>bedrock:InvokeModel</code> 권한이 필요합니다.
+                        </p>
+                      </div>
+                    </>
+                  )}
+
+                  {/* 현재 설정 요약 */}
+                  <div style={{ padding: 16, borderRadius: 12, background: '#F0F2F5', marginBottom: 24 }}>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#65676B', marginBottom: 8 }}>현재 설정</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 24 }}>{LLM_PROVIDERS[llmConfig.provider].icon}</span>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>
+                          {LLM_PROVIDERS[llmConfig.provider].name}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#65676B' }}>
+                          {LLM_PROVIDERS[llmConfig.provider].models.find(m => m.id === llmConfig.model)?.name || llmConfig.model}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 생성 버튼 */}
+                  <button
+                    onClick={generateCache}
+                    disabled={isGenerating || 
+                      (llmConfig.provider !== 'bedrock' && !llmConfig.apiKey) ||
+                      (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey))
+                    }
+                    style={{
+                      width: '100%', padding: '14px 24px', fontSize: 16, fontWeight: 600, color: 'white',
+                      background: `linear-gradient(135deg, ${LLM_PROVIDERS[llmConfig.provider].color} 0%, ${LLM_PROVIDERS[llmConfig.provider].color}CC 100%)`,
+                      border: 'none', borderRadius: 12, cursor: 'pointer',
+                      opacity: (isGenerating || 
+                        (llmConfig.provider !== 'bedrock' && !llmConfig.apiKey) ||
+                        (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey))) ? 0.5 : 1
+                    }}
+                  >
+                    {isGenerating ? '⏳ 캐시 생성 중...' : '🚀 캐시 생성 시작'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Import 모달 */}
           {showImportModal && (
             <div style={{
@@ -1019,15 +1308,7 @@ export default function CachePage() {
                                   <textarea
                                     value={editingItem.advice}
                                     onChange={(e) => setEditingItem({ ...editingItem, advice: e.target.value })}
-                                    style={{ width: '100%', minHeight: 150, padding: 12, fontSize: 14, border: '2px solid #1877F2', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
-                                  />
-                                </div>
-                                <div>
-                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#42B883', marginBottom: 4 }}>📋 가상증빙예제</label>
-                                  <textarea
-                                    value={editingItem.virtualEvidence}
-                                    onChange={(e) => setEditingItem({ ...editingItem, virtualEvidence: e.target.value })}
-                                    style={{ width: '100%', minHeight: 150, padding: 12, fontSize: 14, border: '2px solid #42B883', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
+                                    style={{ width: '100%', minHeight: 250, padding: 12, fontSize: 14, border: '2px solid #1877F2', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
                                   />
                                 </div>
                                 <button
@@ -1044,18 +1325,10 @@ export default function CachePage() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                <div style={{ padding: 12, borderRadius: 10, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
-                                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1877F2', marginBottom: 6 }}>💡 조언</div>
-                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                                    {item.advice}
-                                  </div>
-                                </div>
-                                <div style={{ padding: 12, borderRadius: 10, background: '#E8F5E9', border: '1px solid #A5D6A7' }}>
-                                  <div style={{ fontSize: 12, fontWeight: 600, color: '#2E7D32', marginBottom: 6 }}>📋 가상증빙예제</div>
-                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                                    {item.virtualEvidence}
-                                  </div>
+                              <div style={{ padding: 12, borderRadius: 10, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#1877F2', marginBottom: 6 }}>💡 조언</div>
+                                <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                  {item.advice}
                                 </div>
                               </div>
                             )}

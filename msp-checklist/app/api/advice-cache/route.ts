@@ -61,9 +61,9 @@ export async function POST(request: NextRequest) {
     console.log('📥 POST /api/advice-cache - Starting request processing...');
     
     const body = await request.json();
-    console.log('📋 Request body:', body);
+    console.log('📋 Request body:', JSON.stringify(body, null, 2));
     
-    const { action, options } = body;
+    const { action, options, llmConfig } = body;
 
     if (action !== 'generate') {
       console.log('❌ Invalid action:', action);
@@ -73,9 +73,17 @@ export async function POST(request: NextRequest) {
     console.log('🔧 Getting advice generator...');
     const generator = getAdviceGenerator();
     
-    console.log('🚀 Starting advice generation with options:', options);
+    // LLM 설정을 options에 포함
+    const generationOptions = {
+      ...options,
+      llmConfig: llmConfig || undefined,
+    };
+    
+    console.log('🚀 Starting advice generation with options:', generationOptions);
+    console.log('🤖 LLM Config:', llmConfig ? `${llmConfig.provider} (${llmConfig.model})` : 'Using default');
+    
     // 조언 생성 시작
-    const result = await generator.generateAndCacheAllAdvice(options || {});
+    const result = await generator.generateAndCacheAllAdvice(generationOptions);
 
     console.log('✅ Advice generation completed:', result);
     return NextResponse.json({
