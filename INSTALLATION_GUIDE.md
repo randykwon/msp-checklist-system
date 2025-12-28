@@ -49,6 +49,8 @@ sudo chmod +x *.sh
 sudo ./ec2-full-install.sh
 ```
 
+> ✅ 자동 설치 완료 시 관리자 계정(`admin@msp.com` / `admin123!`)이 자동 생성됩니다.
+
 ### 방법 2: 단계별 수동 설치
 
 #### 1단계: 시스템 준비
@@ -207,14 +209,19 @@ sudo systemctl enable nginx
 
 #### 8단계: 관리자 계정 생성
 
+> ⚠️ **참고:** 자동 설치(`ec2-full-install.sh`) 또는 업데이트(`update-and-build.sh`) 시 관리자 계정이 자동으로 생성됩니다.
+
+수동으로 생성하려면:
 ```bash
 cd /opt/msp-checklist-system
 sudo node create-admin.cjs
 ```
 
-기본 계정:
+기본 관리자 계정:
 - 이메일: `admin@msp.com`
 - 비밀번호: `admin123!`
+
+> 🔐 **보안:** 첫 로그인 후 반드시 비밀번호를 변경하세요!
 
 #### 9단계: 서버 시작
 
@@ -244,8 +251,10 @@ cd /opt/msp-checklist-system
 
 ```bash
 cd /opt/msp-checklist-system
-./update-and-build.sh
+sudo ./update-and-build.sh
 ```
+
+> ✅ 업데이트 시 관리자 계정이 없으면 자동으로 생성됩니다.
 
 ### 수동 업데이트
 
