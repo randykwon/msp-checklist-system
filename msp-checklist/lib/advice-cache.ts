@@ -220,7 +220,12 @@ export class AdviceCacheService {
 
   // 특정 버전의 모든 캐시된 조언 조회
   getCachedAdviceByVersion(version: string, language: 'ko' | 'en' = 'ko'): CachedAdvice[] {
-    if (!this.db) return [];
+    if (!this.db) {
+      console.log('DB not initialized');
+      return [];
+    }
+    
+    console.log('Querying advice_cache for version:', version, 'language:', language);
     
     const stmt = this.db.prepare(`
       SELECT * FROM advice_cache 
@@ -228,7 +233,10 @@ export class AdviceCacheService {
       ORDER BY item_id
     `);
 
-    return stmt.all(version, language).map((row: any) => ({
+    const results = stmt.all(version, language);
+    console.log('Query results count:', results.length);
+
+    return results.map((row: any) => ({
       id: row.id,
       itemId: row.item_id,
       category: row.category,
@@ -385,6 +393,30 @@ export class AdviceCacheService {
       return true;
     } catch (error) {
       console.error('Failed to import cache from file:', error);
+      return false;
+    }
+  }
+
+  // 캐시 버전 삭제
+  deleteCacheVersion(version: string): boolean {
+    if (!this.db) return false;
+    
+    try {
+      // 먼저 해당 버전의 모든 조언 삭제
+      const deleteAdviceStmt = this.db.prepare(`
+        DELETE FROM advice_cache WHERE version = ?
+      `);
+      deleteAdviceStmt.run(version);
+
+      // 버전 정보 삭제
+      const deleteVersionStmt = this.db.prepare(`
+        DELETE FROM cache_versions WHERE version = ?
+      `);
+      const result = deleteVersionStmt.run(version);
+
+      return result.changes > 0;
+    } catch (error) {
+      console.error('Error deleting cache version:', error);
       return false;
     }
   }

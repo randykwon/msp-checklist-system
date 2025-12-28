@@ -95,6 +95,35 @@ export async function POST(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const version = searchParams.get('version');
+
+    if (!version) {
+      return NextResponse.json({ error: 'version is required' }, { status: 400 });
+    }
+
+    const cacheService = getVirtualEvidenceCacheService();
+    const success = cacheService.deleteCacheVersion(version);
+
+    if (success) {
+      return NextResponse.json({ 
+        success: true, 
+        message: `버전 ${version}이 성공적으로 삭제되었습니다.` 
+      });
+    } else {
+      return NextResponse.json({ error: 'Failed to delete version' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('Error deleting virtual evidence cache version:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();

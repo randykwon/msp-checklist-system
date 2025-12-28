@@ -32,7 +32,9 @@ export async function GET(request: NextRequest) {
         if (!version) {
           return NextResponse.json({ error: 'version is required for list action' }, { status: 400 });
         }
+        console.log('Fetching advice list for version:', version, 'language:', language);
         const adviceList = cacheService.getCachedAdviceByVersion(version, language);
+        console.log('Found advice items:', adviceList.length);
         return NextResponse.json({ advice: adviceList });
 
       case 'export':
@@ -90,6 +92,35 @@ export async function POST(request: NextRequest) {
     const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
       { error: `Failed to generate advice cache: ${errorMessage}` },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const version = searchParams.get('version');
+
+    if (!version) {
+      return NextResponse.json({ error: 'version is required' }, { status: 400 });
+    }
+
+    const cacheService = getAdviceCacheService();
+    const success = cacheService.deleteCacheVersion(version);
+
+    if (success) {
+      return NextResponse.json({ 
+        success: true, 
+        message: `버전 ${version}이 성공적으로 삭제되었습니다.` 
+      });
+    } else {
+      return NextResponse.json({ error: 'Failed to delete version' }, { status: 500 });
+    }
+  } catch (error) {
+    console.error('Error deleting cache version:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
       { status: 500 }
     );
   }

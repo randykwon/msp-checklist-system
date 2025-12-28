@@ -53,6 +53,10 @@ export default function CachePage() {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailVersion, setDetailVersion] = useState<CacheVersion | null>(null);
+  const [detailStats, setDetailStats] = useState<CacheStats | null>(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -231,6 +235,55 @@ export default function CachePage() {
     return date.toISOString().replace('T', ' ').substring(0, 19);
   };
 
+  // 버전 삭제 기능
+  const handleDeleteVersion = async (version: string) => {
+    if (!confirm(`버전 "${version}"을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+      return;
+    }
+    
+    try {
+      setIsDeleting(true);
+      showMessage(`버전 ${version} 삭제 중...`, 'info');
+      
+      const response = await fetch(`/api/advice-cache?version=${version}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        showMessage(`버전 ${version}이 성공적으로 삭제되었습니다.`, 'success');
+        await loadCacheData();
+      } else {
+        const error = await response.json();
+        showMessage(`삭제 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to delete version:', error);
+      showMessage('버전 삭제 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  // 버전 상세보기 기능
+  const handleViewDetail = async (version: CacheVersion) => {
+    console.log('handleViewDetail called with:', version);
+    try {
+      setDetailVersion(version);
+      setShowDetailModal(true);
+      
+      // 해당 버전의 통계 조회
+      const statsResponse = await fetch(`/api/advice-cache?action=stats&version=${version.version}`);
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json();
+        console.log('Stats data:', statsData);
+        setDetailStats(statsData.stats);
+      }
+    } catch (error) {
+      console.error('Failed to load version details:', error);
+      showMessage('버전 상세 정보 로드에 실패했습니다.', 'error');
+    }
+  };
+
   const loadCacheItems = async (version?: string, language: 'ko' | 'en' = 'ko') => {
     try {
       const versionParam = version || selectedVersion || (versions.length > 0 ? versions[0].version : '');
@@ -238,12 +291,18 @@ export default function CachePage() {
         showMessage('선택된 버전이 없습니다.', 'error');
         return;
       }
+      console.log('Loading cache items for version:', versionParam, 'language:', language);
       const response = await fetch(`/api/advice-cache?action=list&version=${versionParam}&language=${language}`);
+      console.log('Response status:', response.status);
       if (response.ok) {
         const data = await response.json();
+        console.log('API response data:', data);
+        console.log('Advice items count:', data.advice?.length || 0);
         setCacheItems(data.advice || []);
         setShowCacheViewer(true);
       } else {
+        const errorData = await response.json();
+        console.error('API error:', errorData);
         showMessage('캐시 항목 로드에 실패했습니다.', 'error');
       }
     } catch (error) {
@@ -557,6 +616,7 @@ export default function CachePage() {
                           <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>항목 수</th>
                           <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>설명</th>
                           <th style={{ padding: '12px 16px', textAlign: 'left', fontSize: 13, fontWeight: 600, color: '#65676B' }}>상태</th>
+                          <th style={{ padding: '12px 16px', textAlign: 'center', fontSize: 13, fontWeight: 600, color: '#65676B' }}>액션</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -577,6 +637,48 @@ export default function CachePage() {
                               <span style={{ padding: '4px 12px', borderRadius: 20, fontSize: 12, fontWeight: 600, background: '#E8F5E9', color: '#2E7D32' }}>
                                 완료
                               </span>
+                            </td>
+                            <td style={{ padding: '12px 16px', textAlign: 'center' }}>
+                              <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                                <button
+                                  onClick={() => handleViewDetail(version)}
+                                  style={{
+                                    padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                                    color: '#1877F2', background: '#E7F3FF',
+                                    border: 'none', borderRadius: 6, cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', gap: 4
+                                  }}
+                                >
+                                  🔍 상세
+                                </button>
+                                <button
+                                  onClick={() => { setSelectedVersion(version.version); loadCacheItems(version.version, selectedLanguage); }}
+                                  style={{
+                                    padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                                    color: '#42B883', background: '#E8F5E9',
+                                    border: 'none', borderRadius: 6, cursor: 'pointer',
+                                    display: 'flex', alignItems: 'center', gap: 4
+                                  }}
+                                >
+                                  👁️ 내용
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteVersion(version.version)}
+                                  disabled={isDeleting || activeVersions.advice === version.version}
+                                  style={{
+                                    padding: '6px 12px', fontSize: 12, fontWeight: 600,
+                                    color: activeVersions.advice === version.version ? '#9CA3AF' : '#DC2626',
+                                    background: activeVersions.advice === version.version ? '#F3F4F6' : '#FEE2E2',
+                                    border: 'none', borderRadius: 6,
+                                    cursor: isDeleting || activeVersions.advice === version.version ? 'not-allowed' : 'pointer',
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                    opacity: isDeleting ? 0.7 : 1
+                                  }}
+                                  title={activeVersions.advice === version.version ? '활성 버전은 삭제할 수 없습니다' : '버전 삭제'}
+                                >
+                                  🗑️ 삭제
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -617,6 +719,124 @@ export default function CachePage() {
             </div>
           </div>
 
+
+          {/* 버전 상세보기 모달 */}
+          {showDetailModal && detailVersion && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 100
+            }}>
+              <div style={{
+                width: '90%', maxWidth: 600, borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white'
+              }}>
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+                  color: 'white', borderRadius: '16px 16px 0 0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>🔍 버전 상세 정보</h3>
+                  <button
+                    onClick={() => { setShowDetailModal(false); setDetailVersion(null); setDetailStats(null); }}
+                    style={{
+                      padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#1877F2',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                    }}
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+                <div style={{ padding: 24 }}>
+                  {/* 버전 기본 정보 */}
+                  <div style={{ marginBottom: 24 }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 16 }}>
+                      <div style={{ padding: 16, borderRadius: 12, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#65676B', marginBottom: 4 }}>버전</div>
+                        <div style={{ fontSize: 16, fontWeight: 700, color: '#1877F2', fontFamily: 'monospace' }}>{detailVersion.version}</div>
+                      </div>
+                      <div style={{ padding: 16, borderRadius: 12, background: '#E8F5E9', border: '1px solid #A5D6A7' }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: '#65676B', marginBottom: 4 }}>생성일시</div>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#2E7D32' }}>{formatDate(detailVersion.createdAt)}</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* 통계 정보 */}
+                  {detailStats && (
+                    <div style={{ marginBottom: 24 }}>
+                      <h4 style={{ margin: '0 0 12px', fontSize: 16, fontWeight: 700, color: '#1C1E21' }}>📊 캐시 통계</h4>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+                        <div style={{ padding: 12, borderRadius: 10, background: '#F0F2F5', textAlign: 'center' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: '#1877F2' }}>{detailStats.total}</div>
+                          <div style={{ fontSize: 11, color: '#65676B' }}>총 항목</div>
+                        </div>
+                        <div style={{ padding: 12, borderRadius: 10, background: '#F0F2F5', textAlign: 'center' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: '#42B883' }}>{detailStats.korean}</div>
+                          <div style={{ fontSize: 11, color: '#65676B' }}>한국어</div>
+                        </div>
+                        <div style={{ padding: 12, borderRadius: 10, background: '#F0F2F5', textAlign: 'center' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: '#8B5CF6' }}>{detailStats.english}</div>
+                          <div style={{ fontSize: 11, color: '#65676B' }}>영어</div>
+                        </div>
+                        <div style={{ padding: 12, borderRadius: 10, background: '#F0F2F5', textAlign: 'center' }}>
+                          <div style={{ fontSize: 24, fontWeight: 700, color: '#F59E0B' }}>{detailStats.unique_items}</div>
+                          <div style={{ fontSize: 11, color: '#65676B' }}>고유 항목</div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* 설명 */}
+                  <div style={{ marginBottom: 24 }}>
+                    <h4 style={{ margin: '0 0 8px', fontSize: 14, fontWeight: 600, color: '#65676B' }}>설명</h4>
+                    <div style={{ padding: 12, borderRadius: 10, background: '#F0F2F5', fontSize: 14, color: '#1C1E21' }}>
+                      {detailVersion.description || '설명 없음'}
+                    </div>
+                  </div>
+                  
+                  {/* 활성 상태 */}
+                  <div style={{ padding: 16, borderRadius: 12, background: activeVersions.advice === detailVersion.version ? '#E8F5E9' : '#FEF3C7', border: `1px solid ${activeVersions.advice === detailVersion.version ? '#A5D6A7' : '#F59E0B'}` }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 20 }}>{activeVersions.advice === detailVersion.version ? '✅' : '⚠️'}</span>
+                      <span style={{ fontSize: 14, fontWeight: 600, color: activeVersions.advice === detailVersion.version ? '#2E7D32' : '#92400E' }}>
+                        {activeVersions.advice === detailVersion.version ? '현재 활성 버전입니다' : '비활성 버전입니다'}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* 액션 버튼 */}
+                  <div style={{ display: 'flex', gap: 12, marginTop: 24 }}>
+                    <button
+                      onClick={() => { setSelectedVersion(detailVersion.version); loadCacheItems(detailVersion.version, selectedLanguage); setShowDetailModal(false); }}
+                      style={{
+                        flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: 'white',
+                        background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)',
+                        border: 'none', borderRadius: 10, cursor: 'pointer'
+                      }}
+                    >
+                      👁️ 캐시 내용 보기
+                    </button>
+                    {activeVersions.advice !== detailVersion.version && (
+                      <button
+                        onClick={() => { setActiveVersion('advice', detailVersion.version); setShowDetailModal(false); }}
+                        disabled={isSettingActiveVersion}
+                        style={{
+                          flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: 'white',
+                          background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
+                          border: 'none', borderRadius: 10, cursor: isSettingActiveVersion ? 'not-allowed' : 'pointer',
+                          opacity: isSettingActiveVersion ? 0.7 : 1
+                        }}
+                      >
+                        🎯 활성화
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Import 모달 */}
           {showImportModal && (
@@ -706,9 +926,9 @@ export default function CachePage() {
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between'
                 }}>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 캐시 내용 관리</h3>
+                    <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 조언 캐시 내용 관리</h3>
                     <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>
-                      버전: {selectedVersion} | 언어: {selectedLanguage === 'ko' ? '한국어' : '영어'}
+                      버전: {selectedVersion} | 언어: {selectedLanguage === 'ko' ? '한국어' : '영어'} | 총 {filteredCacheItems.length}개 항목
                     </p>
                   </div>
                   <button
@@ -730,8 +950,8 @@ export default function CachePage() {
                         onClick={() => { setSelectedLanguage('ko'); loadCacheItems(selectedVersion, 'ko'); }}
                         style={{
                           padding: '10px 20px', fontSize: 14, fontWeight: 600,
-                          color: selectedLanguage === 'ko' ? 'white' : '#1877F2',
-                          background: selectedLanguage === 'ko' ? 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)' : '#E7F3FF',
+                          color: selectedLanguage === 'ko' ? 'white' : '#42B883',
+                          background: selectedLanguage === 'ko' ? 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' : '#E8F5E9',
                           border: 'none', borderRadius: 10, cursor: 'pointer'
                         }}
                       >
@@ -741,8 +961,8 @@ export default function CachePage() {
                         onClick={() => { setSelectedLanguage('en'); loadCacheItems(selectedVersion, 'en'); }}
                         style={{
                           padding: '10px 20px', fontSize: 14, fontWeight: 600,
-                          color: selectedLanguage === 'en' ? 'white' : '#8B5CF6',
-                          background: selectedLanguage === 'en' ? 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' : '#EDE9FE',
+                          color: selectedLanguage === 'en' ? 'white' : '#1877F2',
+                          background: selectedLanguage === 'en' ? 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)' : '#E7F3FF',
                           border: 'none', borderRadius: 10, cursor: 'pointer'
                         }}
                       >
@@ -758,17 +978,17 @@ export default function CachePage() {
                     />
                   </div>
                   {/* 캐시 항목 목록 */}
-                  <div style={{ maxHeight: 500, overflowY: 'auto' }}>
+                  <div style={{ maxHeight: 600, overflowY: 'auto' }}>
                     {filteredCacheItems.length === 0 ? (
                       <div style={{ padding: 48, textAlign: 'center' }}>
                         <p style={{ color: '#65676B' }}>캐시 항목이 없습니다.</p>
                       </div>
                     ) : (
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                        {filteredCacheItems.map((item, index) => (
+                        {filteredCacheItems.map((item) => (
                           <div key={item.id} style={{
                             padding: 16, borderRadius: 12, border: '1px solid #E4E6EB',
-                            background: editingItem?.id === item.id ? '#FEF3C7' : 'white'
+                            background: editingItem?.id === item.id ? '#E7F3FF' : 'white'
                           }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -783,31 +1003,31 @@ export default function CachePage() {
                                 onClick={() => editingItem?.id === item.id ? setEditingItem(null) : handleEditItem(item)}
                                 style={{
                                   padding: '6px 12px', fontSize: 12, fontWeight: 600,
-                                  color: editingItem?.id === item.id ? '#F59E0B' : '#1877F2',
-                                  background: editingItem?.id === item.id ? '#FEF3C7' : '#E7F3FF',
+                                  color: editingItem?.id === item.id ? '#1877F2' : '#1877F2',
+                                  background: editingItem?.id === item.id ? '#E7F3FF' : '#E7F3FF',
                                   border: 'none', borderRadius: 6, cursor: 'pointer'
                                 }}
                               >
                                 {editingItem?.id === item.id ? '취소' : '✏️ 편집'}
                               </button>
                             </div>
-                            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>{item.title}</div>
+                            <div style={{ fontSize: 15, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>{item.title}</div>
                             {editingItem?.id === item.id ? (
                               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#65676B', marginBottom: 4 }}>조언</label>
+                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1877F2', marginBottom: 4 }}>💡 조언</label>
                                   <textarea
                                     value={editingItem.advice}
                                     onChange={(e) => setEditingItem({ ...editingItem, advice: e.target.value })}
-                                    style={{ width: '100%', minHeight: 100, padding: 12, fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
+                                    style={{ width: '100%', minHeight: 150, padding: 12, fontSize: 14, border: '2px solid #1877F2', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
                                   />
                                 </div>
                                 <div>
-                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#65676B', marginBottom: 4 }}>가상증빙예제</label>
+                                  <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#42B883', marginBottom: 4 }}>📋 가상증빙예제</label>
                                   <textarea
                                     value={editingItem.virtualEvidence}
                                     onChange={(e) => setEditingItem({ ...editingItem, virtualEvidence: e.target.value })}
-                                    style={{ width: '100%', minHeight: 100, padding: 12, fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
+                                    style={{ width: '100%', minHeight: 150, padding: 12, fontSize: 14, border: '2px solid #42B883', borderRadius: 10, resize: 'vertical', boxSizing: 'border-box' }}
                                   />
                                 </div>
                                 <button
@@ -815,7 +1035,7 @@ export default function CachePage() {
                                   disabled={isUpdating}
                                   style={{
                                     padding: '12px 24px', fontSize: 14, fontWeight: 600, color: 'white',
-                                    background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+                                    background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
                                     border: 'none', borderRadius: 10, cursor: isUpdating ? 'not-allowed' : 'pointer',
                                     opacity: isUpdating ? 0.7 : 1
                                   }}
@@ -824,14 +1044,20 @@ export default function CachePage() {
                                 </button>
                               </div>
                             ) : (
-                              <>
-                                <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, marginBottom: 8 }}>
-                                  <strong style={{ color: '#1877F2' }}>조언:</strong> {item.advice.substring(0, 200)}...
+                              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                                <div style={{ padding: 12, borderRadius: 10, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
+                                  <div style={{ fontSize: 12, fontWeight: 600, color: '#1877F2', marginBottom: 6 }}>💡 조언</div>
+                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                    {item.advice}
+                                  </div>
                                 </div>
-                                <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>
-                                  <strong style={{ color: '#42B883' }}>가상증빙:</strong> {item.virtualEvidence.substring(0, 200)}...
+                                <div style={{ padding: 12, borderRadius: 10, background: '#E8F5E9', border: '1px solid #A5D6A7' }}>
+                                  <div style={{ fontSize: 12, fontWeight: 600, color: '#2E7D32', marginBottom: 6 }}>📋 가상증빙예제</div>
+                                  <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                                    {item.virtualEvidence}
+                                  </div>
                                 </div>
-                              </>
+                              </div>
                             )}
                           </div>
                         ))}

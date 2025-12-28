@@ -321,6 +321,30 @@ export class VirtualEvidenceCacheService {
     }
   }
 
+  // 캐시 버전 삭제
+  deleteCacheVersion(version: string): boolean {
+    if (!this.db) return false;
+    
+    try {
+      // 먼저 해당 버전의 모든 가상증빙 삭제
+      const deleteEvidenceStmt = this.db.prepare(`
+        DELETE FROM virtual_evidence_cache WHERE version = ?
+      `);
+      deleteEvidenceStmt.run(version);
+
+      // 버전 정보 삭제
+      const deleteVersionStmt = this.db.prepare(`
+        DELETE FROM virtual_evidence_versions WHERE version = ?
+      `);
+      const result = deleteVersionStmt.run(version);
+
+      return result.changes > 0;
+    } catch (error) {
+      console.error('Error deleting cache version:', error);
+      return false;
+    }
+  }
+
   // JSON 파일에서 캐시 가져오기
   importCacheFromFile(filepath: string): boolean {
     if (!this.db || !fs) return false;
