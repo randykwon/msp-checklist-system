@@ -182,6 +182,26 @@ echo $ADMIN_PID > .admin-server.pid
 
 echo ""
 echo "=================================================="
+log_header "관리자 계정 확인"
+echo "=================================================="
+echo ""
+
+# 관리자 계정 자동 생성
+if [ -f "create-admin.cjs" ]; then
+    log_info "관리자 계정 확인 중..."
+    
+    # create-admin.cjs 실행 (이미 존재하면 스킵됨)
+    if node create-admin.cjs 2>/dev/null; then
+        log_success "관리자 계정 확인 완료"
+    else
+        log_warning "관리자 계정 생성 스크립트 실행 실패 (무시하고 계속 진행)"
+    fi
+else
+    log_warning "create-admin.cjs 파일이 없습니다. 관리자 계정을 수동으로 생성하세요."
+fi
+
+echo ""
+echo "=================================================="
 log_header "서버 상태 확인"
 echo "=================================================="
 echo ""

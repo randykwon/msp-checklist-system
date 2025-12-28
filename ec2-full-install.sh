@@ -1343,6 +1343,30 @@ verify_installation() {
     log_success "설치 검증 완료"
 }
 
+# 관리자 계정 자동 생성
+setup_admin_account() {
+    log_info "관리자 계정 확인 및 생성 중..."
+    
+    cd /opt/msp-checklist-system
+    
+    if [ -f "create-admin.cjs" ]; then
+        # create-admin.cjs 실행 (이미 존재하면 스킵됨)
+        if node create-admin.cjs 2>/dev/null; then
+            log_success "관리자 계정 설정 완료"
+            echo ""
+            echo "📋 기본 관리자 계정:"
+            echo "   📧 이메일: admin@msp.com"
+            echo "   🔑 비밀번호: admin123!"
+            echo "   ⚠️  첫 로그인 후 비밀번호를 변경하세요!"
+            echo ""
+        else
+            log_warning "관리자 계정 생성 실패 (수동으로 생성하세요: node create-admin.cjs)"
+        fi
+    else
+        log_warning "create-admin.cjs 파일이 없습니다"
+    fi
+}
+
 # 설치 완료 정보 표시
 show_completion_info() {
     echo ""
@@ -1566,6 +1590,11 @@ EOF
     
     verify_installation || {
         log_warning "설치 검증에 문제가 있지만 완료 정보를 표시합니다."
+    }
+    
+    # 관리자 계정 자동 생성
+    setup_admin_account || {
+        log_warning "관리자 계정 생성에 문제가 있습니다. 수동으로 생성하세요."
     }
     
     show_completion_info
