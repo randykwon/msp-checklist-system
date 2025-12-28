@@ -93,7 +93,10 @@ export default function UsersPage() {
     finally { setActionLoading(false); }
   };
 
-  const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formatDate = (dateString: string) => {
+    if (!isHydrated) return '';
+    return new Date(dateString).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
 
   // Hydration 로딩 화면
   if (!isHydrated || loading) {
