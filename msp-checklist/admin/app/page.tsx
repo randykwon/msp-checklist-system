@@ -37,8 +37,10 @@ export default function AdminHome() {
   }, [user, loading, router]);
 
   useEffect(() => {
-    setLastUpdate(new Date().toLocaleTimeString('ko-KR'));
-  }, [stats]);
+    if (isHydrated && stats) {
+      setLastUpdate(new Date().toLocaleTimeString('ko-KR'));
+    }
+  }, [isHydrated, stats]);
 
   const fetchStats = async () => {
     setLoadingStats(true);
