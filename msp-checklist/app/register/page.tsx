@@ -18,17 +18,16 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isHydrated, setIsHydrated] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setIsHydrated(true);
+    setMounted(true);
   }, []);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (password !== confirmPassword) {
       setError(language === 'ko' ? '비밀번호가 일치하지 않습니다.' : 'Passwords do not match.');
       return;
@@ -51,28 +50,45 @@ export default function RegisterPage() {
     }
   };
 
-  // 로딩 화면 (서버/클라이언트 동일)
-  if (!isHydrated) {
-    return (
+  // 서버와 클라이언트 모두 동일한 로딩 UI 렌더링
+  const loadingUI = (
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1a365d 0%, #2563eb 50%, #7c3aed 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
       <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #1a365d 0%, #2563eb 50%, #7c3aed 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          border: '4px solid rgba(255,255,255,0.3)',
-          borderTopColor: 'white',
-          borderRadius: '50%',
-          animation: 'spin 1s linear infinite'
-        }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
+        width: '48px',
+        height: '48px',
+        border: '4px solid rgba(255,255,255,0.3)',
+        borderTopColor: 'white',
+        borderRadius: '50%',
+        animation: 'spin 1s linear infinite'
+      }} />
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  );
+
+  // 언어 관련 텍스트 (mounted 후에만 사용)
+  const texts = {
+    title: mounted ? (language === 'ko' ? '회원가입' : 'Create Account') : '회원가입',
+    subtitle: mounted ? (language === 'ko' ? 'AWS MSP 자체 평가 헬퍼에 가입하세요' : 'Join AWS MSP Self-Assessment Helper') : '',
+    name: mounted ? (language === 'ko' ? '이름' : 'Name') : '이름',
+    namePlaceholder: mounted ? (language === 'ko' ? '이름을 입력하세요' : 'Enter your name') : '',
+    email: mounted ? (language === 'ko' ? '이메일' : 'Email') : '이메일',
+    emailPlaceholder: mounted ? (language === 'ko' ? '이메일 주소를 입력하세요' : 'Enter your email') : '',
+    password: mounted ? (language === 'ko' ? '비밀번호' : 'Password') : '비밀번호',
+    passwordPlaceholder: mounted ? (language === 'ko' ? '비밀번호 (6자 이상)' : 'Password (min 6 characters)') : '',
+    confirmPassword: mounted ? (language === 'ko' ? '비밀번호 확인' : 'Confirm Password') : '비밀번호 확인',
+    confirmPlaceholder: mounted ? (language === 'ko' ? '비밀번호를 다시 입력하세요' : 'Confirm your password') : '',
+    submit: mounted ? (language === 'ko' ? '회원가입' : 'Sign Up') : '회원가입',
+    submitting: mounted ? (language === 'ko' ? '가입 중...' : 'Creating account...') : '가입 중...',
+    or: mounted ? (language === 'ko' ? '또는' : 'or') : '또는',
+    hasAccount: mounted ? (language === 'ko' ? '이미 계정이 있으신가요?' : 'Already have an account?') : '',
+    signIn: mounted ? (language === 'ko' ? '로그인' : 'Sign In') : '로그인'
+  };
 
   return (
     <div style={{
@@ -96,9 +112,9 @@ export default function RegisterPage() {
             style={{
               padding: '8px 16px',
               fontSize: '14px',
-              fontWeight: language === 'ko' ? 700 : 400,
+              fontWeight: mounted && language === 'ko' ? 700 : 400,
               color: 'white',
-              background: language === 'ko' ? 'rgba(255,255,255,0.2)' : 'transparent',
+              background: mounted && language === 'ko' ? 'rgba(255,255,255,0.2)' : 'transparent',
               border: '1px solid rgba(255,255,255,0.3)',
               borderRadius: '20px',
               cursor: 'pointer',
@@ -112,9 +128,9 @@ export default function RegisterPage() {
             style={{
               padding: '8px 16px',
               fontSize: '14px',
-              fontWeight: language === 'en' ? 700 : 400,
+              fontWeight: mounted && language === 'en' ? 700 : 400,
               color: 'white',
-              background: language === 'en' ? 'rgba(255,255,255,0.2)' : 'transparent',
+              background: mounted && language === 'en' ? 'rgba(255,255,255,0.2)' : 'transparent',
               border: '1px solid rgba(255,255,255,0.3)',
               borderRadius: '20px',
               cursor: 'pointer',
@@ -147,20 +163,11 @@ export default function RegisterPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
             </svg>
           </div>
-          <h1 style={{
-            margin: 0,
-            fontSize: '24px',
-            fontWeight: 700,
-            color: 'white'
-          }}>
-            {language === 'ko' ? '회원가입' : 'Create Account'}
+          <h1 style={{ margin: 0, fontSize: '24px', fontWeight: 700, color: 'white' }}>
+            {texts.title}
           </h1>
-          <p style={{
-            margin: '8px 0 0',
-            fontSize: '14px',
-            color: 'rgba(255,255,255,0.9)'
-          }}>
-            {language === 'ko' ? 'AWS MSP 자체 평가 헬퍼에 가입하세요' : 'Join AWS MSP Self-Assessment Helper'}
+          <p style={{ margin: '8px 0 0', fontSize: '14px', color: 'rgba(255,255,255,0.9)' }}>
+            {texts.subtitle}
           </p>
         </div>
 
@@ -204,20 +211,14 @@ export default function RegisterPage() {
 
             {/* 이름 필드 */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#1C1E21',
-                marginBottom: '8px'
-              }}>
-                👤 {language === 'ko' ? '이름' : 'Name'} <span style={{ color: '#EF4444' }}>*</span>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '8px' }}>
+                👤 {texts.name} <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <input
                 type="text"
                 autoComplete="name"
                 required
-                placeholder={language === 'ko' ? '이름을 입력하세요' : 'Enter your name'}
+                placeholder={texts.namePlaceholder}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 disabled={loading}
@@ -233,33 +234,21 @@ export default function RegisterPage() {
                   transition: 'all 0.2s',
                   boxSizing: 'border-box'
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#059669';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#E4E6EB';
-                  e.target.style.background = '#F0F2F5';
-                }}
+                onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.background = 'white'; }}
+                onBlur={(e) => { e.target.style.borderColor = '#E4E6EB'; e.target.style.background = '#F0F2F5'; }}
               />
             </div>
 
             {/* 이메일 필드 */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#1C1E21',
-                marginBottom: '8px'
-              }}>
-                📧 {language === 'ko' ? '이메일' : 'Email'} <span style={{ color: '#EF4444' }}>*</span>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '8px' }}>
+                📧 {texts.email} <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <input
                 type="email"
                 autoComplete="email"
                 required
-                placeholder={language === 'ko' ? '이메일 주소를 입력하세요' : 'Enter your email'}
+                placeholder={texts.emailPlaceholder}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
@@ -275,34 +264,22 @@ export default function RegisterPage() {
                   transition: 'all 0.2s',
                   boxSizing: 'border-box'
                 }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#059669';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#E4E6EB';
-                  e.target.style.background = '#F0F2F5';
-                }}
+                onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.background = 'white'; }}
+                onBlur={(e) => { e.target.style.borderColor = '#E4E6EB'; e.target.style.background = '#F0F2F5'; }}
               />
             </div>
 
             {/* 비밀번호 필드 */}
             <div style={{ marginBottom: '16px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#1C1E21',
-                marginBottom: '8px'
-              }}>
-                🔒 {language === 'ko' ? '비밀번호' : 'Password'} <span style={{ color: '#EF4444' }}>*</span>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '8px' }}>
+                🔒 {texts.password} <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
-                  placeholder={language === 'ko' ? '비밀번호 (6자 이상)' : 'Password (min 6 characters)'}
+                  placeholder={texts.passwordPlaceholder}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={loading}
@@ -318,30 +295,14 @@ export default function RegisterPage() {
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#059669';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#E4E6EB';
-                    e.target.style.background = '#F0F2F5';
-                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.background = 'white'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#E4E6EB'; e.target.style.background = '#F0F2F5'; }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   disabled={loading}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: '#65676B'
-                  }}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#65676B' }}
                 >
                   {showPassword ? (
                     <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -359,21 +320,15 @@ export default function RegisterPage() {
 
             {/* 비밀번호 확인 필드 */}
             <div style={{ marginBottom: '24px' }}>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: 600,
-                color: '#1C1E21',
-                marginBottom: '8px'
-              }}>
-                🔒 {language === 'ko' ? '비밀번호 확인' : 'Confirm Password'} <span style={{ color: '#EF4444' }}>*</span>
+              <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '8px' }}>
+                🔒 {texts.confirmPassword} <span style={{ color: '#EF4444' }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
                   autoComplete="new-password"
                   required
-                  placeholder={language === 'ko' ? '비밀번호를 다시 입력하세요' : 'Confirm your password'}
+                  placeholder={texts.confirmPlaceholder}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   disabled={loading}
@@ -389,30 +344,14 @@ export default function RegisterPage() {
                     transition: 'all 0.2s',
                     boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#059669';
-                    e.target.style.background = 'white';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = '#E4E6EB';
-                    e.target.style.background = '#F0F2F5';
-                  }}
+                  onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.background = 'white'; }}
+                  onBlur={(e) => { e.target.style.borderColor = '#E4E6EB'; e.target.style.background = '#F0F2F5'; }}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   disabled={loading}
-                  style={{
-                    position: 'absolute',
-                    right: '12px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer',
-                    padding: '4px',
-                    color: '#65676B'
-                  }}
+                  style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#65676B' }}
                 >
                   {showConfirmPassword ? (
                     <svg style={{ width: '20px', height: '20px' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -438,9 +377,7 @@ export default function RegisterPage() {
                 fontSize: '16px',
                 fontWeight: 700,
                 color: 'white',
-                background: loading 
-                  ? 'linear-gradient(135deg, #6EE7B7 0%, #34D399 100%)'
-                  : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
+                background: loading ? 'linear-gradient(135deg, #6EE7B7 0%, #34D399 100%)' : 'linear-gradient(135deg, #059669 0%, #10b981 100%)',
                 border: 'none',
                 borderRadius: '12px',
                 cursor: loading ? 'not-allowed' : 'pointer',
@@ -451,86 +388,43 @@ export default function RegisterPage() {
                 justifyContent: 'center',
                 gap: '8px'
               }}
-              onMouseEnter={(e) => {
-                if (!loading) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(5, 150, 105, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
-              }}
             >
               {loading ? (
                 <>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '2px solid rgba(255,255,255,0.3)',
-                    borderTopColor: 'white',
-                    borderRadius: '50%',
-                    animation: 'spin 1s linear infinite'
-                  }} />
-                  {language === 'ko' ? '가입 중...' : 'Creating account...'}
+                  <div style={{ width: '20px', height: '20px', border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }} />
+                  {texts.submitting}
                 </>
               ) : (
-                <>🚀 {language === 'ko' ? '회원가입' : 'Sign Up'}</>
+                <>🚀 {texts.submit}</>
               )}
             </button>
           </form>
 
           {/* 구분선 */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            margin: '24px 0',
-            gap: '16px'
-          }}>
+          <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0', gap: '16px' }}>
             <div style={{ flex: 1, height: '1px', background: '#E4E6EB' }} />
-            <span style={{ fontSize: '13px', color: '#65676B' }}>
-              {language === 'ko' ? '또는' : 'or'}
-            </span>
+            <span style={{ fontSize: '13px', color: '#65676B' }}>{texts.or}</span>
             <div style={{ flex: 1, height: '1px', background: '#E4E6EB' }} />
           </div>
 
           {/* 로그인 링크 */}
           <div style={{ textAlign: 'center' }}>
             <p style={{ margin: 0, fontSize: '14px', color: '#65676B' }}>
-              {language === 'ko' ? '이미 계정이 있으신가요?' : 'Already have an account?'}{' '}
-              <Link 
-                href="/login" 
-                style={{
-                  color: '#059669',
-                  fontWeight: 600,
-                  textDecoration: 'none'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-              >
-                {language === 'ko' ? '로그인' : 'Sign In'}
+              {texts.hasAccount}{' '}
+              <Link href="/login" style={{ color: '#059669', fontWeight: 600, textDecoration: 'none' }}>
+                {texts.signIn}
               </Link>
             </p>
           </div>
         </div>
 
         {/* 푸터 */}
-        <p style={{
-          textAlign: 'center',
-          marginTop: '24px',
-          fontSize: '13px',
-          color: 'rgba(255,255,255,0.8)'
-        }}>
+        <p style={{ textAlign: 'center', marginTop: '24px', fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>
           © 2024 AWS MSP Self-Assessment Helper. All rights reserved.
         </p>
       </div>
 
-      {/* 스피너 애니메이션 */}
-      <style jsx global>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
+      <style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }
