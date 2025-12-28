@@ -216,14 +216,29 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   // DB에서 캐시된 가상증빙예제 로드
   const loadCachedVirtualEvidenceFromDB = async () => {
     try {
+      // 먼저 advice-cache에서 확인 (조언과 함께 저장된 가상증빙예제)
       const cacheService = getClientAdviceCacheService();
       const cachedAdvice = await cacheService.getCachedAdvice(item.id, itemLanguage);
       
       if (cachedAdvice && cachedAdvice.virtualEvidence) {
         setVirtualEvidenceContent(cachedAdvice.virtualEvidence);
-        // DB 캐시에서 로드할 때도 자동으로 표시하지 않음
-        // 로컬 캐시에도 저장
         setVirtualEvidence(item.id, cachedAdvice.virtualEvidence, itemLanguage);
+        return;
+      }
+      
+      // advice-cache에 없으면 virtual-evidence-cache에서 확인 (별도 저장된 가상증빙예제)
+      try {
+        const veResponse = await fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`);
+        if (veResponse.ok) {
+          const veData = await veResponse.json();
+          if (veData.evidence && veData.evidence.virtualEvidence) {
+            setVirtualEvidenceContent(veData.evidence.virtualEvidence);
+            setVirtualEvidence(item.id, veData.evidence.virtualEvidence, itemLanguage);
+            setIsVirtualEvidenceFromServerCache(true);
+          }
+        }
+      } catch (veError) {
+        console.error('Failed to load from virtual-evidence-cache:', veError);
       }
     } catch (error) {
       console.error('Failed to load cached virtual evidence from DB:', error);
@@ -232,12 +247,27 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
 
   // 가상증빙예제 생성 함수
   const generateVirtualEvidence = async () => {
-    // 캐시된 가상증빙예제가 있으면 바로 사용 (표시는 하지 않음)
+    // 로컬 캐시에서 먼저 확인
     const cachedVirtualEvidence = getVirtualEvidence(item.id, itemLanguage);
     if (cachedVirtualEvidence) {
       setVirtualEvidenceContent(cachedVirtualEvidence);
-      // 캐시된 내용이 있어도 자동으로 표시하지 않음 - 사용자가 "보기" 버튼을 클릭해야 함
       return;
+    }
+
+    // virtual-evidence-cache DB에서 확인
+    try {
+      const veResponse = await fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`);
+      if (veResponse.ok) {
+        const veData = await veResponse.json();
+        if (veData.evidence && veData.evidence.virtualEvidence) {
+          setVirtualEvidenceContent(veData.evidence.virtualEvidence);
+          setVirtualEvidence(item.id, veData.evidence.virtualEvidence, itemLanguage);
+          setIsVirtualEvidenceFromServerCache(true);
+          return;
+        }
+      }
+    } catch (veError) {
+      console.error('Failed to check virtual-evidence-cache:', veError);
     }
 
     setIsGeneratingVirtualEvidence(true);
