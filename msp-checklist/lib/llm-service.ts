@@ -1,11 +1,11 @@
 /**
  * 통합 LLM 서비스
- * OpenAI, Google Gemini, AWS Bedrock 지원
+ * OpenAI, Google Gemini, Anthropic Claude, AWS Bedrock 지원
  */
 
 // LLM 설정 인터페이스
 export interface LLMConfig {
-  provider: 'openai' | 'gemini' | 'bedrock';
+  provider: 'openai' | 'gemini' | 'claude' | 'bedrock';
   model: string;
   apiKey?: string;
   awsRegion?: string;
@@ -110,6 +110,50 @@ async function callGemini(
 }
 
 /**
+ * Anthropic Claude API 호출 (직접 API)
+ */
+async function callClaude(
+  prompt: string,
+  systemPrompt: string,
+  config: LLMConfig
+): Promise<LLMResponse> {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': config.apiKey || '',
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: config.model,
+      max_tokens: 4096,
+      system: systemPrompt,
+      messages: [
+        {
+          role: 'user',
+          content: prompt,
+        },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(`Claude API Error: ${error.error?.message || response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  return {
+    content: data.content[0].text,
+    usage: {
+      inputTokens: data.usage?.input_tokens || 0,
+      outputTokens: data.usage?.output_tokens || 0,
+    },
+  };
+}
+
+/**
  * AWS Bedrock API 호출 (Claude)
  */
 async function callBedrock(
@@ -177,6 +221,9 @@ export async function callLLM(
       case 'gemini':
         return await callGemini(prompt, systemPrompt, config);
       
+      case 'claude':
+        return await callClaude(prompt, systemPrompt, config);
+      
       case 'bedrock':
         return await callBedrock(prompt, systemPrompt, config);
       
@@ -212,6 +259,11 @@ export function getDefaultLLMConfig(): LLMConfig {
       config.apiKey = process.env.GOOGLE_API_KEY;
       break;
     
+    case 'claude':
+      config.model = process.env.CLAUDE_MODEL || 'claude-3-5-sonnet-20241022';
+      config.apiKey = process.env.CLAUDE_API_KEY || process.env.ANTHROPIC_API_KEY;
+      break;
+    
     case 'bedrock':
     default:
       config.model = process.env.BEDROCK_MODEL || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
@@ -239,6 +291,7 @@ export function validateLLMConfig(config: LLMConfig): { valid: boolean; error?: 
   switch (config.provider) {
     case 'openai':
     case 'gemini':
+    case 'claude':
       if (!config.apiKey) {
         return { valid: false, error: `API key is required for ${config.provider}` };
       }

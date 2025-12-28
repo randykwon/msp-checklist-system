@@ -5,6 +5,8 @@ async function proxyToMainApp(request: NextRequest, endpoint: string, options?: 
   const mainAppUrl = process.env.MAIN_APP_URL || 'http://localhost:3010';
   const url = `${mainAppUrl}${endpoint}`;
   
+  console.log(`[Admin Proxy] Forwarding ${request.method} request to: ${url}`);
+  
   try {
     const response = await fetch(url, {
       method: request.method,
@@ -15,17 +17,21 @@ async function proxyToMainApp(request: NextRequest, endpoint: string, options?: 
       body: options?.body,
     });
     
+    console.log(`[Admin Proxy] Response status: ${response.status}`);
+    
     const data = await response.json();
     
     if (!response.ok) {
+      console.error(`[Admin Proxy] Error response:`, data);
       return NextResponse.json(data, { status: response.status });
     }
     
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Proxy error:', error);
+    console.error('[Admin Proxy] Connection error:', error);
+    console.error('[Admin Proxy] Target URL was:', url);
     return NextResponse.json(
-      { error: 'Failed to connect to main application' },
+      { error: 'Failed to connect to main application', details: error instanceof Error ? error.message : 'Unknown error', targetUrl: url },
       { status: 500 }
     );
   }
@@ -56,5 +62,15 @@ export async function PUT(request: NextRequest) {
   return proxyToMainApp(request, endpoint, {
     method: 'PUT',
     body,
+  });
+}
+
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const queryString = searchParams.toString();
+  const endpoint = `/api/advice-cache${queryString ? `?${queryString}` : ''}`;
+  
+  return proxyToMainApp(request, endpoint, {
+    method: 'DELETE',
   });
 }

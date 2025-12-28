@@ -32,7 +32,7 @@ interface CachedAdviceItem {
 
 // LLM 설정 인터페이스
 interface LLMConfig {
-  provider: 'openai' | 'gemini' | 'bedrock';
+  provider: 'openai' | 'gemini' | 'claude' | 'bedrock';
   model: string;
   apiKey?: string;
   // Bedrock 전용
@@ -52,6 +52,18 @@ const LLM_PROVIDERS = {
       { id: 'gpt-3.5-turbo', name: 'GPT-3.5 Turbo' },
     ],
     color: '#10A37F',
+  },
+  claude: {
+    name: 'Anthropic Claude',
+    icon: '🧠',
+    models: [
+      { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (추천)' },
+      { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
+      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
+      { id: 'claude-3-sonnet-20240229', name: 'Claude 3 Sonnet' },
+      { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku' },
+    ],
+    color: '#D97706',
   },
   gemini: {
     name: 'Google Gemini',
@@ -127,9 +139,15 @@ export default function CachePage() {
       const versionsResponse = await fetch('/api/advice-cache?action=versions');
       if (versionsResponse.ok) {
         const versionsData = await versionsResponse.json();
-        setVersions(versionsData.versions);
-        if (versionsData.versions.length > 0) {
-          setSelectedVersion(versionsData.versions[0].version);
+        setVersions(versionsData.versions || []);
+        // 버전이 있고 현재 선택된 버전이 없거나 삭제된 경우 첫 번째 버전 선택
+        if (versionsData.versions && versionsData.versions.length > 0) {
+          const versionExists = versionsData.versions.some((v: CacheVersion) => v.version === selectedVersion);
+          if (!selectedVersion || !versionExists) {
+            setSelectedVersion(versionsData.versions[0].version);
+          }
+        } else {
+          setSelectedVersion('');
         }
       }
       const statsResponse = await fetch('/api/advice-cache?action=stats');
@@ -195,7 +213,7 @@ export default function CachePage() {
     setShowLLMConfigModal(true);
   };
 
-  const handleProviderChange = (provider: 'openai' | 'gemini' | 'bedrock') => {
+  const handleProviderChange = (provider: 'openai' | 'gemini' | 'claude' | 'bedrock') => {
     setLLMConfig({
       ...llmConfig,
       provider,
@@ -337,6 +355,10 @@ export default function CachePage() {
       
       if (response.ok) {
         showMessage(`버전 ${version}이 성공적으로 삭제되었습니다.`, 'success');
+        // 삭제된 버전이 선택된 버전이면 초기화
+        if (selectedVersion === version) {
+          setSelectedVersion('');
+        }
         await loadCacheData();
       } else {
         const error = await response.json();
@@ -1002,17 +1024,17 @@ export default function CachePage() {
                     </select>
                   </div>
 
-                  {/* API 키 입력 (OpenAI, Gemini) */}
-                  {(llmConfig.provider === 'openai' || llmConfig.provider === 'gemini') && (
+                  {/* API 키 입력 (OpenAI, Gemini, Claude) */}
+                  {(llmConfig.provider === 'openai' || llmConfig.provider === 'gemini' || llmConfig.provider === 'claude') && (
                     <div style={{ marginBottom: 24 }}>
                       <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
-                        {llmConfig.provider === 'openai' ? 'OpenAI API Key' : 'Google API Key'}
+                        {llmConfig.provider === 'openai' ? 'OpenAI API Key' : llmConfig.provider === 'gemini' ? 'Google API Key' : 'Anthropic API Key'}
                       </label>
                       <input
                         type="password"
                         value={llmConfig.apiKey || ''}
                         onChange={(e) => setLLMConfig({ ...llmConfig, apiKey: e.target.value })}
-                        placeholder={llmConfig.provider === 'openai' ? 'sk-...' : 'AIza...'}
+                        placeholder={llmConfig.provider === 'openai' ? 'sk-...' : llmConfig.provider === 'gemini' ? 'AIza...' : 'sk-ant-...'}
                         style={{
                           width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
                           borderRadius: 10, boxSizing: 'border-box'
@@ -1021,7 +1043,9 @@ export default function CachePage() {
                       <p style={{ margin: '8px 0 0', fontSize: 12, color: '#65676B' }}>
                         {llmConfig.provider === 'openai' 
                           ? '💡 OpenAI API 키는 https://platform.openai.com/api-keys 에서 발급받을 수 있습니다.'
-                          : '💡 Google API 키는 https://aistudio.google.com/app/apikey 에서 발급받을 수 있습니다.'}
+                          : llmConfig.provider === 'gemini'
+                          ? '💡 Google API 키는 https://aistudio.google.com/app/apikey 에서 발급받을 수 있습니다.'
+                          : '💡 Anthropic API 키는 https://console.anthropic.com/settings/keys 에서 발급받을 수 있습니다.'}
                       </p>
                     </div>
                   )}

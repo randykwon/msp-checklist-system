@@ -61,7 +61,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     console.log('📋 Request body:', body);
     
-    const { action, options } = body;
+    const { action, options, llmConfig } = body;
 
     if (action !== 'generate') {
       console.log('❌ Invalid action:', action);
@@ -72,8 +72,10 @@ export async function POST(request: NextRequest) {
     const generator = getVirtualEvidenceGenerator();
     
     console.log('🚀 Starting virtual evidence generation with options:', options);
-    // 가상증빙예제 생성 시작
-    const result = await generator.generateAndCacheAllVirtualEvidence(options || {});
+    console.log('🤖 LLM Config:', llmConfig ? { provider: llmConfig.provider, model: llmConfig.model } : 'default');
+    
+    // 가상증빙예제 생성 시작 (llmConfig 전달)
+    const result = await generator.generateAndCacheAllVirtualEvidence(options || {}, llmConfig);
 
     console.log('✅ Virtual evidence generation completed:', result);
     return NextResponse.json({

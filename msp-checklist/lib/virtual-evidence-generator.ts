@@ -1,6 +1,6 @@
 import { prerequisitesData } from '@/data/assessment-data';
 import { technicalValidationData } from '@/data/technical-validation-data';
-import { createLLMService } from './llm-service';
+import { callLLM, LLMConfig, getDefaultLLMConfig } from './llm-service';
 import { getVirtualEvidenceCacheService } from './virtual-evidence-cache';
 
 interface GenerationOptions {
@@ -17,10 +17,19 @@ interface GenerationResult {
 }
 
 class VirtualEvidenceGenerator {
-  private llmService = createLLMService();
   private cacheService = getVirtualEvidenceCacheService();
+  private llmConfig: LLMConfig | null = null;
 
-  async generateAndCacheAllVirtualEvidence(options: GenerationOptions = {}): Promise<GenerationResult> {
+  setLLMConfig(config: LLMConfig | null) {
+    this.llmConfig = config;
+  }
+
+  async generateAndCacheAllVirtualEvidence(options: GenerationOptions = {}, llmConfig?: LLMConfig): Promise<GenerationResult> {
+    // LLM 설정 적용
+    if (llmConfig) {
+      this.llmConfig = llmConfig;
+    }
+    
     const {
       includeAdvice = false,
       forceRegenerate = false,
@@ -392,13 +401,8 @@ Examples: Architecture diagrams, process flows, organizational charts, etc.
 Please create specific and realistic examples that can be used in actual MSP environments. Write filenames, content, and responsible persons specifically according to practical needs.`}`;
 
     // LLM을 통해 가상증빙예제 생성
-    const result = await this.llmService.generateText([
-      { role: 'system', content: systemMessage },
-      { role: 'user', content: userPrompt }
-    ], {
-      temperature: 0.9, // 높은 창의성으로 각 항목별 다른 결과 생성
-      maxTokens: 2000   // 더 상세한 내용 생성
-    });
+    const config = this.llmConfig || getDefaultLLMConfig();
+    const result = await callLLM(userPrompt, systemMessage, config);
 
     return result.content;
   }

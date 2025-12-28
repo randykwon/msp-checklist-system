@@ -73,3 +73,13 @@ export async function PUT(request: NextRequest) {
     body,
   });
 }
+
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const queryString = searchParams.toString();
+  const endpoint = `/api/virtual-evidence-cache${queryString ? `?${queryString}` : ''}`;
+  
+  return proxyToMainApp(request, endpoint, {
+    method: 'DELETE',
+  });
+}
