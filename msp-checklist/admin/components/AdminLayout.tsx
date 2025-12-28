@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter, usePathname } from 'next/navigation';
-import { ReactNode, useState } from 'react';
+import { ReactNode, useState, useEffect } from 'react';
 import { canAccessRoute, getRoleDisplayName, getRoleColor, UserRole } from '@/lib/permissions';
 
 interface AdminLayoutProps {
@@ -14,6 +14,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -264,7 +269,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 fontWeight: 'var(--fb-font-weight-semibold)', 
                 color: 'white' 
               }}>
-                {user?.name?.charAt(0)?.toUpperCase()}
+                {isHydrated ? user?.name?.charAt(0)?.toUpperCase() : ''}
               </span>
             </div>
             <div style={{ 
@@ -281,7 +286,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
               }}>
-                {user?.name}
+                {isHydrated ? user?.name : ''}
               </p>
               <p style={{ 
                 fontSize: 'var(--fb-font-size-xs)', 
@@ -291,9 +296,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 textOverflow: 'ellipsis',
                 whiteSpace: 'nowrap'
               }}>
-                {user?.email}
+                {isHydrated ? user?.email : ''}
               </p>
-              {user?.role && (
+              {isHydrated && user?.role && (
                 <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-xs font-medium mt-1 ${getRoleColor(user.role as UserRole)}`}>
                   {getRoleDisplayName(user.role as UserRole)}
                 </span>
@@ -394,7 +399,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               fontWeight: 'var(--fb-font-weight-semibold)', 
               color: 'white' 
             }}>
-              {user?.name?.charAt(0)?.toUpperCase()}
+              {isHydrated ? user?.name?.charAt(0)?.toUpperCase() : ''}
             </span>
           </div>
         </div>
