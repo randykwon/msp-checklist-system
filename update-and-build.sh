@@ -159,6 +159,23 @@ build_application() {
     log_success "애플리케이션 빌드 완료"
 }
 
+# 관리자 계정 확인 및 생성
+setup_admin_account() {
+    log_info "관리자 계정 확인 중..."
+    
+    cd "$PROJECT_DIR"
+    
+    if [ -f "create-admin.cjs" ]; then
+        if node create-admin.cjs 2>/dev/null; then
+            log_success "관리자 계정 확인 완료"
+        else
+            log_warning "관리자 계정 생성 스크립트 실행 실패 (무시하고 계속 진행)"
+        fi
+    else
+        log_warning "create-admin.cjs 파일이 없습니다. 관리자 계정을 수동으로 생성하세요."
+    fi
+}
+
 # PM2 프로세스 시작
 start_services() {
     log_info "서비스 시작 중..."
@@ -225,6 +242,7 @@ main() {
         # 변경사항이 있으면 빌드 및 재시작
         stop_services
         build_application
+        setup_admin_account
         start_services
         restart_nginx
     fi
