@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createLLMService, LLMMessage } from '@/lib/llm-service';
+import { callLLM, getDefaultLLMConfig, validateLLMConfig } from '@/lib/llm-service';
 import { getCachedAdvice, setCachedAdvice } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
@@ -20,12 +20,12 @@ export async function POST(request: NextRequest) {
     // 언어 설정
     const isKorean = language === 'ko';
 
-    // LLM 서비스 초기화
-    const llmService = createLLMService();
+    // LLM 설정 가져오기
+    const llmConfig = getDefaultLLMConfig();
+    const validation = validateLLMConfig(llmConfig);
 
     // 더미 응답 처리 (API 키가 없을 때)
-    const providerName = llmService.getProviderName();
-    if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY && !process.env.CLAUDE_API_KEY && !process.env.AWS_ACCESS_KEY_ID) {
+    if (!validation.valid) {
       const dummyAdvice = isKorean ? 
         `🎯 핵심 포인트:
 • 공개 웹사이트에 AWS MSP 전용 랜딩 페이지 필요
@@ -88,7 +88,7 @@ export async function POST(request: NextRequest) {
 
       return NextResponse.json({ 
         advice: dummyAdvice,
-        provider: providerName,
+        provider: 'dummy',
         isDummy: true 
       });
     }
@@ -150,23 +150,15 @@ Please respond in the following format:
 
 Please make your response specific and practical to help practitioners actually prepare the evidence.`;
 
-    const messages: LLMMessage[] = [
-      { role: 'system', content: systemMessage },
-      { role: 'user', content: userPrompt }
-    ];
-
-    // LLM 서비스를 통해 조언 생성
-    const result = await llmService.generateText(messages, {
-      temperature: 0.7,
-      maxTokens: 1500
-    });
+    // LLM 호출
+    const result = await callLLM(userPrompt, systemMessage, llmConfig);
 
     // 생성된 조언을 서버 사이드 캐시에 저장 (모든 사용자 공통)
     setCachedAdvice(itemId, language, result.content);
 
     return NextResponse.json({ 
       advice: result.content,
-      provider: providerName,
+      provider: llmConfig.provider,
       usage: result.usage,
       isDummy: false,
       fromCache: false
