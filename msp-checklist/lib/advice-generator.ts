@@ -370,6 +370,12 @@ Evidence: Enterprise-grade MSP services
     const llmConfig = options.llmConfig || getDefaultLLMConfig();
     const validation = validateLLMConfig(llmConfig);
     
+    // LLM 설정이 유효하지 않으면 에러 발생 (더미 데이터 생성 방지)
+    if (!validation.valid) {
+      console.error(`❌ LLM Config Invalid: ${validation.error}`);
+      throw new Error(`LLM 설정이 유효하지 않습니다: ${validation.error}. 유효한 API 키 또는 AWS 자격 증명을 설정해주세요.`);
+    }
+    
     const defaultOptions: AdviceGenerationOptions = {
       language: 'ko',
       includeVirtualEvidence: true,
@@ -385,7 +391,7 @@ Evidence: Enterprise-grade MSP services
     console.log(`🚀 Starting advice generation for ${allItems.length} items...`);
     console.log(`📅 Cache version: ${version}`);
     console.log(`🤖 LLM Provider: ${llmConfig.provider} (${llmConfig.model})`);
-    console.log(`✅ LLM Config Valid: ${validation.valid}${validation.error ? ` - ${validation.error}` : ''}`);
+    console.log(`✅ LLM Config Valid: ${validation.valid}`);
 
     // 버전 정보를 먼저 저장 (FOREIGN KEY 제약 조건 때문에)
     this.cacheService.saveCacheVersion({
