@@ -98,17 +98,25 @@ export class VirtualEvidenceCacheService {
   getCachedVirtualEvidence(itemId: string, language: 'ko' | 'en' = 'ko', version?: string): CachedVirtualEvidence | null {
     if (!this.db) return null;
     
-    let query = `
-      SELECT * FROM virtual_evidence_cache 
-      WHERE item_id = ? AND language = ?
-    `;
-    const params: any[] = [itemId, language];
+    let query: string;
+    let params: any[];
     
     if (version) {
-      query += ` AND version = ?`;
-      params.push(version);
+      // 특정 버전 지정 시
+      query = `
+        SELECT * FROM virtual_evidence_cache 
+        WHERE item_id = ? AND language = ? AND version = ?
+      `;
+      params = [itemId, language, version];
     } else {
-      query += ` ORDER BY created_at DESC LIMIT 1`;
+      // 버전 미지정 시: 해당 item_id의 최신 버전 조회
+      query = `
+        SELECT * FROM virtual_evidence_cache 
+        WHERE item_id = ? AND language = ?
+        ORDER BY created_at DESC
+        LIMIT 1
+      `;
+      params = [itemId, language];
     }
 
     const stmt = this.db.prepare(query);
