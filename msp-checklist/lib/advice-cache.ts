@@ -15,7 +15,6 @@ export interface CachedAdvice {
   category: string;
   title: string;
   advice: string;
-  virtualEvidence: string;
   language: 'ko' | 'en';
   createdAt: string;
   version: string;
@@ -59,7 +58,7 @@ export class AdviceCacheService {
       )
     `);
 
-    // 조언 캐시 테이블
+    // 조언 캐시 테이블 (virtualEvidence는 별도 virtual_evidence_cache에서 관리)
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS advice_cache (
         id TEXT PRIMARY KEY,
@@ -67,7 +66,6 @@ export class AdviceCacheService {
         category TEXT NOT NULL,
         title TEXT NOT NULL,
         advice TEXT NOT NULL,
-        virtual_evidence TEXT NOT NULL,
         language TEXT NOT NULL,
         created_at TEXT NOT NULL,
         version TEXT NOT NULL,
@@ -132,14 +130,13 @@ export class AdviceCacheService {
       category: result.category,
       title: result.title,
       advice: result.advice,
-      virtualEvidence: result.virtual_evidence,
       language: result.language,
       createdAt: result.created_at,
       version: result.version
     };
   }
 
-  // 캐시된 조언 저장
+  // 캐시된 조언 저장 (virtualEvidence는 별도 virtual_evidence_cache에서 관리)
   saveCachedAdvice(advice: Omit<CachedAdvice, 'id' | 'createdAt'>) {
     if (!this.db) return;
     
@@ -148,8 +145,8 @@ export class AdviceCacheService {
 
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO advice_cache 
-      (id, item_id, category, title, advice, virtual_evidence, language, created_at, version)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      (id, item_id, category, title, advice, language, created_at, version)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `);
 
     stmt.run(
@@ -158,25 +155,24 @@ export class AdviceCacheService {
       advice.category,
       advice.title,
       advice.advice,
-      advice.virtualEvidence,
       advice.language,
       createdAt,
       advice.version
     );
   }
 
-  // 캐시된 조언 업데이트
-  updateCachedAdvice(id: string, advice: string, virtualEvidence: string): boolean {
+  // 캐시된 조언 업데이트 (virtualEvidence는 별도 virtual_evidence_cache에서 관리)
+  updateCachedAdvice(id: string, advice: string): boolean {
     if (!this.db) return false;
     
     try {
       const stmt = this.db.prepare(`
         UPDATE advice_cache 
-        SET advice = ?, virtual_evidence = ?
+        SET advice = ?
         WHERE id = ?
       `);
 
-      const result = stmt.run(advice, virtualEvidence, id);
+      const result = stmt.run(advice, id);
       return result.changes > 0;
     } catch (error) {
       console.error('Error updating cached advice:', error);
@@ -249,7 +245,6 @@ export class AdviceCacheService {
       category: row.category,
       title: row.title,
       advice: row.advice,
-      virtualEvidence: row.virtual_evidence,
       language: row.language,
       createdAt: row.created_at,
       version: row.version
@@ -338,14 +333,13 @@ export class AdviceCacheService {
         description: `Imported at ${new Date().toISOString()}`
       });
 
-      // 조언 데이터 저장
+      // 조언 데이터 저장 (virtualEvidence는 별도 캐시에서 관리)
       [...cacheData.koAdvice, ...cacheData.enAdvice].forEach((advice: CachedAdvice) => {
         this.saveCachedAdvice({
           itemId: advice.itemId,
           category: advice.category,
           title: advice.title,
           advice: advice.advice,
-          virtualEvidence: advice.virtualEvidence,
           language: advice.language,
           version: advice.version
         });
@@ -384,14 +378,13 @@ export class AdviceCacheService {
         description: `Imported from ${path.basename(filePath)}`
       });
 
-      // 조언 데이터 저장
+      // 조언 데이터 저장 (virtualEvidence는 별도 캐시에서 관리)
       [...cacheData.koAdvice, ...cacheData.enAdvice].forEach((advice: CachedAdvice) => {
         this.saveCachedAdvice({
           itemId: advice.itemId,
           category: advice.category,
           title: advice.title,
           advice: advice.advice,
-          virtualEvidence: advice.virtualEvidence,
           language: advice.language,
           version: advice.version
         });

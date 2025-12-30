@@ -137,7 +137,7 @@ export async function DELETE(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, id, advice, virtualEvidence, cacheData } = body;
+    const { action, id, advice, cacheData } = body;
 
     // Import 액션 처리
     if (action === 'import') {
@@ -166,7 +166,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const cacheService = getAdviceCacheService();
-    const success = cacheService.updateCachedAdvice(id, advice, virtualEvidence || '');
+    const success = cacheService.updateCachedAdvice(id, advice);
 
     if (success) {
       return NextResponse.json({ success: true, message: 'Advice updated successfully' });

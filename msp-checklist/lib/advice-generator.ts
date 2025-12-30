@@ -1,10 +1,9 @@
 import { AssessmentItem } from './csv-parser';
-import { getAdviceCacheService, CachedAdvice } from './advice-cache';
+import { getAdviceCacheService } from './advice-cache';
 import { callLLM, LLMConfig, getDefaultLLMConfig, validateLLMConfig } from './llm-service';
 
 export interface AdviceGenerationOptions {
   language: 'ko' | 'en';
-  includeVirtualEvidence: boolean;
   useCache: boolean;
   forceRegenerate: boolean;
   llmConfig?: LLMConfig;
@@ -13,7 +12,6 @@ export interface AdviceGenerationOptions {
 export interface GeneratedAdvice {
   itemId: string;
   advice: string;
-  virtualEvidence: string;
   language: 'ko' | 'en';
   cached: boolean;
 }
@@ -111,163 +109,6 @@ Each section should be specific and actionable for practitioners to use immediat
     }
   }
 
-  // 가상 증빙 생성 프롬프트
-  private generateVirtualEvidencePrompt(item: AssessmentItem, language: 'ko' | 'en'): string {
-    const context = this.getMSPContext(language);
-    
-    if (language === 'ko') {
-      return `${context}
-
-다음 AWS MSP 요구사항에 대한 가상 증빙 예제를 작성해주세요:
-
-항목 ID: ${item.id}
-제목: ${item.titleKo || item.title}
-증빙 요구사항: ${item.evidenceRequiredKo || item.evidenceRequired}
-
-가상 증빙 예제 작성 요구사항:
-- 실제 회사에서 참고할 수 있는 현실적인 예제
-- 구체적인 수치, 날짜, AWS 서비스명 포함
-- 다양한 규모의 회사 예제 (스타트업, 중견기업, 대기업)
-- 개인정보는 [회사명], [담당자명], [이메일] 등으로 마스킹
-- 실제 증빙 문서 형식에 맞는 구조
-
-예제는 다음과 같이 구성해주세요:
-🏢 예제 1: [소규모 회사 사례]
-🏭 예제 2: [중견기업 사례]  
-🌐 예제 3: [대기업 사례]
-
-각 예제마다 실제 증빙 문서의 핵심 내용을 포함해주세요.`;
-    } else {
-      return `${context}
-
-Please create virtual evidence examples for the following AWS MSP requirement:
-
-Item ID: ${item.id}
-Title: ${item.title}
-Evidence Required: ${item.evidenceRequired}
-
-Virtual Evidence Example Requirements:
-- Realistic examples that actual companies can reference
-- Include specific numbers, dates, AWS service names
-- Examples from various company sizes (startup, mid-size, enterprise)
-- Mask personal information with [Company Name], [Contact Name], [Email], etc.
-- Structure matching actual evidence document formats
-
-Please structure examples as follows:
-🏢 Example 1: [Small Company Case]
-🏭 Example 2: [Mid-size Company Case]
-🌐 Example 3: [Enterprise Case]
-
-Include key content from actual evidence documents for each example.`;
-    }
-  }
-
-  // 더미 AI 응답 생성 (실제 LLM 대신 사용)
-  private generateDummyAdvice(item: AssessmentItem, language: 'ko' | 'en'): string {
-    if (language === 'ko') {
-      return `📋 요구사항 이해
-${item.titleKo || item.title} 항목은 AWS MSP 프로그램의 ${item.isMandatory ? '필수' : '선택'} 요구사항입니다.
-
-✅ 준비해야 할 증빙 자료
-• ${item.evidenceRequiredKo || item.evidenceRequired}
-• 관련 문서 및 스크린샷
-• 담당자 연락처 정보
-
-📝 단계별 준비 가이드
-1. 현재 상태 점검 및 갭 분석
-2. 필요한 문서 및 자료 수집
-3. 증빙 자료 정리 및 검토
-4. 최종 제출 준비
-
-⚠️ 주의사항 및 일반적인 실수
-• 증빙 자료의 최신성 확인
-• 모든 링크와 연락처 정보 검증
-• 요구사항 누락 방지
-
-🔍 최종 검토 체크리스트
-□ 모든 필수 정보 포함 확인
-□ 문서 품질 및 가독성 검토
-□ 제출 형식 요구사항 준수 확인`;
-    } else {
-      return `📋 Understanding Requirements
-The ${item.title} item is a ${item.isMandatory ? 'mandatory' : 'optional'} requirement for the AWS MSP program.
-
-✅ Evidence to Prepare
-• ${item.evidenceRequired}
-• Related documents and screenshots
-• Contact information for responsible parties
-
-📝 Step-by-Step Preparation Guide
-1. Current state assessment and gap analysis
-2. Collect necessary documents and materials
-3. Organize and review evidence materials
-4. Prepare for final submission
-
-⚠️ Precautions and Common Mistakes
-• Verify currency of evidence materials
-• Validate all links and contact information
-• Prevent requirement omissions
-
-🔍 Final Review Checklist
-□ Confirm all required information included
-□ Review document quality and readability
-□ Ensure submission format requirements compliance`;
-    }
-  }
-
-  // 더미 가상 증빙 생성
-  private generateDummyVirtualEvidence(item: AssessmentItem, language: 'ko' | 'en'): string {
-    if (language === 'ko') {
-      return `🏢 예제 1: 소규모 IT 서비스 회사
-회사명: [테크솔루션 코리아]
-담당자: [김철수] ([kim@techsol.co.kr])
-증빙 내용: ${item.titleKo || item.title} 관련 구체적인 예제
-- AWS 서비스: EC2, RDS, S3
-- 고객 수: 15개 기업
-- 관리 워크로드: 50+ 인스턴스
-
-🏭 예제 2: 중견 클라우드 서비스 기업  
-회사명: [클라우드마스터]
-담당자: [박영희] ([park@cloudmaster.com])
-증빙 내용: 확장된 MSP 서비스 포트폴리오
-- AWS 서비스: 전체 서비스 포트폴리오
-- 고객 수: 100+ 기업
-- 관리 워크로드: 500+ 인스턴스
-
-🌐 예제 3: 대기업 IT 서비스 제공업체
-회사명: [글로벌테크]
-담당자: [이민수] ([lee@globaltech.co.kr])  
-증빙 내용: 엔터프라이즈급 MSP 서비스
-- AWS 서비스: 모든 AWS 서비스
-- 고객 수: 500+ 기업
-- 관리 워크로드: 10,000+ 인스턴스`;
-    } else {
-      return `🏢 Example 1: Small IT Services Company
-Company: [TechSolution Korea]
-Contact: [John Kim] ([kim@techsol.co.kr])
-Evidence: Specific example for ${item.title}
-- AWS Services: EC2, RDS, S3
-- Customers: 15 enterprises
-- Managed Workloads: 50+ instances
-
-🏭 Example 2: Mid-size Cloud Service Company
-Company: [CloudMaster]
-Contact: [Sarah Park] ([park@cloudmaster.com])
-Evidence: Extended MSP service portfolio
-- AWS Services: Full service portfolio
-- Customers: 100+ enterprises  
-- Managed Workloads: 500+ instances
-
-🌐 Example 3: Enterprise IT Service Provider
-Company: [GlobalTech]
-Contact: [Mike Lee] ([lee@globaltech.co.kr])
-Evidence: Enterprise-grade MSP services
-- AWS Services: All AWS services
-- Customers: 500+ enterprises
-- Managed Workloads: 10,000+ instances`;
-    }
-  }
-
   // 실제 LLM을 사용하여 조언 생성
   private async generateAdviceWithLLM(
     item: AssessmentItem, 
@@ -287,25 +128,6 @@ Evidence: Enterprise-grade MSP services
     }
   }
 
-  // 실제 LLM을 사용하여 가상 증빙 생성
-  private async generateVirtualEvidenceWithLLM(
-    item: AssessmentItem, 
-    language: 'ko' | 'en',
-    llmConfig: LLMConfig
-  ): Promise<string> {
-    const systemPrompt = this.getMSPContext(language);
-    const userPrompt = this.generateVirtualEvidencePrompt(item, language);
-    
-    try {
-      const response = await callLLM(userPrompt, systemPrompt, llmConfig);
-      return response.content;
-    } catch (error) {
-      console.error(`[AdviceGenerator] LLM call failed for virtual evidence ${item.id}:`, error);
-      // LLM 호출 실패 시 에러 발생 (더미 데이터 생성 방지)
-      throw new Error(`가상증빙예제 LLM 호출 실패 (${item.id}): ${error instanceof Error ? error.message : 'Unknown error'}`);
-    }
-  }
-
   // 단일 항목에 대한 조언 생성
   async generateAdviceForItem(
     item: AssessmentItem, 
@@ -318,7 +140,6 @@ Evidence: Enterprise-grade MSP services
         return {
           itemId: item.id,
           advice: cached.advice,
-          virtualEvidence: cached.virtualEvidence,
           language: options.language,
           cached: true
         };
@@ -330,16 +151,11 @@ Evidence: Enterprise-grade MSP services
     const validation = validateLLMConfig(llmConfig);
     
     let advice: string;
-    let virtualEvidence: string = '';
 
     if (validation.valid) {
       // 실제 LLM 사용
       console.log(`[AdviceGenerator] Using ${llmConfig.provider} for ${item.id}`);
       advice = await this.generateAdviceWithLLM(item, options.language, llmConfig);
-      
-      if (options.includeVirtualEvidence) {
-        virtualEvidence = await this.generateVirtualEvidenceWithLLM(item, options.language, llmConfig);
-      }
     } else {
       // LLM 설정이 유효하지 않으면 에러 발생 (더미 데이터 생성 방지)
       console.error(`[AdviceGenerator] LLM config invalid for ${item.id}: ${validation.error}`);
@@ -349,7 +165,6 @@ Evidence: Enterprise-grade MSP services
     return {
       itemId: item.id,
       advice,
-      virtualEvidence,
       language: options.language,
       cached: false
     };
@@ -375,7 +190,6 @@ Evidence: Enterprise-grade MSP services
     
     const defaultOptions: AdviceGenerationOptions = {
       language: 'ko',
-      includeVirtualEvidence: true,
       useCache: false,
       forceRegenerate: true,
       llmConfig,
@@ -412,13 +226,12 @@ Evidence: Enterprise-grade MSP services
       
       koAdvice.push(advice);
 
-      // 캐시에 저장
+      // 캐시에 저장 (virtualEvidence는 별도 캐시에서 관리)
       this.cacheService.saveCachedAdvice({
         itemId: item.id,
         category: item.category,
         title: item.titleKo || item.title,
         advice: advice.advice,
-        virtualEvidence: advice.virtualEvidence,
         language: 'ko',
         version
       });
@@ -443,13 +256,12 @@ Evidence: Enterprise-grade MSP services
       
       enAdvice.push(advice);
 
-      // 캐시에 저장
+      // 캐시에 저장 (virtualEvidence는 별도 캐시에서 관리)
       this.cacheService.saveCachedAdvice({
         itemId: item.id,
         category: item.category,
         title: item.title,
         advice: advice.advice,
-        virtualEvidence: advice.virtualEvidence,
         language: 'en',
         version
       });

@@ -6,7 +6,6 @@
     {
       "itemId": "BUSP-001",
       "advice": "웹 사이트 존재 관련 조언입니다.",
-      "virtualEvidence": "가상 증빙 예제입니다.",
       "language": "ko"
     }
   ],
@@ -14,7 +13,6 @@
     {
       "itemId": "BUSP-001",
       "advice": "Web presence related advice.",
-      "virtualEvidence": "Virtual evidence example.",
       "language": "en"
     }
   ]

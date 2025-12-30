@@ -213,32 +213,18 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
     }
   };
 
-  // DB에서 캐시된 가상증빙예제 로드
+  // DB에서 캐시된 가상증빙예제 로드 (virtual-evidence-cache에서만 조회)
   const loadCachedVirtualEvidenceFromDB = async () => {
     try {
-      // 먼저 advice-cache에서 확인 (조언과 함께 저장된 가상증빙예제)
-      const cacheService = getClientAdviceCacheService();
-      const cachedAdvice = await cacheService.getCachedAdvice(item.id, itemLanguage);
-      
-      if (cachedAdvice && cachedAdvice.virtualEvidence) {
-        setVirtualEvidenceContent(cachedAdvice.virtualEvidence);
-        setVirtualEvidence(item.id, cachedAdvice.virtualEvidence, itemLanguage);
-        return;
-      }
-      
-      // advice-cache에 없으면 virtual-evidence-cache에서 확인 (별도 저장된 가상증빙예제)
-      try {
-        const veResponse = await fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`);
-        if (veResponse.ok) {
-          const veData = await veResponse.json();
-          if (veData.evidence && veData.evidence.virtualEvidence) {
-            setVirtualEvidenceContent(veData.evidence.virtualEvidence);
-            setVirtualEvidence(item.id, veData.evidence.virtualEvidence, itemLanguage);
-            setIsVirtualEvidenceFromServerCache(true);
-          }
+      // virtual-evidence-cache에서 확인 (가상증빙예제는 별도 캐시에서만 관리)
+      const veResponse = await fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`);
+      if (veResponse.ok) {
+        const veData = await veResponse.json();
+        if (veData.evidence && veData.evidence.virtualEvidence) {
+          setVirtualEvidenceContent(veData.evidence.virtualEvidence);
+          setVirtualEvidence(item.id, veData.evidence.virtualEvidence, itemLanguage);
+          setIsVirtualEvidenceFromServerCache(true);
         }
-      } catch (veError) {
-        console.error('Failed to load from virtual-evidence-cache:', veError);
       }
     } catch (error) {
       console.error('Failed to load cached virtual evidence from DB:', error);

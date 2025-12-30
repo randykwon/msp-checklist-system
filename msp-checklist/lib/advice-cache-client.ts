@@ -5,7 +5,6 @@ export interface CachedAdvice {
   category: string;
   title: string;
   advice: string;
-  virtualEvidence: string;
   language: 'ko' | 'en';
   createdAt: string;
   version: string;
