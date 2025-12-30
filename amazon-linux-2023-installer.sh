@@ -28,10 +28,11 @@ log_step() { echo -e "${CYAN}[STEP]${NC} $1" | tee -a "$LOG_FILE"; }
 show_banner() {
     echo -e "${CYAN}"
     echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║     Amazon Linux 2023 MSP Checklist 설치 스크립트 v2.0   ║"
+    echo "║     Amazon Linux 2023 MSP Checklist 설치 스크립트 v2.1   ║"
     echo "║                                                            ║"
     echo "║  🔧 Node.js 20.x + better-sqlite3 지원                   ║"
     echo "║  💾 2GB 스왑 메모리 자동 설정                            ║"
+    echo "║  📦 AI 조언 및 가상증빙예제 캐시 사전 로딩               ║"
     echo "║  🚀 메인(3010) + Admin(3011) 서버 자동 시작              ║"
     echo "╚════════════════════════════════════════════════════════════╝"
     echo -e "${NC}"
@@ -257,6 +258,51 @@ EOF
     log_success "환경 변수 설정 완료"
 }
 
+# 캐시 사전 로딩
+preload_cache() {
+    log_step "AI 조언 및 가상증빙예제 캐시 사전 로딩 중..."
+    
+    cd "$INSTALL_DIR"
+    
+    # 캐시 파일 경로
+    ADVICE_CACHE="msp_data/7.x/advice_cache_20251218_232330.json"
+    EVIDENCE_CACHE="msp_data/7.x/virtual_evidence_cache_2025-12-19T02-58-55.json"
+    
+    # 캐시 디렉토리 생성
+    mkdir -p msp-checklist/cache
+    
+    # 캐시 파일 복사
+    if [ -f "$ADVICE_CACHE" ]; then
+        cp "$ADVICE_CACHE" msp-checklist/cache/
+        log_info "조언 캐시 파일 복사 완료"
+    else
+        log_warning "조언 캐시 파일을 찾을 수 없습니다: $ADVICE_CACHE"
+    fi
+    
+    if [ -f "$EVIDENCE_CACHE" ]; then
+        cp "$EVIDENCE_CACHE" msp-checklist/cache/
+        log_info "가상증빙예제 캐시 파일 복사 완료"
+    else
+        log_warning "가상증빙예제 캐시 파일을 찾을 수 없습니다: $EVIDENCE_CACHE"
+    fi
+    
+    # Node.js 스크립트로 캐시 로딩 (SQLite DB에 로딩)
+    if [ -f "msp-checklist/scripts/preload-cache.js" ]; then
+        log_info "캐시 데이터를 데이터베이스에 로딩 중..."
+        cd msp-checklist
+        
+        if node scripts/preload-cache.js 2>&1 | tee -a "$LOG_FILE"; then
+            log_success "캐시 데이터베이스 로딩 완료"
+        else
+            log_warning "캐시 데이터베이스 로딩 실패 (서비스는 정상 작동합니다)"
+        fi
+        
+        cd "$INSTALL_DIR"
+    fi
+    
+    log_success "캐시 사전 로딩 완료"
+}
+
 # 애플리케이션 빌드
 build_application() {
     log_step "애플리케이션 빌드 중... (약 5-10분 소요)"
@@ -412,6 +458,7 @@ main() {
     setup_project
     install_dependencies
     setup_environment
+    preload_cache
     build_application
     setup_firewall
     start_servers
