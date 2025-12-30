@@ -282,8 +282,8 @@ Evidence: Enterprise-grade MSP services
       return response.content;
     } catch (error) {
       console.error(`[AdviceGenerator] LLM call failed for ${item.id}:`, error);
-      // LLM 호출 실패 시 더미 데이터 반환
-      return this.generateDummyAdvice(item, language);
+      // LLM 호출 실패 시 에러 발생 (더미 데이터 생성 방지)
+      throw new Error(`LLM 호출 실패 (${item.id}): ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -301,8 +301,8 @@ Evidence: Enterprise-grade MSP services
       return response.content;
     } catch (error) {
       console.error(`[AdviceGenerator] LLM call failed for virtual evidence ${item.id}:`, error);
-      // LLM 호출 실패 시 더미 데이터 반환
-      return this.generateDummyVirtualEvidence(item, language);
+      // LLM 호출 실패 시 에러 발생 (더미 데이터 생성 방지)
+      throw new Error(`가상증빙예제 LLM 호출 실패 (${item.id}): ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   }
 
@@ -341,12 +341,9 @@ Evidence: Enterprise-grade MSP services
         virtualEvidence = await this.generateVirtualEvidenceWithLLM(item, options.language, llmConfig);
       }
     } else {
-      // LLM 설정이 유효하지 않으면 더미 데이터 사용
-      console.log(`[AdviceGenerator] Using dummy data for ${item.id} (${validation.error})`);
-      advice = this.generateDummyAdvice(item, options.language);
-      virtualEvidence = options.includeVirtualEvidence 
-        ? this.generateDummyVirtualEvidence(item, options.language)
-        : '';
+      // LLM 설정이 유효하지 않으면 에러 발생 (더미 데이터 생성 방지)
+      console.error(`[AdviceGenerator] LLM config invalid for ${item.id}: ${validation.error}`);
+      throw new Error(`LLM 설정이 유효하지 않습니다: ${validation.error}`);
     }
 
     return {
@@ -427,7 +424,7 @@ Evidence: Enterprise-grade MSP services
       });
 
       // API 호출 간 딜레이 (Rate Limit 방지)
-      if (validation.valid && i < allItems.length - 1) {
+      if (i < allItems.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
@@ -458,7 +455,7 @@ Evidence: Enterprise-grade MSP services
       });
 
       // API 호출 간 딜레이 (Rate Limit 방지)
-      if (validation.valid && i < allItems.length - 1) {
+      if (i < allItems.length - 1) {
         await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
