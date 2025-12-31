@@ -50,9 +50,10 @@ export default function UsersPage() {
 
   const fetchUsers = async () => {
     try {
-      const response = await fetch('/api/users');
+      const response = await fetch('/api/users', { credentials: 'include' });
       const data = await response.json();
       if (response.ok) setUsers(data.users || []);
+      else if (response.status === 401) router.push('/login');
     } catch (error) {
       console.error('Failed to fetch users:', error);
     } finally {
@@ -62,7 +63,7 @@ export default function UsersPage() {
 
   const fetchAutoActivateSetting = async () => {
     try {
-      const response = await fetch('/api/users/auto-activate');
+      const response = await fetch('/api/users/auto-activate', { credentials: 'include' });
       const data = await response.json();
       if (response.ok) setAutoActivate(data.enabled);
     } catch (error) {
@@ -76,6 +77,7 @@ export default function UsersPage() {
       const response = await fetch('/api/users/auto-activate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ enabled: !autoActivate })
       });
       if (response.ok) {
@@ -96,6 +98,7 @@ export default function UsersPage() {
     try {
       const response = await fetch('/api/users/role', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId, role: newRole })
       });
       if (response.ok) { fetchUsers(); setShowEditModal(false); setMessage({ type: 'success', text: '역할이 변경되었습니다.' }); }
@@ -108,6 +111,7 @@ export default function UsersPage() {
     try {
       const response = await fetch('/api/users/status', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId, status: newStatus })
       });
       if (response.ok) { fetchUsers(); setShowEditModal(false); setMessage({ type: 'success', text: '상태가 변경되었습니다.' }); }
@@ -122,6 +126,7 @@ export default function UsersPage() {
     try {
       const response = await fetch('/api/users/reset-password', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ userId: selectedUser?.id, newPassword })
       });
       if (response.ok) { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); setMessage({ type: 'success', text: '비밀번호가 재설정되었습니다.' }); }
