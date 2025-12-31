@@ -33,6 +33,8 @@ export default function UsersPage() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [autoActivate, setAutoActivate] = useState(false);
+  const [loadingAutoActivate, setLoadingAutoActivate] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -40,7 +42,10 @@ export default function UsersPage() {
 
   useEffect(() => {
     if (!loading && !user) { router.push('/login'); return; }
-    if (user) fetchUsers();
+    if (user) {
+      fetchUsers();
+      fetchAutoActivateSetting();
+    }
   }, [user, loading, router]);
 
   const fetchUsers = async () => {
@@ -52,6 +57,35 @@ export default function UsersPage() {
       console.error('Failed to fetch users:', error);
     } finally {
       setLoadingUsers(false);
+    }
+  };
+
+  const fetchAutoActivateSetting = async () => {
+    try {
+      const response = await fetch('/api/users/auto-activate');
+      const data = await response.json();
+      if (response.ok) setAutoActivate(data.enabled);
+    } catch (error) {
+      console.error('Failed to fetch auto-activate setting:', error);
+    }
+  };
+
+  const handleToggleAutoActivate = async () => {
+    setLoadingAutoActivate(true);
+    try {
+      const response = await fetch('/api/users/auto-activate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: !autoActivate })
+      });
+      if (response.ok) {
+        setAutoActivate(!autoActivate);
+        setMessage({ type: 'success', text: `자동 활성화가 ${!autoActivate ? '활성화' : '비활성화'}되었습니다.` });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: '설정 변경에 실패했습니다.' });
+    } finally {
+      setLoadingAutoActivate(false);
     }
   };
 
@@ -146,14 +180,49 @@ export default function UsersPage() {
         {/* 헤더 카드 */}
         <div style={{ borderRadius: 16, overflow: 'hidden', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
           <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', color: 'white' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>👥 사용자 관리</h1>
                 <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>시스템 사용자들의 정보와 권한을 관리합니다</p>
               </div>
-              <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 12, padding: '12px 20px', textAlign: 'center' }}>
-                <div style={{ fontSize: 12, opacity: 0.9 }}>총 사용자</div>
-                <div style={{ fontSize: 28, fontWeight: 700 }}>{users.length}명</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {/* 자동 활성화 토글 */}
+                <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div>
+                    <div style={{ fontSize: 12, opacity: 0.9 }}>신규 가입 자동 활성화</div>
+                    <div style={{ fontSize: 11, opacity: 0.7 }}>{autoActivate ? '활성화됨' : '비활성화됨'}</div>
+                  </div>
+                  <button
+                    onClick={handleToggleAutoActivate}
+                    disabled={loadingAutoActivate}
+                    style={{
+                      width: 50,
+                      height: 28,
+                      borderRadius: 14,
+                      border: 'none',
+                      background: autoActivate ? '#42B883' : 'rgba(255,255,255,0.3)',
+                      cursor: loadingAutoActivate ? 'not-allowed' : 'pointer',
+                      position: 'relative',
+                      transition: 'background 0.2s'
+                    }}
+                  >
+                    <div style={{
+                      width: 22,
+                      height: 22,
+                      borderRadius: '50%',
+                      background: 'white',
+                      position: 'absolute',
+                      top: 3,
+                      left: autoActivate ? 25 : 3,
+                      transition: 'left 0.2s',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                    }} />
+                  </button>
+                </div>
+                <div style={{ background: 'rgba(255,255,255,0.2)', borderRadius: 12, padding: '12px 20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 12, opacity: 0.9 }}>총 사용자</div>
+                  <div style={{ fontSize: 28, fontWeight: 700 }}>{users.length}명</div>
+                </div>
               </div>
             </div>
           </div>

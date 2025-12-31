@@ -19,6 +19,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     setMounted(true);
@@ -27,6 +28,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
 
     if (password !== confirmPassword) {
       setError(language === 'ko' ? '비밀번호가 일치하지 않습니다.' : 'Passwords do not match.');
@@ -41,8 +43,20 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(email, password, name);
-      router.push('/assessment');
+      const result = await register(email, password, name);
+      
+      if (result.requiresActivation) {
+        // 활성화 필요 - 성공 메시지 표시 후 로그인 페이지로 이동
+        setSuccessMessage(language === 'ko' 
+          ? '회원가입이 완료되었습니다. 관리자 승인 후 로그인할 수 있습니다.' 
+          : 'Registration successful. You can login after admin approval.');
+        setTimeout(() => {
+          router.push('/login');
+        }, 3000);
+      } else {
+        // 자동 활성화됨 - 바로 평가 페이지로 이동
+        router.push('/assessment');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -179,6 +193,41 @@ export default function RegisterPage() {
           boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
         }}>
           <form onSubmit={handleSubmit}>
+            {/* 성공 메시지 */}
+            {successMessage && (
+              <div style={{
+                background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
+                border: '1px solid #10B981',
+                borderRadius: '12px',
+                padding: '12px 16px',
+                marginBottom: '20px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div style={{
+                  width: '32px',
+                  height: '32px',
+                  background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}>
+                  <svg style={{ width: '18px', height: '18px', color: 'white' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <div>
+                  <p style={{ margin: 0, fontSize: '14px', color: '#065F46', fontWeight: 500 }}>{successMessage}</p>
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#047857' }}>
+                    {language === 'ko' ? '잠시 후 로그인 페이지로 이동합니다...' : 'Redirecting to login page...'}
+                  </p>
+                </div>
+              </div>
+            )}
+
             {/* 에러 메시지 */}
             {error && (
               <div style={{

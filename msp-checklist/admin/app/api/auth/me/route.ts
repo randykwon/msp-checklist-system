@@ -5,7 +5,7 @@ import { getDatabase } from '@/lib/database';
 
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('admin_auth_token')?.value;
 
     if (!token) {

@@ -53,12 +53,13 @@ export async function POST(request: NextRequest) {
       });
 
       // 쿠키 설정
-      const cookieStore = cookies();
+      const cookieStore = await cookies();
       cookieStore.set('admin_auth_token', token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 24 * 60 * 60 // 24 hours
+        maxAge: 24 * 60 * 60, // 24 hours
+        path: '/'
       });
 
       // 비밀번호 제거 후 응답

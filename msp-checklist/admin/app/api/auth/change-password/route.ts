@@ -7,7 +7,7 @@ import { getDatabase } from '@/lib/database';
 export async function POST(request: NextRequest) {
   try {
     // Admin 앱의 토큰 확인
-    const cookieStore = cookies();
+    const cookieStore = await cookies();
     const token = cookieStore.get('admin_auth_token')?.value;
     
     if (!token) {
