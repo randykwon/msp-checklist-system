@@ -1,0 +1,140 @@
+# =============================================================================
+# MSP Checklist - Nginx 설정 (macOS)
+# 설치 위치: /opt/homebrew/etc/nginx/servers/msp-checklist.conf (Apple Silicon)
+#           /usr/local/etc/nginx/servers/msp-checklist.conf (Intel Mac)
+# =============================================================================
+# 
+# 설치 방법 (Homebrew):
+#   brew install nginx
+#   
+#   # Apple Silicon Mac (M1/M2/M3)
+#   cp nginx-macos.conf.sample /opt/homebrew/etc/nginx/servers/msp-checklist.conf
+#   
+#   # Intel Mac
+#   cp nginx-macos.conf.sample /usr/local/etc/nginx/servers/msp-checklist.conf
+#   
+#   nginx -t
+#   brew services start nginx
+#
+# 참고: macOS에서는 포트 80 사용 시 sudo 필요
+#       개발 환경에서는 포트 8080 사용 권장
+#
+# =============================================================================
+
+# 업스트림 서버 정의
+upstream msp_main {
+    server 127.0.0.1:3010;
+    keepalive 32;
+}
+
+upstream msp_admin {
+    server 127.0.0.1:3011;
+    keepalive 32;
+}
+
+# 메인 서버 설정
+server {
+    # macOS 개발 환경: 포트 8080 (sudo 불필요)
+    # 프로덕션 환경: 포트 80 (sudo 필요)
+    listen 8080;
+    server_name localhost;
+    
+    # 보안 헤더
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    
+    # 업로드 크기 제한 (50MB)
+    client_max_body_size 50M;
+    
+    # 타임아웃 설정
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+    proxy_read_timeout 60s;
+    
+    # Gzip 압축
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+    
+    # =========================================================================
+    # 관리자 시스템 (/admin)
+    # =========================================================================
+    location /admin {
+        rewrite ^/admin(/.*)$ $1 break;
+        rewrite ^/admin$ / break;
+        
+        proxy_pass http://msp_admin;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # 관리자 정적 파일
+    location /admin/_next/ {
+        rewrite ^/admin(/.*)$ $1 break;
+        proxy_pass http://msp_admin;
+        proxy_set_header Host $host;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # =========================================================================
+    # 메인 애플리케이션 (기본)
+    # =========================================================================
+    location / {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_cache_bypass $http_upgrade;
+    }
+    
+    # Next.js 정적 파일
+    location /_next/static/ {
+        proxy_pass http://msp_main;
+        proxy_set_header Host $host;
+        expires 1y;
+        add_header Cache-Control "public, immutable";
+    }
+    
+    # API 라우트
+    location /api/ {
+        proxy_pass http://msp_main;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        add_header Cache-Control "no-cache, no-store, must-revalidate";
+    }
+    
+    # 헬스체크
+    location /health {
+        access_log off;
+        return 200 "OK\n";
+        add_header Content-Type text/plain;
+    }
+    
+    # 숨김 파일 차단
+    location ~ /\. {
+        deny all;
+    }
+    
+    # 로그 설정 (Homebrew 기본 경로)
+    # Apple Silicon: /opt/homebrew/var/log/nginx/
+    # Intel Mac: /usr/local/var/log/nginx/
+    access_log /opt/homebrew/var/log/nginx/msp-access.log;
+    error_log /opt/homebrew/var/log/nginx/msp-error.log;
+}

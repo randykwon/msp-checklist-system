@@ -233,6 +233,7 @@ export default function Header() {
       const response = await fetch('/api/auth/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ currentPassword, newPassword })
       });
 
@@ -559,6 +560,15 @@ export default function Header() {
                 >
                   {isChangingPassword ? (language === 'ko' ? '변경 중...' : 'Changing...') : (language === 'ko' ? '🔐 변경' : '🔐 Change')}
                 </button>
+              </div>
+              
+              {/* 비밀번호 분실 안내 */}
+              <div style={{ marginTop: '16px', padding: '12px', background: '#FEF3C7', border: '1px solid #FCD34D', borderRadius: '8px' }}>
+                <p style={{ margin: 0, fontSize: '13px', color: '#92400E', lineHeight: 1.5 }}>
+                  💡 {language === 'ko' 
+                    ? '비밀번호를 잊으셨나요? 관리자에게 연락하여 비밀번호 초기화를 요청해주세요.' 
+                    : 'Forgot your password? Please contact the administrator to request a password reset.'}
+                </p>
               </div>
             </div>
           </div>
