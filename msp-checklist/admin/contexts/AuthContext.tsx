@@ -30,22 +30,32 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const fetchCurrentUser = async () => {
     try {
+      console.log('[AuthContext] Fetching current user...');
       const res = await fetch('/api/auth/me', {
-        credentials: 'include'
+        credentials: 'include',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache'
+        }
       });
+      console.log('[AuthContext] Response status:', res.status);
+      
       if (res.ok) {
         const data = await res.json();
+        console.log('[AuthContext] User data:', data.user?.email, data.user?.role);
         // 관리자 시스템 접근 권한 확인 (운영자 이상)
         if (['operator', 'admin', 'superadmin'].includes(data.user.role)) {
           setUser(data.user);
         } else {
+          console.log('[AuthContext] User role not allowed:', data.user.role);
           setUser(null);
         }
       } else {
+        console.log('[AuthContext] Failed to fetch user, status:', res.status);
         setUser(null);
       }
     } catch (error) {
-      console.error('Failed to fetch current user:', error);
+      console.error('[AuthContext] Failed to fetch current user:', error);
       setUser(null);
     } finally {
       setLoading(false);

@@ -7,7 +7,7 @@ export async function POST(request: NextRequest) {
     // Clear auth cookie
     response.cookies.set('admin_auth_token', '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // HTTP 환경에서도 동작하도록 설정
       sameSite: 'lax',
       maxAge: 0,
       path: '/'

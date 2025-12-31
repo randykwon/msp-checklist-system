@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const user = verifyToken(token);
     console.log('Verified user:', user?.email, user?.role);
     
-    if (!user || !['admin', 'superadmin'].includes(user.role)) {
+    if (!user || !['operator', 'admin', 'superadmin'].includes(user.role)) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 

@@ -30,6 +30,18 @@ const nextConfig = {
     }
     
     return config
+  },
+  
+  // 쿠키 및 헤더 설정
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'no-store, must-revalidate' },
+        ],
+      },
+    ];
   }
 }
 
