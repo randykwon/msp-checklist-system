@@ -1,5 +1,6 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import bcrypt from 'bcryptjs';
 import { AssessmentItem } from './csv-parser';
 
 const dbPath = path.join(process.cwd(), 'msp-assessment.db');
@@ -155,6 +156,44 @@ export function initializeDatabase() {
       FOREIGN KEY (created_by) REFERENCES users (id)
     )
   `);
+
+  // System settings table
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS system_settings (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      setting_key TEXT UNIQUE NOT NULL,
+      setting_value TEXT NOT NULL,
+      description TEXT,
+      updated_by INTEGER,
+      updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      FOREIGN KEY (updated_by) REFERENCES users (id)
+    )
+  `);
+
+  // Insert default settings if not exists
+  const autoActivateSetting = db.prepare('SELECT * FROM system_settings WHERE setting_key = ?').get('auto_activate_users');
+  if (!autoActivateSetting) {
+    db.prepare('INSERT INTO system_settings (setting_key, setting_value, description) VALUES (?, ?, ?)').run(
+      'auto_activate_users',
+      'false',
+      '신규 가입 사용자 자동 활성화 설정'
+    );
+  }
+
+  // Create default test user if no users exist
+  const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
+  if (userCount.count === 0) {
+    const testPassword = bcrypt.hashSync('test1234', 10);
+    db.prepare('INSERT INTO users (email, password, name, role, status, organization) VALUES (?, ?, ?, ?, ?, ?)').run(
+      'test@example.com',
+      testPassword,
+      '테스트 사용자',
+      'user',
+      'active',
+      '테스트 조직'
+    );
+    console.log('[DB] Default test user created: test@example.com / test1234');
+  }
 
   // Add columns to existing table if they don't exist
   try {
@@ -731,6 +770,52 @@ export function getActiveAnnouncements(): AdminAnnouncement[] {
     updatedAt: row.updated_at,
     createdByName: row.createdByName
   }));
+}
+
+// System settings functions
+export interface SystemSetting {
+  id: number;
+  settingKey: string;
+  settingValue: string;
+  description?: string;
+  updatedBy?: number;
+  updatedAt: string;
+}
+
+export function getSystemSetting(key: string): string | null {
+  const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
+  const row = stmt.get(key) as { setting_value: string } | undefined;
+  return row ? row.setting_value : null;
+}
+
+export function setSystemSetting(key: string, value: string, userId?: number): void {
+  const stmt = db.prepare(`
+    INSERT INTO system_settings (setting_key, setting_value, updated_by, updated_at)
+    VALUES (?, ?, ?, datetime('now'))
+    ON CONFLICT(setting_key) DO UPDATE SET
+      setting_value = excluded.setting_value,
+      updated_by = excluded.updated_by,
+      updated_at = datetime('now')
+  `);
+  stmt.run(key, value, userId || null);
+}
+
+export function getAllSystemSettings(): SystemSetting[] {
+  const stmt = db.prepare('SELECT * FROM system_settings ORDER BY setting_key');
+  const rows = stmt.all() as any[];
+  return rows.map(row => ({
+    id: row.id,
+    settingKey: row.setting_key,
+    settingValue: row.setting_value,
+    description: row.description,
+    updatedBy: row.updated_by,
+    updatedAt: row.updated_at
+  }));
+}
+
+export function isAutoActivateEnabled(): boolean {
+  const value = getSystemSetting('auto_activate_users');
+  return value === 'true';
 }
 
 // Initialize the database when the module is loaded

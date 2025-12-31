@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createUser, getUserByEmail } from '@/lib/db';
+import { createUser, getUserByEmail, isAutoActivateEnabled, updateUserStatus } from '@/lib/db';
 import { hashPassword, generateToken, setAuthCookie } from '@/lib/auth';
 
 export async function POST(request: NextRequest) {
@@ -33,6 +33,29 @@ export async function POST(request: NextRequest) {
     // Hash password and create user
     const hashedPassword = await hashPassword(password);
     const user = createUser(email, hashedPassword, name);
+
+    // Check if auto-activate is enabled
+    const autoActivate = isAutoActivateEnabled();
+    if (autoActivate) {
+      updateUserStatus(user.id, 'active');
+      user.status = 'active';
+    }
+
+    if (autoActivate) {
+      return NextResponse.json(
+        {
+          user: {
+            userId: user.id,
+            email: user.email,
+            name: user.name,
+            status: user.status
+          },
+          message: 'Registration successful. Your account has been automatically activated.',
+          requiresActivation: false
+        },
+        { status: 201 }
+      );
+    }
 
     return NextResponse.json(
       {
