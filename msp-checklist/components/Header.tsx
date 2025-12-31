@@ -24,6 +24,9 @@ export default function Header() {
   const [passwordError, setPasswordError] = useState('');
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [showCurrentPw, setShowCurrentPw] = useState(false);
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [showProgramInfoModal, setShowProgramInfoModal] = useState(false);
   const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [activeVersion, setActiveVersion] = useState<any>(null);
@@ -477,37 +480,64 @@ export default function Header() {
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
                   {language === 'ko' ? '현재 비밀번호' : 'Current Password'}
                 </label>
-                <input 
-                  type="password" 
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  placeholder={language === 'ko' ? '현재 비밀번호 입력' : 'Enter current password'}
-                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #E4E6EB', borderRadius: '8px', boxSizing: 'border-box' }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showCurrentPw ? 'text' : 'password'} 
+                    value={currentPassword}
+                    onChange={(e) => setCurrentPassword(e.target.value)}
+                    placeholder={language === 'ko' ? '현재 비밀번호 입력' : 'Enter current password'}
+                    style={{ width: '100%', padding: '10px 40px 10px 14px', fontSize: '14px', border: '2px solid #E4E6EB', borderRadius: '8px', boxSizing: 'border-box' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowCurrentPw(!showCurrentPw)}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#65676B' }}
+                  >
+                    {showCurrentPw ? '🙈' : '👁️'}
+                  </button>
+                </div>
               </div>
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
                   {language === 'ko' ? '새 비밀번호' : 'New Password'}
                 </label>
-                <input 
-                  type="password" 
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder={language === 'ko' ? '최소 6자 이상' : 'At least 6 characters'}
-                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showNewPw ? 'text' : 'password'} 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder={language === 'ko' ? '최소 6자 이상' : 'At least 6 characters'}
+                    style={{ width: '100%', padding: '10px 40px 10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPw(!showNewPw)}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#65676B' }}
+                  >
+                    {showNewPw ? '🙈' : '👁️'}
+                  </button>
+                </div>
               </div>
               <div style={{ marginBottom: '20px' }}>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: 600, color: '#1C1E21', marginBottom: '6px' }}>
                   {language === 'ko' ? '새 비밀번호 확인' : 'Confirm New Password'}
                 </label>
-                <input 
-                  type="password" 
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder={language === 'ko' ? '비밀번호 다시 입력' : 'Re-enter new password'}
-                  style={{ width: '100%', padding: '10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input 
+                    type={showConfirmPw ? 'text' : 'password'} 
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder={language === 'ko' ? '비밀번호 다시 입력' : 'Re-enter new password'}
+                    style={{ width: '100%', padding: '10px 40px 10px 14px', fontSize: '14px', border: '2px solid #F59E0B', borderRadius: '8px', boxSizing: 'border-box' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPw(!showConfirmPw)}
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '16px', color: '#65676B' }}
+                  >
+                    {showConfirmPw ? '🙈' : '👁️'}
+                  </button>
+                </div>
                 {confirmPassword && newPassword !== confirmPassword && (
                   <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#EF4444' }}>❌ {language === 'ko' ? '비밀번호가 일치하지 않습니다' : 'Passwords do not match'}</p>
                 )}

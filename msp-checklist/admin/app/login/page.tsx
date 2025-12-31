@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
@@ -214,34 +215,54 @@ export default function LoginPage() {
               }}>
                 🔒 비밀번호
               </label>
-              <input
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="비밀번호를 입력하세요"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  fontSize: '15px',
-                  border: '2px solid #E4E6EB',
-                  borderRadius: '12px',
-                  background: '#F0F2F5',
-                  color: '#1C1E21',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#1877F2';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#E4E6EB';
-                  e.target.style.background = '#F0F2F5';
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
+                  required
+                  placeholder="비밀번호를 입력하세요"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '14px 44px 14px 16px',
+                    fontSize: '15px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '12px',
+                    background: '#F0F2F5',
+                    color: '#1C1E21',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#1877F2';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E4E6EB';
+                    e.target.style.background = '#F0F2F5';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: '#65676B',
+                    padding: '4px'
+                  }}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             {/* 이메일 기억하기 */}

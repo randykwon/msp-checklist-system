@@ -118,6 +118,8 @@ export default function VirtualEvidencePage() {
   
   // LLM 설정 관련 state
   const [showLLMConfigModal, setShowLLMConfigModal] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showAwsSecretKey, setShowAwsSecretKey] = useState(false);
   const [llmConfig, setLLMConfig] = useState<LLMConfig>({
     provider: 'bedrock',
     model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
@@ -1022,16 +1024,28 @@ export default function VirtualEvidencePage() {
                       <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
                         {llmConfig.provider === 'openai' ? 'OpenAI API Key' : llmConfig.provider === 'gemini' ? 'Google API Key' : 'Anthropic API Key'}
                       </label>
-                      <input
-                        type="password"
-                        value={llmConfig.apiKey || ''}
-                        onChange={(e) => setLLMConfig({ ...llmConfig, apiKey: e.target.value })}
-                        placeholder={llmConfig.provider === 'openai' ? 'sk-...' : llmConfig.provider === 'gemini' ? 'AIza...' : 'sk-ant-...'}
-                        style={{
-                          width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
-                          borderRadius: 10, boxSizing: 'border-box'
-                        }}
-                      />
+                      <div style={{ position: 'relative' }}>
+                        <input
+                          type={showApiKey ? 'text' : 'password'}
+                          value={llmConfig.apiKey || ''}
+                          onChange={(e) => setLLMConfig({ ...llmConfig, apiKey: e.target.value })}
+                          placeholder={llmConfig.provider === 'openai' ? 'sk-...' : llmConfig.provider === 'gemini' ? 'AIza...' : 'sk-ant-...'}
+                          style={{
+                            width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                            borderRadius: 10, boxSizing: 'border-box'
+                          }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowApiKey(!showApiKey)}
+                          style={{
+                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                            background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B'
+                          }}
+                        >
+                          {showApiKey ? '🙈' : '👁️'}
+                        </button>
+                      </div>
                       <p style={{ margin: '8px 0 0', fontSize: 12, color: '#65676B' }}>
                         {llmConfig.provider === 'openai' 
                           ? '💡 OpenAI API 키는 https://platform.openai.com/api-keys 에서 발급받을 수 있습니다.'
@@ -1085,16 +1099,28 @@ export default function VirtualEvidencePage() {
                         <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
                           AWS Secret Access Key
                         </label>
-                        <input
-                          type="password"
-                          value={llmConfig.awsSecretAccessKey || ''}
-                          onChange={(e) => setLLMConfig({ ...llmConfig, awsSecretAccessKey: e.target.value })}
-                          placeholder="비밀 액세스 키 입력"
-                          style={{
-                            width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
-                            borderRadius: 10, boxSizing: 'border-box'
-                          }}
-                        />
+                        <div style={{ position: 'relative' }}>
+                          <input
+                            type={showAwsSecretKey ? 'text' : 'password'}
+                            value={llmConfig.awsSecretAccessKey || ''}
+                            onChange={(e) => setLLMConfig({ ...llmConfig, awsSecretAccessKey: e.target.value })}
+                            placeholder="비밀 액세스 키 입력"
+                            style={{
+                              width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #E4E6EB',
+                              borderRadius: 10, boxSizing: 'border-box'
+                            }}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAwsSecretKey(!showAwsSecretKey)}
+                            style={{
+                              position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                              background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B'
+                            }}
+                          >
+                            {showAwsSecretKey ? '🙈' : '👁️'}
+                          </button>
+                        </div>
                       </div>
                       <div style={{ padding: 16, borderRadius: 12, background: '#FEF3C7', border: '1px solid #F59E0B', marginBottom: 24 }}>
                         <p style={{ margin: 0, fontSize: 13, color: '#92400E' }}>

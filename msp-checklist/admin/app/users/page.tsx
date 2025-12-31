@@ -29,6 +29,8 @@ export default function UsersPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPw, setShowNewPw] = useState(false);
+  const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
@@ -280,7 +282,7 @@ export default function UsersPage() {
             <div style={{ width: '100%', maxWidth: 420, borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
               <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>🔑 비밀번호 재설정</h3>
-                <button onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); }} style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 18, cursor: 'pointer' }}>×</button>
+                <button onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); setShowNewPw(false); setShowConfirmPw(false); }} style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 18, cursor: 'pointer' }}>×</button>
               </div>
               <div style={{ padding: 24, background: 'white' }}>
                 <div style={{ padding: '12px 16px', background: '#FEF3C7', borderRadius: 10, marginBottom: 20, border: '1px solid #FCD34D' }}>
@@ -290,23 +292,33 @@ export default function UsersPage() {
                 </div>
                 <div style={{ marginBottom: 20 }}>
                   <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>새 비밀번호</label>
-                  <input 
-                    type="password" 
-                    value={newPassword} 
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="최소 6자 이상 입력"
-                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showNewPw ? 'text' : 'password'} 
+                      value={newPassword} 
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="최소 6자 이상 입력"
+                      style={{ width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                    />
+                    <button type="button" onClick={() => setShowNewPw(!showNewPw)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B' }}>
+                      {showNewPw ? '🙈' : '👁️'}
+                    </button>
+                  </div>
                 </div>
                 <div style={{ marginBottom: 24 }}>
                   <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>비밀번호 확인</label>
-                  <input 
-                    type="password" 
-                    value={confirmPassword} 
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="비밀번호를 다시 입력"
-                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
-                  />
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showConfirmPw ? 'text' : 'password'} 
+                      value={confirmPassword} 
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="비밀번호를 다시 입력"
+                      style={{ width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #F59E0B', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                    />
+                    <button type="button" onClick={() => setShowConfirmPw(!showConfirmPw)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B' }}>
+                      {showConfirmPw ? '🙈' : '👁️'}
+                    </button>
+                  </div>
                   {confirmPassword && newPassword !== confirmPassword && (
                     <p style={{ margin: '8px 0 0', fontSize: 12, color: '#EF4444' }}>❌ 비밀번호가 일치하지 않습니다</p>
                   )}
@@ -315,7 +327,7 @@ export default function UsersPage() {
                   )}
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); }} style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: 10, cursor: 'pointer' }}>취소</button>
+                  <button onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); setShowNewPw(false); setShowConfirmPw(false); }} style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: 10, cursor: 'pointer' }}>취소</button>
                   <button onClick={handleResetPassword} disabled={actionLoading || newPassword.length < 6 || newPassword !== confirmPassword} style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: 'white', background: (actionLoading || newPassword.length < 6 || newPassword !== confirmPassword) ? '#FCD34D' : 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', border: 'none', borderRadius: 10, cursor: (actionLoading || newPassword.length < 6 || newPassword !== confirmPassword) ? 'not-allowed' : 'pointer' }}>
                     {actionLoading ? '재설정 중...' : '🔐 재설정'}
                   </button>

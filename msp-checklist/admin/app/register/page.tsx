@@ -8,6 +8,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [organization, setOrganization] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
@@ -279,33 +281,53 @@ export default function RegisterPage() {
               }}>
                 🔒 비밀번호 *
               </label>
-              <input
-                type="password"
-                required
-                placeholder="비밀번호 (최소 6자)"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  fontSize: '14px',
-                  border: '2px solid #E4E6EB',
-                  borderRadius: '10px',
-                  background: '#F0F2F5',
-                  color: '#1C1E21',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#42B883';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#E4E6EB';
-                  e.target.style.background = '#F0F2F5';
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  required
+                  placeholder="비밀번호 (최소 6자)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 44px 12px 14px',
+                    fontSize: '14px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '10px',
+                    background: '#F0F2F5',
+                    color: '#1C1E21',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#42B883';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E4E6EB';
+                    e.target.style.background = '#F0F2F5';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: '#65676B',
+                    padding: '4px'
+                  }}
+                >
+                  {showPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             {/* 비밀번호 확인 필드 */}
@@ -319,33 +341,53 @@ export default function RegisterPage() {
               }}>
                 🔒 비밀번호 확인 *
               </label>
-              <input
-                type="password"
-                required
-                placeholder="비밀번호를 다시 입력하세요"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '12px 14px',
-                  fontSize: '14px',
-                  border: '2px solid #E4E6EB',
-                  borderRadius: '10px',
-                  background: '#F0F2F5',
-                  color: '#1C1E21',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  boxSizing: 'border-box'
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#42B883';
-                  e.target.style.background = 'white';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = '#E4E6EB';
-                  e.target.style.background = '#F0F2F5';
-                }}
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  required
+                  placeholder="비밀번호를 다시 입력하세요"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 44px 12px 14px',
+                    fontSize: '14px',
+                    border: '2px solid #E4E6EB',
+                    borderRadius: '10px',
+                    background: '#F0F2F5',
+                    color: '#1C1E21',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                    boxSizing: 'border-box'
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = '#42B883';
+                    e.target.style.background = 'white';
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = '#E4E6EB';
+                    e.target.style.background = '#F0F2F5';
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    fontSize: '18px',
+                    color: '#65676B',
+                    padding: '4px'
+                  }}
+                >
+                  {showConfirmPassword ? '🙈' : '👁️'}
+                </button>
+              </div>
             </div>
 
             {/* 소속 필드 */}
