@@ -736,14 +736,15 @@ export default function VirtualEvidencePage() {
                               </span>
                             </td>
                             <td style={{ padding: '12px 16px', textAlign: 'center' }}>
-                              <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                              <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap' }}>
                                 <button
                                   onClick={() => handleViewDetail(version)}
                                   style={{
                                     padding: '6px 12px', fontSize: 12, fontWeight: 600,
                                     color: '#8B5CF6', background: '#EDE9FE',
                                     border: 'none', borderRadius: 6, cursor: 'pointer',
-                                    display: 'flex', alignItems: 'center', gap: 4
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                    position: 'relative', zIndex: 1
                                   }}
                                 >
                                   🔍 상세
@@ -754,13 +755,14 @@ export default function VirtualEvidencePage() {
                                     padding: '6px 12px', fontSize: 12, fontWeight: 600,
                                     color: '#42B883', background: '#E8F5E9',
                                     border: 'none', borderRadius: 6, cursor: 'pointer',
-                                    display: 'flex', alignItems: 'center', gap: 4
+                                    display: 'flex', alignItems: 'center', gap: 4,
+                                    position: 'relative', zIndex: 1
                                   }}
                                 >
                                   👁️ 내용
                                 </button>
                                 <button
-                                  onClick={() => handleDeleteVersion(version.version)}
+                                  onClick={(e) => { e.stopPropagation(); handleDeleteVersion(version.version); }}
                                   disabled={isDeleting || activeVersions.virtualEvidence === version.version}
                                   style={{
                                     padding: '6px 12px', fontSize: 12, fontWeight: 600,
@@ -769,7 +771,8 @@ export default function VirtualEvidencePage() {
                                     border: 'none', borderRadius: 6,
                                     cursor: isDeleting || activeVersions.virtualEvidence === version.version ? 'not-allowed' : 'pointer',
                                     display: 'flex', alignItems: 'center', gap: 4,
-                                    opacity: isDeleting ? 0.7 : 1
+                                    opacity: isDeleting ? 0.7 : 1,
+                                    position: 'relative', zIndex: 1
                                   }}
                                   title={activeVersions.virtualEvidence === version.version ? '활성 버전은 삭제할 수 없습니다' : '버전 삭제'}
                                 >
