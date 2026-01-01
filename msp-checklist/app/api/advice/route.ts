@@ -1,19 +1,64 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { callLLM, getDefaultLLMConfig, validateLLMConfig } from '@/lib/llm-service';
-import { getCachedAdvice, setCachedAdvice } from '@/lib/db';
+import { getAdviceCacheService } from '@/lib/advice-cache';
+import Database from 'better-sqlite3';
+import path from 'path';
+
+// 활성 조언 캐시 버전 가져오기
+function getActiveAdviceVersion(): string | null {
+  try {
+    const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+    const db = new Database(dbPath);
+    
+    try {
+      const result = db.prepare(`
+        SELECT version FROM active_cache_versions 
+        WHERE cache_type = 'advice'
+      `).get() as { version: string } | undefined;
+      
+      return result?.version || null;
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    console.error('Error getting active advice version:', error);
+    return null;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
     const { itemId, title, description, evidenceRequired, language } = await request.json();
 
-    // 먼저 서버 사이드 캐시에서 확인 (모든 사용자 공통)
-    const cachedAdvice = getCachedAdvice(itemId, language);
-    if (cachedAdvice) {
+    // 1. 먼저 활성 버전의 조언 캐시에서 확인
+    const activeVersion = getActiveAdviceVersion();
+    if (activeVersion) {
+      const cacheService = getAdviceCacheService();
+      const cachedAdvice = cacheService.getCachedAdvice(itemId, language, activeVersion);
+      
+      if (cachedAdvice) {
+        console.log(`[/api/advice] Returning cached advice for ${itemId} from version ${activeVersion}`);
+        return NextResponse.json({ 
+          advice: cachedAdvice.advice,
+          provider: 'cached',
+          isDummy: false,
+          fromCache: true,
+          cacheVersion: activeVersion
+        });
+      }
+    }
+
+    // 2. 활성 버전에 없으면 최신 버전에서 확인
+    const cacheService = getAdviceCacheService();
+    const latestCachedAdvice = cacheService.getCachedAdvice(itemId, language);
+    if (latestCachedAdvice) {
+      console.log(`[/api/advice] Returning cached advice for ${itemId} from latest version`);
       return NextResponse.json({ 
-        advice: cachedAdvice,
+        advice: latestCachedAdvice.advice,
         provider: 'cached',
         isDummy: false,
-        fromCache: true
+        fromCache: true,
+        cacheVersion: latestCachedAdvice.version
       });
     }
 
@@ -152,9 +197,6 @@ Please make your response specific and practical to help practitioners actually 
 
     // LLM 호출
     const result = await callLLM(userPrompt, systemMessage, llmConfig);
-
-    // 생성된 조언을 서버 사이드 캐시에 저장 (모든 사용자 공통)
-    setCachedAdvice(itemId, language, result.content);
 
     return NextResponse.json({ 
       advice: result.content,

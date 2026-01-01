@@ -39,6 +39,15 @@ interface LLMConfig {
   awsRegion?: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
+  // LLM 파라미터
+  temperature?: number;
+  maxTokens?: number;
+}
+
+// 생성 옵션 인터페이스
+interface GenerationOptions {
+  includeKorean: boolean;
+  includeEnglish: boolean;
 }
 
 const LLM_PROVIDERS = {
@@ -125,9 +134,15 @@ export default function CachePage() {
     provider: 'bedrock',
     model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
     apiKey: '',
-    awsRegion: 'us-east-1',
+    awsRegion: 'ap-northeast-2',
     awsAccessKeyId: '',
     awsSecretAccessKey: '',
+    temperature: 0.8,
+    maxTokens: 8192,
+  });
+  const [generationOptions, setGenerationOptions] = useState<GenerationOptions>({
+    includeKorean: true,
+    includeEnglish: true,
   });
 
   useEffect(() => {
@@ -171,10 +186,18 @@ export default function CachePage() {
   };
 
   const generateCache = async () => {
+    if (!generationOptions.includeKorean && !generationOptions.includeEnglish) {
+      showMessage('최소 하나의 언어를 선택해주세요.', 'error');
+      return;
+    }
+    
     try {
       setIsGenerating(true);
       setShowLLMConfigModal(false);
-      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 조언 캐시 생성을 시작합니다...`, 'info');
+      const languages = [];
+      if (generationOptions.includeKorean) languages.push('한국어');
+      if (generationOptions.includeEnglish) languages.push('영어');
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 ${languages.join(', ')} 조언 캐시 생성을 시작합니다...`, 'info');
       
       const response = await fetch('/api/advice-cache', {
         method: 'POST',
@@ -183,7 +206,9 @@ export default function CachePage() {
           action: 'generate', 
           options: { 
             includeVirtualEvidence: true, 
-            forceRegenerate: true 
+            forceRegenerate: true,
+            includeKorean: generationOptions.includeKorean,
+            includeEnglish: generationOptions.includeEnglish,
           },
           llmConfig: {
             provider: llmConfig.provider,
@@ -192,6 +217,8 @@ export default function CachePage() {
             awsRegion: llmConfig.awsRegion,
             awsAccessKeyId: llmConfig.awsAccessKeyId,
             awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            temperature: llmConfig.temperature,
+            maxTokens: llmConfig.maxTokens,
           }
         }),
       });
@@ -254,18 +281,22 @@ export default function CachePage() {
   };
   const showMessage = showMessageFunc;
 
-  // Export 캐시 기능
+  // Export 캐시 기능 - 활성 버전을 기본으로 사용
   const handleExportCache = async () => {
-    if (!selectedVersion) {
-      showMessage('내보낼 버전을 선택해주세요.', 'error');
+    // 활성 버전이 있으면 활성 버전 사용, 없으면 선택된 버전 사용
+    const exportVersion = activeVersions.advice || selectedVersion;
+    
+    if (!exportVersion) {
+      showMessage('내보낼 버전을 선택해주세요. (활성 버전이 설정되어 있지 않습니다)', 'error');
       return;
     }
     
     try {
       setIsExporting(true);
-      showMessage('캐시 데이터를 내보내는 중...', 'info');
+      const versionLabel = exportVersion === activeVersions.advice ? `${exportVersion} (활성)` : exportVersion;
+      showMessage(`캐시 데이터를 내보내는 중... (버전: ${versionLabel})`, 'info');
       
-      const response = await fetch(`/api/advice-cache?action=export&version=${selectedVersion}`);
+      const response = await fetch(`/api/advice-cache?action=export&version=${exportVersion}`);
       if (response.ok) {
         const data = await response.json();
         
@@ -274,13 +305,13 @@ export default function CachePage() {
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `advice_cache_${selectedVersion}.json`;
+        a.download = `advice_cache_${exportVersion}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
         
-        showMessage(`캐시 버전 ${selectedVersion}을 성공적으로 내보냈습니다.`, 'success');
+        showMessage(`캐시 버전 ${versionLabel}을 성공적으로 내보냈습니다.`, 'success');
       } else {
         const error = await response.json();
         showMessage(`내보내기 실패: ${error.error}`, 'error');
@@ -503,16 +534,16 @@ export default function CachePage() {
                   </button>
                   <button
                     onClick={handleExportCache}
-                    disabled={isExporting || !selectedVersion}
+                    disabled={isExporting || (!activeVersions.advice && !selectedVersion)}
                     style={{
                       padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#8B5CF6',
                       background: 'white', border: 'none', borderRadius: 8, 
-                      cursor: isExporting || !selectedVersion ? 'not-allowed' : 'pointer',
+                      cursor: isExporting || (!activeVersions.advice && !selectedVersion) ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', gap: 6,
-                      opacity: isExporting || !selectedVersion ? 0.7 : 1
+                      opacity: isExporting || (!activeVersions.advice && !selectedVersion) ? 0.7 : 1
                     }}
                   >
-                    {isExporting ? '⏳ 내보내는 중...' : '📤 내보내기'}
+                    {isExporting ? '⏳ 내보내는 중...' : `📤 내보내기${activeVersions.advice ? ' (활성버전)' : ''}`}
                   </button>
                   <button
                     onClick={loadCacheData}
@@ -1140,6 +1171,85 @@ export default function CachePage() {
                       </div>
                     </>
                   )}
+
+                  {/* LLM 파라미터 설정 */}
+                  <div style={{ marginBottom: 24, padding: 16, borderRadius: 12, background: '#F8FAFC', border: '1px solid #E2E8F0' }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 16 }}>
+                      ⚙️ LLM 파라미터 설정
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#65676B', marginBottom: 6 }}>
+                          Temperature (창의성)
+                        </label>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <input
+                            type="range"
+                            min="0"
+                            max="1"
+                            step="0.1"
+                            value={llmConfig.temperature || 0.8}
+                            onChange={(e) => setLLMConfig({ ...llmConfig, temperature: parseFloat(e.target.value) })}
+                            style={{ flex: 1 }}
+                          />
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21', minWidth: 36 }}>
+                            {llmConfig.temperature?.toFixed(1) || '0.8'}
+                          </span>
+                        </div>
+                        <p style={{ margin: '4px 0 0', fontSize: 11, color: '#9CA3AF' }}>
+                          낮을수록 일관성 ↑, 높을수록 다양성 ↑
+                        </p>
+                      </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#65676B', marginBottom: 6 }}>
+                          Max Tokens (최대 길이)
+                        </label>
+                        <select
+                          value={llmConfig.maxTokens || 8192}
+                          onChange={(e) => setLLMConfig({ ...llmConfig, maxTokens: parseInt(e.target.value) })}
+                          style={{
+                            width: '100%', padding: '8px 12px', fontSize: 14, border: '2px solid #E4E6EB',
+                            borderRadius: 8, background: 'white', cursor: 'pointer'
+                          }}
+                        >
+                          <option value={2048}>2,048 (짧은 응답)</option>
+                          <option value={4096}>4,096 (기본)</option>
+                          <option value={8192}>8,192 (상세 응답)</option>
+                          <option value={16384}>16,384 (매우 상세)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 언어 선택 */}
+                  <div style={{ marginBottom: 24, padding: 16, borderRadius: 12, background: '#F0FDF4', border: '1px solid #86EFAC' }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>
+                      🌐 생성할 언어 선택
+                    </label>
+                    <div style={{ display: 'flex', gap: 16 }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={generationOptions.includeKorean}
+                          onChange={(e) => setGenerationOptions({ ...generationOptions, includeKorean: e.target.checked })}
+                          style={{ width: 18, height: 18, cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: 14, fontWeight: 500 }}>🇰🇷 한국어</span>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={generationOptions.includeEnglish}
+                          onChange={(e) => setGenerationOptions({ ...generationOptions, includeEnglish: e.target.checked })}
+                          style={{ width: 18, height: 18, cursor: 'pointer' }}
+                        />
+                        <span style={{ fontSize: 14, fontWeight: 500 }}>🇺🇸 영어</span>
+                      </label>
+                    </div>
+                    <p style={{ margin: '8px 0 0', fontSize: 12, color: '#65676B' }}>
+                      💡 두 언어 모두 선택하면 한국어 → 영어 순서로 생성됩니다.
+                    </p>
+                  </div>
 
                   {/* 현재 설정 요약 */}
                   <div style={{ padding: 16, borderRadius: 12, background: '#F0F2F5', marginBottom: 24 }}>

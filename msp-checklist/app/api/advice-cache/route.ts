@@ -1,12 +1,45 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAdviceGenerator } from '@/lib/advice-generator';
 import { getAdviceCacheService } from '@/lib/advice-cache';
+import Database from 'better-sqlite3';
+import path from 'path';
+
+// 활성 조언 캐시 버전 가져오기
+function getActiveAdviceVersion(): string | null {
+  try {
+    const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+    const db = new Database(dbPath);
+    
+    try {
+      // 테이블이 없으면 생성
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS active_cache_versions (
+          cache_type TEXT PRIMARY KEY,
+          version TEXT NOT NULL,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+      `);
+      
+      const result = db.prepare(`
+        SELECT version FROM active_cache_versions 
+        WHERE cache_type = 'advice'
+      `).get() as { version: string } | undefined;
+      
+      return result?.version || null;
+    } finally {
+      db.close();
+    }
+  } catch (error) {
+    console.error('Error getting active advice version:', error);
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
-    const version = searchParams.get('version');
+    let version = searchParams.get('version');
     const language = searchParams.get('language') as 'ko' | 'en' || 'ko';
     const itemId = searchParams.get('itemId');
 
@@ -25,8 +58,18 @@ export async function GET(request: NextRequest) {
         if (!itemId) {
           return NextResponse.json({ error: 'itemId is required' }, { status: 400 });
         }
+        
+        // 버전이 지정되지 않으면 활성 버전 사용
+        if (!version) {
+          version = getActiveAdviceVersion();
+          console.log(`[/api/advice-cache] Using active version for advice: ${version}`);
+        }
+        
         const advice = cacheService.getCachedAdvice(itemId, language, version || undefined);
-        return NextResponse.json({ advice });
+        return NextResponse.json({ 
+          advice,
+          activeVersion: version 
+        });
 
       case 'list':
         if (!version) {
@@ -43,6 +86,10 @@ export async function GET(request: NextRequest) {
         }
         const exportData = cacheService.exportCacheData(version);
         return NextResponse.json(exportData);
+      
+      case 'active-version':
+        const activeVersion = getActiveAdviceVersion();
+        return NextResponse.json({ activeVersion });
 
       default:
         return NextResponse.json({ error: 'Invalid action' }, { status: 400 });

@@ -58,6 +58,44 @@ export class AdviceCacheService {
       )
     `);
 
+    // 기존 테이블에 virtual_evidence 컬럼이 있으면 제거 (마이그레이션)
+    try {
+      const tableInfo = this.db.prepare("PRAGMA table_info(advice_cache)").all() as any[];
+      const hasVirtualEvidence = tableInfo.some((col: any) => col.name === 'virtual_evidence');
+      
+      if (hasVirtualEvidence) {
+        console.log('[AdviceCacheService] Migrating advice_cache table: removing virtual_evidence column');
+        // SQLite는 컬럼 삭제를 직접 지원하지 않으므로 테이블 재생성
+        this.db.exec(`
+          -- 임시 테이블 생성
+          CREATE TABLE IF NOT EXISTS advice_cache_new (
+            id TEXT PRIMARY KEY,
+            item_id TEXT NOT NULL,
+            category TEXT NOT NULL,
+            title TEXT NOT NULL,
+            advice TEXT NOT NULL,
+            language TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            version TEXT NOT NULL
+          );
+          
+          -- 데이터 복사
+          INSERT OR IGNORE INTO advice_cache_new (id, item_id, category, title, advice, language, created_at, version)
+          SELECT id, item_id, category, title, advice, language, created_at, version FROM advice_cache;
+          
+          -- 기존 테이블 삭제
+          DROP TABLE IF EXISTS advice_cache;
+          
+          -- 새 테이블 이름 변경
+          ALTER TABLE advice_cache_new RENAME TO advice_cache;
+        `);
+        console.log('[AdviceCacheService] Migration completed');
+      }
+    } catch (error) {
+      // 테이블이 없으면 무시
+      console.log('[AdviceCacheService] No migration needed or table does not exist');
+    }
+
     // 조언 캐시 테이블 (virtualEvidence는 별도 virtual_evidence_cache에서 관리)
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS advice_cache (
@@ -81,11 +119,23 @@ export class AdviceCacheService {
     `);
   }
 
-  // 새 캐시 버전 생성
-  generateCacheVersion(): string {
+  // 새 캐시 버전 생성 (LLM 정보 포함)
+  generateCacheVersion(llmProvider?: string, llmModel?: string): string {
     const now = new Date();
     const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
     const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
+    
+    // LLM 정보가 있으면 버전명에 포함
+    if (llmProvider && llmModel) {
+      // 모델명에서 특수문자 제거하고 짧게 만들기
+      const shortModel = llmModel
+        .replace(/[^a-zA-Z0-9-]/g, '-')  // 특수문자를 -로 변환
+        .replace(/-+/g, '-')              // 연속된 -를 하나로
+        .replace(/^-|-$/g, '')            // 앞뒤 - 제거
+        .substring(0, 30);                // 최대 30자
+      return `${dateStr}_${timeStr}_${llmProvider}_${shortModel}`;
+    }
+    
     return `${dateStr}_${timeStr}`;
   }
 

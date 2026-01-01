@@ -11,6 +11,9 @@ export interface LLMConfig {
   awsRegion?: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
+  // LLM 파라미터
+  temperature?: number;
+  maxTokens?: number;
 }
 
 // LLM 응답 인터페이스
@@ -42,8 +45,8 @@ async function callOpenAI(
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt },
       ],
-      max_tokens: 4096,
-      temperature: 0.7,
+      max_tokens: config.maxTokens || 8192,
+      temperature: config.temperature ?? 0.8,
     }),
   });
 
@@ -87,8 +90,8 @@ async function callGemini(
         }
       ],
       generationConfig: {
-        maxOutputTokens: 4096,
-        temperature: 0.7,
+        maxOutputTokens: config.maxTokens || 8192,
+        temperature: config.temperature ?? 0.8,
       },
     }),
   });
@@ -126,7 +129,8 @@ async function callClaude(
     },
     body: JSON.stringify({
       model: config.model,
-      max_tokens: 4096,
+      max_tokens: config.maxTokens || 8192,
+      temperature: config.temperature ?? 0.8,
       system: systemPrompt,
       messages: [
         {
@@ -174,7 +178,8 @@ async function callBedrock(
 
   const requestBody = {
     anthropic_version: 'bedrock-2023-05-31',
-    max_tokens: 4096,
+    max_tokens: config.maxTokens || 8192,
+    temperature: config.temperature ?? 0.8,
     system: systemPrompt,
     messages: [
       {
@@ -266,7 +271,7 @@ export function getDefaultLLMConfig(): LLMConfig {
     
     case 'bedrock':
     default:
-      config.model = process.env.BEDROCK_MODEL || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
+      config.model = process.env.BEDROCK_MODEL || process.env.AWS_BEDROCK_MODEL || 'anthropic.claude-3-5-sonnet-20241022-v2:0';
       config.awsRegion = process.env.AWS_REGION || 'us-east-1';
       config.awsAccessKeyId = process.env.AWS_ACCESS_KEY_ID;
       config.awsSecretAccessKey = process.env.AWS_SECRET_ACCESS_KEY;
