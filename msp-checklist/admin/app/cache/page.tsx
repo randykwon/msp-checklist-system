@@ -102,6 +102,7 @@ export default function CachePage() {
   const [versions, setVersions] = useState<CacheVersion[]>([]);
   const [stats, setStats] = useState<CacheStats | null>(null);
   const [selectedVersion, setSelectedVersion] = useState<string>('');
+  const [viewingVersion, setViewingVersion] = useState<string>(''); // 캐시 뷰어에서 보고 있는 버전
   const [isGenerating, setIsGenerating] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [message, setMessage] = useState<string>('');
@@ -225,7 +226,11 @@ export default function CachePage() {
       if (response.ok) {
         const result = await response.json();
         showMessage(`캐시 생성 완료! 버전: ${result.version}, 총 ${result.totalItems}개 항목 처리`, 'success');
+        // 새로 생성된 버전을 선택하도록 selectedVersion 초기화
+        setSelectedVersion('');
         await loadCacheData();
+        // 새로 생성된 버전을 선택
+        setSelectedVersion(result.version);
       } else {
         const error = await response.json();
         showMessage(`캐시 생성 실패: ${error.error}`, 'error');
@@ -433,6 +438,7 @@ export default function CachePage() {
         return;
       }
       console.log('Loading cache items for version:', versionParam, 'language:', language);
+      setViewingVersion(versionParam); // 현재 보고 있는 버전 저장
       const response = await fetch(`/api/advice-cache?action=list&version=${versionParam}&language=${language}`);
       console.log('Response status:', response.status);
       if (response.ok) {
@@ -1380,11 +1386,11 @@ export default function CachePage() {
                   <div>
                     <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 조언 캐시 내용 관리</h3>
                     <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>
-                      버전: {selectedVersion} | 언어: {selectedLanguage === 'ko' ? '한국어' : '영어'} | 총 {filteredCacheItems.length}개 항목
+                      버전: {viewingVersion} | 언어: {selectedLanguage === 'ko' ? '한국어' : '영어'} | 총 {filteredCacheItems.length}개 항목
                     </p>
                   </div>
                   <button
-                    onClick={() => { setShowCacheViewer(false); setCacheItems([]); setEditingItem(null); }}
+                    onClick={() => { setShowCacheViewer(false); setCacheItems([]); setEditingItem(null); setViewingVersion(''); }}
                     style={{
                       padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#1877F2',
                       background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
@@ -1399,7 +1405,7 @@ export default function CachePage() {
                   <div style={{ display: 'flex', gap: 16, marginBottom: 24 }}>
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button
-                        onClick={() => { setSelectedLanguage('ko'); loadCacheItems(selectedVersion, 'ko'); }}
+                        onClick={() => { setSelectedLanguage('ko'); loadCacheItems(viewingVersion, 'ko'); }}
                         style={{
                           padding: '10px 20px', fontSize: 14, fontWeight: 600,
                           color: selectedLanguage === 'ko' ? 'white' : '#42B883',
@@ -1410,7 +1416,7 @@ export default function CachePage() {
                         🇰🇷 한국어
                       </button>
                       <button
-                        onClick={() => { setSelectedLanguage('en'); loadCacheItems(selectedVersion, 'en'); }}
+                        onClick={() => { setSelectedLanguage('en'); loadCacheItems(viewingVersion, 'en'); }}
                         style={{
                           padding: '10px 20px', fontSize: 14, fontWeight: 600,
                           color: selectedLanguage === 'en' ? 'white' : '#1877F2',
