@@ -7,6 +7,8 @@ interface GenerationOptions {
   includeAdvice?: boolean;
   forceRegenerate?: boolean;
   languages?: ('ko' | 'en')[];
+  includeKorean?: boolean;
+  includeEnglish?: boolean;
 }
 
 interface GenerationResult {
@@ -25,18 +27,41 @@ class VirtualEvidenceGenerator {
   }
 
   async generateAndCacheAllVirtualEvidence(options: GenerationOptions = {}, llmConfig?: LLMConfig): Promise<GenerationResult> {
-    // LLM 설정 적용
+    // LLM 설정 적용 - 기본값과 병합
     if (llmConfig) {
-      this.llmConfig = llmConfig;
+      const defaultConfig = getDefaultLLMConfig();
+      this.llmConfig = {
+        ...defaultConfig,
+        ...llmConfig,
+        // 빈 값은 기본값으로 대체
+        apiKey: llmConfig.apiKey || defaultConfig.apiKey,
+        awsRegion: llmConfig.awsRegion || defaultConfig.awsRegion,
+        awsAccessKeyId: llmConfig.awsAccessKeyId || defaultConfig.awsAccessKeyId,
+        awsSecretAccessKey: llmConfig.awsSecretAccessKey || defaultConfig.awsSecretAccessKey,
+        temperature: llmConfig.temperature ?? defaultConfig.temperature ?? 0.8,
+        maxTokens: llmConfig.maxTokens ?? defaultConfig.maxTokens ?? 8192,
+      };
     }
     
     const {
       includeAdvice = false,
       forceRegenerate = false,
-      languages = ['ko', 'en']
+      includeKorean = true,
+      includeEnglish = true,
     } = options;
 
+    // 언어 옵션에 따라 languages 배열 생성
+    const languages: ('ko' | 'en')[] = [];
+    if (includeKorean) languages.push('ko');
+    if (includeEnglish) languages.push('en');
+    
+    if (languages.length === 0) {
+      throw new Error('최소 하나의 언어를 선택해야 합니다.');
+    }
+
     console.log('🎯 Starting virtual evidence generation for all assessment items...');
+    console.log(`🌐 Languages to generate: ${languages.join(', ')}`);
+    console.log(`🔧 LLM Config: temperature=${this.llmConfig?.temperature}, maxTokens=${this.llmConfig?.maxTokens}`);
     
     // 평가 데이터 로드 (이미 import된 데이터 사용)
     
@@ -47,7 +72,13 @@ class VirtualEvidenceGenerator {
 
     console.log(`📊 Total items to process: ${allItems.length}`);
 
-    const version = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+    // 버전 이름에 LLM 정보 포함
+    const config = this.llmConfig || getDefaultLLMConfig();
+    const providerName = config.provider || 'bedrock';
+    const modelName = (config.model || 'unknown').replace(/[/:]/g, '-');
+    const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
+    const version = `${timestamp.slice(0, 8)}_${timestamp.slice(8, 14)}_${providerName}_${modelName}`;
+    
     const results: GenerationResult = {
       version,
       totalItems: allItems.length,
