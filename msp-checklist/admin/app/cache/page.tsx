@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import PermissionGuard from '@/components/PermissionGuard';
+import { createMarkdownHtml } from '@/lib/markdown-parser';
 
 interface CacheVersion {
   version: string;
@@ -1496,9 +1497,10 @@ export default function CachePage() {
                             ) : (
                               <div style={{ padding: 12, borderRadius: 10, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1877F2', marginBottom: 6 }}>💡 조언</div>
-                                <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
-                                  {item.advice}
-                                </div>
+                                <div 
+                                  style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}
+                                  dangerouslySetInnerHTML={createMarkdownHtml(item.advice)}
+                                />
                               </div>
                             )}
                           </div>

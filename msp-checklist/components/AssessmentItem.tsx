@@ -8,6 +8,7 @@ import { extractTextFromPDF, isPDFFile } from '../lib/pdf-utils';
 import QASection from './QASection';
 import { renderTextWithLinks } from '../lib/text-utils';
 import { getClientAdviceCacheService } from '../lib/advice-cache-client';
+import { createMarkdownHtml } from '../lib/markdown-parser';
 
 interface AssessmentItemProps {
   item: AssessmentItem;
@@ -1018,9 +1019,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         ✕
                       </button>
                     </div>
-                    <div style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20', whiteSpace: 'pre-line' }}>
-                      {adviceContent}
-                    </div>
+                    <div 
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20' }}
+                      dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
+                    />
                   </div>
                 )}
 
@@ -1230,9 +1232,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     padding: 16,
                     border: '1px solid #E9D5FF'
                   }}>
-                    <div style={{ fontSize: 14, color: 'var(--theme-text-primary)', whiteSpace: 'pre-line', fontFamily: 'monospace', lineHeight: 1.6 }}>
-                      {virtualEvidenceContent}
-                    </div>
+                    <div 
+                      style={{ fontSize: 14, color: 'var(--theme-text-primary)', lineHeight: 1.6 }}
+                      dangerouslySetInnerHTML={createMarkdownHtml(virtualEvidenceContent)}
+                    />
                   </div>
                   
                   <div style={{

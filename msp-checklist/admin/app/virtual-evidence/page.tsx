@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import AdminLayout from '@/components/AdminLayout';
 import PermissionGuard from '@/components/PermissionGuard';
+import { createMarkdownHtml } from '@/lib/markdown-parser';
 
 interface CacheVersion {
   version: string;
@@ -1488,7 +1489,10 @@ export default function VirtualEvidencePage() {
                               </div>
                             ) : (
                               <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>
-                                <strong style={{ color: '#8B5CF6' }}>가상증빙예제:</strong> {item.virtualEvidence.substring(0, 300)}...
+                                <div 
+                                  style={{ maxHeight: 200, overflow: 'hidden' }}
+                                  dangerouslySetInnerHTML={createMarkdownHtml(item.virtualEvidence.substring(0, 500) + '...')}
+                                />
                               </div>
                             )}
                           </div>
