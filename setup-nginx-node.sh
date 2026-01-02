@@ -1,7 +1,15 @@
 #!/bin/bash
 
-# Nginx + Node.js 연동 설정 스크립트
-# Ubuntu 22.04 LTS 및 Amazon Linux 2023 지원
+# ============================================================================
+# Nginx + Node.js 앱 연동 설정 스크립트
+# 
+# 이 스크립트는 Nginx를 Node.js 앱의 리버스 프록시로 설정합니다.
+# Nginx가 설치되어 있어야 합니다. (install-nginx.sh 먼저 실행)
+#
+# 기본 설정:
+#   - 메인 앱: localhost:3010 → /
+#   - Admin 앱: localhost:3011 → /admin
+# ============================================================================
 
 set -e
 
@@ -10,266 +18,166 @@ RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m'
 
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
+log_warning() { echo -e "${YELLOW}[!]${NC} $1"; }
+log_error() { echo -e "${RED}[✗]${NC} $1"; }
 
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
+# 기본값
+MAIN_PORT=3010
+ADMIN_PORT=3011
+DOMAIN="_"
+SERVER_NAME="_"
 
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# 배너 출력
-show_banner() {
-    echo -e "${BLUE}"
-    echo "╔════════════════════════════════════════════════════════════╗"
-    echo "║           Nginx + Node.js 연동 설정 스크립트              ║"
-    echo "║                                                            ║"
-    echo "║  🌐 Nginx 리버스 프록시 설정                             ║"
-    echo "║  🚀 Node.js 서버 연동                                    ║"
-    echo "║  🔒 SSL 인증서 지원                                      ║"
-    echo "║  🛡️ 보안 설정 및 방화벽                                 ║"
-    echo "║  📊 성능 최적화                                          ║"
-    echo "╚════════════════════════════════════════════════════════════╝"
-    echo -e "${NC}"
-    echo ""
-}
-
-# 명령행 옵션 처리
-INSTALL_NGINX=true
-SETUP_SSL=false
-DOMAIN_NAME=""
-EMAIL=""
-HELP=false
-
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --ssl)
-            SETUP_SSL=true
-            shift
-            ;;
-        --domain)
-            DOMAIN_NAME="$2"
-            shift 2
-            ;;
-        --email)
-            EMAIL="$2"
-            shift 2
-            ;;
-        --no-install)
-            INSTALL_NGINX=false
-            shift
-            ;;
-        --help|-h)
-            HELP=true
-            shift
-            ;;
-        *)
-            log_error "알 수 없는 옵션: $1"
-            HELP=true
-            shift
-            ;;
-    esac
-done
-
-# 도움말 표시
-show_help() {
-    echo "Nginx + Node.js 연동 설정 스크립트"
-    echo ""
+# 사용법
+show_usage() {
     echo "사용법: $0 [옵션]"
     echo ""
     echo "옵션:"
-    echo "  --ssl               SSL 인증서 설정 (Let's Encrypt)"
-    echo "  --domain DOMAIN     도메인 이름 (SSL 설정 시 필수)"
-    echo "  --email EMAIL       이메일 주소 (SSL 설정 시 필수)"
-    echo "  --no-install        Nginx 설치 건너뛰기 (이미 설치된 경우)"
-    echo "  --help, -h          이 도움말 표시"
+    echo "  -d, --domain DOMAIN     도메인 이름 (예: example.com)"
+    echo "  -m, --main-port PORT    메인 앱 포트 (기본값: 3010)"
+    echo "  -a, --admin-port PORT   Admin 앱 포트 (기본값: 3011)"
+    echo "  -h, --help              도움말 표시"
     echo ""
     echo "예시:"
-    echo "  $0                                    # 기본 설정"
-    echo "  $0 --ssl --domain example.com --email admin@example.com"
-    echo "  $0 --no-install                      # 설정만 업데이트"
-    echo ""
+    echo "  $0                              # 기본 설정으로 실행"
+    echo "  $0 -d example.com               # 도메인 지정"
+    echo "  $0 -m 3000 -a 3001              # 포트 변경"
+    exit 0
 }
 
-if [ "$HELP" = true ]; then
-    show_help
-    exit 0
+# 옵션 파싱
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -d|--domain) DOMAIN="$2"; SERVER_NAME="$2"; shift ;;
+        -m|--main-port) MAIN_PORT="$2"; shift ;;
+        -a|--admin-port) ADMIN_PORT="$2"; shift ;;
+        -h|--help) show_usage ;;
+        *) log_error "알 수 없는 옵션: $1"; show_usage ;;
+    esac
+    shift
+done
+
+# 배너
+echo -e "${CYAN}"
+echo "╔═══════════════════════════════════════════════════════════════╗"
+echo "║           Nginx + Node.js 연동 설정 스크립트                  ║"
+echo "╚═══════════════════════════════════════════════════════════════╝"
+echo -e "${NC}"
+
+# Root 권한 확인
+if [ "$EUID" -ne 0 ]; then
+    log_error "이 스크립트는 root 권한이 필요합니다."
+    echo "다음 명령어로 실행하세요: sudo $0"
+    exit 1
 fi
 
-# SSL 설정 시 필수 매개변수 확인
-if [ "$SETUP_SSL" = true ]; then
-    if [ -z "$DOMAIN_NAME" ] || [ -z "$EMAIL" ]; then
-        log_error "SSL 설정을 위해서는 --domain과 --email 옵션이 필요합니다."
-        show_help
+# Nginx 설치 확인
+check_nginx() {
+    if ! command -v nginx &> /dev/null; then
+        log_error "Nginx가 설치되어 있지 않습니다."
+        echo "먼저 install-nginx.sh를 실행하세요: sudo ./install-nginx.sh"
         exit 1
     fi
-fi
+    log_success "Nginx 확인됨"
+}
 
-# OS 감지 함수
+# OS 감지
 detect_os() {
-    log_info "운영체제 감지 중..."
-    
     if [ -f /etc/os-release ]; then
         . /etc/os-release
-        OS_NAME="$NAME"
-        OS_VERSION="$VERSION"
-        
-        if [[ "$ID" == "ubuntu" ]]; then
-            OS_TYPE="ubuntu"
-            PACKAGE_MANAGER="apt"
-            FIREWALL_CMD="ufw"
-            log_success "Ubuntu 감지됨: $OS_NAME $OS_VERSION"
-            
-        elif [[ "$ID" == "amzn" ]] && [[ "$VERSION_ID" == "2023" ]]; then
-            OS_TYPE="amazon-linux-2023"
-            PACKAGE_MANAGER="dnf"
-            FIREWALL_CMD="firewalld"
-            log_success "Amazon Linux 2023 감지됨: $OS_NAME $OS_VERSION"
-            
-        else
-            log_error "지원되지 않는 운영체제입니다: $OS_NAME"
-            echo "지원되는 OS:"
-            echo "- Ubuntu 22.04 LTS"
-            echo "- Amazon Linux 2023"
-            exit 1
-        fi
+        OS_ID="$ID"
     else
-        log_error "/etc/os-release 파일을 찾을 수 없습니다."
-        exit 1
+        OS_ID="unknown"
     fi
+    
+    # Nginx 설정 디렉토리 결정
+    if [ "$OS_ID" = "ubuntu" ]; then
+        NGINX_CONF_DIR="/etc/nginx/sites-available"
+        NGINX_ENABLED_DIR="/etc/nginx/sites-enabled"
+        USE_SITES_ENABLED=true
+    else
+        NGINX_CONF_DIR="/etc/nginx/conf.d"
+        NGINX_ENABLED_DIR=""
+        USE_SITES_ENABLED=false
+    fi
+    
+    log_info "OS: $OS_ID, 설정 디렉토리: $NGINX_CONF_DIR"
 }
 
-# Nginx 설치 상태 확인
-check_nginx_installation() {
-    log_info "Nginx 설치 상태 확인 중..."
-    
-    if command -v nginx > /dev/null 2>&1; then
-        NGINX_VERSION=$(nginx -v 2>&1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
-        log_success "✅ Nginx 설치됨: 버전 $NGINX_VERSION"
-        return 0
-    else
-        log_warning "❌ Nginx가 설치되지 않음"
-        return 1
-    fi
-}
-
-# Nginx 설치
-install_nginx() {
-    log_info "Nginx 설치 중..."
-    
-    if [[ "$OS_TYPE" == "ubuntu" ]]; then
-        sudo apt update
-        sudo apt install -y nginx
-        
-    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
-        sudo dnf update -y
-        sudo dnf install -y nginx
-    fi
-    
-    # Nginx 서비스 활성화
-    sudo systemctl enable nginx
-    sudo systemctl start nginx
-    
-    log_success "Nginx 설치 완료"
-}
-
-# Node.js 서버 상태 확인
-check_nodejs_servers() {
-    log_info "Node.js 서버 상태 확인 중..."
-    
-    # 포트 3010 (메인 서버) 확인
-    if netstat -tuln 2>/dev/null | grep -q ":3010 " || ss -tuln 2>/dev/null | grep -q ":3010 "; then
-        log_success "✅ 메인 서버 (포트 3010) 실행 중"
-        MAIN_SERVER_RUNNING=true
-    else
-        log_warning "⚠️ 메인 서버 (포트 3010) 실행되지 않음"
-        MAIN_SERVER_RUNNING=false
-    fi
-    
-    # 포트 3011 (관리자 서버) 확인
-    if netstat -tuln 2>/dev/null | grep -q ":3011 " || ss -tuln 2>/dev/null | grep -q ":3011 "; then
-        log_success "✅ 관리자 서버 (포트 3011) 실행 중"
-        ADMIN_SERVER_RUNNING=true
-    else
-        log_warning "⚠️ 관리자 서버 (포트 3011) 실행되지 않음"
-        ADMIN_SERVER_RUNNING=false
-    fi
-    
-    # PM2 프로세스 확인
-    if command -v pm2 > /dev/null 2>&1; then
-        PM2_PROCESSES=$(pm2 list 2>/dev/null | grep -c "online" || echo "0")
-        if [ "$PM2_PROCESSES" -gt 0 ] 2>/dev/null; then
-            log_success "✅ PM2 프로세스 $PM2_PROCESSES개 실행 중"
-        else
-            log_warning "⚠️ PM2 프로세스 실행되지 않음"
-        fi
-    else
-        log_warning "⚠️ PM2가 설치되지 않음"
-    fi
+# 설정 정보 표시
+show_config() {
+    echo ""
+    echo -e "${CYAN}설정 정보:${NC}"
+    echo "  - 도메인: ${DOMAIN:-'모든 도메인'}"
+    echo "  - 메인 앱: localhost:$MAIN_PORT → /"
+    echo "  - Admin 앱: localhost:$ADMIN_PORT → /admin"
+    echo ""
 }
 
 # Nginx 설정 파일 생성
 create_nginx_config() {
     log_info "Nginx 설정 파일 생성 중..."
     
-    # 백업 생성
-    if [ -f /etc/nginx/nginx.conf ]; then
-        sudo cp /etc/nginx/nginx.conf /etc/nginx/nginx.conf.backup.$(date +%Y%m%d_%H%M%S)
-        log_info "기존 nginx.conf 백업 생성됨"
+    if [ "$USE_SITES_ENABLED" = true ]; then
+        CONF_FILE="$NGINX_CONF_DIR/msp-checklist"
+    else
+        CONF_FILE="$NGINX_CONF_DIR/msp-checklist.conf"
     fi
     
-    # MSP Checklist용 Nginx 설정 생성
-    sudo tee /etc/nginx/sites-available/msp-checklist > /dev/null << EOF
-# MSP Checklist Nginx 설정
-# 메인 서버: 포트 3010
-# 관리자 서버: 포트 3011
+    # 기존 설정 백업
+    if [ -f "$CONF_FILE" ]; then
+        BACKUP_FILE="${CONF_FILE}.backup.$(date +%Y%m%d_%H%M%S)"
+        cp "$CONF_FILE" "$BACKUP_FILE"
+        log_info "기존 설정 백업: $BACKUP_FILE"
+    fi
+    
+    cat > "$CONF_FILE" << EOF
+# MSP Checklist System - Nginx Configuration
+# Generated: $(date)
+# Main App: http://localhost:$MAIN_PORT
+# Admin App: http://localhost:$ADMIN_PORT
 
-# 업스트림 서버 정의
+# Upstream 정의
 upstream msp_main {
-    server 127.0.0.1:3010 fail_timeout=5s max_fails=3;
-    keepalive 32;
+    server 127.0.0.1:$MAIN_PORT;
+    keepalive 64;
 }
 
 upstream msp_admin {
-    server 127.0.0.1:3011 fail_timeout=5s max_fails=3;
-    keepalive 32;
+    server 127.0.0.1:$ADMIN_PORT;
+    keepalive 64;
 }
 
-# 메인 서버 설정
 server {
     listen 80;
-    server_name ${DOMAIN_NAME:-_};
-    
+    listen [::]:80;
+    server_name $SERVER_NAME;
+
+    # 로그 설정
+    access_log /var/log/nginx/msp-checklist-access.log;
+    error_log /var/log/nginx/msp-checklist-error.log;
+
+    # 클라이언트 요청 크기 제한 (파일 업로드용)
+    client_max_body_size 100M;
+
+    # Gzip 압축
+    gzip on;
+    gzip_vary on;
+    gzip_min_length 1024;
+    gzip_proxied any;
+    gzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/xml;
+
     # 보안 헤더
     add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
-    add_header Referrer-Policy "no-referrer-when-downgrade" always;
-    add_header Content-Security-Policy "default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'" always;
-    
-    # 클라이언트 최대 업로드 크기
-    client_max_body_size 50M;
-    
-    # 타임아웃 설정
-    proxy_connect_timeout 60s;
-    proxy_send_timeout 60s;
-    proxy_read_timeout 60s;
-    
-    # 관리자 시스템 라우팅
+    add_header X-XSS-Protection "1; mode=block" always;
+
+    # Admin 앱 (/admin 경로)
     location /admin {
-        # /admin 경로를 /로 리다이렉트하여 관리자 서버로 전달
-        rewrite ^/admin(/.*)?\$ \$1 break;
-        
         proxy_pass http://msp_admin;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
@@ -278,28 +186,19 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header X-Forwarded-Host \$host;
-        proxy_set_header X-Forwarded-Port \$server_port;
         proxy_cache_bypass \$http_upgrade;
-        
-        # WebSocket 지원
-        proxy_set_header Sec-WebSocket-Extensions \$http_sec_websocket_extensions;
-        proxy_set_header Sec-WebSocket-Key \$http_sec_websocket_key;
-        proxy_set_header Sec-WebSocket-Version \$http_sec_websocket_version;
+        proxy_read_timeout 86400;
     }
-    
-    # 관리자 정적 파일
-    location /admin/_next/ {
-        rewrite ^/admin(/.*)?\$ \$1 break;
+
+    # Admin 정적 파일
+    location /admin/_next {
         proxy_pass http://msp_admin;
+        proxy_http_version 1.1;
         proxy_set_header Host \$host;
-        
-        # 캐싱 설정
-        expires 1y;
-        add_header Cache-Control "public, immutable";
+        proxy_cache_bypass \$http_upgrade;
     }
-    
-    # 메인 애플리케이션 (기본)
+
+    # 메인 앱 (기본 경로)
     location / {
         proxy_pass http://msp_main;
         proxy_http_version 1.1;
@@ -309,654 +208,130 @@ server {
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
-        proxy_set_header X-Forwarded-Host \$host;
-        proxy_set_header X-Forwarded-Port \$server_port;
         proxy_cache_bypass \$http_upgrade;
-        
-        # WebSocket 지원
-        proxy_set_header Sec-WebSocket-Extensions \$http_sec_websocket_extensions;
-        proxy_set_header Sec-WebSocket-Key \$http_sec_websocket_key;
-        proxy_set_header Sec-WebSocket-Version \$http_sec_websocket_version;
+        proxy_read_timeout 86400;
     }
-    
-    # Next.js 정적 파일 최적화
-    location /_next/static/ {
-        proxy_pass http://msp_main;
-        proxy_set_header Host \$host;
-        
-        # 장기 캐싱
-        expires 1y;
-        add_header Cache-Control "public, immutable";
-    }
-    
-    # 이미지 및 정적 파일 캐싱
-    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)\$ {
-        proxy_pass http://msp_main;
-        proxy_set_header Host \$host;
-        
-        # 캐싱 설정
-        expires 30d;
-        add_header Cache-Control "public, no-transform";
-    }
-    
-    # API 라우트 최적화
-    location /api/ {
-        proxy_pass http://msp_main;
-        proxy_http_version 1.1;
-        proxy_set_header Host \$host;
-        proxy_set_header X-Real-IP \$remote_addr;
-        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
-        
-        # API 응답 캐싱 비활성화
-        add_header Cache-Control "no-cache, no-store, must-revalidate";
-    }
-    
-    # 헬스체크 엔드포인트
-    location /health {
+
+    # 헬스 체크 엔드포인트
+    location /nginx-health {
         access_log off;
-        return 200 "healthy\n";
+        return 200 "healthy\\n";
         add_header Content-Type text/plain;
     }
-    
-    # 로봇 차단 (선택사항)
-    location /robots.txt {
-        return 200 "User-agent: *\nDisallow: /admin/\n";
-        add_header Content-Type text/plain;
-    }
-    
-    # 보안: 숨겨진 파일 접근 차단
-    location ~ /\. {
-        deny all;
-        access_log off;
-        log_not_found off;
-    }
-    
-    # 로그 설정
-    access_log /var/log/nginx/msp-checklist-access.log;
-    error_log /var/log/nginx/msp-checklist-error.log;
-}
-
-# 직접 포트 접근 리다이렉트 (선택사항)
-server {
-    listen 3010;
-    server_name ${DOMAIN_NAME:-_};
-    return 301 http://\$host\$request_uri;
-}
-
-server {
-    listen 3011;
-    server_name ${DOMAIN_NAME:-_};
-    return 301 http://\$host/admin\$request_uri;
 }
 EOF
 
-    # Ubuntu의 경우 sites-enabled 링크 생성
-    if [[ "$OS_TYPE" == "ubuntu" ]]; then
-        sudo ln -sf /etc/nginx/sites-available/msp-checklist /etc/nginx/sites-enabled/
-        
-        # 기본 사이트 비활성화
-        sudo rm -f /etc/nginx/sites-enabled/default
-        
-    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
-        # Amazon Linux의 경우 conf.d에 복사
-        sudo cp /etc/nginx/sites-available/msp-checklist /etc/nginx/conf.d/msp-checklist.conf
-        
+    log_success "설정 파일 생성: $CONF_FILE"
+    
+    # Ubuntu: sites-enabled에 심볼릭 링크 생성
+    if [ "$USE_SITES_ENABLED" = true ]; then
         # 기본 설정 비활성화
-        sudo mv /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled 2>/dev/null || true
+        rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
+        
+        # 새 설정 활성화
+        ln -sf "$CONF_FILE" "$NGINX_ENABLED_DIR/msp-checklist"
+        log_success "설정 활성화됨"
     fi
-    
-    log_success "Nginx 설정 파일 생성 완료"
 }
 
-# Nginx 설정 테스트 및 재시작
+# Nginx 설정 테스트
+test_nginx_config() {
+    log_info "Nginx 설정 테스트 중..."
+    
+    if nginx -t 2>&1; then
+        log_success "설정 테스트 통과"
+    else
+        log_error "설정 테스트 실패"
+        exit 1
+    fi
+}
+
+# Nginx 재시작
 restart_nginx() {
-    log_info "Nginx 설정 테스트 및 재시작 중..."
+    log_info "Nginx 재시작 중..."
     
-    # 설정 파일 문법 검사
-    log_info "Nginx 설정 파일 문법 검사 중..."
-    if sudo nginx -t; then
-        log_success "✅ Nginx 설정 파일 문법 검사 통과"
-        
-        # Nginx 재시작
-        log_info "Nginx 서비스 재시작 중..."
-        sudo systemctl reload nginx
-        sudo systemctl restart nginx
-        
-        # 잠시 대기 후 상태 확인
-        sleep 2
-        
-        # 상태 확인
-        if sudo systemctl is-active --quiet nginx; then
-            log_success "✅ Nginx 서비스 재시작 완료"
-        else
-            log_error "❌ Nginx 서비스 재시작 실패"
-            log_info "Nginx 상태 확인 중..."
-            sudo systemctl status nginx --no-pager -l
-            return 1
-        fi
+    systemctl restart nginx
+    
+    if systemctl is-active --quiet nginx; then
+        log_success "Nginx 재시작 완료"
     else
-        log_error "❌ Nginx 설정 파일에 오류가 있습니다"
-        echo ""
-        echo "설정 파일 확인:"
-        sudo nginx -t
-        echo ""
-        log_info "설정 오류 자동 수정 시도 중..."
-        
-        # 자동 수정 시도
-        fix_nginx_configuration_errors
-        
-        # 재시도
-        if sudo nginx -t; then
-            log_success "✅ 설정 오류 수정 완료"
-            sudo systemctl restart nginx
-            if sudo systemctl is-active --quiet nginx; then
-                log_success "✅ Nginx 서비스 시작 완료"
-            else
-                log_error "❌ Nginx 서비스 시작 실패"
-                return 1
-            fi
-        else
-            log_error "❌ 설정 오류 수정 실패"
-            return 1
-        fi
+        log_error "Nginx 재시작 실패"
+        systemctl status nginx
+        exit 1
     fi
-}
-
-# Nginx 설정 오류 자동 수정 함수
-fix_nginx_configuration_errors() {
-    log_info "Nginx 설정 오류 자동 수정 중..."
-    
-    # 1. 문제가 있는 performance.conf 파일 제거 후 재생성
-    sudo rm -f /etc/nginx/conf.d/performance.conf
-    
-    # 2. 올바른 performance.conf 파일 생성
-    sudo tee /etc/nginx/conf.d/performance.conf > /dev/null << 'EOF'
-# Nginx 성능 최적화 설정 (HTTP 블록 내 설정만)
-
-# 파일 전송 최적화
-sendfile on;
-tcp_nopush on;
-tcp_nodelay on;
-
-# 타임아웃 설정
-keepalive_timeout 65;
-keepalive_requests 100;
-
-# 압축 설정
-gzip on;
-gzip_vary on;
-gzip_min_length 1024;
-gzip_proxied any;
-gzip_comp_level 6;
-gzip_types
-    text/plain
-    text/css
-    text/xml
-    text/javascript
-    application/json
-    application/javascript
-    application/xml+rss
-    application/atom+xml
-    image/svg+xml;
-
-# 버퍼 크기 최적화
-client_body_buffer_size 128k;
-client_max_body_size 50m;
-client_header_buffer_size 1k;
-large_client_header_buffers 4 4k;
-
-# 보안 설정
-server_tokens off;
-
-# 레이트 리미팅
-limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
-EOF
-
-    # 3. nginx.conf에서 중복된 설정 제거
-    if grep -q "worker_processes" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
-        sudo sed -i '/worker_processes/d' /etc/nginx/conf.d/performance.conf
-    fi
-    
-    if grep -q "events {" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
-        sudo sed -i '/events {/,/}/d' /etc/nginx/conf.d/performance.conf
-    fi
-    
-    if grep -q "http {" /etc/nginx/conf.d/performance.conf 2>/dev/null; then
-        sudo sed -i '/http {/,/}/d' /etc/nginx/conf.d/performance.conf
-    fi
-    
-    log_success "✅ Nginx 설정 오류 자동 수정 완료"
-}
-
-# 방화벽 설정
-setup_firewall() {
-    log_info "방화벽 설정 중..."
-    
-    if [[ "$OS_TYPE" == "ubuntu" ]]; then
-        # Ubuntu UFW 설정
-        sudo ufw --force enable
-        sudo ufw allow ssh
-        sudo ufw allow 'Nginx Full'
-        sudo ufw allow 80/tcp
-        sudo ufw allow 443/tcp
-        
-        # Node.js 포트는 로컬에서만 접근 가능하도록 설정
-        sudo ufw deny 3010
-        sudo ufw deny 3011
-        
-        sudo ufw reload
-        log_success "✅ Ubuntu UFW 방화벽 설정 완료"
-        
-    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
-        # Amazon Linux firewalld 설정
-        sudo systemctl enable firewalld
-        sudo systemctl start firewalld
-        
-        sudo firewall-cmd --permanent --add-service=ssh
-        sudo firewall-cmd --permanent --add-service=http
-        sudo firewall-cmd --permanent --add-service=https
-        
-        # Node.js 포트는 차단 (Nginx를 통해서만 접근)
-        sudo firewall-cmd --permanent --remove-port=3010/tcp 2>/dev/null || true
-        sudo firewall-cmd --permanent --remove-port=3011/tcp 2>/dev/null || true
-        
-        sudo firewall-cmd --reload
-        log_success "✅ Amazon Linux firewalld 방화벽 설정 완료"
-    fi
-}
-
-# SSL 인증서 설정 (Let's Encrypt)
-setup_ssl_certificate() {
-    if [ "$SETUP_SSL" = false ]; then
-        return 0
-    fi
-    
-    log_info "SSL 인증서 설정 중..."
-    
-    # Certbot 설치
-    if [[ "$OS_TYPE" == "ubuntu" ]]; then
-        sudo apt update
-        sudo apt install -y certbot python3-certbot-nginx
-        
-    elif [[ "$OS_TYPE" == "amazon-linux-2023" ]]; then
-        sudo dnf install -y certbot python3-certbot-nginx
-    fi
-    
-    # SSL 인증서 발급
-    log_info "도메인 $DOMAIN_NAME에 대한 SSL 인증서 발급 중..."
-    
-    if sudo certbot --nginx -d "$DOMAIN_NAME" --email "$EMAIL" --agree-tos --non-interactive; then
-        log_success "✅ SSL 인증서 발급 완료"
-        
-        # 자동 갱신 설정
-        sudo systemctl enable certbot.timer
-        sudo systemctl start certbot.timer
-        
-        log_success "✅ SSL 인증서 자동 갱신 설정 완료"
-    else
-        log_error "❌ SSL 인증서 발급 실패"
-        log_warning "수동으로 다음 명령어를 실행하세요:"
-        echo "sudo certbot --nginx -d $DOMAIN_NAME --email $EMAIL"
-        return 1
-    fi
-}
-
-# 성능 최적화 설정
-optimize_nginx_performance() {
-    log_info "Nginx 성능 최적화 설정 중..."
-    
-    # 기존 문제가 있는 설정 파일 제거
-    sudo rm -f /etc/nginx/conf.d/performance.conf
-    
-    # HTTP 블록 내에서만 사용할 수 있는 설정들만 포함
-    sudo tee /etc/nginx/conf.d/performance.conf > /dev/null << 'EOF'
-# Nginx 성능 최적화 설정 (HTTP 블록 내 설정만)
-
-# 파일 전송 최적화
-sendfile on;
-tcp_nopush on;
-tcp_nodelay on;
-
-# 타임아웃 설정
-keepalive_timeout 65;
-keepalive_requests 100;
-
-# 압축 설정
-gzip on;
-gzip_vary on;
-gzip_min_length 1024;
-gzip_proxied any;
-gzip_comp_level 6;
-gzip_types
-    text/plain
-    text/css
-    text/xml
-    text/javascript
-    application/json
-    application/javascript
-    application/xml+rss
-    application/atom+xml
-    image/svg+xml;
-
-# 버퍼 크기 최적화
-client_body_buffer_size 128k;
-client_max_body_size 50m;
-client_header_buffer_size 1k;
-large_client_header_buffers 4 4k;
-
-# 보안 설정
-server_tokens off;
-
-# 레이트 리미팅
-limit_req_zone $binary_remote_addr zone=api:10m rate=10r/s;
-limit_req_zone $binary_remote_addr zone=login:10m rate=1r/s;
-EOF
-
-    # 메인 nginx.conf 파일의 worker_processes 설정 업데이트
-    log_info "nginx.conf 워커 프로세스 설정 확인 중..."
-    if ! grep -q "worker_processes auto" /etc/nginx/nginx.conf; then
-        log_info "worker_processes를 auto로 설정 중..."
-        sudo sed -i 's/worker_processes [0-9]*;/worker_processes auto;/' /etc/nginx/nginx.conf
-    fi
-    
-    # events 블록 최적화
-    log_info "events 블록 최적화 중..."
-    if ! grep -q "use epoll" /etc/nginx/nginx.conf; then
-        sudo sed -i '/events {/,/}/ {
-            /worker_connections/a\    use epoll;\n    multi_accept on;
-        }' /etc/nginx/nginx.conf
-    fi
-
-    log_success "✅ Nginx 성능 최적화 설정 완료"
-}
-
-# 모니터링 및 로그 설정
-setup_monitoring() {
-    log_info "모니터링 및 로그 설정 중..."
-    
-    # 로그 디렉토리 생성
-    sudo mkdir -p /var/log/nginx
-    sudo mkdir -p /var/log/msp-checklist
-    
-    # 로그 로테이션 설정
-    sudo tee /etc/logrotate.d/msp-checklist > /dev/null << 'EOF'
-/var/log/nginx/msp-checklist-*.log {
-    daily
-    missingok
-    rotate 52
-    compress
-    delaycompress
-    notifempty
-    create 644 www-data www-data
-    postrotate
-        if [ -f /var/run/nginx.pid ]; then
-            kill -USR1 `cat /var/run/nginx.pid`
-        fi
-    endscript
-}
-EOF
-
-    # 상태 확인 스크립트 생성
-    sudo tee /usr/local/bin/check-msp-status.sh > /dev/null << 'EOF'
-#!/bin/bash
-
-echo "=== MSP Checklist 시스템 상태 ==="
-echo ""
-
-# Nginx 상태
-echo "🌐 Nginx 상태:"
-if systemctl is-active --quiet nginx; then
-    echo "  ✅ Nginx: 실행 중"
-else
-    echo "  ❌ Nginx: 중지됨"
-fi
-
-# Node.js 서버 상태
-echo ""
-echo "🚀 Node.js 서버 상태:"
-if netstat -tuln 2>/dev/null | grep -q ":3010 " || ss -tuln 2>/dev/null | grep -q ":3010 "; then
-    echo "  ✅ 메인 서버 (포트 3010): 실행 중"
-else
-    echo "  ❌ 메인 서버 (포트 3010): 중지됨"
-fi
-
-if netstat -tuln 2>/dev/null | grep -q ":3011 " || ss -tuln 2>/dev/null | grep -q ":3011 "; then
-    echo "  ✅ 관리자 서버 (포트 3011): 실행 중"
-else
-    echo "  ❌ 관리자 서버 (포트 3011): 중지됨"
-fi
-
-# PM2 상태
-echo ""
-echo "📊 PM2 프로세스:"
-if command -v pm2 > /dev/null 2>&1; then
-    pm2 list
-else
-    echo "  ⚠️ PM2가 설치되지 않음"
-fi
-
-# 디스크 사용량
-echo ""
-echo "💾 디스크 사용량:"
-df -h / | tail -1
-
-# 메모리 사용량
-echo ""
-echo "🧠 메모리 사용량:"
-free -h | head -2
-
-echo ""
-echo "=== 상태 확인 완료 ==="
-EOF
-
-    sudo chmod +x /usr/local/bin/check-msp-status.sh
-    
-    log_success "✅ 모니터링 및 로그 설정 완료"
 }
 
 # 연결 테스트
 test_connection() {
     log_info "연결 테스트 중..."
     
-    # 잠시 대기 (서비스 안정화)
-    sleep 3
+    sleep 2
     
-    # 로컬 연결 테스트
-    echo ""
-    echo "🔍 로컬 연결 테스트:"
-    
-    # Nginx 테스트
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost 2>/dev/null || echo "000")
-    if [[ "$HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
-        log_success "✅ Nginx (포트 80): 응답 정상 (HTTP $HTTP_CODE)"
+    # Nginx 헬스 체크
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost/nginx-health | grep -q "200"; then
+        log_success "Nginx 헬스 체크: OK"
     else
-        log_warning "⚠️ Nginx (포트 80): 응답 없음 (HTTP $HTTP_CODE)"
+        log_warning "Nginx 헬스 체크: 응답 없음 (정상일 수 있음)"
     fi
     
-    # 메인 서버 직접 테스트
-    if [ "$MAIN_SERVER_RUNNING" = true ]; then
-        MAIN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3010 2>/dev/null || echo "000")
-        if [[ "$MAIN_HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
-            log_success "✅ 메인 서버 (포트 3010): 응답 정상 (HTTP $MAIN_HTTP_CODE)"
-        else
-            log_warning "⚠️ 메인 서버 (포트 3010): 응답 없음 (HTTP $MAIN_HTTP_CODE)"
-        fi
+    # 메인 앱 체크
+    MAIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$MAIN_PORT 2>/dev/null || echo "000")
+    if [ "$MAIN_STATUS" = "200" ] || [ "$MAIN_STATUS" = "302" ]; then
+        log_success "메인 앱 (포트 $MAIN_PORT): 응답 OK"
     else
-        log_warning "⚠️ 메인 서버 (포트 3010): 실행되지 않음"
+        log_warning "메인 앱 (포트 $MAIN_PORT): 응답 없음 (앱이 실행 중인지 확인하세요)"
     fi
     
-    # 관리자 서버 직접 테스트
-    if [ "$ADMIN_SERVER_RUNNING" = true ]; then
-        ADMIN_HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3011 2>/dev/null || echo "000")
-        if [[ "$ADMIN_HTTP_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
-            log_success "✅ 관리자 서버 (포트 3011): 응답 정상 (HTTP $ADMIN_HTTP_CODE)"
-        else
-            log_warning "⚠️ 관리자 서버 (포트 3011): 응답 없음 (HTTP $ADMIN_HTTP_CODE)"
-        fi
+    # Admin 앱 체크
+    ADMIN_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:$ADMIN_PORT 2>/dev/null || echo "000")
+    if [ "$ADMIN_STATUS" = "200" ] || [ "$ADMIN_STATUS" = "302" ]; then
+        log_success "Admin 앱 (포트 $ADMIN_PORT): 응답 OK"
     else
-        log_warning "⚠️ 관리자 서버 (포트 3011): 실행되지 않음"
+        log_warning "Admin 앱 (포트 $ADMIN_PORT): 응답 없음 (앱이 실행 중인지 확인하세요)"
     fi
-    
-    # 프록시 테스트
-    echo ""
-    echo "🔄 프록시 연동 테스트:"
-    
-    # 관리자 경로 프록시 테스트
-    ADMIN_PROXY_CODE=$(curl -s -o /dev/null -w "%{http_code}" http://localhost/admin 2>/dev/null || echo "000")
-    if [[ "$ADMIN_PROXY_CODE" =~ ^[2-3][0-9][0-9]$ ]]; then
-        log_success "✅ 관리자 경로 프록시 (/admin): 응답 정상 (HTTP $ADMIN_PROXY_CODE)"
-    else
-        log_warning "⚠️ 관리자 경로 프록시 (/admin): 응답 없음 (HTTP $ADMIN_PROXY_CODE)"
-    fi
-    
-    # 공용 IP 확인
-    if command -v curl > /dev/null; then
-        PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || curl -s http://ipinfo.io/ip 2>/dev/null || echo "확인 불가")
-    else
-        PUBLIC_IP="확인 불가"
-    fi
-    
-    echo ""
-    echo "🌐 외부 접속 정보:"
-    echo "  - 공용 IP: $PUBLIC_IP"
-    if [ "$DOMAIN_NAME" != "" ]; then
-        echo "  - 도메인: $DOMAIN_NAME"
-        if [ "$SETUP_SSL" = true ]; then
-            echo "  - HTTPS: https://$DOMAIN_NAME"
-        else
-            echo "  - HTTP: http://$DOMAIN_NAME"
-        fi
-    else
-        echo "  - HTTP: http://$PUBLIC_IP"
-    fi
-    echo "  - 관리자: http://$PUBLIC_IP/admin"
 }
 
-# 설치 완료 정보 표시
-show_completion_info() {
-    echo ""
-    echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║              🎉 Nginx 설정 완료! 🎉                       ║${NC}"
-    echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    
-    log_success "Nginx + Node.js 연동 설정이 완료되었습니다!"
+# 완료 메시지
+show_complete() {
+    # IP 주소 감지
+    IP=$(hostname -I 2>/dev/null | awk '{print $1}')
+    IP=${IP:-localhost}
     
     echo ""
-    echo "🌐 서비스 접속 주소:"
-    if [ "$DOMAIN_NAME" != "" ]; then
-        if [ "$SETUP_SSL" = true ]; then
-            echo "  - 메인 서비스: https://$DOMAIN_NAME"
-            echo "  - 관리자 시스템: https://$DOMAIN_NAME/admin"
-        else
-            echo "  - 메인 서비스: http://$DOMAIN_NAME"
-            echo "  - 관리자 시스템: http://$DOMAIN_NAME/admin"
-        fi
-    else
-        PUBLIC_IP=$(curl -s http://169.254.169.254/latest/meta-data/public-ipv4 2>/dev/null || curl -s http://ipinfo.io/ip 2>/dev/null || echo "YOUR_SERVER_IP")
-        echo "  - 메인 서비스: http://$PUBLIC_IP"
-        echo "  - 관리자 시스템: http://$PUBLIC_IP/admin"
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo -e "${GREEN}  Nginx + Node.js 연동 설정 완료!${NC}"
+    echo -e "${GREEN}═══════════════════════════════════════════════════════════════${NC}"
+    echo ""
+    echo "접속 URL:"
+    echo "  📱 메인 앱:  http://$IP/"
+    echo "  🔧 Admin:   http://$IP/admin"
+    echo ""
+    if [ "$DOMAIN" != "_" ]; then
+        echo "  도메인 설정 시:"
+        echo "  📱 메인 앱:  http://$DOMAIN/"
+        echo "  🔧 Admin:   http://$DOMAIN/admin"
+        echo ""
     fi
-    
-    echo ""
-    echo "🔧 유용한 명령어:"
-    echo "  - 시스템 상태 확인: sudo /usr/local/bin/check-msp-status.sh"
+    echo "유용한 명령어:"
     echo "  - Nginx 상태: sudo systemctl status nginx"
     echo "  - Nginx 재시작: sudo systemctl restart nginx"
-    echo "  - Nginx 설정 테스트: sudo nginx -t"
-    echo "  - 로그 확인: sudo tail -f /var/log/nginx/msp-checklist-access.log"
-    echo "  - 에러 로그: sudo tail -f /var/log/nginx/msp-checklist-error.log"
-    
+    echo "  - 로그 확인: sudo tail -f /var/log/nginx/msp-checklist-error.log"
     echo ""
-    echo "📝 다음 단계:"
-    echo "1. AWS 보안 그룹에서 포트 80, 443 인바운드 규칙 확인"
-    echo "2. Node.js 서버가 실행 중인지 확인"
-    echo "3. 도메인 DNS 설정 (도메인 사용 시)"
-    if [ "$SETUP_SSL" = false ] && [ "$DOMAIN_NAME" != "" ]; then
-        echo "4. SSL 인증서 설정: $0 --ssl --domain $DOMAIN_NAME --email your@email.com"
-    fi
-    
-    echo ""
-    echo "🔒 보안 권장사항:"
-    echo "- 포트 3010, 3011은 직접 접근이 차단되어 있습니다"
-    echo "- Nginx를 통해서만 접근 가능합니다"
-    echo "- SSL 인증서 설정을 권장합니다"
-    
+    echo "다음 단계:"
+    echo "  - SSL 설정: sudo ./setup-nginx-ssl.sh -d $DOMAIN"
     echo ""
 }
 
-# 메인 실행 함수
+# 메인 실행
 main() {
-    # 배너 출력
-    show_banner
-    
-    # 사용자 확인
-    read -p "Nginx + Node.js 연동 설정을 시작하시겠습니까? (y/n): " -n 1 -r
-    echo
-    if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "설정이 취소되었습니다."
-        exit 0
-    fi
-    
-    # OS 감지
+    check_nginx
     detect_os
-    
-    # Nginx 설치 확인 및 설치
-    if [ "$INSTALL_NGINX" = true ]; then
-        if ! check_nginx_installation; then
-            install_nginx
-        fi
-    else
-        if ! check_nginx_installation; then
-            log_error "Nginx가 설치되지 않았습니다. --no-install 옵션을 제거하거나 수동으로 설치하세요."
-            exit 1
-        fi
-    fi
-    
-    # Node.js 서버 상태 확인
-    check_nodejs_servers
-    
-    # Nginx 설정 생성
-    create_nginx_config || {
-        log_error "Nginx 설정 생성 실패"
-        exit 1
-    }
-    
-    # 성능 최적화 설정
-    optimize_nginx_performance || {
-        log_warning "성능 최적화 설정에 문제가 있지만 계속 진행합니다."
-    }
-    
-    # Nginx 재시작
-    restart_nginx || {
-        log_error "Nginx 재시작 실패. 설정을 확인하세요."
-        echo ""
-        echo "문제 해결 방법:"
-        echo "1. 설정 확인: sudo nginx -t"
-        echo "2. 로그 확인: sudo tail -f /var/log/nginx/error.log"
-        echo "3. 수동 재시작: sudo systemctl restart nginx"
-        exit 1
-    }
-    
-    # 방화벽 설정
-    setup_firewall
-    
-    # SSL 인증서 설정 (옵션)
-    setup_ssl_certificate
-    
-    # 모니터링 설정
-    setup_monitoring
-    
-    # 연결 테스트
+    show_config
+    create_nginx_config
+    test_nginx_config
+    restart_nginx
     test_connection
-    
-    # 완료 정보 표시
-    show_completion_info
-    
-    log_success "Nginx + Node.js 연동 설정이 성공적으로 완료되었습니다! 🚀"
+    show_complete
 }
 
-# 스크립트 실행
 main "$@"
