@@ -555,23 +555,23 @@ export interface SystemSettings {
 
 export function getSystemSettings(): SystemSettings {
   try {
-    const stmt = db.prepare('SELECT key, value FROM system_settings');
-    const rows = stmt.all() as { key: string; value: string }[];
+    const stmt = db.prepare('SELECT setting_key, setting_value FROM system_settings');
+    const rows = stmt.all() as { setting_key: string; setting_value: string }[];
     
     const settings: SystemSettings = {
       evidenceUploadEnabled: false
     };
     
     for (const row of rows) {
-      if (row.value === 'true') {
-        settings[row.key] = true;
-      } else if (row.value === 'false') {
-        settings[row.key] = false;
+      if (row.setting_value === 'true') {
+        settings[row.setting_key] = true;
+      } else if (row.setting_value === 'false') {
+        settings[row.setting_key] = false;
       } else {
         try {
-          settings[row.key] = JSON.parse(row.value);
+          settings[row.setting_key] = JSON.parse(row.setting_value);
         } catch {
-          settings[row.key] = row.value;
+          settings[row.setting_key] = row.setting_value;
         }
       }
     }
@@ -585,18 +585,18 @@ export function getSystemSettings(): SystemSettings {
 
 export function getSystemSetting(key: string): any {
   try {
-    const stmt = db.prepare('SELECT value FROM system_settings WHERE key = ?');
-    const row = stmt.get(key) as { value: string } | undefined;
+    const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
+    const row = stmt.get(key) as { setting_value: string } | undefined;
     
     if (!row) return null;
     
-    if (row.value === 'true') return true;
-    if (row.value === 'false') return false;
+    if (row.setting_value === 'true') return true;
+    if (row.setting_value === 'false') return false;
     
     try {
-      return JSON.parse(row.value);
+      return JSON.parse(row.setting_value);
     } catch {
-      return row.value;
+      return row.setting_value;
     }
   } catch (e) {
     console.error('Error getting system setting:', e);
@@ -610,9 +610,9 @@ export function updateSystemSetting(key: string, value: any): void {
                         typeof value === 'object' ? JSON.stringify(value) : String(value);
     
     const stmt = db.prepare(`
-      INSERT INTO system_settings (key, value, updated_at) 
+      INSERT INTO system_settings (setting_key, setting_value, updated_at) 
       VALUES (?, ?, datetime('now'))
-      ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = datetime('now')
+      ON CONFLICT(setting_key) DO UPDATE SET setting_value = ?, updated_at = datetime('now')
     `);
     stmt.run(key, stringValue, stringValue);
   } catch (e) {
@@ -624,17 +624,26 @@ export function updateSystemSetting(key: string, value: any): void {
 // 시스템 설정 테이블 초기화
 function initSystemSettings() {
   try {
-    db.exec(`
-      CREATE TABLE IF NOT EXISTS system_settings (
-        key TEXT PRIMARY KEY,
-        value TEXT NOT NULL,
-        updated_at TEXT DEFAULT (datetime('now'))
-      )
-    `);
+    // 테이블이 이미 존재하는지 확인 (메인 앱에서 생성됨)
+    const tableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='system_settings'").get();
+    
+    if (!tableExists) {
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS system_settings (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          setting_key TEXT UNIQUE NOT NULL,
+          setting_value TEXT NOT NULL,
+          description TEXT,
+          updated_by INTEGER,
+          updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (updated_by) REFERENCES users (id)
+        )
+      `);
+    }
     
     // 기본 설정 삽입 (없으면)
     const insertDefault = db.prepare(`
-      INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
+      INSERT OR IGNORE INTO system_settings (setting_key, setting_value) VALUES (?, ?)
     `);
     insertDefault.run('evidenceUploadEnabled', 'false');
   } catch (e) {
