@@ -547,31 +547,10 @@ export function deleteAllUserData(userId: number): void {
   stmt.run(userId);
 }
 
-export default db;
-
 // System settings functions
 export interface SystemSettings {
   evidenceUploadEnabled: boolean;
   [key: string]: any;
-}
-
-// 시스템 설정 테이블 생성 (없으면)
-try {
-  db.exec(`
-    CREATE TABLE IF NOT EXISTS system_settings (
-      key TEXT PRIMARY KEY,
-      value TEXT NOT NULL,
-      updated_at TEXT DEFAULT (datetime('now'))
-    )
-  `);
-  
-  // 기본 설정 삽입 (없으면)
-  const insertDefault = db.prepare(`
-    INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
-  `);
-  insertDefault.run('evidenceUploadEnabled', 'false');
-} catch (e) {
-  console.error('Error initializing system_settings table:', e);
 }
 
 export function getSystemSettings(): SystemSettings {
@@ -641,3 +620,29 @@ export function updateSystemSetting(key: string, value: any): void {
     throw e;
   }
 }
+
+// 시스템 설정 테이블 초기화
+function initSystemSettings() {
+  try {
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS system_settings (
+        key TEXT PRIMARY KEY,
+        value TEXT NOT NULL,
+        updated_at TEXT DEFAULT (datetime('now'))
+      )
+    `);
+    
+    // 기본 설정 삽입 (없으면)
+    const insertDefault = db.prepare(`
+      INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
+    `);
+    insertDefault.run('evidenceUploadEnabled', 'false');
+  } catch (e) {
+    console.error('Error initializing system_settings table:', e);
+  }
+}
+
+// 테이블 초기화 실행
+initSystemSettings();
+
+export default db;
