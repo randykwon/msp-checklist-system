@@ -1,0 +1,11 @@
+[Unit]
+Description=Evidence Files S3 Sync Timer
+Requires=evidence-s3-sync.service
+
+[Timer]
+# 매 5분마다 실행
+OnCalendar=*:0/5
+Persistent=true
+
+[Install]
+WantedBy=timers.target

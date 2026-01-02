@@ -16,6 +16,15 @@ interface SystemInfo {
   systemUptime: number;
 }
 
+interface EvidenceStats {
+  storagePath: string;
+  s3Bucket: string;
+  s3Prefix: string;
+  pending: { count: number; size: number; sizeFormatted: string };
+  uploaded: { count: number; size: number; sizeFormatted: string };
+  total: { count: number; size: number; sizeFormatted: string };
+}
+
 export default function SystemPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -24,6 +33,7 @@ export default function SystemPage() {
   const [loadingSystem, setLoadingSystem] = useState(true);
   const [evidenceUploadEnabled, setEvidenceUploadEnabled] = useState(false);
   const [updatingSettings, setUpdatingSettings] = useState(false);
+  const [evidenceStats, setEvidenceStats] = useState<EvidenceStats | null>(null);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -38,10 +48,23 @@ export default function SystemPage() {
     if (user && user.role === 'superadmin') {
       fetchSystemInfo();
       fetchSettings();
+      fetchEvidenceStats();
     } else if (user && user.role !== 'superadmin') {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+
+  const fetchEvidenceStats = async () => {
+    try {
+      const response = await fetch('/api/evidence/stats');
+      if (response.ok) {
+        const data = await response.json();
+        setEvidenceStats(data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch evidence stats:', error);
+    }
+  };
 
   const fetchSettings = async () => {
     try {
@@ -352,6 +375,72 @@ export default function SystemPage() {
             </div>
           </div>
         </div>
+
+        {/* 증빙 파일 저장소 통계 */}
+        {evidenceStats && (
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">📁 증빙 파일 저장소</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div style={{ 
+                padding: 16, 
+                background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', 
+                borderRadius: 12,
+                border: '1px solid #F59E0B'
+              }}>
+                <div style={{ fontSize: 13, color: '#92400E', fontWeight: 500 }}>⏳ 업로드 대기</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#D97706' }}>{evidenceStats.pending.count}</div>
+                <div style={{ fontSize: 12, color: '#92400E' }}>{evidenceStats.pending.sizeFormatted}</div>
+              </div>
+              <div style={{ 
+                padding: 16, 
+                background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)', 
+                borderRadius: 12,
+                border: '1px solid #10B981'
+              }}>
+                <div style={{ fontSize: 13, color: '#065F46', fontWeight: 500 }}>✅ S3 업로드 완료</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#059669' }}>{evidenceStats.uploaded.count}</div>
+                <div style={{ fontSize: 12, color: '#065F46' }}>{evidenceStats.uploaded.sizeFormatted}</div>
+              </div>
+              <div style={{ 
+                padding: 16, 
+                background: 'linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%)', 
+                borderRadius: 12,
+                border: '1px solid #6366F1'
+              }}>
+                <div style={{ fontSize: 13, color: '#3730A3', fontWeight: 500 }}>📊 전체 파일</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: '#4F46E5' }}>{evidenceStats.total.count}</div>
+                <div style={{ fontSize: 12, color: '#3730A3' }}>{evidenceStats.total.sizeFormatted}</div>
+              </div>
+            </div>
+            <div style={{ 
+              padding: 12, 
+              background: '#F3F4F6', 
+              borderRadius: 8,
+              fontSize: 13,
+              color: '#4B5563'
+            }}>
+              <div style={{ marginBottom: 4 }}>📂 저장 경로: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.storagePath}</code></div>
+              <div style={{ marginBottom: 4 }}>☁️ S3 버킷: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.s3Bucket || '미설정'}</code></div>
+              <div>📁 S3 접두사: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.s3Prefix || '미설정'}</code></div>
+            </div>
+            <button
+              onClick={fetchEvidenceStats}
+              style={{
+                marginTop: 12,
+                padding: '8px 16px',
+                fontSize: 13,
+                fontWeight: 500,
+                color: '#4F46E5',
+                background: '#EEF2FF',
+                border: '1px solid #C7D2FE',
+                borderRadius: 8,
+                cursor: 'pointer'
+              }}
+            >
+              🔄 새로고침
+            </button>
+          </div>
+        )}
 
         {/* 경고 메시지 */}
         <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6">

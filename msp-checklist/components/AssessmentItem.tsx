@@ -428,6 +428,26 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       const updatedFiles = [...evidenceFiles, ...newFiles];
       setEvidenceFiles(updatedFiles);
       onUpdate(item.id, { evidenceFiles: updatedFiles, lastUpdated: new Date() });
+      
+      // 서버에 파일 저장 (백그라운드에서 실행)
+      for (const newFile of newFiles) {
+        try {
+          await fetch('/api/evidence/save', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              itemId: item.id,
+              assessmentType,
+              fileId: newFile.id,
+              fileName: newFile.fileName,
+              fileType: newFile.fileType,
+              base64Data: newFile.base64Data
+            })
+          });
+        } catch (error) {
+          console.error('Failed to save evidence file to server:', error);
+        }
+      }
     }
 
     setIsProcessingPdf(false);
