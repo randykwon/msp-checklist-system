@@ -18,6 +18,24 @@ interface QAItem {
   answerCreatedAt?: string;
   questionUserName: string;
   answerUserName?: string;
+  evidenceFiles?: EvidenceFile[];
+  evaluation?: EvaluationData;
+}
+
+interface EvidenceFile {
+  id: string;
+  fileName: string;
+  fileType: 'image' | 'pdf';
+  fileSize: number;
+  base64Data: string;
+  uploadedAt: string;
+  extractedText?: string;
+}
+
+interface EvaluationData {
+  score: number;
+  feedback: string;
+  evaluatedAt: string;
 }
 
 interface QAStats {
@@ -50,6 +68,8 @@ export default function QAPage() {
   const [updating, setUpdating] = useState(false);
   const [generatingAnswer, setGeneratingAnswer] = useState(false);
   const [stats, setStats] = useState<QAStats | null>(null);
+  const [viewingFile, setViewingFile] = useState<EvidenceFile | null>(null);
+  const [expandedEvidence, setExpandedEvidence] = useState<Set<number>>(new Set());
 
   // 카드 색상 (8색 로테이션)
   const cardColors = [
@@ -257,6 +277,24 @@ export default function QAPage() {
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleString('ko-KR');
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
+  const toggleEvidence = (qaId: number) => {
+    setExpandedEvidence(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(qaId)) {
+        newSet.delete(qaId);
+      } else {
+        newSet.add(qaId);
+      }
+      return newSet;
+    });
   };
 
   if (!isHydrated || loading || !user) {
@@ -476,6 +514,22 @@ export default function QAPage() {
                               }}>
                                 {qa.answer ? '✅ 답변완료' : '⏳ 미답변'}
                               </span>
+                              {qa.evidenceFiles && qa.evidenceFiles.length > 0 && (
+                                <span style={{
+                                  padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                                  background: 'rgba(139, 92, 246, 0.9)'
+                                }}>
+                                  📎 증빙 {qa.evidenceFiles.length}
+                                </span>
+                              )}
+                              {qa.evaluation && (
+                                <span style={{
+                                  padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                                  background: 'rgba(20, 184, 166, 0.9)'
+                                }}>
+                                  점수: {qa.evaluation.score}
+                                </span>
+                              )}
                             </div>
                             <div style={{ fontSize: 12, opacity: 0.9 }}>
                               {qa.questionUserName} • {formatDate(qa.questionCreatedAt)}
@@ -488,6 +542,88 @@ export default function QAPage() {
                           <div style={{ padding: 16, background: '#E7F3FF', borderRadius: 10, marginBottom: 16 }}>
                             <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.8, whiteSpace: 'pre-line' }}>{qa.question}</div>
                           </div>
+                          
+                          {/* 증빙 파일 섹션 */}
+                          {qa.evidenceFiles && qa.evidenceFiles.length > 0 && (
+                            <div style={{ marginBottom: 16 }}>
+                              <button
+                                onClick={() => toggleEvidence(qa.id)}
+                                style={{
+                                  display: 'flex', alignItems: 'center', gap: 8, width: '100%',
+                                  padding: '12px 16px', background: '#EDE9FE', border: 'none',
+                                  borderRadius: 10, cursor: 'pointer', fontSize: 14, fontWeight: 600, color: '#5B21B6'
+                                }}
+                              >
+                                <span>📎 증빙 자료 ({qa.evidenceFiles.length}개)</span>
+                                {qa.evaluation && (
+                                  <span style={{ 
+                                    padding: '2px 8px', background: '#8B5CF6', color: 'white', 
+                                    borderRadius: 12, fontSize: 11, marginLeft: 8 
+                                  }}>
+                                    AI 평가: {qa.evaluation.score}점
+                                  </span>
+                                )}
+                                <span style={{ marginLeft: 'auto', fontSize: 16 }}>
+                                  {expandedEvidence.has(qa.id) ? '▼' : '▶'}
+                                </span>
+                              </button>
+                              
+                              {expandedEvidence.has(qa.id) && (
+                                <div style={{ padding: 16, background: '#F5F3FF', borderRadius: '0 0 10px 10px', marginTop: -4 }}>
+                                  {/* AI 평가 결과 */}
+                                  {qa.evaluation && (
+                                    <div style={{ marginBottom: 16, padding: 12, background: '#CCFBF1', borderRadius: 8 }}>
+                                      <div style={{ fontSize: 12, fontWeight: 600, color: '#0F766E', marginBottom: 4 }}>
+                                        🤖 AI 평가 결과 (점수: {qa.evaluation.score}/100)
+                                      </div>
+                                      <div style={{ fontSize: 13, color: '#0D9488', lineHeight: 1.6 }}>
+                                        {qa.evaluation.feedback}
+                                      </div>
+                                    </div>
+                                  )}
+                                  
+                                  {/* 파일 그리드 */}
+                                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))', gap: 12 }}>
+                                    {qa.evidenceFiles.map((file) => (
+                                      <div 
+                                        key={file.id}
+                                        onClick={() => setViewingFile(file)}
+                                        style={{
+                                          padding: 10, background: 'white', borderRadius: 10, cursor: 'pointer',
+                                          border: '2px solid #C4B5FD', textAlign: 'center',
+                                          transition: 'all 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.05)'
+                                        }}
+                                      >
+                                        {file.fileType === 'image' ? (
+                                          <img 
+                                            src={file.base64Data} 
+                                            alt={file.fileName}
+                                            style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 6 }}
+                                          />
+                                        ) : (
+                                          <div style={{ 
+                                            height: 80, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                            background: '#EDE9FE', borderRadius: 6
+                                          }}>
+                                            <span style={{ fontSize: 32 }}>📄</span>
+                                          </div>
+                                        )}
+                                        <div style={{ 
+                                          fontSize: 11, color: '#5B21B6', marginTop: 6, fontWeight: 500,
+                                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                                        }}>
+                                          {file.fileName}
+                                        </div>
+                                        <div style={{ fontSize: 10, color: '#7C3AED' }}>
+                                          {formatFileSize(file.fileSize)}
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           
                           {/* 답변 영역 */}
                           {qa.answer ? (
@@ -638,6 +774,119 @@ export default function QAPage() {
           </div>
         </div>
       </PermissionGuard>
+
+      {/* 파일 미리보기 모달 */}
+      {viewingFile && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setViewingFile(null)}
+        >
+          <div 
+            style={{ 
+              maxWidth: '90vw', maxHeight: '90vh', background: 'white', 
+              borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div style={{ 
+              padding: '16px 20px', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', 
+              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
+            }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{viewingFile.fileName}</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                  {viewingFile.fileType === 'image' ? '🖼️ 이미지' : '📄 PDF'} • {formatFileSize(viewingFile.fileSize)}
+                  {viewingFile.uploadedAt && ` • ${new Date(viewingFile.uploadedAt).toLocaleDateString('ko-KR')}`}
+                </div>
+              </div>
+              <button 
+                onClick={() => setViewingFile(null)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: '50%', color: 'white', 
+                  fontSize: 20, cursor: 'pointer', display: 'flex', 
+                  alignItems: 'center', justifyContent: 'center' 
+                }}
+              >×</button>
+            </div>
+            
+            {/* 콘텐츠 */}
+            <div style={{ padding: 20, maxHeight: 'calc(90vh - 120px)', overflow: 'auto' }}>
+              {viewingFile.fileType === 'image' ? (
+                <img 
+                  src={viewingFile.base64Data} 
+                  alt={viewingFile.fileName}
+                  style={{ maxWidth: '100%', maxHeight: '70vh', display: 'block', margin: '0 auto', borderRadius: 8 }}
+                />
+              ) : (
+                <div>
+                  {viewingFile.base64Data.startsWith('data:application/pdf') ? (
+                    <iframe
+                      src={viewingFile.base64Data}
+                      style={{ width: '100%', height: '70vh', border: 'none', borderRadius: 8 }}
+                      title={viewingFile.fileName}
+                    />
+                  ) : (
+                    <div style={{ 
+                      padding: 24, background: '#F9FAFB', borderRadius: 8, 
+                      textAlign: 'center', color: '#65676B' 
+                    }}>
+                      <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>📄</span>
+                      <div style={{ fontSize: 14 }}>PDF 미리보기를 지원하지 않습니다.</div>
+                      {viewingFile.extractedText && (
+                        <div style={{ marginTop: 16, textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>추출된 텍스트:</div>
+                          <div style={{ 
+                            fontSize: 13, color: '#1C1E21', background: 'white', 
+                            padding: 12, borderRadius: 6, border: '1px solid #E4E6EB',
+                            maxHeight: 300, overflow: 'auto', whiteSpace: 'pre-wrap'
+                          }}>
+                            {viewingFile.extractedText}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* 푸터 */}
+            <div style={{ padding: '12px 20px', background: '#F0F2F5', borderTop: '1px solid #E4E6EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button 
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = viewingFile.base64Data;
+                  link.download = viewingFile.fileName;
+                  link.click();
+                }}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: '#8B5CF6', background: 'white', 
+                  border: '1px solid #8B5CF6', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                📥 다운로드
+              </button>
+              <button 
+                onClick={() => setViewingFile(null)}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: 'white', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

@@ -121,6 +121,24 @@ export interface QAItem {
   answerCreatedAt?: string;
   questionUserName: string;
   answerUserName?: string;
+  evidenceFiles?: EvidenceFile[];
+  evaluation?: EvaluationData;
+}
+
+export interface EvidenceFile {
+  id: string;
+  fileName: string;
+  fileType: 'image' | 'pdf';
+  fileSize: number;
+  base64Data: string;
+  uploadedAt: string;
+  extractedText?: string;
+}
+
+export interface EvaluationData {
+  score: number;
+  feedback: string;
+  evaluatedAt: string;
 }
 
 export function getAllQuestions(): QAItem[] {
@@ -143,7 +161,41 @@ export function getAllQuestions(): QAItem[] {
     ORDER BY qa.question_created_at DESC
   `);
   
-  return stmt.all() as QAItem[];
+  const questions = stmt.all() as QAItem[];
+  
+  // 각 질문에 대해 해당 평가 항목의 증빙 파일 가져오기
+  const evidenceStmt = db.prepare(`
+    SELECT evidence_files, evaluation_data
+    FROM assessment_data
+    WHERE user_id = ? AND item_id = ? AND assessment_type = ?
+  `);
+  
+  return questions.map(q => {
+    try {
+      const assessmentType = q.assessmentType === 'prerequisite' ? 'prerequisites' : 'technical';
+      const row = evidenceStmt.get(q.questionUserId, q.itemId, assessmentType) as any;
+      
+      if (row) {
+        if (row.evidence_files) {
+          try {
+            q.evidenceFiles = JSON.parse(row.evidence_files);
+          } catch (e) {
+            console.error('Error parsing evidence_files:', e);
+          }
+        }
+        if (row.evaluation_data) {
+          try {
+            q.evaluation = JSON.parse(row.evaluation_data);
+          } catch (e) {
+            console.error('Error parsing evaluation_data:', e);
+          }
+        }
+      }
+    } catch (e) {
+      console.error('Error fetching evidence for question:', q.id, e);
+    }
+    return q;
+  });
 }
 
 export function getUnansweredQuestions(): QAItem[] {
