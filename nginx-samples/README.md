@@ -1,90 +1,91 @@
-# MSP Checklist - Nginx 설정 샘플
+# MSP Checklist - Nginx 설정 가이드
 
-각 운영체제별 Nginx 설정 파일 샘플입니다.
+Nginx 리버스 프록시 설정 샘플 파일 및 설치 가이드입니다.
 
 ## 📁 파일 목록
 
-| 파일 | 운영체제 | 설치 경로 |
-|------|----------|-----------|
-| `nginx-amazon-linux.conf.sample` | Amazon Linux 2023 | `/etc/nginx/conf.d/msp-checklist.conf` |
-| `nginx-ubuntu.conf.sample` | Ubuntu 22.04/24.04 | `/etc/nginx/sites-available/msp-checklist` |
-| `nginx-macos.conf.sample` | macOS (Homebrew) | `/opt/homebrew/etc/nginx/servers/msp-checklist.conf` |
-| `nginx-windows.conf.sample` | Windows | `C:\nginx\conf\conf.d\msp-checklist.conf` |
+| 파일 | 설명 | 설치 경로 |
+|------|------|-----------|
+| `nginx-amazon-linux.conf.sample` | Amazon Linux 2023용 | `/etc/nginx/conf.d/msp-checklist.conf` |
+| `nginx-ubuntu.conf.sample` | Ubuntu 22.04/24.04용 | `/etc/nginx/sites-available/msp-checklist` |
+| `nginx-ssl.conf.sample` | HTTPS (Let's Encrypt) | 위와 동일 |
 
-## 🚀 빠른 설치
+## 🚀 빠른 설치 (권장)
+
+### 자동 설치 스크립트 사용
+
+```bash
+# 프로젝트 루트에서 실행
+sudo ./setup-nginx.sh
+```
+
+### SSL 인증서와 함께 설치
+
+```bash
+sudo ./setup-nginx.sh --ssl --domain your-domain.com --email your@email.com
+```
+
+## 📋 수동 설치
 
 ### Amazon Linux 2023
 
 ```bash
+# 1. Nginx 설치
 sudo dnf install -y nginx
+
+# 2. 설정 파일 복사
 sudo cp nginx-amazon-linux.conf.sample /etc/nginx/conf.d/msp-checklist.conf
+
+# 3. 기본 설정 제거
 sudo rm -f /etc/nginx/conf.d/default.conf
+
+# 4. 설정 테스트
 sudo nginx -t
+
+# 5. Nginx 시작
 sudo systemctl enable nginx
 sudo systemctl start nginx
 ```
 
-### Ubuntu
+### Ubuntu 22.04/24.04
 
 ```bash
+# 1. Nginx 설치
 sudo apt update && sudo apt install -y nginx
+
+# 2. 설정 파일 복사
 sudo cp nginx-ubuntu.conf.sample /etc/nginx/sites-available/msp-checklist
+
+# 3. 심볼릭 링크 생성
 sudo ln -sf /etc/nginx/sites-available/msp-checklist /etc/nginx/sites-enabled/
+
+# 4. 기본 설정 제거
 sudo rm -f /etc/nginx/sites-enabled/default
+
+# 5. 설정 테스트
 sudo nginx -t
+
+# 6. Nginx 시작
 sudo systemctl enable nginx
 sudo systemctl start nginx
 ```
 
-### macOS (Homebrew)
+## 🔧 포트 구성
 
-```bash
-brew install nginx
-
-# Apple Silicon (M1/M2/M3)
-cp nginx-macos.conf.sample /opt/homebrew/etc/nginx/servers/msp-checklist.conf
-
-# Intel Mac
-cp nginx-macos.conf.sample /usr/local/etc/nginx/servers/msp-checklist.conf
-
-nginx -t
-brew services start nginx
-```
-
-### Windows
-
-1. https://nginx.org/en/download.html 에서 다운로드
-2. `C:\nginx`에 압축 해제
-3. `C:\nginx\conf\conf.d` 폴더 생성
-4. `nginx.conf`의 http 블록에 추가: `include conf.d/*.conf;`
-5. 설정 파일 복사:
-   ```cmd
-   copy nginx-windows.conf.sample C:\nginx\conf\conf.d\msp-checklist.conf
-   ```
-6. 관리자 명령 프롬프트에서:
-   ```cmd
-   cd C:\nginx
-   nginx -t
-   nginx
-   ```
-
-## 🔧 포트 설정
-
-| 서비스 | 포트 | URL |
-|--------|------|-----|
-| Nginx | 80 (Linux/Windows), 8080 (macOS) | `http://IP/` |
+| 서비스 | 포트 | 접속 URL |
+|--------|------|----------|
+| Nginx | 80 (HTTP), 443 (HTTPS) | `http://IP/` |
 | 메인 앱 | 3010 | 내부 전용 |
 | 관리자 앱 | 3011 | `http://IP/admin` |
 
 ## ✅ 설정 확인
 
 ```bash
-# 설정 테스트
-nginx -t
+# 설정 문법 테스트
+sudo nginx -t
 
-# 상태 확인
-systemctl status nginx  # Linux
-brew services list      # macOS
+# 서비스 상태 확인
+sudo systemctl status nginx
 
 # 연결 테스트
 curl http://localhost/health
@@ -92,20 +93,76 @@ curl http://localhost/
 curl http://localhost/admin
 ```
 
-## 🔒 SSL 인증서 (선택사항)
+## 🔒 SSL 인증서 (Let's Encrypt)
 
-Let's Encrypt를 사용한 무료 SSL 인증서:
+### 자동 설정
 
 ```bash
-# Ubuntu/Amazon Linux
-sudo apt install certbot python3-certbot-nginx  # Ubuntu
-sudo dnf install certbot python3-certbot-nginx  # Amazon Linux
+# Ubuntu
+sudo apt install certbot python3-certbot-nginx
+sudo certbot --nginx -d your-domain.com
 
+# Amazon Linux 2023
+sudo dnf install certbot python3-certbot-nginx
 sudo certbot --nginx -d your-domain.com
 ```
 
-## 📝 주의사항
+### 인증서 갱신 확인
 
-- AWS EC2 사용 시 보안 그룹에서 포트 80, 443 인바운드 허용 필요
-- Node.js 서버(3010, 3011)가 먼저 실행되어야 함
-- macOS에서 포트 80 사용 시 sudo 필요 (개발 환경에서는 8080 권장)
+```bash
+# 갱신 테스트
+sudo certbot renew --dry-run
+
+# 인증서 상태 확인
+sudo certbot certificates
+```
+
+## 🔧 문제 해결
+
+### 502 Bad Gateway
+
+Node.js 서버가 실행 중인지 확인:
+
+```bash
+# 포트 확인
+sudo netstat -tuln | grep -E ':3010|:3011'
+
+# 서버 시작
+cd /opt/msp-checklist-system
+./restart-servers.sh
+```
+
+### 403 Forbidden (Amazon Linux)
+
+SELinux 설정 확인:
+
+```bash
+sudo setsebool -P httpd_can_network_connect 1
+```
+
+### 설정 파일 위치
+
+```bash
+# Amazon Linux 2023
+/etc/nginx/conf.d/msp-checklist.conf
+
+# Ubuntu
+/etc/nginx/sites-available/msp-checklist
+/etc/nginx/sites-enabled/msp-checklist  # 심볼릭 링크
+```
+
+## 📝 로그 확인
+
+```bash
+# 액세스 로그
+sudo tail -f /var/log/nginx/msp-access.log
+
+# 에러 로그
+sudo tail -f /var/log/nginx/msp-error.log
+```
+
+## ⚠️ AWS EC2 주의사항
+
+1. **보안 그룹**: 포트 80, 443 인바운드 허용 필요
+2. **탄력적 IP**: 고정 IP 사용 권장
+3. **도메인**: SSL 인증서 발급 전 도메인이 서버 IP를 가리켜야 함
