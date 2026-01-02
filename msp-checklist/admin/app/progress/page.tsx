@@ -14,6 +14,24 @@ interface AssessmentItem {
   met: boolean | null;
   partnerResponse?: string;
   lastUpdated?: string;
+  evidenceFiles?: EvidenceFile[];
+  evaluation?: EvaluationData;
+}
+
+interface EvidenceFile {
+  id: string;
+  fileName: string;
+  fileType: 'image' | 'pdf';
+  fileSize: number;
+  base64Data: string;
+  uploadedAt: string;
+  extractedText?: string;
+}
+
+interface EvaluationData {
+  score: number;
+  feedback: string;
+  evaluatedAt: string;
 }
 
 interface UserProgress {
@@ -48,6 +66,8 @@ export default function ProgressPage() {
   const [selectedType, setSelectedType] = useState<'all' | 'prerequisites' | 'technical'>('all');
   const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [viewingFile, setViewingFile] = useState<EvidenceFile | null>(null);
+  const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     setIsHydrated(true);
@@ -92,6 +112,25 @@ export default function ProgressPage() {
   const handleViewDetail = (userItem: UserProgress) => {
     setSelectedUser(userItem);
     setShowDetailModal(true);
+    setExpandedItems(new Set());
+  };
+
+  const toggleItemExpand = (itemId: string) => {
+    setExpandedItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(itemId)) {
+        newSet.delete(itemId);
+      } else {
+        newSet.add(itemId);
+      }
+      return newSet;
+    });
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   if (!isHydrated || loading) {
@@ -279,15 +318,71 @@ export default function ProgressPage() {
                     🚨 미완료 필수 항목 ({selectedUser.pendingMandatoryItems.length}개)
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {selectedUser.pendingMandatoryItems.slice(0, 5).map((item, idx) => (
-                      <div key={idx} style={{ padding: '12px 16px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#B91C1C' }}>{item.title}</div>
-                        <div style={{ fontSize: 12, color: '#DC2626', marginTop: 4 }}>{item.category}</div>
+                    {selectedUser.pendingMandatoryItems.slice(0, 10).map((item, idx) => (
+                      <div key={idx} style={{ background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 10, overflow: 'hidden' }}>
+                        <div 
+                          onClick={() => toggleItemExpand(`pending-${item.id}`)}
+                          style={{ padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#B91C1C' }}>{item.title}</div>
+                            <div style={{ fontSize: 12, color: '#DC2626', marginTop: 4 }}>{item.category}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <span style={{ padding: '2px 8px', background: '#FCA5A5', color: '#7F1D1D', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
+                                📎 {item.evidenceFiles.length}
+                              </span>
+                            )}
+                            <span style={{ fontSize: 18, color: '#DC2626' }}>{expandedItems.has(`pending-${item.id}`) ? '▼' : '▶'}</span>
+                          </div>
+                        </div>
+                        {expandedItems.has(`pending-${item.id}`) && (
+                          <div style={{ padding: '0 16px 16px', borderTop: '1px solid #FECACA' }}>
+                            {item.partnerResponse && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#991B1B', marginBottom: 4 }}>파트너 응답:</div>
+                                <div style={{ fontSize: 13, color: '#7F1D1D', background: '#FEE2E2', padding: 8, borderRadius: 6 }}>{item.partnerResponse}</div>
+                              </div>
+                            )}
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#991B1B', marginBottom: 8 }}>📎 증빙 파일 ({item.evidenceFiles.length}개):</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8 }}>
+                                  {item.evidenceFiles.map((file) => (
+                                    <div 
+                                      key={file.id} 
+                                      onClick={() => setViewingFile(file)}
+                                      style={{ 
+                                        padding: 8, background: 'white', borderRadius: 8, cursor: 'pointer',
+                                        border: '1px solid #FECACA', textAlign: 'center',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      {file.fileType === 'image' ? (
+                                        <img src={file.base64Data} alt={file.fileName} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 4 }} />
+                                      ) : (
+                                        <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FEE2E2', borderRadius: 4 }}>
+                                          <span style={{ fontSize: 24 }}>📄</span>
+                                        </div>
+                                      )}
+                                      <div style={{ fontSize: 10, color: '#7F1D1D', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.fileName}</div>
+                                      <div style={{ fontSize: 9, color: '#991B1B' }}>{formatFileSize(file.fileSize)}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {(!item.evidenceFiles || item.evidenceFiles.length === 0) && !item.partnerResponse && (
+                              <div style={{ marginTop: 12, fontSize: 13, color: '#991B1B', fontStyle: 'italic' }}>증빙 자료가 없습니다.</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
-                    {selectedUser.pendingMandatoryItems.length > 5 && (
+                    {selectedUser.pendingMandatoryItems.length > 10 && (
                       <div style={{ fontSize: 13, color: '#65676B', textAlign: 'center', padding: 8 }}>
-                        외 {selectedUser.pendingMandatoryItems.length - 5}개 항목...
+                        외 {selectedUser.pendingMandatoryItems.length - 10}개 항목...
                       </div>
                     )}
                   </div>
@@ -301,15 +396,82 @@ export default function ProgressPage() {
                     ⏳ 진행 중 항목 ({selectedUser.inProgressItems.length}개)
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {selectedUser.inProgressItems.slice(0, 5).map((item, idx) => (
-                      <div key={idx} style={{ padding: '12px 16px', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#B45309' }}>{item.title}</div>
-                        <div style={{ fontSize: 12, color: '#D97706', marginTop: 4 }}>{item.category}</div>
+                    {selectedUser.inProgressItems.slice(0, 10).map((item, idx) => (
+                      <div key={idx} style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, overflow: 'hidden' }}>
+                        <div 
+                          onClick={() => toggleItemExpand(`progress-${item.id}`)}
+                          style={{ padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#B45309' }}>{item.title}</div>
+                            <div style={{ fontSize: 12, color: '#D97706', marginTop: 4 }}>{item.category}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <span style={{ padding: '2px 8px', background: '#FCD34D', color: '#78350F', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
+                                📎 {item.evidenceFiles.length}
+                              </span>
+                            )}
+                            {item.evaluation && (
+                              <span style={{ padding: '2px 8px', background: '#FDE68A', color: '#78350F', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
+                                점수: {item.evaluation.score}
+                              </span>
+                            )}
+                            <span style={{ fontSize: 18, color: '#D97706' }}>{expandedItems.has(`progress-${item.id}`) ? '▼' : '▶'}</span>
+                          </div>
+                        </div>
+                        {expandedItems.has(`progress-${item.id}`) && (
+                          <div style={{ padding: '0 16px 16px', borderTop: '1px solid #FDE68A' }}>
+                            {item.partnerResponse && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>파트너 응답:</div>
+                                <div style={{ fontSize: 13, color: '#78350F', background: '#FEF3C7', padding: 8, borderRadius: 6 }}>{item.partnerResponse}</div>
+                              </div>
+                            )}
+                            {item.evaluation && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 4 }}>AI 평가 결과 (점수: {item.evaluation.score}/100):</div>
+                                <div style={{ fontSize: 13, color: '#78350F', background: '#FEF3C7', padding: 8, borderRadius: 6 }}>{item.evaluation.feedback}</div>
+                              </div>
+                            )}
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#92400E', marginBottom: 8 }}>📎 증빙 파일 ({item.evidenceFiles.length}개):</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8 }}>
+                                  {item.evidenceFiles.map((file) => (
+                                    <div 
+                                      key={file.id} 
+                                      onClick={() => setViewingFile(file)}
+                                      style={{ 
+                                        padding: 8, background: 'white', borderRadius: 8, cursor: 'pointer',
+                                        border: '1px solid #FDE68A', textAlign: 'center',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      {file.fileType === 'image' ? (
+                                        <img src={file.base64Data} alt={file.fileName} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 4 }} />
+                                      ) : (
+                                        <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#FEF3C7', borderRadius: 4 }}>
+                                          <span style={{ fontSize: 24 }}>📄</span>
+                                        </div>
+                                      )}
+                                      <div style={{ fontSize: 10, color: '#78350F', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.fileName}</div>
+                                      <div style={{ fontSize: 9, color: '#92400E' }}>{formatFileSize(file.fileSize)}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {(!item.evidenceFiles || item.evidenceFiles.length === 0) && !item.partnerResponse && (
+                              <div style={{ marginTop: 12, fontSize: 13, color: '#92400E', fontStyle: 'italic' }}>증빙 자료가 없습니다.</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
-                    {selectedUser.inProgressItems.length > 5 && (
+                    {selectedUser.inProgressItems.length > 10 && (
                       <div style={{ fontSize: 13, color: '#65676B', textAlign: 'center', padding: 8 }}>
-                        외 {selectedUser.inProgressItems.length - 5}개 항목...
+                        외 {selectedUser.inProgressItems.length - 10}개 항목...
                       </div>
                     )}
                   </div>
@@ -323,15 +485,82 @@ export default function ProgressPage() {
                     ✅ 완료된 항목 ({selectedUser.completedItems.length}개)
                   </h4>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {selectedUser.completedItems.slice(0, 5).map((item, idx) => (
-                      <div key={idx} style={{ padding: '12px 16px', background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#047857' }}>{item.title}</div>
-                        <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>{item.category}</div>
+                    {selectedUser.completedItems.slice(0, 10).map((item, idx) => (
+                      <div key={idx} style={{ background: '#ECFDF5', border: '1px solid #A7F3D0', borderRadius: 10, overflow: 'hidden' }}>
+                        <div 
+                          onClick={() => toggleItemExpand(`completed-${item.id}`)}
+                          style={{ padding: '12px 16px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+                        >
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#047857' }}>{item.title}</div>
+                            <div style={{ fontSize: 12, color: '#059669', marginTop: 4 }}>{item.category}</div>
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <span style={{ padding: '2px 8px', background: '#6EE7B7', color: '#064E3B', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
+                                📎 {item.evidenceFiles.length}
+                              </span>
+                            )}
+                            {item.evaluation && (
+                              <span style={{ padding: '2px 8px', background: '#A7F3D0', color: '#064E3B', borderRadius: 12, fontSize: 11, fontWeight: 600 }}>
+                                점수: {item.evaluation.score}
+                              </span>
+                            )}
+                            <span style={{ fontSize: 18, color: '#059669' }}>{expandedItems.has(`completed-${item.id}`) ? '▼' : '▶'}</span>
+                          </div>
+                        </div>
+                        {expandedItems.has(`completed-${item.id}`) && (
+                          <div style={{ padding: '0 16px 16px', borderTop: '1px solid #A7F3D0' }}>
+                            {item.partnerResponse && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#065F46', marginBottom: 4 }}>파트너 응답:</div>
+                                <div style={{ fontSize: 13, color: '#064E3B', background: '#D1FAE5', padding: 8, borderRadius: 6 }}>{item.partnerResponse}</div>
+                              </div>
+                            )}
+                            {item.evaluation && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#065F46', marginBottom: 4 }}>AI 평가 결과 (점수: {item.evaluation.score}/100):</div>
+                                <div style={{ fontSize: 13, color: '#064E3B', background: '#D1FAE5', padding: 8, borderRadius: 6 }}>{item.evaluation.feedback}</div>
+                              </div>
+                            )}
+                            {item.evidenceFiles && item.evidenceFiles.length > 0 && (
+                              <div style={{ marginTop: 12 }}>
+                                <div style={{ fontSize: 12, fontWeight: 600, color: '#065F46', marginBottom: 8 }}>📎 증빙 파일 ({item.evidenceFiles.length}개):</div>
+                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: 8 }}>
+                                  {item.evidenceFiles.map((file) => (
+                                    <div 
+                                      key={file.id} 
+                                      onClick={() => setViewingFile(file)}
+                                      style={{ 
+                                        padding: 8, background: 'white', borderRadius: 8, cursor: 'pointer',
+                                        border: '1px solid #A7F3D0', textAlign: 'center',
+                                        transition: 'all 0.2s'
+                                      }}
+                                    >
+                                      {file.fileType === 'image' ? (
+                                        <img src={file.base64Data} alt={file.fileName} style={{ width: '100%', height: 60, objectFit: 'cover', borderRadius: 4 }} />
+                                      ) : (
+                                        <div style={{ height: 60, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#D1FAE5', borderRadius: 4 }}>
+                                          <span style={{ fontSize: 24 }}>📄</span>
+                                        </div>
+                                      )}
+                                      <div style={{ fontSize: 10, color: '#064E3B', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{file.fileName}</div>
+                                      <div style={{ fontSize: 9, color: '#065F46' }}>{formatFileSize(file.fileSize)}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                            {(!item.evidenceFiles || item.evidenceFiles.length === 0) && !item.partnerResponse && (
+                              <div style={{ marginTop: 12, fontSize: 13, color: '#065F46', fontStyle: 'italic' }}>증빙 자료가 없습니다.</div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     ))}
-                    {selectedUser.completedItems.length > 5 && (
+                    {selectedUser.completedItems.length > 10 && (
                       <div style={{ fontSize: 13, color: '#65676B', textAlign: 'center', padding: 8 }}>
-                        외 {selectedUser.completedItems.length - 5}개 항목...
+                        외 {selectedUser.completedItems.length - 10}개 항목...
                       </div>
                     )}
                   </div>
@@ -359,6 +588,119 @@ export default function ProgressPage() {
       )}
 
       <style jsx global>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+
+      {/* 파일 미리보기 모달 */}
+      {viewingFile && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.8)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setViewingFile(null)}
+        >
+          <div 
+            style={{ 
+              maxWidth: '90vw', maxHeight: '90vh', background: 'white', 
+              borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div style={{ 
+              padding: '16px 20px', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', 
+              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
+            }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 700 }}>{viewingFile.fileName}</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                  {viewingFile.fileType === 'image' ? '🖼️ 이미지' : '📄 PDF'} • {formatFileSize(viewingFile.fileSize)}
+                  {viewingFile.uploadedAt && ` • ${new Date(viewingFile.uploadedAt).toLocaleDateString('ko-KR')}`}
+                </div>
+              </div>
+              <button 
+                onClick={() => setViewingFile(null)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: '50%', color: 'white', 
+                  fontSize: 20, cursor: 'pointer', display: 'flex', 
+                  alignItems: 'center', justifyContent: 'center' 
+                }}
+              >×</button>
+            </div>
+            
+            {/* 콘텐츠 */}
+            <div style={{ padding: 20, maxHeight: 'calc(90vh - 120px)', overflow: 'auto' }}>
+              {viewingFile.fileType === 'image' ? (
+                <img 
+                  src={viewingFile.base64Data} 
+                  alt={viewingFile.fileName}
+                  style={{ maxWidth: '100%', maxHeight: '70vh', display: 'block', margin: '0 auto', borderRadius: 8 }}
+                />
+              ) : (
+                <div>
+                  {viewingFile.base64Data.startsWith('data:application/pdf') ? (
+                    <iframe
+                      src={viewingFile.base64Data}
+                      style={{ width: '100%', height: '70vh', border: 'none', borderRadius: 8 }}
+                      title={viewingFile.fileName}
+                    />
+                  ) : (
+                    <div style={{ 
+                      padding: 24, background: '#F9FAFB', borderRadius: 8, 
+                      textAlign: 'center', color: '#65676B' 
+                    }}>
+                      <span style={{ fontSize: 48, display: 'block', marginBottom: 16 }}>📄</span>
+                      <div style={{ fontSize: 14 }}>PDF 미리보기를 지원하지 않습니다.</div>
+                      {viewingFile.extractedText && (
+                        <div style={{ marginTop: 16, textAlign: 'left' }}>
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>추출된 텍스트:</div>
+                          <div style={{ 
+                            fontSize: 13, color: '#1C1E21', background: 'white', 
+                            padding: 12, borderRadius: 6, border: '1px solid #E4E6EB',
+                            maxHeight: 300, overflow: 'auto', whiteSpace: 'pre-wrap'
+                          }}>
+                            {viewingFile.extractedText}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+            
+            {/* 푸터 */}
+            <div style={{ padding: '12px 20px', background: '#F0F2F5', borderTop: '1px solid #E4E6EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button 
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = viewingFile.base64Data;
+                  link.download = viewingFile.fileName;
+                  link.click();
+                }}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: '#1877F2', background: 'white', 
+                  border: '1px solid #1877F2', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                📥 다운로드
+              </button>
+              <button 
+                onClick={() => setViewingFile(null)}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: 'white', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

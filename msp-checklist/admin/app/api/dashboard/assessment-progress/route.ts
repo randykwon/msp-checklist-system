@@ -11,6 +11,24 @@ export interface AssessmentItemDetail {
   met: boolean | null;
   partnerResponse?: string;
   lastUpdated?: string;
+  evidenceFiles?: EvidenceFile[];
+  evaluation?: EvaluationData;
+}
+
+export interface EvidenceFile {
+  id: string;
+  fileName: string;
+  fileType: 'image' | 'pdf';
+  fileSize: number;
+  base64Data: string;
+  uploadedAt: string;
+  extractedText?: string;
+}
+
+export interface EvaluationData {
+  score: number;
+  feedback: string;
+  evaluatedAt: string;
 }
 
 export interface UserAssessmentProgress {
@@ -76,7 +94,9 @@ function calculateProgress(assessmentData: any[]) {
     evidenceRequired: item.evidenceRequired,
     met: item.met,
     partnerResponse: item.partnerResponse,
-    lastUpdated: item.lastUpdated?.toISOString()
+    lastUpdated: item.lastUpdated?.toISOString(),
+    evidenceFiles: item.evidenceFiles,
+    evaluation: item.evaluation
   }));
   
   return {
@@ -125,7 +145,9 @@ export async function GET(request: NextRequest) {
           evidenceRequired: item.evidenceRequired,
           met: item.met,
           partnerResponse: item.partnerResponse,
-          lastUpdated: item.lastUpdated?.toISOString()
+          lastUpdated: item.lastUpdated?.toISOString(),
+          evidenceFiles: item.evidenceFiles,
+          evaluation: item.evaluation
         }));
 
       const completedItems = allData
@@ -139,7 +161,9 @@ export async function GET(request: NextRequest) {
           evidenceRequired: item.evidenceRequired,
           met: item.met,
           partnerResponse: item.partnerResponse,
-          lastUpdated: item.lastUpdated?.toISOString()
+          lastUpdated: item.lastUpdated?.toISOString(),
+          evidenceFiles: item.evidenceFiles,
+          evaluation: item.evaluation
         }));
 
       const pendingMandatoryItems = allData
@@ -153,7 +177,9 @@ export async function GET(request: NextRequest) {
           evidenceRequired: item.evidenceRequired,
           met: item.met,
           partnerResponse: item.partnerResponse,
-          lastUpdated: item.lastUpdated?.toISOString()
+          lastUpdated: item.lastUpdated?.toISOString(),
+          evidenceFiles: item.evidenceFiles,
+          evaluation: item.evaluation
         }));
 
       userProgress.push({
