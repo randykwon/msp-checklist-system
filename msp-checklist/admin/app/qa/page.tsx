@@ -860,10 +860,35 @@ export default function QAPage() {
             <div style={{ padding: '12px 20px', background: '#F0F2F5', borderTop: '1px solid #E4E6EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
               <button 
                 onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = viewingFile.base64Data;
-                  link.download = viewingFile.fileName;
-                  link.click();
+                  try {
+                    // base64 데이터에서 실제 데이터 부분 추출
+                    const base64Data = viewingFile.base64Data;
+                    const [header, data] = base64Data.split(',');
+                    const mimeMatch = header.match(/data:([^;]+)/);
+                    const mimeType = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+                    
+                    // base64를 바이너리로 변환
+                    const byteCharacters = atob(data);
+                    const byteNumbers = new Array(byteCharacters.length);
+                    for (let i = 0; i < byteCharacters.length; i++) {
+                      byteNumbers[i] = byteCharacters.charCodeAt(i);
+                    }
+                    const byteArray = new Uint8Array(byteNumbers);
+                    const blob = new Blob([byteArray], { type: mimeType });
+                    
+                    // 다운로드 링크 생성
+                    const url = URL.createObjectURL(blob);
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.download = viewingFile.fileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    URL.revokeObjectURL(url);
+                  } catch (error) {
+                    console.error('Download error:', error);
+                    alert('다운로드 중 오류가 발생했습니다.');
+                  }
                 }}
                 style={{ 
                   padding: '10px 20px', fontSize: 14, fontWeight: 600, 
