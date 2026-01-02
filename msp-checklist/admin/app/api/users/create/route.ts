@@ -16,55 +16,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const { email, password, name, role, phone, organization } = await request.json();
+    const { email, password, name, role, organization, phone } = await request.json();
 
+    // 필수 필드 검증
     if (!email || !password || !name) {
-      return NextResponse.json(
-        { error: 'Email, password, and name are required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '이메일, 비밀번호, 이름은 필수입니다.' }, { status: 400 });
     }
 
-    if (role && !['user', 'operator', 'admin', 'superadmin'].includes(role)) {
-      return NextResponse.json(
-        { error: 'Invalid role. Must be "user", "operator", "admin", or "superadmin"' },
-        { status: 400 }
-      );
+    // 이메일 형식 검증
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return NextResponse.json({ error: '올바른 이메일 형식이 아닙니다.' }, { status: 400 });
     }
 
-    // Check if user already exists
+    // 비밀번호 길이 검증
+    if (password.length < 6) {
+      return NextResponse.json({ error: '비밀번호는 최소 6자 이상이어야 합니다.' }, { status: 400 });
+    }
+
+    // 이메일 중복 확인
     const existingUser = getUserByEmail(email);
     if (existingUser) {
-      return NextResponse.json(
-        { error: 'User with this email already exists' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: '이미 등록된 이메일입니다.' }, { status: 400 });
     }
 
-    // Hash password
+    // 역할 검증 (superadmin만 superadmin 생성 가능)
+    const allowedRoles = ['user', 'operator', 'admin'];
+    if (user.role === 'superadmin') {
+      allowedRoles.push('superadmin');
+    }
+    
+    const userRole = role && allowedRoles.includes(role) ? role : 'user';
+
+    // 비밀번호 해시
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const newUser = createUser(email, hashedPassword, name, role || 'user', phone, organization);
+    // 사용자 생성
+    const newUser = createUser(email, hashedPassword, name, userRole, phone, organization);
 
     return NextResponse.json({
-      message: 'User created successfully',
+      success: true,
+      message: '사용자가 생성되었습니다.',
       user: {
         id: newUser.id,
         email: newUser.email,
         name: newUser.name,
-        role: newUser.role,
-        status: newUser.status,
-        phone: newUser.phone,
-        organization: newUser.organization,
-        created_at: newUser.created_at
+        role: newUser.role
       }
     });
 
   } catch (error: any) {
     console.error('Error creating user:', error);
     return NextResponse.json(
-      { error: 'Failed to create user', details: error.message },
+      { error: '사용자 생성에 실패했습니다.', details: error.message },
       { status: 500 }
     );
   }

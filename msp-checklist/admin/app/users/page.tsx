@@ -27,6 +27,7 @@ export default function UsersPage() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPw, setShowNewPw] = useState(false);
@@ -35,6 +36,19 @@ export default function UsersPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [autoActivate, setAutoActivate] = useState(false);
   const [loadingAutoActivate, setLoadingAutoActivate] = useState(false);
+  
+  // 새 사용자 생성 폼 상태
+  const [newUserForm, setNewUserForm] = useState({
+    email: '',
+    password: '',
+    confirmPassword: '',
+    name: '',
+    role: 'user',
+    organization: '',
+    phone: ''
+  });
+  const [showCreatePw, setShowCreatePw] = useState(false);
+  const [showCreateConfirmPw, setShowCreateConfirmPw] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -134,6 +148,54 @@ export default function UsersPage() {
     finally { setActionLoading(false); }
   };
 
+  const handleCreateUser = async () => {
+    // 유효성 검사
+    if (!newUserForm.email || !newUserForm.password || !newUserForm.name) {
+      setMessage({ type: 'error', text: '이메일, 비밀번호, 이름은 필수입니다.' });
+      return;
+    }
+    if (newUserForm.password !== newUserForm.confirmPassword) {
+      setMessage({ type: 'error', text: '비밀번호가 일치하지 않습니다.' });
+      return;
+    }
+    if (newUserForm.password.length < 6) {
+      setMessage({ type: 'error', text: '비밀번호는 최소 6자 이상이어야 합니다.' });
+      return;
+    }
+    
+    setActionLoading(true);
+    try {
+      const response = await fetch('/api/users/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          email: newUserForm.email,
+          password: newUserForm.password,
+          name: newUserForm.name,
+          role: newUserForm.role,
+          organization: newUserForm.organization || undefined,
+          phone: newUserForm.phone || undefined
+        })
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setShowCreateModal(false);
+        setNewUserForm({ email: '', password: '', confirmPassword: '', name: '', role: 'user', organization: '', phone: '' });
+        setMessage({ type: 'success', text: '사용자가 생성되었습니다.' });
+        fetchUsers();
+      } else {
+        setMessage({ type: 'error', text: data.error || '사용자 생성에 실패했습니다.' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: '사용자 생성에 실패했습니다.' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     if (!isHydrated) return '';
     return new Date(dateString).toLocaleDateString('ko-KR', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -191,6 +253,26 @@ export default function UsersPage() {
                 <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>시스템 사용자들의 정보와 권한을 관리합니다</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                {/* 사용자 생성 버튼 */}
+                <button
+                  onClick={() => { setShowCreateModal(true); setMessage(null); }}
+                  style={{
+                    padding: '12px 20px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#1877F2',
+                    background: 'white',
+                    border: 'none',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                >
+                  ➕ 새 사용자
+                </button>
                 {/* 자동 활성화 토글 */}
                 <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div>
@@ -404,6 +486,151 @@ export default function UsersPage() {
                   <button onClick={() => { setShowPasswordModal(false); setNewPassword(''); setConfirmPassword(''); setShowNewPw(false); setShowConfirmPw(false); }} style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: 10, cursor: 'pointer' }}>취소</button>
                   <button onClick={handleResetPassword} disabled={actionLoading || newPassword.length < 6 || newPassword !== confirmPassword} style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: 'white', background: (actionLoading || newPassword.length < 6 || newPassword !== confirmPassword) ? '#FCD34D' : 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', border: 'none', borderRadius: 10, cursor: (actionLoading || newPassword.length < 6 || newPassword !== confirmPassword) ? 'not-allowed' : 'pointer' }}>
                     {actionLoading ? '재설정 중...' : '🔐 재설정'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 사용자 생성 모달 */}
+        {showCreateModal && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div style={{ width: '100%', maxWidth: 500, maxHeight: '90vh', borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>➕ 새 사용자 생성</h3>
+                <button onClick={() => { setShowCreateModal(false); setNewUserForm({ email: '', password: '', confirmPassword: '', name: '', role: 'user', organization: '', phone: '' }); }} style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 18, cursor: 'pointer' }}>×</button>
+              </div>
+              <div style={{ padding: 24, background: 'white', overflowY: 'auto', flex: 1 }}>
+                {/* 이름 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>이름 <span style={{ color: '#EF4444' }}>*</span></label>
+                  <input 
+                    type="text" 
+                    value={newUserForm.name} 
+                    onChange={(e) => setNewUserForm({...newUserForm, name: e.target.value})}
+                    placeholder="사용자 이름"
+                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                  />
+                </div>
+                
+                {/* 이메일 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>이메일 <span style={{ color: '#EF4444' }}>*</span></label>
+                  <input 
+                    type="email" 
+                    value={newUserForm.email} 
+                    onChange={(e) => setNewUserForm({...newUserForm, email: e.target.value})}
+                    placeholder="user@example.com"
+                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                  />
+                </div>
+                
+                {/* 비밀번호 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>비밀번호 <span style={{ color: '#EF4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showCreatePw ? 'text' : 'password'} 
+                      value={newUserForm.password} 
+                      onChange={(e) => setNewUserForm({...newUserForm, password: e.target.value})}
+                      placeholder="최소 6자 이상"
+                      style={{ width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                    />
+                    <button type="button" onClick={() => setShowCreatePw(!showCreatePw)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B' }}>
+                      {showCreatePw ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
+                
+                {/* 비밀번호 확인 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>비밀번호 확인 <span style={{ color: '#EF4444' }}>*</span></label>
+                  <div style={{ position: 'relative' }}>
+                    <input 
+                      type={showCreateConfirmPw ? 'text' : 'password'} 
+                      value={newUserForm.confirmPassword} 
+                      onChange={(e) => setNewUserForm({...newUserForm, confirmPassword: e.target.value})}
+                      placeholder="비밀번호를 다시 입력"
+                      style={{ width: '100%', padding: '12px 44px 12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                    />
+                    <button type="button" onClick={() => setShowCreateConfirmPw(!showCreateConfirmPw)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', color: '#65676B' }}>
+                      {showCreateConfirmPw ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                  {newUserForm.confirmPassword && newUserForm.password !== newUserForm.confirmPassword && (
+                    <p style={{ margin: '8px 0 0', fontSize: 12, color: '#EF4444' }}>❌ 비밀번호가 일치하지 않습니다</p>
+                  )}
+                  {newUserForm.confirmPassword && newUserForm.password === newUserForm.confirmPassword && newUserForm.password.length >= 6 && (
+                    <p style={{ margin: '8px 0 0', fontSize: 12, color: '#42B883' }}>✅ 비밀번호가 일치합니다</p>
+                  )}
+                </div>
+                
+                {/* 역할 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>역할</label>
+                  <select 
+                    value={newUserForm.role} 
+                    onChange={(e) => setNewUserForm({...newUserForm, role: e.target.value})}
+                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', cursor: 'pointer', boxSizing: 'border-box' }}
+                  >
+                    <option value="user">👤 일반 사용자</option>
+                    <option value="operator">⚙️ 운영자</option>
+                    <option value="admin">🛡️ 관리자</option>
+                    {user?.role === 'superadmin' && <option value="superadmin">👑 최고 관리자</option>}
+                  </select>
+                </div>
+                
+                {/* 소속 */}
+                <div style={{ marginBottom: 16 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>소속 (선택)</label>
+                  <input 
+                    type="text" 
+                    value={newUserForm.organization} 
+                    onChange={(e) => setNewUserForm({...newUserForm, organization: e.target.value})}
+                    placeholder="회사/조직명"
+                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                  />
+                </div>
+                
+                {/* 전화번호 */}
+                <div style={{ marginBottom: 24 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>전화번호 (선택)</label>
+                  <input 
+                    type="tel" 
+                    value={newUserForm.phone} 
+                    onChange={(e) => setNewUserForm({...newUserForm, phone: e.target.value})}
+                    placeholder="010-0000-0000"
+                    style={{ width: '100%', padding: '12px 16px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, background: 'white', color: '#1C1E21', boxSizing: 'border-box' }} 
+                  />
+                </div>
+                
+                {/* 버튼 */}
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button 
+                    onClick={() => { setShowCreateModal(false); setNewUserForm({ email: '', password: '', confirmPassword: '', name: '', role: 'user', organization: '', phone: '' }); }} 
+                    style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: 10, cursor: 'pointer' }}
+                  >
+                    취소
+                  </button>
+                  <button 
+                    onClick={handleCreateUser} 
+                    disabled={actionLoading || !newUserForm.email || !newUserForm.password || !newUserForm.name || newUserForm.password !== newUserForm.confirmPassword || newUserForm.password.length < 6}
+                    style={{ 
+                      flex: 1, 
+                      padding: '12px 20px', 
+                      fontSize: 14, 
+                      fontWeight: 600, 
+                      color: 'white', 
+                      background: (actionLoading || !newUserForm.email || !newUserForm.password || !newUserForm.name || newUserForm.password !== newUserForm.confirmPassword || newUserForm.password.length < 6) 
+                        ? '#9CA3AF' 
+                        : 'linear-gradient(135deg, #42B883 0%, #35495E 100%)', 
+                      border: 'none', 
+                      borderRadius: 10, 
+                      cursor: (actionLoading || !newUserForm.email || !newUserForm.password || !newUserForm.name || newUserForm.password !== newUserForm.confirmPassword || newUserForm.password.length < 6) ? 'not-allowed' : 'pointer' 
+                    }}
+                  >
+                    {actionLoading ? '생성 중...' : '✅ 생성'}
                   </button>
                 </div>
               </div>
