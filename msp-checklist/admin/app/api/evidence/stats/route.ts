@@ -1,11 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyToken } from '@/lib/auth';
+import { getSystemSetting } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
-const EVIDENCE_BASE_DIR = process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
-const PENDING_DIR = path.join(EVIDENCE_BASE_DIR, 'pending');
-const UPLOADED_DIR = path.join(EVIDENCE_BASE_DIR, 'uploaded');
+// DB에서 설정 읽기 (없으면 환경변수, 기본값 순)
+function getStoragePath(): string {
+  const dbPath = getSystemSetting('evidenceStoragePath');
+  if (dbPath && typeof dbPath === 'string' && dbPath.trim()) return dbPath;
+  return process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
+}
+
+function getS3Bucket(): string {
+  const dbBucket = getSystemSetting('evidenceS3Bucket');
+  if (dbBucket && typeof dbBucket === 'string' && dbBucket.trim()) return dbBucket;
+  return process.env.EVIDENCE_S3_BUCKET || '';
+}
+
+function getS3Prefix(): string {
+  const dbPrefix = getSystemSetting('evidenceS3Prefix');
+  if (dbPrefix && typeof dbPrefix === 'string' && dbPrefix.trim()) return dbPrefix;
+  return process.env.EVIDENCE_S3_PREFIX || 'evidence/';
+}
 
 function countFilesInDir(dir: string): { count: number; size: number } {
   let count = 0;
@@ -51,13 +67,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
     }
 
-    const pending = countFilesInDir(PENDING_DIR);
-    const uploaded = countFilesInDir(UPLOADED_DIR);
+    const storagePath = getStoragePath();
+    const s3Bucket = getS3Bucket();
+    const s3Prefix = getS3Prefix();
+    
+    const pendingDir = path.join(storagePath, 'pending');
+    const uploadedDir = path.join(storagePath, 'uploaded');
+
+    const pending = countFilesInDir(pendingDir);
+    const uploaded = countFilesInDir(uploadedDir);
     
     return NextResponse.json({
-      storagePath: EVIDENCE_BASE_DIR,
-      s3Bucket: process.env.EVIDENCE_S3_BUCKET || 'Not configured',
-      s3Prefix: process.env.EVIDENCE_S3_PREFIX || 'evidence-files',
+      storagePath,
+      s3Bucket: s3Bucket || '',
+      s3Prefix: s3Prefix || '',
       pending: {
         count: pending.count,
         size: pending.size,

@@ -2,15 +2,71 @@
  * 증빙 자료 파일 저장 관리
  * - EC2 로컬 폴더에 파일 저장
  * - S3 업로드 상태 추적
+ * - DB에서 설정 읽기
  */
 
 import fs from 'fs';
 import path from 'path';
+import Database from 'better-sqlite3';
 
-// 저장 경로 설정
-const EVIDENCE_BASE_DIR = process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
-const PENDING_DIR = path.join(EVIDENCE_BASE_DIR, 'pending'); // S3 업로드 대기
-const UPLOADED_DIR = path.join(EVIDENCE_BASE_DIR, 'uploaded'); // S3 업로드 완료
+// DB에서 설정 읽기
+function getSettingFromDB(key: string): string | null {
+  try {
+    const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+    if (!fs.existsSync(dbPath)) {
+      return null;
+    }
+    const db = new Database(dbPath, { readonly: true });
+    const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
+    const row = stmt.get(key) as { setting_value: string } | undefined;
+    db.close();
+    return row?.setting_value || null;
+  } catch (error) {
+    console.error('Failed to read setting from DB:', error);
+    return null;
+  }
+}
+
+// 저장 경로 설정 (DB 우선, 환경변수, 기본값 순)
+function getStoragePath(): string {
+  const dbPath = getSettingFromDB('evidenceStoragePath');
+  if (dbPath && dbPath.trim()) return dbPath;
+  return process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
+}
+
+function getS3Bucket(): string {
+  const dbBucket = getSettingFromDB('evidenceS3Bucket');
+  if (dbBucket && dbBucket.trim()) return dbBucket;
+  return process.env.EVIDENCE_S3_BUCKET || '';
+}
+
+function getS3Prefix(): string {
+  const dbPrefix = getSettingFromDB('evidenceS3Prefix');
+  if (dbPrefix && dbPrefix.trim()) return dbPrefix;
+  return process.env.EVIDENCE_S3_PREFIX || 'evidence/';
+}
+
+// 동적으로 경로 가져오기
+export function getEvidenceBasePath(): string {
+  return getStoragePath();
+}
+
+export function getPendingPath(): string {
+  return path.join(getStoragePath(), 'pending');
+}
+
+export function getUploadedPath(): string {
+  return path.join(getStoragePath(), 'uploaded');
+}
+
+export function getEvidenceS3Bucket(): string {
+  return getS3Bucket();
+}
+
+export function getEvidenceS3Prefix(): string {
+  return getS3Prefix();
+}
+
 
 export interface EvidenceFileInfo {
   id: string;
@@ -31,16 +87,20 @@ export interface EvidenceFileInfo {
  */
 export function initStorageDirectories(): void {
   try {
-    if (!fs.existsSync(EVIDENCE_BASE_DIR)) {
-      fs.mkdirSync(EVIDENCE_BASE_DIR, { recursive: true });
+    const baseDir = getEvidenceBasePath();
+    const pendingDir = getPendingPath();
+    const uploadedDir = getUploadedPath();
+    
+    if (!fs.existsSync(baseDir)) {
+      fs.mkdirSync(baseDir, { recursive: true });
     }
-    if (!fs.existsSync(PENDING_DIR)) {
-      fs.mkdirSync(PENDING_DIR, { recursive: true });
+    if (!fs.existsSync(pendingDir)) {
+      fs.mkdirSync(pendingDir, { recursive: true });
     }
-    if (!fs.existsSync(UPLOADED_DIR)) {
-      fs.mkdirSync(UPLOADED_DIR, { recursive: true });
+    if (!fs.existsSync(uploadedDir)) {
+      fs.mkdirSync(uploadedDir, { recursive: true });
     }
-    console.log('Evidence storage directories initialized:', EVIDENCE_BASE_DIR);
+    console.log('Evidence storage directories initialized:', baseDir);
   } catch (error) {
     console.error('Failed to initialize storage directories:', error);
   }
@@ -61,8 +121,10 @@ export function saveEvidenceFile(
   try {
     initStorageDirectories();
     
+    const pendingDir = getPendingPath();
+    
     // 사용자별 디렉토리 생성
-    const userDir = path.join(PENDING_DIR, `user_${userId}`, assessmentType);
+    const userDir = path.join(pendingDir, `user_${userId}`, assessmentType);
     if (!fs.existsSync(userDir)) {
       fs.mkdirSync(userDir, { recursive: true });
     }
@@ -132,9 +194,12 @@ export function deleteEvidenceFile(filePath: string): boolean {
  */
 export function markAsUploaded(filePath: string, s3Key: string): boolean {
   try {
+    const pendingDir = getPendingPath();
+    const uploadedDir = getUploadedPath();
+    
     const fileName = path.basename(filePath);
-    const relativePath = path.relative(PENDING_DIR, path.dirname(filePath));
-    const uploadedPath = path.join(UPLOADED_DIR, relativePath);
+    const relativePath = path.relative(pendingDir, path.dirname(filePath));
+    const uploadedPath = path.join(uploadedDir, relativePath);
     
     if (!fs.existsSync(uploadedPath)) {
       fs.mkdirSync(uploadedPath, { recursive: true });
@@ -169,9 +234,10 @@ export function markAsUploaded(filePath: string, s3Key: string): boolean {
  */
 export function getPendingFiles(): EvidenceFileInfo[] {
   const files: EvidenceFileInfo[] = [];
+  const pendingDir = getPendingPath();
   
   try {
-    if (!fs.existsSync(PENDING_DIR)) {
+    if (!fs.existsSync(pendingDir)) {
       return files;
     }
     
@@ -196,7 +262,7 @@ export function getPendingFiles(): EvidenceFileInfo[] {
       }
     };
     
-    walkDir(PENDING_DIR);
+    walkDir(pendingDir);
   } catch (error) {
     console.error('Failed to get pending files:', error);
   }
@@ -215,6 +281,9 @@ export function getStorageStats(): {
 } {
   let pendingCount = 0, pendingSize = 0;
   let uploadedCount = 0, uploadedSize = 0;
+  
+  const pendingDir = getPendingPath();
+  const uploadedDir = getUploadedPath();
   
   const countDir = (dir: string, isUploaded: boolean) => {
     if (!fs.existsSync(dir)) return;
@@ -242,10 +311,8 @@ export function getStorageStats(): {
     walkDir(dir);
   };
   
-  countDir(PENDING_DIR, false);
-  countDir(UPLOADED_DIR, true);
+  countDir(pendingDir, false);
+  countDir(uploadedDir, true);
   
   return { pendingCount, pendingSize, uploadedCount, uploadedSize };
 }
-
-export { EVIDENCE_BASE_DIR, PENDING_DIR, UPLOADED_DIR };

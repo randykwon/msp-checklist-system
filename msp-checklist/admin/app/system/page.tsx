@@ -34,6 +34,10 @@ export default function SystemPage() {
   const [evidenceUploadEnabled, setEvidenceUploadEnabled] = useState(false);
   const [updatingSettings, setUpdatingSettings] = useState(false);
   const [evidenceStats, setEvidenceStats] = useState<EvidenceStats | null>(null);
+  const [editingStorage, setEditingStorage] = useState(false);
+  const [storagePathInput, setStoragePathInput] = useState('');
+  const [s3BucketInput, setS3BucketInput] = useState('');
+  const [s3PrefixInput, setS3PrefixInput] = useState('');
 
   useEffect(() => {
     setIsHydrated(true);
@@ -60,9 +64,47 @@ export default function SystemPage() {
       if (response.ok) {
         const data = await response.json();
         setEvidenceStats(data);
+        setStoragePathInput(data.storagePath || '');
+        setS3BucketInput(data.s3Bucket || '');
+        setS3PrefixInput(data.s3Prefix || '');
       }
     } catch (error) {
       console.error('Failed to fetch evidence stats:', error);
+    }
+  };
+
+  const handleSaveStorageSettings = async () => {
+    setUpdatingSettings(true);
+    try {
+      // 저장 경로 설정
+      await fetch('/api/system/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'evidenceStoragePath', value: storagePathInput })
+      });
+      
+      // S3 버킷 설정
+      await fetch('/api/system/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'evidenceS3Bucket', value: s3BucketInput })
+      });
+      
+      // S3 접두사 설정
+      await fetch('/api/system/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'evidenceS3Prefix', value: s3PrefixInput })
+      });
+      
+      alert('저장소 설정이 저장되었습니다. 변경사항을 적용하려면 서버를 재시작해야 합니다.');
+      setEditingStorage(false);
+      fetchEvidenceStats();
+    } catch (error) {
+      console.error('Failed to save storage settings:', error);
+      alert('저장소 설정 저장에 실패했습니다.');
+    } finally {
+      setUpdatingSettings(false);
     }
   };
 
@@ -379,7 +421,65 @@ export default function SystemPage() {
         {/* 증빙 파일 저장소 통계 */}
         {evidenceStats && (
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">📁 증빙 파일 저장소</h3>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <h3 className="text-lg font-semibold text-gray-900">📁 증빙 파일 저장소</h3>
+              {!editingStorage ? (
+                <button
+                  onClick={() => setEditingStorage(true)}
+                  style={{
+                    padding: '6px 12px',
+                    fontSize: 13,
+                    fontWeight: 500,
+                    color: '#6366F1',
+                    background: '#EEF2FF',
+                    border: '1px solid #C7D2FE',
+                    borderRadius: 6,
+                    cursor: 'pointer'
+                  }}
+                >
+                  ✏️ 설정 편집
+                </button>
+              ) : (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={handleSaveStorageSettings}
+                    disabled={updatingSettings}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: 'white',
+                      background: updatingSettings ? '#9CA3AF' : '#10B981',
+                      border: 'none',
+                      borderRadius: 6,
+                      cursor: updatingSettings ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {updatingSettings ? '저장 중...' : '💾 저장'}
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingStorage(false);
+                      setStoragePathInput(evidenceStats.storagePath || '');
+                      setS3BucketInput(evidenceStats.s3Bucket || '');
+                      setS3PrefixInput(evidenceStats.s3Prefix || '');
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: 13,
+                      fontWeight: 500,
+                      color: '#6B7280',
+                      background: '#F3F4F6',
+                      border: '1px solid #D1D5DB',
+                      borderRadius: 6,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div style={{ 
                 padding: 16, 
@@ -412,17 +512,107 @@ export default function SystemPage() {
                 <div style={{ fontSize: 12, color: '#3730A3' }}>{evidenceStats.total.sizeFormatted}</div>
               </div>
             </div>
+            
+            {/* 저장소 설정 */}
             <div style={{ 
-              padding: 12, 
-              background: '#F3F4F6', 
+              padding: 16, 
+              background: '#F9FAFB', 
               borderRadius: 8,
-              fontSize: 13,
-              color: '#4B5563'
+              border: '1px solid #E5E7EB'
             }}>
-              <div style={{ marginBottom: 4 }}>📂 저장 경로: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.storagePath}</code></div>
-              <div style={{ marginBottom: 4 }}>☁️ S3 버킷: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.s3Bucket || '미설정'}</code></div>
-              <div>📁 S3 접두사: <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>{evidenceStats.s3Prefix || '미설정'}</code></div>
+              {editingStorage ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 4 }}>
+                      📂 로컬 저장 경로
+                    </label>
+                    <input
+                      type="text"
+                      value={storagePathInput}
+                      onChange={(e) => setStoragePathInput(e.target.value)}
+                      placeholder="/opt/msp-checklist-system/evidence-files"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        fontSize: 13,
+                        border: '1px solid #D1D5DB',
+                        borderRadius: 6,
+                        fontFamily: 'monospace'
+                      }}
+                    />
+                    <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>
+                      증빙 파일이 저장될 서버 내 경로입니다.
+                    </p>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 4 }}>
+                      ☁️ S3 버킷 이름
+                    </label>
+                    <input
+                      type="text"
+                      value={s3BucketInput}
+                      onChange={(e) => setS3BucketInput(e.target.value)}
+                      placeholder="my-evidence-bucket"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        fontSize: 13,
+                        border: '1px solid #D1D5DB',
+                        borderRadius: 6,
+                        fontFamily: 'monospace'
+                      }}
+                    />
+                    <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>
+                      증빙 파일을 업로드할 S3 버킷 이름입니다. 비워두면 S3 동기화가 비활성화됩니다.
+                    </p>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: 13, fontWeight: 500, color: '#374151', marginBottom: 4 }}>
+                      📁 S3 접두사 (Prefix)
+                    </label>
+                    <input
+                      type="text"
+                      value={s3PrefixInput}
+                      onChange={(e) => setS3PrefixInput(e.target.value)}
+                      placeholder="evidence/"
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        fontSize: 13,
+                        border: '1px solid #D1D5DB',
+                        borderRadius: 6,
+                        fontFamily: 'monospace'
+                      }}
+                    />
+                    <p style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>
+                      S3 버킷 내 파일이 저장될 경로 접두사입니다.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ fontSize: 13, color: '#4B5563' }}>
+                  <div style={{ marginBottom: 8 }}>
+                    <span style={{ fontWeight: 500 }}>📂 저장 경로:</span>{' '}
+                    <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>
+                      {evidenceStats.storagePath || '미설정'}
+                    </code>
+                  </div>
+                  <div style={{ marginBottom: 8 }}>
+                    <span style={{ fontWeight: 500 }}>☁️ S3 버킷:</span>{' '}
+                    <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>
+                      {evidenceStats.s3Bucket || '미설정'}
+                    </code>
+                  </div>
+                  <div>
+                    <span style={{ fontWeight: 500 }}>📁 S3 접두사:</span>{' '}
+                    <code style={{ background: '#E5E7EB', padding: '2px 6px', borderRadius: 4 }}>
+                      {evidenceStats.s3Prefix || '미설정'}
+                    </code>
+                  </div>
+                </div>
+              )}
             </div>
+            
             <button
               onClick={fetchEvidenceStats}
               style={{
