@@ -1031,16 +1031,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: '#FEE2E2',
+                    background: '#DCFCE7',
                     borderRadius: 12,
-                    border: '1px solid #F87171'
+                    border: '1px solid #86EFAC'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#B91C1C' }}>
+                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#166534' }}>
                           ⚠️ {t('assessmentItem.error')}
                         </h6>
-                        <div style={{ fontSize: 14, color: '#991B1B', lineHeight: '1.6' }}>{adviceError}</div>
+                        <div style={{ fontSize: 14, color: '#15803D', lineHeight: '1.6' }}>{adviceError}</div>
                       </div>
                       <button
                         onClick={handleAdviceClick}
@@ -1049,12 +1049,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                           padding: '10px 18px',
                           fontSize: 13,
                           fontWeight: 600,
-                          background: '#DC2626',
+                          background: 'linear-gradient(135deg, #22C55E 0%, #16A34A 100%)',
                           color: 'white',
                           border: 'none',
                           borderRadius: 8,
                           cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
-                          opacity: isLoadingAdvice ? 0.7 : 1
+                          opacity: isLoadingAdvice ? 0.7 : 1,
+                          boxShadow: '0 2px 4px rgba(34, 197, 94, 0.3)'
                         }}
                       >
                         {isLoadingAdvice ? t('assessmentItem.retrying') : t('assessmentItem.retry')}
@@ -1274,16 +1275,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {virtualEvidenceError && (
                 <div style={{
                   padding: 16,
-                  background: '#FEE2E2',
+                  background: '#EDE9FE',
                   borderRadius: 10,
-                  border: '1px solid #FECACA'
+                  border: '1px solid #C4B5FD'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#DC2626' }}>
+                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#6D28D9' }}>
                         ⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}
                       </h6>
-                      <div style={{ fontSize: 13, color: '#B91C1C' }}>{virtualEvidenceError}</div>
+                      <div style={{ fontSize: 13, color: '#7C3AED' }}>{virtualEvidenceError}</div>
                     </div>
                     <button
                       onClick={generateVirtualEvidence}
@@ -1292,12 +1293,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         padding: '8px 16px',
                         fontSize: 12,
                         fontWeight: 600,
-                        background: '#DC2626',
+                        background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 6,
                         cursor: isGeneratingVirtualEvidence ? 'not-allowed' : 'pointer',
-                        opacity: isGeneratingVirtualEvidence ? 0.7 : 1
+                        opacity: isGeneratingVirtualEvidence ? 0.7 : 1,
+                        boxShadow: '0 2px 4px rgba(139, 92, 246, 0.3)'
                       }}
                     >
                       {isGeneratingVirtualEvidence ? 
@@ -1555,18 +1557,29 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
 
                 {/* Evaluation Error */}
                 {evaluationError && (
-                  <div className="mt-3 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <div className="mt-3 rounded-lg p-3" style={{ background: '#CCFBF1', border: '1px solid #5EEAD4' }}>
                     <div className="flex items-center justify-between">
                       <div>
-                        <h6 className="text-sm font-semibold text-red-900 mb-1">
+                        <h6 className="text-sm font-semibold mb-1" style={{ color: '#0F766E' }}>
                           ⚠️ {t('assessmentItem.evaluationError')}
                         </h6>
-                        <div className="text-sm text-red-800">{evaluationError}</div>
+                        <div className="text-sm" style={{ color: '#0D9488' }}>{evaluationError}</div>
                       </div>
                       <button
                         onClick={handleEvaluateEvidence}
                         disabled={isEvaluating}
-                        className="px-3 py-1 text-xs bg-red-600 text-white rounded hover:bg-red-700 disabled:opacity-50"
+                        style={{
+                          padding: '6px 12px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: 'linear-gradient(135deg, #14B8A6 0%, #0D9488 100%)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: 6,
+                          cursor: isEvaluating ? 'not-allowed' : 'pointer',
+                          opacity: isEvaluating ? 0.7 : 1,
+                          boxShadow: '0 2px 4px rgba(20, 184, 166, 0.3)'
+                        }}
                       >
                         {isEvaluating ? 
                           t('assessmentItem.retrying') : 
