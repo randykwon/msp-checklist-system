@@ -93,6 +93,42 @@ detect_os() {
         OS_ID="unknown"
     fi
     log_info "OS: $OS_ID"
+    
+    # Nginx 설정 파일 경로 결정
+    if [ "$OS_ID" = "ubuntu" ]; then
+        NGINX_CONF="/etc/nginx/sites-available/msp-checklist"
+    else
+        NGINX_CONF="/etc/nginx/conf.d/msp-checklist.conf"
+    fi
+}
+
+# ACME challenge 경로 추가 (인증서 발급을 위해)
+add_acme_location() {
+    log_info "ACME challenge 경로 설정 중..."
+    
+    # 웹루트 디렉토리 생성
+    mkdir -p /var/www/html/.well-known/acme-challenge
+    chown -R nginx:nginx /var/www/html 2>/dev/null || chown -R www-data:www-data /var/www/html 2>/dev/null || true
+    chmod -R 755 /var/www/html
+    
+    # 기존 설정에 ACME location이 없으면 추가
+    if [ -f "$NGINX_CONF" ] && ! grep -q "\.well-known/acme-challenge" "$NGINX_CONF"; then
+        # location / 블록 앞에 ACME location 추가
+        sed -i '/location \/ {/i\
+    # ACME challenge for Let'\''s Encrypt\
+    location /.well-known/acme-challenge/ {\
+        root /var/www/html;\
+        allow all;\
+    }\
+' "$NGINX_CONF"
+        
+        log_success "ACME challenge 경로 추가됨"
+        
+        # Nginx 재시작
+        nginx -t && systemctl reload nginx
+    else
+        log_info "ACME challenge 경로가 이미 설정되어 있습니다"
+    fi
 }
 
 # Certbot 설치
@@ -131,7 +167,19 @@ obtain_certificate() {
         log_warning "이메일이 지정되지 않았습니다. 인증서 만료 알림을 받지 못합니다."
     fi
     
-    certbot $CERTBOT_OPTS
+    # 인증서 발급 시도
+    if ! certbot $CERTBOT_OPTS; then
+        log_error "Certbot 인증서 발급 실패"
+        echo ""
+        echo "문제 해결 방법:"
+        echo "  1. 도메인($DOMAIN)이 이 서버 IP를 가리키는지 확인"
+        echo "  2. AWS 보안 그룹에서 포트 80, 443이 열려있는지 확인"
+        echo "  3. 방화벽에서 포트 80, 443이 허용되어 있는지 확인"
+        echo ""
+        echo "수동으로 다시 시도:"
+        echo "  sudo certbot --nginx -d $DOMAIN"
+        exit 1
+    fi
     
     log_success "SSL 인증서 발급 완료"
 }
@@ -139,18 +187,6 @@ obtain_certificate() {
 # SSL 설정 최적화
 optimize_ssl_config() {
     log_info "SSL 설정 최적화 중..."
-    
-    # Nginx SSL 설정 디렉토리 결정
-    if [ "$OS_ID" = "ubuntu" ]; then
-        CONF_FILE="/etc/nginx/sites-available/msp-checklist"
-    else
-        CONF_FILE="/etc/nginx/conf.d/msp-checklist.conf"
-    fi
-    
-    # 설정 파일이 없으면 생성
-    if [ ! -f "$CONF_FILE" ]; then
-        log_warning "기존 Nginx 설정이 없습니다. 새로 생성합니다."
-    fi
     
     # SSL 최적화 설정 추가 (Certbot이 기본 설정을 추가하므로 추가 최적화만)
     cat > /etc/nginx/conf.d/ssl-params.conf << 'EOF'
@@ -228,6 +264,7 @@ show_complete() {
 main() {
     detect_os
     install_certbot
+    add_acme_location
     obtain_certificate
     optimize_ssl_config
     setup_auto_renewal
