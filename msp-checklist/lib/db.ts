@@ -783,9 +783,14 @@ export interface SystemSetting {
 }
 
 export function getSystemSetting(key: string): string | null {
-  const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
-  const row = stmt.get(key) as { setting_value: string } | undefined;
-  return row ? row.setting_value : null;
+  try {
+    const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
+    const row = stmt.get(key) as { setting_value: string } | undefined;
+    return row ? row.setting_value : null;
+  } catch (error) {
+    console.error(`[DB] Error getting system setting '${key}':`, error);
+    return null;
+  }
 }
 
 export function setSystemSetting(key: string, value: string, userId?: number): void {
@@ -814,8 +819,14 @@ export function getAllSystemSettings(): SystemSetting[] {
 }
 
 export function isAutoActivateEnabled(): boolean {
-  const value = getSystemSetting('auto_activate_users');
-  return value === 'true';
+  try {
+    const value = getSystemSetting('auto_activate_users');
+    console.log('[DB] isAutoActivateEnabled - setting value:', value);
+    return value === 'true';
+  } catch (error) {
+    console.error('[DB] Error checking auto_activate_users setting:', error);
+    return false;
+  }
 }
 
 // Initialize the database when the module is loaded

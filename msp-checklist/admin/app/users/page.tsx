@@ -49,6 +49,8 @@ export default function UsersPage() {
   });
   const [showCreatePw, setShowCreatePw] = useState(false);
   const [showCreateConfirmPw, setShowCreateConfirmPw] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -191,6 +193,33 @@ export default function UsersPage() {
       }
     } catch (error) {
       setMessage({ type: 'error', text: '사용자 생성에 실패했습니다.' });
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+    
+    setActionLoading(true);
+    try {
+      const response = await fetch(`/api/users/${userToDelete.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      
+      const data = await response.json();
+      
+      if (response.ok) {
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+        setMessage({ type: 'success', text: '사용자가 삭제되었습니다.' });
+        fetchUsers();
+      } else {
+        setMessage({ type: 'error', text: data.error || '사용자 삭제에 실패했습니다.' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: '사용자 삭제에 실패했습니다.' });
     } finally {
       setActionLoading(false);
     }
@@ -377,6 +406,22 @@ export default function UsersPage() {
                         <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
                           <button onClick={() => handleEditUser(userData)} style={{ flex: 1, padding: '10px 12px', fontSize: 12, fontWeight: 600, color: 'white', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', border: 'none', borderRadius: 8, cursor: 'pointer' }}>✏️ 편집</button>
                           <button onClick={() => { setSelectedUser(userData); setShowPasswordModal(true); setMessage(null); }} style={{ flex: 1, padding: '10px 12px', fontSize: 12, fontWeight: 600, color: 'white', background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', border: 'none', borderRadius: 8, cursor: 'pointer' }}>🔑 비밀번호</button>
+                          <button 
+                            onClick={() => { setUserToDelete(userData); setShowDeleteModal(true); setMessage(null); }} 
+                            disabled={userData.id === user?.userId}
+                            style={{ 
+                              padding: '10px 12px', 
+                              fontSize: 12, 
+                              fontWeight: 600, 
+                              color: 'white', 
+                              background: userData.id === user?.userId ? '#9CA3AF' : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', 
+                              border: 'none', 
+                              borderRadius: 8, 
+                              cursor: userData.id === user?.userId ? 'not-allowed' : 'pointer',
+                              opacity: userData.id === user?.userId ? 0.6 : 1
+                            }}
+                            title={userData.id === user?.userId ? '자신의 계정은 삭제할 수 없습니다' : '사용자 삭제'}
+                          >🗑️</button>
                         </div>
                       </div>
                     </div>
@@ -631,6 +676,67 @@ export default function UsersPage() {
                     }}
                   >
                     {actionLoading ? '생성 중...' : '✅ 생성'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* 사용자 삭제 확인 모달 */}
+        {showDeleteModal && userToDelete && (
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 50, padding: 20 }}>
+            <div style={{ width: '100%', maxWidth: 420, borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.2)' }}>
+              <div style={{ padding: '20px 24px', background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>🗑️ 사용자 삭제</h3>
+                <button onClick={() => { setShowDeleteModal(false); setUserToDelete(null); }} style={{ width: 32, height: 32, background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: '50%', color: 'white', fontSize: 18, cursor: 'pointer' }}>×</button>
+              </div>
+              <div style={{ padding: 24, background: 'white' }}>
+                <div style={{ padding: '16px 20px', background: '#FEF2F2', borderRadius: 12, marginBottom: 20, border: '1px solid #FECACA' }}>
+                  <p style={{ margin: 0, fontSize: 14, color: '#991B1B', lineHeight: 1.6 }}>
+                    <strong>⚠️ 경고:</strong> 이 작업은 되돌릴 수 없습니다.
+                  </p>
+                  <p style={{ margin: '12px 0 0', fontSize: 14, color: '#991B1B', lineHeight: 1.6 }}>
+                    다음 사용자를 삭제하시겠습니까?
+                  </p>
+                </div>
+                
+                <div style={{ padding: '16px 20px', background: '#F9FAFB', borderRadius: 12, marginBottom: 24, border: '1px solid #E5E7EB' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: '50%', background: 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontSize: 20, fontWeight: 700 }}>
+                      {userToDelete.name?.charAt(0)?.toUpperCase()}
+                    </div>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 16, color: '#1C1E21' }}>{userToDelete.name}</div>
+                      <div style={{ fontSize: 13, color: '#65676B' }}>{userToDelete.email}</div>
+                      <div style={{ fontSize: 12, color: '#8B8D91', marginTop: 4 }}>🏢 {userToDelete.organization || '소속 없음'}</div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div style={{ display: 'flex', gap: 12 }}>
+                  <button 
+                    onClick={() => { setShowDeleteModal(false); setUserToDelete(null); }} 
+                    style={{ flex: 1, padding: '12px 20px', fontSize: 14, fontWeight: 600, color: '#65676B', background: '#E4E6EB', border: 'none', borderRadius: 10, cursor: 'pointer' }}
+                  >
+                    취소
+                  </button>
+                  <button 
+                    onClick={handleDeleteUser} 
+                    disabled={actionLoading}
+                    style={{ 
+                      flex: 1, 
+                      padding: '12px 20px', 
+                      fontSize: 14, 
+                      fontWeight: 600, 
+                      color: 'white', 
+                      background: actionLoading ? '#F87171' : 'linear-gradient(135deg, #EF4444 0%, #F87171 100%)', 
+                      border: 'none', 
+                      borderRadius: 10, 
+                      cursor: actionLoading ? 'not-allowed' : 'pointer' 
+                    }}
+                  >
+                    {actionLoading ? '삭제 중...' : '🗑️ 삭제'}
                   </button>
                 </div>
               </div>
