@@ -1,10 +1,16 @@
 // 데이터베이스 유틸리티 함수들
 import Database from 'better-sqlite3';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// 데이터베이스 연결
+// 데이터베이스 연결 - Main 앱과 동일한 DB 파일 사용
 export function getDatabase() {
-  const dbPath = path.join(process.cwd(), '../msp-assessment.db');
+  // __dirname 대체 (ESM 환경)
+  // Admin 앱은 msp-checklist/admin에 있으므로, 상위 디렉토리의 msp-assessment.db를 사용
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const dbPath = path.resolve(currentDir, '../../msp-assessment.db');
+  
+  console.log('[Admin DB] Database path:', dbPath);
   return new Database(dbPath);
 }
 

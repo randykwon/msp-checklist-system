@@ -1,8 +1,15 @@
 // 메인 애플리케이션의 데이터베이스를 참조
 import Database from 'better-sqlite3';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const dbPath = path.join(process.cwd(), '../msp-assessment.db');
+// __dirname 대체 (ESM 환경)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Admin 앱은 msp-checklist/admin/lib에 있으므로, 상위 디렉토리의 msp-assessment.db를 사용
+const dbPath = path.resolve(__dirname, '../../msp-assessment.db');
+console.log('[Admin DB] Using database at:', dbPath);
 const db = new Database(dbPath);
 
 // Enable foreign keys

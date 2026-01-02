@@ -1,9 +1,16 @@
 import Database from 'better-sqlite3';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import bcrypt from 'bcryptjs';
 import { AssessmentItem } from './csv-parser';
 
-const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+// __dirname 대체 (ESM 환경)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Main 앱은 msp-checklist/lib에 있으므로, 상위 디렉토리의 msp-assessment.db를 사용
+const dbPath = path.resolve(__dirname, '../msp-assessment.db');
+console.log('[Main DB] Using database at:', dbPath);
 const db = new Database(dbPath);
 
 // Enable foreign keys
