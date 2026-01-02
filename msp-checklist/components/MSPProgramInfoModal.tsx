@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { createMarkdownHtml } from '@/lib/markdown-parser';
 
 interface MSPProgramSection {
   id: string;
@@ -13,6 +14,153 @@ interface MSPProgramSection {
 }
 
 const mspProgramSections: MSPProgramSection[] = [
+  {
+    id: 'journey',
+    title: 'MSP Partner Journey',
+    titleKo: 'MSP 파트너 여정',
+    icon: '🗺️',
+    content: `AWS MSP Partner Journey: A Step-by-Step Guide to Success
+
+The AWS MSP Partner journey consists of six key stages that guide partners from initial discussion to continuous growth.
+
+**1. Discussion 💬**
+Discussion with AWS Partner Manager
+• Cloud MSP business model development, key considerations
+• Discuss with AWS Partner Manager for guidance and support
+
+**2. Learning 📚**
+Understanding Program Requirements
+• Review AWS MSP Program Guide to understand requirements
+• Learn about MSP practices
+
+Understanding Next-Gen MSP
+• Understand DevOps-based operational models through APN blog posts
+• Learn about right-sizing development
+
+Checklist & Adjustment Guide Mastery
+• Master MSP Program Checklist (VCL) requirements
+• Understand adjustment guides and prepare with AWS Partner team
+
+**3. Build 🏗️**
+Best Practice Documentation
+• Build MSP practices processes using updated checklists and adjustment guides
+
+Leverage Best Practice Documents
+• Prepare evidence using MSP guides and adjustment documents provided in Partner Central
+
+Participate in Build Workshops (Recommended)
+• Participate in workshops with AWS service team constraints to understand MSP requirements
+
+**4. Assessment 📋**
+Hybrid Audit Model Introduction
+• "Challenge First" approach - submit documents for initial review, then conduct detailed review after passing
+
+Self-Assessment Spreadsheet Completion
+• Complete self-assessment spreadsheet with evidence
+• Submit via email within 33 days
+
+Full Audit
+• 90-day PERSON audit
+• Receive final results and feedback
+
+**5. Market Launch 🚀**
+Official AWS MSP Partner Registration
+• Upon program achievement, AWS MSP Partner officially registered in Partner Central
+• Unlock benefits and services
+
+GTM Strategy Acceleration
+• Accelerate go-to-market strategy using Marketing Central
+• Establish market entry strategy
+
+Program Achievement Benefits:
+• $50K MDF funding
+• $25K MDF additional funding
+• MSP Partner badge (3 years)
+• 1 year free
+
+GTM Support
+• MSP Partner GTM support
+• MSP Essentials access
+
+Visibility (Enablement)
+• AWS Partner Solutions Finder
+• Marketplace listing
+
+**6. Growth 🌳**
+Differentiation for Additional Growth
+• AWS DevOps Competency, additional competencies
+• Expand services through differentiation
+
+Program Innovation & Continuous Development
+• Continuous improvement with AWS MSP Program
+• Enhance service quality through partner collaboration
+
+3-Year Review & Renewal Process
+• Annual review and renewal every 3 years
+• Maintain certification through continuous improvement`,
+    contentKo: `AWS MSP 파트너 여정: 성공을 향한 단계별 가이드
+
+AWS MSP 파트너 여정은 초기 논의부터 지속적인 성장까지 파트너를 안내하는 6가지 핵심 단계로 구성됩니다.
+
+**1. 논의 💬**
+AWS 파트너 관리자와의 논의
+• 클라우드 MSP 비즈니스 모델 구축, 주요 고려사항
+• AWS 파트너 관리자와 상담 시작
+
+**2. 학습 📚**
+프로그램 요구사항 파악
+• AWS MSP 프로그램 가이드를 검토하여 프로그램 요구사항에 대해 학습하고 MSP 프랙티스 구축을 시작합니다.
+
+차세대 MSP 이해
+• APN 블로그의 성공 사례를 통해 DevOps 기반 운영모델을 이해하고 라이트사이징 개발을 학습합니다.
+
+검증 체크리스트 및 조정 가이드 숙지
+• MSP 프로그램 검증 체크리스트(VCL)의 요구사항을 이해하고, 조정 가이드를 숙지하여 AWS 파트너팀과 함께 준비합니다.
+
+**3. 구축 🏗️**
+모범 사례 문서 활용
+• 최신 버전의 검증 체크리스트와 조정 도구 가이드를 활용하여 MSP 프랙티스의 프로세스를 구축합니다.
+
+모범 사례 문서 활용
+• Partner Central에서 제공하는 MSP 검증 체크리스트와 조정 가이드를 활용하여 증빙 자료를 준비합니다.
+
+빌드 워크숍 참여 (권장)
+• AWS 서비스 팀에서 여러 제한사항으로 제한되는 워크숍에 참여하여 MSP 요구사항을 이해합니다.
+
+**4. 평가 📋**
+하이브리드 감사 모형 도입
+• 챌린지는 "먼저 도전 제안" 방식을 먼저 검증하여 통과한 후, 제3자 감사 기관과 기술 검증을 진행하는 절차입니다.
+
+1. 자체 평가 스프레드시트 완료
+• 자체 평가 스프레드시트를 증빙 자료와 함께 작성하여 AWS MSP 프로그램 팀에 이메일로 제출합니다.
+• 감사 이메일 도착 후 33일 이내에 제출해야 합니다.
+
+2. 정식 감사 (Full Audit)
+• 90일간 PERSON 감사를 받고 최종 결과 및 피드백을 수령합니다.
+
+**5. 시장 출시 🚀**
+AWS MSP 파트너로 공식 등재
+• 프로그램 달성 시, AWS MSP 파트너로 공식적으로 Partner Central에 등록되어 혜택과 서비스를 활용할 수 있습니다.
+
+GTM 전략 가속화
+• Marketing Central의 기능 이해를 바탕으로 활용하여 서비스 모델을 빠르게 시장 진출 전략을 정립합니다.
+
+프로그램 달성 혜택:
+• 펀딩: $50K MDF 펀딩, $25K MDF 추가 펀딩
+• 가시성: MSP 파트너배지(3년), 1년 무료
+• GTM 지원: MSP 파트너 GTM 지원, MSP Essentials 이용 자격
+• 전문성 강화(Enablement): AWS Partner Solutions Finder, Marketplace 리스팅 등
+
+**6. 성장 🌳**
+차별화를 통한 추가 성장
+• AWS DevOps 컴피턴시, 어드밴스드 컴피턴시 등 다른 프로그램을 통해서 서비스를 더욱 차별화합니다.
+
+프로그램 혁신 및 지속적인 발전
+• AWS MSP 프로그램과 함께, 파트너사 협업을 통해 서비스의 수준을 높이고 비즈니스 성장을 도모합니다.
+
+3년 주기 감사 및 갱신 프로세스
+• 3년마다 1년간의 갱신 감사를 받아야 하며 인증을 유지하기 위해 기준을 충족해야 합니다.`
+  },
   {
     id: 'overview',
     title: 'Program Overview',
@@ -256,7 +404,7 @@ interface MSPProgramInfoModalProps {
 
 export default function MSPProgramInfoModal({ isOpen, onClose }: MSPProgramInfoModalProps) {
   const { language } = useLanguage();
-  const [selectedSection, setSelectedSection] = useState<string>('overview');
+  const [selectedSection, setSelectedSection] = useState<string>('journey');
 
   if (!isOpen) return null;
 
@@ -318,14 +466,16 @@ export default function MSPProgramInfoModal({ isOpen, onClose }: MSPProgramInfoM
 
           {/* Content */}
           <div className="fb-modal-body fb-modal-scrollable" style={{ flex: 1 }}>
-            <div style={{ 
-              color: 'var(--fb-text-primary)', 
-              lineHeight: '1.6', 
-              whiteSpace: 'pre-line',
-              fontSize: 'var(--fb-font-size-base)'
-            }}>
-              {language === 'ko' ? currentSection?.contentKo : currentSection?.content}
-            </div>
+            <div 
+              style={{ 
+                color: 'var(--fb-text-primary)', 
+                lineHeight: '1.6', 
+                fontSize: 'var(--fb-font-size-base)'
+              }}
+              dangerouslySetInnerHTML={createMarkdownHtml(
+                language === 'ko' ? currentSection?.contentKo || '' : currentSection?.content || ''
+              )}
+            />
           </div>
 
           {/* Footer */}
