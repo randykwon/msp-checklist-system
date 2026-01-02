@@ -167,6 +167,23 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   const [editingPdfText, setEditingPdfText] = useState<string | null>(null);
   const [pdfTextInput, setPdfTextInput] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [evidenceUploadEnabled, setEvidenceUploadEnabled] = useState(false);
+
+  // 시스템 설정에서 증빙 업로드 활성화 여부 확인
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const response = await fetch('/api/system/settings');
+        if (response.ok) {
+          const data = await response.json();
+          setEvidenceUploadEnabled(data.evidenceUploadEnabled || false);
+        }
+      } catch (error) {
+        console.error('Failed to fetch system settings:', error);
+      }
+    };
+    fetchSettings();
+  }, []);
 
   // 하이드레이션 완료 후 초기화
   useEffect(() => {
@@ -1363,6 +1380,17 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             }}>
               <h5 style={{ margin: 0, fontSize: 14, fontWeight: 600 }}>
                 📎 {t('assessmentItem.evidenceUpload')}
+                {!evidenceUploadEnabled && (
+                  <span style={{ 
+                    marginLeft: 8, 
+                    padding: '2px 8px', 
+                    background: 'rgba(255,255,255,0.3)', 
+                    borderRadius: 10, 
+                    fontSize: 10 
+                  }}>
+                    {itemLanguage === 'ko' ? '비활성화됨' : 'Disabled'}
+                  </span>
+                )}
               </h5>
               <div style={{ display: 'flex', gap: 8 }}>
                 <input
@@ -1372,20 +1400,22 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   accept="image/*,application/pdf"
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
+                  disabled={!evidenceUploadEnabled}
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={isProcessingPdf}
+                  disabled={isProcessingPdf || !evidenceUploadEnabled}
+                  title={!evidenceUploadEnabled ? (itemLanguage === 'ko' ? '관리자가 업로드 기능을 비활성화했습니다' : 'Upload feature is disabled by admin') : ''}
                   style={{
                     padding: '6px 12px',
                     fontSize: 12,
                     fontWeight: 600,
-                    background: 'white',
-                    color: '#14B8A6',
+                    background: evidenceUploadEnabled ? 'white' : 'rgba(255,255,255,0.5)',
+                    color: evidenceUploadEnabled ? '#14B8A6' : '#6B7280',
                     border: 'none',
                     borderRadius: 6,
-                    cursor: isProcessingPdf ? 'not-allowed' : 'pointer',
-                    opacity: isProcessingPdf ? 0.7 : 1
+                    cursor: (isProcessingPdf || !evidenceUploadEnabled) ? 'not-allowed' : 'pointer',
+                    opacity: (isProcessingPdf || !evidenceUploadEnabled) ? 0.7 : 1
                   }}
                 >
                   {isProcessingPdf ? 
@@ -1595,10 +1625,21 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             {/* Upload Instructions */}
             {evidenceFiles.length === 0 && (
               <div className="text-sm text-gray-500 bg-gray-50 p-3 rounded-lg">
-                💡 {itemLanguage === 'ko' ? 
-                  '증빙 자료를 이미지 또는 PDF 파일로 업로드하세요. 문서, 스크린샷, 차트, 보고서 등을 포함할 수 있습니다. (최대 10MB, 여러 파일 선택 가능)' :
-                  'Upload your evidence documents as images or PDF files. You can include documents, screenshots, charts, reports, etc. (Max 10MB, multiple files allowed)'
-                }
+                {evidenceUploadEnabled ? (
+                  <>
+                    💡 {itemLanguage === 'ko' ? 
+                      '증빙 자료를 이미지 또는 PDF 파일로 업로드하세요. 문서, 스크린샷, 차트, 보고서 등을 포함할 수 있습니다. (최대 10MB, 여러 파일 선택 가능)' :
+                      'Upload your evidence documents as images or PDF files. You can include documents, screenshots, charts, reports, etc. (Max 10MB, multiple files allowed)'
+                    }
+                  </>
+                ) : (
+                  <>
+                    🚫 {itemLanguage === 'ko' ? 
+                      '증빙 자료 업로드 기능이 현재 비활성화되어 있습니다. 관리자에게 문의하세요.' :
+                      'Evidence upload feature is currently disabled. Please contact the administrator.'
+                    }
+                  </>
+                )}
               </div>
             )}
             </div>

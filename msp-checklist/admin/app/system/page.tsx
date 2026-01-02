@@ -22,6 +22,8 @@ export default function SystemPage() {
   const [isHydrated, setIsHydrated] = useState(false);
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [loadingSystem, setLoadingSystem] = useState(true);
+  const [evidenceUploadEnabled, setEvidenceUploadEnabled] = useState(false);
+  const [updatingSettings, setUpdatingSettings] = useState(false);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -35,10 +37,47 @@ export default function SystemPage() {
 
     if (user && user.role === 'superadmin') {
       fetchSystemInfo();
+      fetchSettings();
     } else if (user && user.role !== 'superadmin') {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/system/settings');
+      if (response.ok) {
+        const data = await response.json();
+        setEvidenceUploadEnabled(data.evidenceUploadEnabled || false);
+      }
+    } catch (error) {
+      console.error('Failed to fetch settings:', error);
+    }
+  };
+
+  const handleToggleEvidenceUpload = async () => {
+    setUpdatingSettings(true);
+    try {
+      const newValue = !evidenceUploadEnabled;
+      const response = await fetch('/api/system/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: 'evidenceUploadEnabled', value: newValue })
+      });
+      
+      if (response.ok) {
+        setEvidenceUploadEnabled(newValue);
+        alert(`증빙 자료 업로드 기능이 ${newValue ? '활성화' : '비활성화'}되었습니다.`);
+      } else {
+        alert('설정 변경에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('Failed to update setting:', error);
+      alert('설정 변경 중 오류가 발생했습니다.');
+    } finally {
+      setUpdatingSettings(false);
+    }
+  };
 
   const fetchSystemInfo = async () => {
     try {
@@ -194,6 +233,68 @@ export default function SystemPage() {
 
         {/* 시스템 관리 작업 */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* 기능 설정 */}
+          <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">🎛️ 기능 설정</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div>
+                  <h4 className="text-sm font-medium text-gray-900">📎 증빙 자료 업로드</h4>
+                  <p className="text-sm text-gray-500">사용자가 증빙 자료를 업로드할 수 있는 기능</p>
+                </div>
+                <button
+                  onClick={handleToggleEvidenceUpload}
+                  disabled={updatingSettings}
+                  style={{
+                    position: 'relative',
+                    width: 56,
+                    height: 28,
+                    borderRadius: 14,
+                    border: 'none',
+                    cursor: updatingSettings ? 'not-allowed' : 'pointer',
+                    background: evidenceUploadEnabled 
+                      ? 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' 
+                      : '#E4E6EB',
+                    transition: 'all 0.3s ease',
+                    opacity: updatingSettings ? 0.7 : 1
+                  }}
+                >
+                  <span style={{
+                    position: 'absolute',
+                    top: 2,
+                    left: evidenceUploadEnabled ? 30 : 2,
+                    width: 24,
+                    height: 24,
+                    borderRadius: '50%',
+                    background: 'white',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                    transition: 'left 0.3s ease'
+                  }} />
+                </button>
+              </div>
+              <div style={{ 
+                padding: 12, 
+                background: evidenceUploadEnabled ? '#ECFDF5' : '#FEF2F2', 
+                borderRadius: 8,
+                border: `1px solid ${evidenceUploadEnabled ? '#A7F3D0' : '#FECACA'}`
+              }}>
+                <div style={{ 
+                  fontSize: 13, 
+                  color: evidenceUploadEnabled ? '#047857' : '#B91C1C',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 8
+                }}>
+                  {evidenceUploadEnabled ? (
+                    <>✅ 증빙 자료 업로드 기능이 활성화되어 있습니다.</>
+                  ) : (
+                    <>🚫 증빙 자료 업로드 기능이 비활성화되어 있습니다.</>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">캐시 관리</h3>
             <div className="space-y-4">

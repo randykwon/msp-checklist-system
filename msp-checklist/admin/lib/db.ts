@@ -548,3 +548,96 @@ export function deleteAllUserData(userId: number): void {
 }
 
 export default db;
+
+// System settings functions
+export interface SystemSettings {
+  evidenceUploadEnabled: boolean;
+  [key: string]: any;
+}
+
+// 시스템 설정 테이블 생성 (없으면)
+try {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS system_settings (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL,
+      updated_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+  
+  // 기본 설정 삽입 (없으면)
+  const insertDefault = db.prepare(`
+    INSERT OR IGNORE INTO system_settings (key, value) VALUES (?, ?)
+  `);
+  insertDefault.run('evidenceUploadEnabled', 'false');
+} catch (e) {
+  console.error('Error initializing system_settings table:', e);
+}
+
+export function getSystemSettings(): SystemSettings {
+  try {
+    const stmt = db.prepare('SELECT key, value FROM system_settings');
+    const rows = stmt.all() as { key: string; value: string }[];
+    
+    const settings: SystemSettings = {
+      evidenceUploadEnabled: false
+    };
+    
+    for (const row of rows) {
+      if (row.value === 'true') {
+        settings[row.key] = true;
+      } else if (row.value === 'false') {
+        settings[row.key] = false;
+      } else {
+        try {
+          settings[row.key] = JSON.parse(row.value);
+        } catch {
+          settings[row.key] = row.value;
+        }
+      }
+    }
+    
+    return settings;
+  } catch (e) {
+    console.error('Error getting system settings:', e);
+    return { evidenceUploadEnabled: false };
+  }
+}
+
+export function getSystemSetting(key: string): any {
+  try {
+    const stmt = db.prepare('SELECT value FROM system_settings WHERE key = ?');
+    const row = stmt.get(key) as { value: string } | undefined;
+    
+    if (!row) return null;
+    
+    if (row.value === 'true') return true;
+    if (row.value === 'false') return false;
+    
+    try {
+      return JSON.parse(row.value);
+    } catch {
+      return row.value;
+    }
+  } catch (e) {
+    console.error('Error getting system setting:', e);
+    return null;
+  }
+}
+
+export function updateSystemSetting(key: string, value: any): void {
+  try {
+    const stringValue = typeof value === 'boolean' ? String(value) : 
+                        typeof value === 'object' ? JSON.stringify(value) : String(value);
+    
+    const stmt = db.prepare(`
+      INSERT INTO system_settings (key, value, updated_at) 
+      VALUES (?, ?, datetime('now'))
+      ON CONFLICT(key) DO UPDATE SET value = ?, updated_at = datetime('now')
+    `);
+    stmt.run(key, stringValue, stringValue);
+  } catch (e) {
+    console.error('Error updating system setting:', e);
+    throw e;
+  }
+}
