@@ -11,11 +11,8 @@ pids
 *.pid.lock
 
 # Logs
-logs
+logs/
 *.log
-server.log
-admin-server.log
-file-watcher.log
 
 # Environment variables
 .env
@@ -33,11 +30,6 @@ file-watcher.log
 
 # OS generated files
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
 Thumbs.db
 
 # Build outputs
@@ -48,7 +40,6 @@ out/
 
 # Cache directories
 .cache/
-.parcel-cache/
 
 # Temporary files
 tmp/
@@ -58,107 +49,28 @@ temp/
 # Database files
 *.db
 *.sqlite
-*.sqlite3
 
 # Backup files
 *.bak
 *.backup
 
-# Coverage directory used by tools like istanbul
+# Coverage
 coverage/
-*.lcov
-
-# nyc test coverage
 .nyc_output
 
-# Dependency directories
-jspm_packages/
-
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# Microbundle cache
-.rpt2_cache/
-.rts2_cache_cjs/
-.rts2_cache_es/
-.rts2_cache_umd/
-
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# dotenv environment variables file
-.env.test
-
-# parcel-bundler cache (https://parceljs.org/)
-.parcel-cache
-
-# Next.js build output
-.next
-
-# Nuxt.js build / generate output
-.nuxt
-dist
-
-# Gatsby files
-.cache/
-public
-
-# Storybook build outputs
-.out
-.storybook-out
-
-# Temporary folders
-tmp/
-temp/
-
-# Editor directories and files
-.vscode/
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
-
-# Local development files
-cookies.txt
-
 # Process ID files
+*.pid
 .admin-server.pid
 .main-server.pid
 
-# Kiro specific
+# Kiro/Claude specific
 .kiro/
 .claude/
 
-# AWS and deployment secrets
+# AWS secrets
 *.pem
 *.key
-terraform.tfstate*
-.terraform/
-terraform.tfvars
-!terraform.tfvars.example
+awscliv2.zip
 
-# Docker
-.dockerignore
-Dockerfile.dev
-
-# MacOS
-.DS_Store
-
-# Windows
-Thumbs.db
-ehthumbs.db
-Desktop.ini
-
-# Linux
-*~
+# Cookies
+cookies.txt
