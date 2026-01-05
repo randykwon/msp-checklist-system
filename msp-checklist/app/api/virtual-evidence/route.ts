@@ -52,6 +52,19 @@ export async function POST(request: NextRequest) {
                               evidenceRequired.toLowerCase().includes('차트') ||
                               evidenceRequired.toLowerCase().includes('인포그래픽');
 
+    // 카테고리별 특화된 컨텍스트 분석 (더미 데이터 생성에서도 사용)
+    const getItemCategory = (id: string) => {
+      if (id.startsWith('BUS')) return 'Business';
+      if (id.startsWith('PEO')) return 'People';
+      if (id.startsWith('GOV')) return 'Governance';
+      if (id.startsWith('PLAT')) return 'Platform';
+      if (id.startsWith('SEC')) return 'Security';
+      if (id.startsWith('OPS')) return 'Operations';
+      return 'General';
+    };
+
+    const itemCategory = getItemCategory(itemId);
+
     // LLM 서비스 초기화
     const llmService = createLLMService();
 
@@ -202,19 +215,6 @@ ${needsVisualContent ? `
         isDummy: true 
       });
     }
-
-    // 카테고리별 특화된 컨텍스트 분석
-    const getItemCategory = (itemId: string) => {
-      if (itemId.startsWith('BUS')) return 'Business';
-      if (itemId.startsWith('PEO')) return 'People';
-      if (itemId.startsWith('GOV')) return 'Governance';
-      if (itemId.startsWith('PLAT')) return 'Platform';
-      if (itemId.startsWith('SEC')) return 'Security';
-      if (itemId.startsWith('OPS')) return 'Operations';
-      return 'General';
-    };
-
-    const itemCategory = getItemCategory(itemId);
 
     // 언어에 따른 프롬프트 설정
     const systemMessage = language === 'ko' ? 
