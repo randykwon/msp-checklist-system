@@ -86,6 +86,34 @@ sudo ./scripts/nginx/setup-nginx-ssl.sh -d example.com -e admin@example.com
 ./scripts/deploy/deploy-update.sh
 ```
 
+## 🧪 테스트
+
+```bash
+# 전체 기능 테스트 (Bash)
+./scripts/test/run-all-tests.sh
+
+# 빠른 테스트 (LLM API 제외)
+./scripts/test/run-all-tests.sh --quick
+
+# HTML 리포트 생성
+./scripts/test/run-all-tests.sh --report
+
+# Node.js API 테스트
+node scripts/test/api-tests.js
+
+# JSON 출력
+node scripts/test/api-tests.js --json
+
+# 주기적 테스트 설정 (매일 오전 6시)
+./scripts/test/setup-scheduled-tests.sh --daily
+
+# 매시간 테스트
+./scripts/test/setup-scheduled-tests.sh --hourly
+
+# 테스트 스케줄 비활성화
+./scripts/test/setup-scheduled-tests.sh --disable
+```
+
 ## 🔑 사용자 관리
 
 ```bash
