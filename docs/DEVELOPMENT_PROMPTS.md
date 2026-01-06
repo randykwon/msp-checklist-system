@@ -309,3 +309,163 @@ fix: virtual-evidence API 및 updateUserStatus SQL 오류 수정
 - `msp-checklist/app/api/auth/login/route.ts` - 활동 로깅 통합
 - `msp-checklist/app/api/auth/register/route.ts` - 활동 로깅 통합
 - `msp-checklist/app/api/virtual-evidence/route.ts` - 안정성 개선
+
+---
+
+## 세션 2 (2026년 1월 6일 - 계속)
+
+### 9. 관리자 활동 모니터링 페이지 접근 문제
+
+#### 프롬프트
+```
+관리자 앱에서 /activity 경로로 접근이 안된다 원인은?
+```
+
+#### 분석
+- 서버 로그 확인: 페이지 컴파일 및 200 응답 정상
+- API 응답 확인: 인증 없이 접근 시 401 Unauthorized 정상 반환
+- 원인: 로그인 필요 또는 권한 부족 (admin/superadmin만 접근 가능)
+
+---
+
+### 10. 가상증빙예제 기능 테스트
+
+#### 프롬프트
+```
+테스트 아이디를 만들어 모든 아이템의 가상증빙예제-참고용 보기 기능이 동작하는지 확인해줘
+```
+
+#### 테스트 결과
+```
+Testing BUSP-001... ✓ OK
+Testing BUSP-002... ✓ OK
+Testing BUSP-003... ✓ OK
+Testing GOVP-001... ✓ OK
+Testing PEOP-001... ✓ OK
+Testing PLAT-004... ✓ OK
+Testing SEC-005... ✓ OK
+Testing SEC-006... ✓ OK
+```
+
+---
+
+### 11. 개발 프롬프트 저장 요청
+
+#### 프롬프트
+```
+지금 까지 개발에 사용한 프롬프트를 다 저장해줘
+```
+
+#### 결과
+- `docs/DEVELOPMENT_PROMPTS.md` 파일 생성 및 커밋
+
+---
+
+### 12. 웹페이지 테스트 요청
+
+#### 프롬프트
+```
+테스트 아이디를 만들어 모든 아이템의 가상증빙예제-참고용 보기 기능이 동작하는지 사용자 웹페이지에서 확인해줘
+```
+
+#### 설명
+- 브라우저 직접 조작 불가능
+- API를 통한 동일한 흐름 테스트로 대체
+
+---
+
+### 13. API 키 설정 파일 위치 확인
+
+#### 프롬프트
+```
+관리자 화면에서 사용하는 OPEN API Key 파일은 어디있나?
+```
+
+#### 답변
+| 앱 | 파일 경로 | 용도 |
+|---|---|---|
+| 메인 앱 | `msp-checklist/.env.local` | OpenAI, Gemini, Claude, Bedrock API 키 |
+| 관리자 앱 | `msp-checklist/admin/.env.local` | JWT Secret만 사용 |
+
+**메인 앱 `.env.local` 설정 예시:**
+```bash
+LLM_PROVIDER=openai
+OPENAI_API_KEY=sk-proj-xxx
+GEMINI_API_KEY=AIzaSy-xxx
+CLAUDE_API_KEY=sk-ant-api03-xxx
+AWS_ACCESS_KEY_ID=xxx
+AWS_SECRET_ACCESS_KEY=xxx
+AWS_REGION=ap-northeast-2
+```
+
+---
+
+### 14. LLM 캐시 생성 언어 옵션 확인
+
+#### 프롬프트
+```
+🤖 LLM 설정 및 캐시 생성 기능이 한국어 영어 버전이 동시에 생성되는 지 확인해줘
+```
+
+#### 분석 결과
+
+**조언(Advice) 캐시 생성** (`lib/advice-generator.ts`):
+```typescript
+const includeKorean = options.includeKorean !== false;  // 기본값 true
+const includeEnglish = options.includeEnglish !== false; // 기본값 true
+```
+
+**가상증빙예제(Virtual Evidence) 캐시 생성** (`lib/virtual-evidence-generator.ts`):
+```typescript
+const {
+  includeKorean = true,
+  includeEnglish = true,
+} = options;
+```
+
+#### 결론
+| 기능 | 한국어 | 영어 | 동시 생성 |
+|------|--------|------|-----------|
+| 조언 캐시 생성 | ✅ | ✅ | ✅ (기본값) |
+| 가상증빙예제 캐시 생성 | ✅ | ✅ | ✅ (기본값) |
+
+---
+
+### 15. 서버 재시작
+
+#### 프롬프트
+```
+서버 재시작
+```
+
+#### 실행 명령어
+```bash
+lsof -ti:3010 | xargs kill -9 2>/dev/null
+lsof -ti:3011 | xargs kill -9 2>/dev/null
+npm run dev  # msp-checklist
+npm run dev  # msp-checklist/admin
+```
+
+#### 결과
+- 메인 앱: http://localhost:3010 ✅
+- 관리자 앱: http://localhost:3011 ✅
+
+---
+
+## 전체 프롬프트 목록 (시간순)
+
+1. `현재까지 구현된 내용을 sw/hw, functional, non-functional 기능들을 정리해서 만든 requirement 문서를 작성해줘`
+2. `깃허브에 커밋해줘`
+3. `새로 만든 사용자로 로그인 하면 가상증빙예제-참고용에서 예제보기 기능에서 다음과 같은 에러가 나온다`
+4. `github 커밋`
+5. `전체 기능 테스트를 하는 기능을 만들려 한다. 모든 기능을 테스트 하는 스크립트를 만들어 각 기능이 제대로 동작하는지 주기적으로 체크 할수 있도록 만들어줘`
+6. `사용자/ip 별 활동 모니터링을 할수 있는 기능을 관리자 화면에 추가해줘. 로그인, 사용하고 있는 아이템등을 시간별, 날짜별, 섹션별, 기능별, 사용자별로 보고 싶어`
+7. `서버 재시작`
+8. `관리자 앱에서 /activity 경로로 접근이 안된다 원인은?`
+9. `테스트 아이디를 만들어 모든 아이템의 가상증빙예제-참고용 보기 기능이 동작하는지 확인해줘`
+10. `지금 까지 개발에 사용한 프롬프트를 다 저장해줘`
+11. `테스트 아이디를 만들어 모든 아이템의 가상증빙예제-참고용 보기 기능이 동작하는지 사용자 웹페이지에서 확인해줘`
+12. `관리자 화면에서 사용하는 OPEN API Key 파일은 어디있나?`
+13. `🤖 LLM 설정 및 캐시 생성 기능이 한국어 영어 버전이 동시에 생성되는 지 확인해줘`
+14. `서버 재시작`
+15. `모든 세션에서 작성한 프롬프트를 기록해줘`
