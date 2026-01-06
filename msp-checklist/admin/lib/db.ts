@@ -661,4 +661,420 @@ function initSystemSettings() {
 // 테이블 초기화 실행
 initSystemSettings();
 
+// User Activity Log functions
+export interface ActivityLog {
+  id: number;
+  userId: number | null;
+  userEmail: string | null;
+  userName: string | null;
+  ipAddress: string | null;
+  userAgent: string | null;
+  actionType: string;
+  actionCategory: string;
+  itemId: string | null;
+  assessmentType: string | null;
+  details: string | null;
+  sessionId: string | null;
+  createdAt: string;
+}
+
+export interface ActivityLogInput {
+  userId?: number | null;
+  userEmail?: string | null;
+  userName?: string | null;
+  ipAddress?: string | null;
+  userAgent?: string | null;
+  actionType: string;
+  actionCategory: string;
+  itemId?: string | null;
+  assessmentType?: string | null;
+  details?: string | null;
+  sessionId?: string | null;
+}
+
+// 활동 로그 기록
+export function logActivity(input: ActivityLogInput): number {
+  try {
+    // 테이블이 존재하는지 확인
+    const tableExists = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_activity_logs'").get();
+    if (!tableExists) {
+      // 테이블 생성
+      db.exec(`
+        CREATE TABLE IF NOT EXISTS user_activity_logs (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_id INTEGER,
+          user_email TEXT,
+          user_name TEXT,
+          ip_address TEXT,
+          user_agent TEXT,
+          action_type TEXT NOT NULL,
+          action_category TEXT NOT NULL,
+          item_id TEXT,
+          assessment_type TEXT,
+          details TEXT,
+          session_id TEXT,
+          created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+          FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+        )
+      `);
+    }
+    
+    const stmt = db.prepare(`
+      INSERT INTO user_activity_logs 
+      (user_id, user_email, user_name, ip_address, user_agent, action_type, action_category, item_id, assessment_type, details, session_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    const result = stmt.run(
+      input.userId || null,
+      input.userEmail || null,
+      input.userName || null,
+      input.ipAddress || null,
+      input.userAgent || null,
+      input.actionType,
+      input.actionCategory,
+      input.itemId || null,
+      input.assessmentType || null,
+      input.details || null,
+      input.sessionId || null
+    );
+    
+    return result.lastInsertRowid as number;
+  } catch (error) {
+    console.error('[DB] Error logging activity:', error);
+    return -1;
+  }
+}
+
+// 활동 로그 조회 (필터링 지원)
+export interface ActivityLogFilter {
+  userId?: number;
+  ipAddress?: string;
+  actionType?: string;
+  actionCategory?: string;
+  itemId?: string;
+  assessmentType?: string;
+  startDate?: string;
+  endDate?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export function getActivityLogs(filter: ActivityLogFilter = {}): ActivityLog[] {
+  let query = `
+    SELECT 
+      id, user_id as userId, user_email as userEmail, user_name as userName,
+      ip_address as ipAddress, user_agent as userAgent, action_type as actionType,
+      action_category as actionCategory, item_id as itemId, assessment_type as assessmentType,
+      details, session_id as sessionId, created_at as createdAt
+    FROM user_activity_logs
+    WHERE 1=1
+  `;
+  
+  const params: any[] = [];
+  
+  if (filter.userId) {
+    query += ' AND user_id = ?';
+    params.push(filter.userId);
+  }
+  
+  if (filter.ipAddress) {
+    query += ' AND ip_address = ?';
+    params.push(filter.ipAddress);
+  }
+  
+  if (filter.actionType) {
+    query += ' AND action_type = ?';
+    params.push(filter.actionType);
+  }
+  
+  if (filter.actionCategory) {
+    query += ' AND action_category = ?';
+    params.push(filter.actionCategory);
+  }
+  
+  if (filter.itemId) {
+    query += ' AND item_id = ?';
+    params.push(filter.itemId);
+  }
+  
+  if (filter.assessmentType) {
+    query += ' AND assessment_type = ?';
+    params.push(filter.assessmentType);
+  }
+  
+  if (filter.startDate) {
+    query += ' AND created_at >= ?';
+    params.push(filter.startDate);
+  }
+  
+  if (filter.endDate) {
+    query += ' AND created_at <= ?';
+    params.push(filter.endDate);
+  }
+  
+  query += ' ORDER BY created_at DESC';
+  
+  if (filter.limit) {
+    query += ' LIMIT ?';
+    params.push(filter.limit);
+    
+    if (filter.offset) {
+      query += ' OFFSET ?';
+      params.push(filter.offset);
+    }
+  }
+  
+  try {
+    const stmt = db.prepare(query);
+    return stmt.all(...params) as ActivityLog[];
+  } catch (error) {
+    console.error('[DB] Error getting activity logs:', error);
+    return [];
+  }
+}
+
+// 활동 로그 통계
+export interface ActivityStats {
+  totalLogs: number;
+  uniqueUsers: number;
+  uniqueIPs: number;
+  actionTypeCounts: Record<string, number>;
+  actionCategoryCounts: Record<string, number>;
+  hourlyDistribution: Record<string, number>;
+  dailyDistribution: Record<string, number>;
+}
+
+export function getActivityStats(filter: ActivityLogFilter = {}): ActivityStats {
+  try {
+    let whereClause = 'WHERE 1=1';
+    const params: any[] = [];
+    
+    if (filter.startDate) {
+      whereClause += ' AND created_at >= ?';
+      params.push(filter.startDate);
+    }
+    
+    if (filter.endDate) {
+      whereClause += ' AND created_at <= ?';
+      params.push(filter.endDate);
+    }
+    
+    if (filter.userId) {
+      whereClause += ' AND user_id = ?';
+      params.push(filter.userId);
+    }
+    
+    // 총 로그 수
+    const totalStmt = db.prepare(`SELECT COUNT(*) as count FROM user_activity_logs ${whereClause}`);
+    const totalLogs = (totalStmt.get(...params) as { count: number })?.count || 0;
+    
+    // 고유 사용자 수
+    const usersStmt = db.prepare(`SELECT COUNT(DISTINCT user_id) as count FROM user_activity_logs ${whereClause} AND user_id IS NOT NULL`);
+    const uniqueUsers = (usersStmt.get(...params) as { count: number })?.count || 0;
+    
+    // 고유 IP 수
+    const ipsStmt = db.prepare(`SELECT COUNT(DISTINCT ip_address) as count FROM user_activity_logs ${whereClause} AND ip_address IS NOT NULL`);
+    const uniqueIPs = (ipsStmt.get(...params) as { count: number })?.count || 0;
+    
+    // 액션 타입별 카운트
+    const actionTypeStmt = db.prepare(`
+      SELECT action_type, COUNT(*) as count 
+      FROM user_activity_logs ${whereClause}
+      GROUP BY action_type
+    `);
+    const actionTypeCounts: Record<string, number> = {};
+    (actionTypeStmt.all(...params) as { action_type: string; count: number }[]).forEach(row => {
+      actionTypeCounts[row.action_type] = row.count;
+    });
+    
+    // 액션 카테고리별 카운트
+    const actionCategoryStmt = db.prepare(`
+      SELECT action_category, COUNT(*) as count 
+      FROM user_activity_logs ${whereClause}
+      GROUP BY action_category
+    `);
+    const actionCategoryCounts: Record<string, number> = {};
+    (actionCategoryStmt.all(...params) as { action_category: string; count: number }[]).forEach(row => {
+      actionCategoryCounts[row.action_category] = row.count;
+    });
+    
+    // 시간별 분포
+    const hourlyStmt = db.prepare(`
+      SELECT strftime('%H', created_at) as hour, COUNT(*) as count 
+      FROM user_activity_logs ${whereClause}
+      GROUP BY hour
+      ORDER BY hour
+    `);
+    const hourlyDistribution: Record<string, number> = {};
+    (hourlyStmt.all(...params) as { hour: string; count: number }[]).forEach(row => {
+      hourlyDistribution[row.hour] = row.count;
+    });
+    
+    // 일별 분포
+    const dailyStmt = db.prepare(`
+      SELECT strftime('%Y-%m-%d', created_at) as date, COUNT(*) as count 
+      FROM user_activity_logs ${whereClause}
+      GROUP BY date
+      ORDER BY date DESC
+      LIMIT 30
+    `);
+    const dailyDistribution: Record<string, number> = {};
+    (dailyStmt.all(...params) as { date: string; count: number }[]).forEach(row => {
+      dailyDistribution[row.date] = row.count;
+    });
+    
+    return {
+      totalLogs,
+      uniqueUsers,
+      uniqueIPs,
+      actionTypeCounts,
+      actionCategoryCounts,
+      hourlyDistribution,
+      dailyDistribution
+    };
+  } catch (error) {
+    console.error('[DB] Error getting activity stats:', error);
+    return {
+      totalLogs: 0,
+      uniqueUsers: 0,
+      uniqueIPs: 0,
+      actionTypeCounts: {},
+      actionCategoryCounts: {},
+      hourlyDistribution: {},
+      dailyDistribution: {}
+    };
+  }
+}
+
+// 사용자별 활동 요약
+export interface UserActivitySummary {
+  userId: number;
+  userEmail: string;
+  userName: string;
+  totalActions: number;
+  lastActivity: string;
+  ipAddresses: string[];
+  actionTypes: Record<string, number>;
+}
+
+export function getUserActivitySummaries(limit: number = 50): UserActivitySummary[] {
+  try {
+    const stmt = db.prepare(`
+      SELECT 
+        user_id,
+        user_email,
+        user_name,
+        COUNT(*) as total_actions,
+        MAX(created_at) as last_activity,
+        GROUP_CONCAT(DISTINCT ip_address) as ip_addresses
+      FROM user_activity_logs
+      WHERE user_id IS NOT NULL
+      GROUP BY user_id
+      ORDER BY last_activity DESC
+      LIMIT ?
+    `);
+    
+    const rows = stmt.all(limit) as any[];
+    
+    return rows.map(row => {
+      // 사용자별 액션 타입 카운트
+      const actionStmt = db.prepare(`
+        SELECT action_type, COUNT(*) as count 
+        FROM user_activity_logs 
+        WHERE user_id = ?
+        GROUP BY action_type
+      `);
+      const actionTypes: Record<string, number> = {};
+      (actionStmt.all(row.user_id) as { action_type: string; count: number }[]).forEach(a => {
+        actionTypes[a.action_type] = a.count;
+      });
+      
+      return {
+        userId: row.user_id,
+        userEmail: row.user_email || '',
+        userName: row.user_name || '',
+        totalActions: row.total_actions,
+        lastActivity: row.last_activity,
+        ipAddresses: row.ip_addresses ? row.ip_addresses.split(',') : [],
+        actionTypes
+      };
+    });
+  } catch (error) {
+    console.error('[DB] Error getting user activity summaries:', error);
+    return [];
+  }
+}
+
+// IP별 활동 요약
+export interface IPActivitySummary {
+  ipAddress: string;
+  totalActions: number;
+  uniqueUsers: number;
+  lastActivity: string;
+  userNames: string[];
+  actionTypes: Record<string, number>;
+}
+
+export function getIPActivitySummaries(limit: number = 50): IPActivitySummary[] {
+  try {
+    const stmt = db.prepare(`
+      SELECT 
+        ip_address,
+        COUNT(*) as total_actions,
+        COUNT(DISTINCT user_id) as unique_users,
+        MAX(created_at) as last_activity,
+        GROUP_CONCAT(DISTINCT user_name) as user_names
+      FROM user_activity_logs
+      WHERE ip_address IS NOT NULL
+      GROUP BY ip_address
+      ORDER BY total_actions DESC
+      LIMIT ?
+    `);
+    
+    const rows = stmt.all(limit) as any[];
+    
+    return rows.map(row => {
+      // IP별 액션 타입 카운트
+      const actionStmt = db.prepare(`
+        SELECT action_type, COUNT(*) as count 
+        FROM user_activity_logs 
+        WHERE ip_address = ?
+        GROUP BY action_type
+      `);
+      const actionTypes: Record<string, number> = {};
+      (actionStmt.all(row.ip_address) as { action_type: string; count: number }[]).forEach(a => {
+        actionTypes[a.action_type] = a.count;
+      });
+      
+      return {
+        ipAddress: row.ip_address,
+        totalActions: row.total_actions,
+        uniqueUsers: row.unique_users,
+        lastActivity: row.last_activity,
+        userNames: row.user_names ? row.user_names.split(',') : [],
+        actionTypes
+      };
+    });
+  } catch (error) {
+    console.error('[DB] Error getting IP activity summaries:', error);
+    return [];
+  }
+}
+
+// 오래된 로그 정리
+export function cleanupOldActivityLogs(daysToKeep: number = 90): number {
+  try {
+    const stmt = db.prepare(`
+      DELETE FROM user_activity_logs 
+      WHERE created_at < datetime('now', '-' || ? || ' days')
+    `);
+    const result = stmt.run(daysToKeep);
+    return result.changes;
+  } catch (error) {
+    console.error('[DB] Error cleaning up activity logs:', error);
+    return 0;
+  }
+}
+
 export default db;

@@ -15,12 +15,12 @@ export const ROLE_PERMISSIONS = {
   },
   admin: {
     level: 3,
-    canAccess: ['/dashboard', '/users', '/progress', '/announcements', '/qa', '/cache', '/virtual-evidence'],
+    canAccess: ['/dashboard', '/users', '/progress', '/announcements', '/qa', '/cache', '/virtual-evidence', '/activity'],
     description: '관리자'
   },
   superadmin: {
     level: 4,
-    canAccess: ['/dashboard', '/users', '/progress', '/announcements', '/qa', '/cache', '/virtual-evidence', '/system', '/monitoring'],
+    canAccess: ['/dashboard', '/users', '/progress', '/announcements', '/qa', '/cache', '/virtual-evidence', '/system', '/monitoring', '/activity'],
     description: '최고 관리자'
   }
 };

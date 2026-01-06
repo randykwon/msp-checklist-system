@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createUser, getUserByEmail, isAutoActivateEnabled, updateUserStatus } from '@/lib/db';
 import { hashPassword, generateToken, setAuthCookie } from '@/lib/auth';
+import { logRegisterActivity } from '@/lib/activity-logger';
 
 export async function POST(request: NextRequest) {
   let user = null;
@@ -60,6 +61,13 @@ export async function POST(request: NextRequest) {
     }
 
     if (autoActivate && user.status === 'active') {
+      // 회원가입 활동 기록
+      try {
+        logRegisterActivity(request, user.id, user.email, user.name);
+      } catch (logError) {
+        console.error('[Register] Failed to log activity:', logError);
+      }
+      
       return NextResponse.json(
         {
           user: {
@@ -73,6 +81,13 @@ export async function POST(request: NextRequest) {
         },
         { status: 201 }
       );
+    }
+
+    // 회원가입 활동 기록
+    try {
+      logRegisterActivity(request, user.id, user.email, user.name);
+    } catch (logError) {
+      console.error('[Register] Failed to log activity:', logError);
     }
 
     return NextResponse.json(
