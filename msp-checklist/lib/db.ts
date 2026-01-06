@@ -346,7 +346,7 @@ export function updateUserRole(id: number, role: string): void {
 }
 
 export function updateUserStatus(id: number, status: string): void {
-  const stmt = db.prepare('UPDATE users SET status = ?, updated_at = datetime("now") WHERE id = ?');
+  const stmt = db.prepare("UPDATE users SET status = ?, updated_at = datetime('now') WHERE id = ?");
   stmt.run(status, id);
 }
 
