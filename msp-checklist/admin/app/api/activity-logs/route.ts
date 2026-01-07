@@ -13,7 +13,12 @@ import {
 export async function GET(request: NextRequest) {
   try {
     // 인증 확인
-    const user = await verifyToken(request);
+    const token = request.cookies.get('admin_auth_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const user = verifyToken(token);
     if (!user || !['admin', 'superadmin'].includes(user.role)) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
@@ -102,7 +107,12 @@ export async function GET(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     // 인증 확인 (superadmin만)
-    const user = await verifyToken(request);
+    const token = request.cookies.get('admin_auth_token')?.value;
+    if (!token) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    
+    const user = verifyToken(token);
     if (!user || user.role !== 'superadmin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
