@@ -5,11 +5,14 @@
 # ============================================================================
 
 GREEN='\033[0;32m'
+RED='\033[0;31m'
 BLUE='\033[0;34m'
+YELLOW='\033[1;33m'
 NC='\033[0m'
 
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
+log_warn() { echo -e "${YELLOW}[!]${NC} $1"; }
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
@@ -26,18 +29,35 @@ echo -e "${NC}"
 # PID 파일로 종료
 if [ -f "$PROJECT_DIR/main-server.pid" ]; then
     PID=$(cat "$PROJECT_DIR/main-server.pid")
-    kill $PID 2>/dev/null && log_success "메인 서버 종료됨 (PID: $PID)"
+    if kill -0 $PID 2>/dev/null; then
+        kill $PID 2>/dev/null && log_success "메인 서버 종료됨 (PID: $PID)"
+    else
+        log_warn "메인 서버가 이미 종료됨 (PID: $PID)"
+    fi
     rm -f "$PROJECT_DIR/main-server.pid"
+else
+    log_warn "메인 서버 PID 파일 없음"
 fi
 
 if [ -f "$PROJECT_DIR/admin-server.pid" ]; then
     PID=$(cat "$PROJECT_DIR/admin-server.pid")
-    kill $PID 2>/dev/null && log_success "Admin 서버 종료됨 (PID: $PID)"
+    if kill -0 $PID 2>/dev/null; then
+        kill $PID 2>/dev/null && log_success "Admin 서버 종료됨 (PID: $PID)"
+    else
+        log_warn "Admin 서버가 이미 종료됨 (PID: $PID)"
+    fi
     rm -f "$PROJECT_DIR/admin-server.pid"
+else
+    log_warn "Admin 서버 PID 파일 없음"
 fi
 
-# 포트로 프로세스 종료
-pkill -f "next.*$MAIN_PORT" 2>/dev/null || true
-pkill -f "next.*$ADMIN_PORT" 2>/dev/null || true
+# 포트로 남은 프로세스 종료
+sleep 1
+REMAINING=$(pgrep -f "next.*($MAIN_PORT|$ADMIN_PORT)" 2>/dev/null || true)
+if [ -n "$REMAINING" ]; then
+    log_info "남은 프로세스 정리 중..."
+    pkill -f "next.*$MAIN_PORT" 2>/dev/null || true
+    pkill -f "next.*$ADMIN_PORT" 2>/dev/null || true
+fi
 
 log_success "모든 서버가 중지되었습니다."

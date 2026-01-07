@@ -232,6 +232,13 @@ build_apps() {
             npm install --legacy-peer-deps 2>/dev/null || npm install
         fi
         
+        # @aws-sdk/client-bedrock 패키지 확인 및 설치
+        if [ ! -d "node_modules/@aws-sdk/client-bedrock" ]; then
+            log_info "@aws-sdk/client-bedrock 패키지 설치 중..."
+            npm install @aws-sdk/client-bedrock --legacy-peer-deps 2>/dev/null || npm install @aws-sdk/client-bedrock
+            log_success "@aws-sdk/client-bedrock 설치 완료"
+        fi
+        
         if npm run build; then
             log_success "메인 앱 빌드 완료"
         else

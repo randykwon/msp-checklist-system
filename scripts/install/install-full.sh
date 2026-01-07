@@ -131,6 +131,13 @@ build_application() {
     log_info "메인 앱 의존성 설치 중..."
     npm install --legacy-peer-deps
     
+    # @aws-sdk/client-bedrock 패키지 확인 및 설치
+    if [ ! -d "node_modules/@aws-sdk/client-bedrock" ]; then
+        log_info "@aws-sdk/client-bedrock 패키지 설치 중..."
+        npm install @aws-sdk/client-bedrock --legacy-peer-deps
+        log_success "@aws-sdk/client-bedrock 설치 완료"
+    fi
+    
     log_info "메인 앱 빌드 중..."
     npm run build
     log_success "메인 앱 빌드 완료"
