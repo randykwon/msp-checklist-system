@@ -1,13 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createLLMService, LLMMessage } from '@/lib/llm-service';
+import { createLLMService, LLMMessage, LLMConfig, getOrCreateInferenceProfile } from '@/lib/llm-service';
 import { prerequisitesData } from '@/data/assessment-data';
 import { technicalValidationData } from '@/data/technical-validation-data';
 import Database from 'better-sqlite3';
 import path from 'path';
 
+// Inference Profile이 필요한 모델 목록
+const INFERENCE_PROFILE_REQUIRED_MODELS = [
+  'anthropic.claude-opus-4-5-20251101-v1:0',
+  'anthropic.claude-sonnet-4-5-20250929-v1:0',
+  'anthropic.claude-haiku-4-5-20251001-v1:0',
+];
+
 export async function POST(request: NextRequest) {
   try {
-    const { question, itemId, assessmentType } = await request.json();
+    const { question, itemId, assessmentType, llmConfig } = await request.json();
 
     if (!question) {
       return NextResponse.json(
@@ -16,8 +23,48 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // LLM 설정 처리
+    let finalLLMConfig: LLMConfig | undefined = undefined;
+    
+    if (llmConfig) {
+      console.log('[QA Generate] Using custom LLM config:', llmConfig.provider, llmConfig.model);
+      
+      // Inference Profile 자동 찾기 처리
+      if (llmConfig.provider === 'bedrock' && 
+          INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model) &&
+          llmConfig.autoCreateInferenceProfile) {
+        try {
+          console.log('[QA Generate] Auto-finding inference profile for:', llmConfig.model);
+          const inferenceProfileArn = await getOrCreateInferenceProfile(
+            llmConfig.model,
+            llmConfig.awsRegion || 'ap-northeast-2',
+            llmConfig.awsAccessKeyId,
+            llmConfig.awsSecretAccessKey
+          );
+          llmConfig.inferenceProfileArn = inferenceProfileArn;
+          console.log('[QA Generate] Found inference profile:', inferenceProfileArn);
+        } catch (error: any) {
+          console.error('[QA Generate] Failed to find inference profile:', error.message);
+          return NextResponse.json(
+            { error: `Inference Profile 자동 찾기 실패: ${error.message}` },
+            { status: 500 }
+          );
+        }
+      }
+      
+      finalLLMConfig = {
+        provider: llmConfig.provider,
+        model: llmConfig.model,
+        apiKey: llmConfig.apiKey,
+        awsRegion: llmConfig.awsRegion,
+        awsAccessKeyId: llmConfig.awsAccessKeyId,
+        awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+        inferenceProfileArn: llmConfig.inferenceProfileArn,
+      };
+    }
+
     // Create LLM service
-    const llmService = createLLMService();
+    const llmService = createLLMService(finalLLMConfig);
 
     // 해당 항목의 조언과 가상증빙예제 가져오기
     let itemAdvice = '';
@@ -163,8 +210,8 @@ ${contextInfo}
 
     // Generate answer using LLM
     const response = await llmService.generateText(messages, {
-      temperature: 0.6, // 질문에 정확하게 답변하기 위해 약간 낮춤
-      maxTokens: 2500 // 더 상세한 답변을 위해 토큰 수 증가
+      temperature: llmConfig?.temperature || 0.6,
+      maxTokens: llmConfig?.maxTokens || 2500
     });
 
     return NextResponse.json({

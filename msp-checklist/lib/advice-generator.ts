@@ -220,6 +220,10 @@ Avoid generic content that would be the same for other items.`;
         awsRegion: options.llmConfig.awsRegion || defaultConfig.awsRegion,
         awsAccessKeyId: options.llmConfig.awsAccessKeyId || defaultConfig.awsAccessKeyId,
         awsSecretAccessKey: options.llmConfig.awsSecretAccessKey || defaultConfig.awsSecretAccessKey,
+        inferenceProfileArn: options.llmConfig.inferenceProfileArn,
+        autoCreateInferenceProfile: options.llmConfig.autoCreateInferenceProfile,
+        temperature: options.llmConfig.temperature ?? defaultConfig.temperature,
+        maxTokens: options.llmConfig.maxTokens ?? defaultConfig.maxTokens,
       };
     } else {
       llmConfig = defaultConfig;
@@ -269,6 +273,10 @@ Avoid generic content that would be the same for other items.`;
         awsRegion: options.llmConfig.awsRegion || defaultConfig.awsRegion,
         awsAccessKeyId: options.llmConfig.awsAccessKeyId || defaultConfig.awsAccessKeyId,
         awsSecretAccessKey: options.llmConfig.awsSecretAccessKey || defaultConfig.awsSecretAccessKey,
+        inferenceProfileArn: options.llmConfig.inferenceProfileArn,
+        autoCreateInferenceProfile: options.llmConfig.autoCreateInferenceProfile,
+        temperature: options.llmConfig.temperature ?? defaultConfig.temperature,
+        maxTokens: options.llmConfig.maxTokens ?? defaultConfig.maxTokens,
       };
     } else {
       llmConfig = defaultConfig;

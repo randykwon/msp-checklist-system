@@ -48,6 +48,72 @@ interface QAStats {
   };
 }
 
+// LLM 설정 인터페이스
+interface LLMConfig {
+  provider: 'openai' | 'gemini' | 'claude' | 'bedrock';
+  model: string;
+  apiKey?: string;
+  awsRegion?: string;
+  awsAccessKeyId?: string;
+  awsSecretAccessKey?: string;
+  inferenceProfileArn?: string;
+  autoCreateInferenceProfile?: boolean;
+  temperature?: number;
+  maxTokens?: number;
+}
+
+// Inference Profile이 필요한 모델 목록
+const INFERENCE_PROFILE_REQUIRED_MODELS = [
+  'anthropic.claude-opus-4-5-20251101-v1:0',
+  'anthropic.claude-sonnet-4-5-20250929-v1:0',
+  'anthropic.claude-haiku-4-5-20251001-v1:0',
+];
+
+const LLM_PROVIDERS = {
+  openai: {
+    name: 'OpenAI',
+    icon: '🤖',
+    models: [
+      { id: 'gpt-4o', name: 'GPT-4o (추천)' },
+      { id: 'gpt-4o-mini', name: 'GPT-4o Mini' },
+      { id: 'gpt-4-turbo', name: 'GPT-4 Turbo' },
+    ],
+    color: '#10A37F',
+  },
+  claude: {
+    name: 'Anthropic Claude',
+    icon: '🧠',
+    models: [
+      { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet (추천)' },
+      { id: 'claude-3-5-haiku-20241022', name: 'Claude 3.5 Haiku' },
+      { id: 'claude-3-opus-20240229', name: 'Claude 3 Opus' },
+    ],
+    color: '#D97706',
+  },
+  gemini: {
+    name: 'Google Gemini',
+    icon: '✨',
+    models: [
+      { id: 'gemini-1.5-pro', name: 'Gemini 1.5 Pro (추천)' },
+      { id: 'gemini-1.5-flash', name: 'Gemini 1.5 Flash' },
+    ],
+    color: '#4285F4',
+  },
+  bedrock: {
+    name: 'AWS Bedrock',
+    icon: '☁️',
+    models: [
+      { id: 'anthropic.claude-opus-4-5-20251101-v1:0', name: '🔐 Claude 4.5 Opus (Inference Profile)' },
+      { id: 'anthropic.claude-sonnet-4-5-20250929-v1:0', name: '🔐 Claude 4.5 Sonnet (Inference Profile)' },
+      { id: 'anthropic.claude-haiku-4-5-20251001-v1:0', name: '🔐 Claude 4.5 Haiku (Inference Profile)' },
+      { id: 'anthropic.claude-3-5-sonnet-20241022-v2:0', name: 'Claude 3.5 Sonnet v2 (추천)' },
+      { id: 'anthropic.claude-3-5-haiku-20241022-v1:0', name: 'Claude 3.5 Haiku (빠름)' },
+      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus (고성능)' },
+    ],
+    color: '#FF9900',
+  },
+};
+
 export default function QAPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -70,6 +136,27 @@ export default function QAPage() {
   const [stats, setStats] = useState<QAStats | null>(null);
   const [viewingFile, setViewingFile] = useState<EvidenceFile | null>(null);
   const [expandedEvidence, setExpandedEvidence] = useState<Set<number>>(new Set());
+  
+  // LLM 설정 관련 state
+  const [showLLMConfigModal, setShowLLMConfigModal] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [showAwsSecretKey, setShowAwsSecretKey] = useState(false);
+  const [llmConfig, setLLMConfig] = useState<LLMConfig>({
+    provider: 'bedrock',
+    model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    apiKey: '',
+    awsRegion: 'ap-northeast-2',
+    awsAccessKeyId: '',
+    awsSecretAccessKey: '',
+    inferenceProfileArn: '',
+    autoCreateInferenceProfile: false,
+    temperature: 0.6,
+    maxTokens: 2500,
+  });
+  const [envConfigLoaded, setEnvConfigLoaded] = useState(false);
+
+  // 선택된 모델이 Inference Profile이 필요한지 확인
+  const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
 
   // 카드 색상 (8색 로테이션)
   const cardColors = [
@@ -83,8 +170,67 @@ export default function QAPage() {
     { bg: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', light: '#E0E7FF' },
   ];
 
+  // .env.local에서 LLM 설정 불러오기
+  const loadEnvConfig = async () => {
+    try {
+      const response = await fetch('/api/llm-config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.config) {
+          const config = data.config;
+          setLLMConfig(prev => ({
+            ...prev,
+            awsAccessKeyId: config.bedrock.awsAccessKeyId || prev.awsAccessKeyId,
+            awsSecretAccessKey: config.bedrock.awsSecretAccessKey || prev.awsSecretAccessKey,
+            awsRegion: config.bedrock.awsRegion || prev.awsRegion,
+            apiKey: prev.provider === 'openai' ? (config.openai.apiKey || prev.apiKey) :
+                    prev.provider === 'gemini' ? (config.gemini.apiKey || prev.apiKey) :
+                    prev.provider === 'claude' ? (config.claude.apiKey || prev.apiKey) : prev.apiKey,
+          }));
+          setEnvConfigLoaded(true);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load LLM config:', error);
+    }
+  };
+
+  const handleProviderChange = async (provider: 'openai' | 'gemini' | 'claude' | 'bedrock') => {
+    const newConfig: LLMConfig = {
+      ...llmConfig,
+      provider,
+      model: LLM_PROVIDERS[provider].models[0].id,
+    };
+    
+    try {
+      const response = await fetch('/api/llm-config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.config) {
+          const config = data.config;
+          if (provider === 'openai' && config.openai.apiKey) {
+            newConfig.apiKey = config.openai.apiKey;
+          } else if (provider === 'gemini' && config.gemini.apiKey) {
+            newConfig.apiKey = config.gemini.apiKey;
+          } else if (provider === 'claude' && config.claude.apiKey) {
+            newConfig.apiKey = config.claude.apiKey;
+          } else if (provider === 'bedrock') {
+            newConfig.awsAccessKeyId = config.bedrock.awsAccessKeyId || '';
+            newConfig.awsSecretAccessKey = config.bedrock.awsSecretAccessKey || '';
+            newConfig.awsRegion = config.bedrock.awsRegion || 'ap-northeast-2';
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load API key for provider:', error);
+    }
+    
+    setLLMConfig(newConfig);
+  };
+
   useEffect(() => {
     setIsHydrated(true);
+    loadEnvConfig();
   }, []);
 
   useEffect(() => {
@@ -207,6 +353,18 @@ export default function QAPage() {
           question: qa.question,
           itemId: qa.itemId,
           assessmentType: qa.assessmentType,
+          llmConfig: {
+            provider: llmConfig.provider,
+            model: llmConfig.model,
+            apiKey: llmConfig.apiKey,
+            awsRegion: llmConfig.awsRegion,
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            inferenceProfileArn: llmConfig.inferenceProfileArn,
+            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+            temperature: llmConfig.temperature,
+            maxTokens: llmConfig.maxTokens,
+          }
         }),
       });
       if (response.ok) {
@@ -221,8 +379,12 @@ export default function QAPage() {
           if (data.contextUsed.hasItemDetails) contextInfo.push('평가 항목 정보');
           if (data.contextUsed.hasAdvice) contextInfo.push('AI 조언');
           if (data.contextUsed.hasVirtualEvidence) contextInfo.push('가상증빙예제');
+          const providerName = LLM_PROVIDERS[llmConfig.provider].name;
+          const modelName = LLM_PROVIDERS[llmConfig.provider].models.find(m => m.id === llmConfig.model)?.name || llmConfig.model;
           if (contextInfo.length > 0) {
-            alert(`✅ AI 답변이 생성되었습니다!\n\n참고한 컨텍스트:\n• ${contextInfo.join('\n• ')}`);
+            alert(`✅ AI 답변이 생성되었습니다!\n\n사용된 LLM: ${providerName} - ${modelName}\n\n참고한 컨텍스트:\n• ${contextInfo.join('\n• ')}`);
+          } else {
+            alert(`✅ AI 답변이 생성되었습니다!\n\n사용된 LLM: ${providerName} - ${modelName}`);
           }
         }
       } else {
@@ -322,16 +484,28 @@ export default function QAPage() {
                   <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>💬 질의응답 관리</h1>
                   <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>사용자 질문에 답변하고 Q&A 데이터를 관리합니다</p>
                 </div>
-                <button
-                  onClick={fetchQuestions}
-                  style={{
-                    padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#6366F1',
-                    background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer',
-                    display: 'flex', alignItems: 'center', gap: 6
-                  }}
-                >
-                  🔄 새로고침
-                </button>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button
+                    onClick={() => setShowLLMConfigModal(true)}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: 'white',
+                      background: LLM_PROVIDERS[llmConfig.provider].color, border: 'none', borderRadius: 8, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6
+                    }}
+                  >
+                    {LLM_PROVIDERS[llmConfig.provider].icon} {LLM_PROVIDERS[llmConfig.provider].name}
+                  </button>
+                  <button
+                    onClick={fetchQuestions}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#6366F1',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6
+                    }}
+                  >
+                    🔄 새로고침
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -907,6 +1081,327 @@ export default function QAPage() {
                 }}
               >
                 닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* LLM 설정 모달 */}
+      {showLLMConfigModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowLLMConfigModal(false)}
+        >
+          <div 
+            style={{ 
+              width: '100%', maxWidth: 600, maxHeight: '90vh', background: 'white', 
+              borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div style={{ 
+              padding: '16px 20px', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', 
+              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
+            }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>🤖 AI 답변 생성 설정</div>
+                <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>LLM 제공자와 모델을 선택하세요</div>
+              </div>
+              <button 
+                onClick={() => setShowLLMConfigModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: '50%', color: 'white', 
+                  fontSize: 20, cursor: 'pointer', display: 'flex', 
+                  alignItems: 'center', justifyContent: 'center' 
+                }}
+              >×</button>
+            </div>
+            
+            {/* 콘텐츠 */}
+            <div style={{ padding: 20, maxHeight: 'calc(90vh - 140px)', overflow: 'auto' }}>
+              {/* Provider 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                  LLM 제공자
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {(Object.keys(LLM_PROVIDERS) as Array<keyof typeof LLM_PROVIDERS>).map((key) => {
+                    const provider = LLM_PROVIDERS[key];
+                    return (
+                      <button
+                        key={key}
+                        onClick={() => handleProviderChange(key)}
+                        style={{
+                          padding: '12px 8px', fontSize: 12, fontWeight: 600,
+                          color: llmConfig.provider === key ? 'white' : provider.color,
+                          background: llmConfig.provider === key ? provider.color : 'white',
+                          border: `2px solid ${provider.color}`, borderRadius: 8, cursor: 'pointer',
+                          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+                        }}
+                      >
+                        <span style={{ fontSize: 20 }}>{provider.icon}</span>
+                        <span>{provider.name}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* 모델 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                  모델
+                </label>
+                <select
+                  value={llmConfig.model}
+                  onChange={(e) => setLLMConfig({ ...llmConfig, model: e.target.value })}
+                  style={{ 
+                    width: '100%', padding: '10px 14px', fontSize: 14, 
+                    border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box' 
+                  }}
+                >
+                  {LLM_PROVIDERS[llmConfig.provider].models.map((model) => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Bedrock 전용 설정 */}
+              {llmConfig.provider === 'bedrock' && (
+                <>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                      AWS Region
+                    </label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsRegion || ''}
+                      onChange={(e) => setLLMConfig({ ...llmConfig, awsRegion: e.target.value })}
+                      placeholder="ap-northeast-2"
+                      style={{ 
+                        width: '100%', padding: '10px 14px', fontSize: 14, 
+                        border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box' 
+                      }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                      AWS Access Key ID {envConfigLoaded && <span style={{ color: '#42B883', fontSize: 12 }}>(.env.local에서 로드됨)</span>}
+                    </label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsAccessKeyId || ''}
+                      onChange={(e) => setLLMConfig({ ...llmConfig, awsAccessKeyId: e.target.value })}
+                      placeholder="AKIA..."
+                      style={{ 
+                        width: '100%', padding: '10px 14px', fontSize: 14, 
+                        border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box' 
+                      }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                      AWS Secret Access Key {envConfigLoaded && <span style={{ color: '#42B883', fontSize: 12 }}>(.env.local에서 로드됨)</span>}
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showAwsSecretKey ? 'text' : 'password'}
+                        value={llmConfig.awsSecretAccessKey || ''}
+                        onChange={(e) => setLLMConfig({ ...llmConfig, awsSecretAccessKey: e.target.value })}
+                        placeholder="시크릿 키 입력"
+                        style={{ 
+                          width: '100%', padding: '10px 14px', fontSize: 14, 
+                          border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box',
+                          paddingRight: 50
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAwsSecretKey(!showAwsSecretKey)}
+                        style={{
+                          position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                          background: 'none', border: 'none', cursor: 'pointer', fontSize: 16
+                        }}
+                      >
+                        {showAwsSecretKey ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Inference Profile 설정 (Claude 4.5 모델용) */}
+                  {needsInferenceProfile && (
+                    <div style={{ 
+                      marginBottom: 20, padding: 16, background: '#FEF3C7', 
+                      borderRadius: 10, border: '2px solid #F59E0B' 
+                    }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#92400E', marginBottom: 12 }}>
+                        🔐 Claude 4.5 모델은 Inference Profile이 필요합니다
+                      </div>
+                      
+                      <div style={{ marginBottom: 12 }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                          <input
+                            type="checkbox"
+                            checked={llmConfig.autoCreateInferenceProfile || false}
+                            onChange={(e) => setLLMConfig({ 
+                              ...llmConfig, 
+                              autoCreateInferenceProfile: e.target.checked,
+                              inferenceProfileArn: e.target.checked ? '' : llmConfig.inferenceProfileArn
+                            })}
+                            style={{ width: 18, height: 18 }}
+                          />
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>
+                            🔍 시스템 정의 Inference Profile 자동 찾기 (권장)
+                          </span>
+                        </label>
+                        <div style={{ fontSize: 12, color: '#65676B', marginTop: 4, marginLeft: 26 }}>
+                          AWS에서 제공하는 시스템 정의 Inference Profile을 자동으로 찾아 사용합니다
+                        </div>
+                      </div>
+
+                      {!llmConfig.autoCreateInferenceProfile && (
+                        <div>
+                          <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                            Inference Profile ARN (수동 입력)
+                          </label>
+                          <input
+                            type="text"
+                            value={llmConfig.inferenceProfileArn || ''}
+                            onChange={(e) => setLLMConfig({ ...llmConfig, inferenceProfileArn: e.target.value })}
+                            placeholder="arn:aws:bedrock:region:account:inference-profile/..."
+                            style={{ 
+                              width: '100%', padding: '10px 14px', fontSize: 13, 
+                              border: '2px solid #E4E6EB', borderRadius: 8, boxSizing: 'border-box' 
+                            }}
+                          />
+                          <div style={{ fontSize: 11, color: '#65676B', marginTop: 6 }}>
+                            ✅ 올바른 형식: <code style={{ background: '#E5E7EB', padding: '2px 4px', borderRadius: 4 }}>arn:aws:bedrock:region::foundation-model/...</code> 또는 시스템 정의 프로필 ID
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* OpenAI/Claude/Gemini API Key */}
+              {llmConfig.provider !== 'bedrock' && (
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                    API Key {envConfigLoaded && <span style={{ color: '#42B883', fontSize: 12 }}>(.env.local에서 로드됨)</span>}
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={llmConfig.apiKey || ''}
+                      onChange={(e) => setLLMConfig({ ...llmConfig, apiKey: e.target.value })}
+                      placeholder="API 키 입력"
+                      style={{ 
+                        width: '100%', padding: '10px 14px', fontSize: 14, 
+                        border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box',
+                        paddingRight: 50
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      style={{
+                        position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer', fontSize: 16
+                      }}
+                    >
+                      {showApiKey ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Temperature & Max Tokens */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                    Temperature: {llmConfig.temperature}
+                  </label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={llmConfig.temperature || 0.6}
+                    onChange={(e) => setLLMConfig({ ...llmConfig, temperature: parseFloat(e.target.value) })}
+                    style={{ width: '100%' }}
+                  />
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                    Max Tokens
+                  </label>
+                  <input
+                    type="number"
+                    value={llmConfig.maxTokens || 2500}
+                    onChange={(e) => setLLMConfig({ ...llmConfig, maxTokens: parseInt(e.target.value) })}
+                    min="100"
+                    max="8192"
+                    style={{ 
+                      width: '100%', padding: '10px 14px', fontSize: 14, 
+                      border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box' 
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* 현재 설정 요약 */}
+              <div style={{ 
+                padding: 16, background: '#F0F2F5', borderRadius: 10, 
+                border: '1px solid #E4E6EB' 
+              }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                  📋 현재 설정
+                </div>
+                <div style={{ fontSize: 12, color: '#65676B', lineHeight: 1.8 }}>
+                  <div>• 제공자: {LLM_PROVIDERS[llmConfig.provider].icon} {LLM_PROVIDERS[llmConfig.provider].name}</div>
+                  <div>• 모델: {LLM_PROVIDERS[llmConfig.provider].models.find(m => m.id === llmConfig.model)?.name || llmConfig.model}</div>
+                  {llmConfig.provider === 'bedrock' && <div>• 리전: {llmConfig.awsRegion}</div>}
+                  {needsInferenceProfile && (
+                    <div>• Inference Profile: {llmConfig.autoCreateInferenceProfile ? '자동 찾기' : (llmConfig.inferenceProfileArn || '미설정')}</div>
+                  )}
+                  <div>• Temperature: {llmConfig.temperature}</div>
+                  <div>• Max Tokens: {llmConfig.maxTokens}</div>
+                </div>
+              </div>
+            </div>
+            
+            {/* 푸터 */}
+            <div style={{ 
+              padding: '12px 20px', background: '#F0F2F5', borderTop: '1px solid #E4E6EB', 
+              display: 'flex', justifyContent: 'flex-end', gap: 12 
+            }}>
+              <button 
+                onClick={() => setShowLLMConfigModal(false)}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: '#65676B', background: 'white', 
+                  border: '1px solid #E4E6EB', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                취소
+              </button>
+              <button 
+                onClick={() => setShowLLMConfigModal(false)}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: 'white', background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                ✅ 설정 저장
               </button>
             </div>
           </div>

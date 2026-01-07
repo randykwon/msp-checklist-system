@@ -13,6 +13,7 @@
     "cache:stats": "npm run cache stats"
   },
   "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.962.0",
     "@aws-sdk/client-bedrock-runtime": "^3.958.0",
     "@types/bcryptjs": "^3.0.0",
     "@types/cookie": "^1.0.0",
@@ -31,6 +32,7 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "dotenv": "^17.2.3",
     "eslint": "^8.57.0",
     "eslint-config-next": "14.2.18",
     "ts-node": "^10.9.2",

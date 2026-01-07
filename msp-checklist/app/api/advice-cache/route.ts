@@ -128,6 +128,7 @@ export async function POST(request: NextRequest) {
     
     console.log('🚀 Starting advice generation with options:', generationOptions);
     console.log('🤖 LLM Config:', llmConfig ? `${llmConfig.provider} (${llmConfig.model})` : 'Using default');
+    console.log('🔑 Inference Profile ARN:', llmConfig?.inferenceProfileArn || '(not provided)');
     
     // 조언 생성 시작
     const result = await generator.generateAndCacheAllAdvice(generationOptions);

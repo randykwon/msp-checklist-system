@@ -7,6 +7,8 @@ async function proxyToMainApp(request: NextRequest, body: any) {
   const url = `${mainAppUrl}/api/qa/generate-answer`;
   
   try {
+    console.log('[Admin Proxy] Forwarding generate-answer request with llmConfig:', body.llmConfig ? 'provided' : 'not provided');
+    
     const response = await fetch(url, {
       method: 'POST',
       headers: {
@@ -18,6 +20,7 @@ async function proxyToMainApp(request: NextRequest, body: any) {
     const data = await response.json();
     
     if (!response.ok) {
+      console.log('[Admin Proxy] Error response:', data);
       return NextResponse.json(data, { status: response.status });
     }
     
@@ -53,7 +56,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 메인 앱의 API로 프록시
+    // 메인 앱의 API로 프록시 (llmConfig 포함)
     return proxyToMainApp(request, body);
 
   } catch (error: any) {

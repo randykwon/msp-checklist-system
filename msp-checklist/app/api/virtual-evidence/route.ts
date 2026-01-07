@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { callLLM, getDefaultLLMConfig, LLMConfig } from '@/lib/llm-service';
+import { callLLM, getDefaultLLMConfig, validateLLMConfig } from '@/lib/llm-service';
 import { getCachedVirtualEvidence, setCachedVirtualEvidence } from '@/lib/db';
 
 export async function POST(request: NextRequest) {
@@ -50,6 +50,20 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // LLM 설정 가져오기 및 유효성 검사
+    const llmConfig = getDefaultLLMConfig();
+    const validation = validateLLMConfig(llmConfig);
+
+    // API 키가 없으면 에러 반환 (더미 데이터 생성하지 않음)
+    if (!validation.valid) {
+      return NextResponse.json({ 
+        error: '가상증빙예제가 캐시에 없습니다. 관리자에게 문의하여 캐시를 생성해주세요.',
+        details: 'Virtual evidence not found in cache. Please contact administrator to generate cache.',
+        itemId,
+        language: safeLanguage
+      }, { status: 404 });
+    }
+
     // 시연 키워드 확인
     const isDemonstration = safeEvidenceRequired.toLowerCase().includes('시연') || 
                            safeEvidenceRequired.toLowerCase().includes('demonstration') ||
@@ -67,7 +81,7 @@ export async function POST(request: NextRequest) {
                               safeEvidenceRequired.toLowerCase().includes('차트') ||
                               safeEvidenceRequired.toLowerCase().includes('인포그래픽');
 
-    // 카테고리별 특화된 컨텍스트 분석 (더미 데이터 생성에서도 사용)
+    // 카테고리별 특화된 컨텍스트 분석
     const getItemCategory = (id: string) => {
       if (id.startsWith('BUS')) return 'Business';
       if (id.startsWith('PEO')) return 'People';
@@ -79,159 +93,7 @@ export async function POST(request: NextRequest) {
     };
 
     const itemCategory = getItemCategory(itemId);
-
-    // LLM 설정 가져오기
-    const llmConfig = getDefaultLLMConfig();
-
-    // 더미 응답 처리 (API 키가 없을 때) - 각 항목별로 다른 내용 생성
     const providerName = llmConfig.provider;
-    if (!process.env.OPENAI_API_KEY && !process.env.GEMINI_API_KEY && !process.env.CLAUDE_API_KEY && !process.env.AWS_ACCESS_KEY_ID) {
-      const generateItemSpecificDummy = () => {
-        const categorySpecific: Record<string, string> = {
-          'Business': safeLanguage === 'ko' ? '사업 계획서, 재무 보고서, 고객 계약서' : 'Business plans, financial reports, customer contracts',
-          'People': safeLanguage === 'ko' ? '인증서, 교육 이수증, 조직도' : 'Certifications, training certificates, organizational charts',
-          'Governance': safeLanguage === 'ko' ? '정책 문서, 프로세스 매뉴얼, 감사 보고서' : 'Policy documents, process manuals, audit reports',
-          'Platform': safeLanguage === 'ko' ? '아키텍처 다이어그램, 기술 문서, 구성 스크립트' : 'Architecture diagrams, technical docs, configuration scripts',
-          'Security': safeLanguage === 'ko' ? '보안 정책, 취약점 스캔 결과, 액세스 로그' : 'Security policies, vulnerability scan results, access logs',
-          'Operations': safeLanguage === 'ko' ? '운영 매뉴얼, 모니터링 대시보드, SLA 보고서' : 'Operations manuals, monitoring dashboards, SLA reports',
-          'General': safeLanguage === 'ko' ? '일반 문서, 정책 자료, 가이드라인' : 'General documents, policy materials, guidelines'
-        };
-
-        const specificContent = categorySpecific[itemCategory] || (safeLanguage === 'ko' ? '관련 문서' : 'related documents');
-        const safeDescriptionShort = safeDescription.substring(0, 100) || '항목 설명';
-        const safeTitleShort = safeTitle.substring(0, 30) || itemId;
-        
-        return isDemonstration ? 
-          (safeLanguage === 'ko' ? 
-            `🎯 **${itemId} 시연 가이드 (더미 데이터)**
-
-**${safeTitle}** 항목 시연을 위한 맞춤형 가이드:
-
-🔹 **${itemId} 특화 준비사항**
-- 시연 대상: ${safeTitle} 요구사항 충족 증명
-- 필요 자료: ${specificContent}
-- 검증 포인트: ${safeDescriptionShort}...
-- 예상 시간: ${itemCategory === 'Security' ? '45-60분' : '30-45분'}
-
-🔹 **${itemCategory} 카테고리 시연 절차**
-1. **${itemId} 개요 설명**: 항목 목적 및 중요성 (5분)
-2. **실제 구현 시연**: ${safeTitle} 관련 시스템/프로세스 (20-30분)
-3. **증빙 자료 제시**: ${specificContent} 검토 (10분)
-4. **질의응답 및 검증**: 평가자 질문 대응 (10분)
-
-💡 **${itemId} 시연 팁**: 이 특정 항목의 요구사항에 맞는 구체적인 증빙을 준비하세요.` :
-            `🎯 **${itemId} Demonstration Guide (Dummy Data)**
-
-Customized guide for demonstrating **${safeTitle}**:
-
-🔹 **${itemId} Specific Preparation**
-- Demo Target: Prove ${safeTitle} requirement compliance
-- Required Materials: ${specificContent}
-- Validation Points: ${safeDescriptionShort}...
-- Expected Duration: ${itemCategory === 'Security' ? '45-60 minutes' : '30-45 minutes'}
-
-🔹 **${itemCategory} Category Demo Procedure**
-1. **${itemId} Overview**: Item purpose and importance (5 min)
-2. **Actual Implementation Demo**: ${safeTitle} related systems/processes (20-30 min)
-3. **Evidence Presentation**: Review ${specificContent} (10 min)
-4. **Q&A and Validation**: Respond to evaluator questions (10 min)
-
-💡 **${itemId} Demo Tips**: Prepare specific evidence matching this particular item's requirements.`) :
-          (safeLanguage === 'ko' ? 
-            `📋 **${itemId} 가상증빙예제-참고용 (더미 데이터)**
-
-**${safeTitle}** 항목을 위한 맞춤형 증빙예제:
-
-🔹 **문서 1: ${itemCategory} 특화 문서**
-- 파일명: ${itemId}_${itemCategory}_Document_v2.1.pdf
-- 내용: ${safeTitle} 요구사항 충족을 위한 ${specificContent}
-- 승인자: ${itemCategory === 'Security' ? 'CISO' : itemCategory === 'Operations' ? 'COO' : 'CTO'}, 승인일: 2024-${Math.floor(Math.random() * 12) + 1}-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **문서 2: ${itemId} 구현 증빙**
-- 파일명: ${itemId}_Implementation_Evidence_${new Date().getFullYear()}.xlsx
-- 내용: ${safeDescriptionShort.substring(0, 50)}... 관련 구현 결과 및 메트릭
-- 담당자: ${itemCategory} 팀장, 작성일: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **문서 3: ${itemCategory} 검증 자료**
-- 파일명: ${itemId}_${itemCategory}_Validation_${Date.now().toString().slice(-6)}.png
-- 내용: ${safeTitle} 관련 시스템 화면 및 설정 증빙
-- 검증일: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-${needsVisualContent ? `
-📊 **${itemId} 시각적 자료 예제**
-
-\`\`\`
-┌─────────────────────────────────────────┐
-│        ${itemId} - ${itemCategory}       │
-├─────────────────────────────────────────┤
-│  ${safeTitleShort}...                   │
-│                                         │
-│  [구현] → [검증] → [문서화] → [승인]     │
-│     ↓        ↓        ↓        ↓       │
-│  ${specificContent.substring(0, 35)}... │
-└─────────────────────────────────────────┘
-\`\`\`
-
-🎨 **${itemId} 시각적 자료 설명**
-- 자료 유형: ${itemCategory} 프로세스 다이어그램
-- 주요 구성요소: ${safeTitle} 구현 흐름도
-- 시각화 포인트: ${itemCategory} 카테고리 특성 반영
-- 제작 도구 추천: ${itemCategory === 'Platform' ? 'Draw.io, Lucidchart' : itemCategory === 'Security' ? 'Visio, PlantUML' : 'PowerPoint, Miro'}
-` : ''}
-
-💡 **${itemId} 실무 팁**: 이 특정 항목(${safeTitle})에 맞는 구체적인 증빙자료를 준비하세요.` :
-            `📋 **${itemId} Virtual Evidence Example (Dummy Data)**
-
-Customized evidence example for **${safeTitle}**:
-
-🔹 **Document 1: ${itemCategory} Specialized Document**
-- Filename: ${itemId}_${itemCategory}_Document_v2.1.pdf
-- Content: ${specificContent} for ${safeTitle} requirement compliance
-- Approved by: ${itemCategory === 'Security' ? 'CISO' : itemCategory === 'Operations' ? 'COO' : 'CTO'}, Date: 2024-${Math.floor(Math.random() * 12) + 1}-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **Document 2: ${itemId} Implementation Evidence**
-- Filename: ${itemId}_Implementation_Evidence_${new Date().getFullYear()}.xlsx
-- Content: ${safeDescriptionShort.substring(0, 50)}... related implementation results and metrics
-- Owner: ${itemCategory} Team Lead, Created: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **Document 3: ${itemCategory} Validation Materials**
-- Filename: ${itemId}_${itemCategory}_Validation_${Date.now().toString().slice(-6)}.png
-- Content: ${safeTitle} related system screens and configuration evidence
-- Validated: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-${needsVisualContent ? `
-📊 **${itemId} Visual Material Examples**
-
-\`\`\`
-┌─────────────────────────────────────────┐
-│        ${itemId} - ${itemCategory}       │
-├─────────────────────────────────────────┤
-│  ${safeTitleShort}...                   │
-│                                         │
-│  [Implement] → [Verify] → [Document] → [Approve] │
-│       ↓          ↓          ↓          ↓        │
-│  ${specificContent.substring(0, 35)}...         │
-└─────────────────────────────────────────┘
-\`\`\`
-
-🎨 **${itemId} Visual Material Description**
-- Material Type: ${itemCategory} Process Diagram
-- Key Components: ${safeTitle} implementation flow
-- Visualization Points: ${itemCategory} category characteristics
-- Recommended Tools: ${itemCategory === 'Platform' ? 'Draw.io, Lucidchart' : itemCategory === 'Security' ? 'Visio, PlantUML' : 'PowerPoint, Miro'}
-` : ''}
-
-💡 **${itemId} Practical Note**: Prepare specific evidence materials for this particular item (${safeTitle}).`);
-      };
-
-      const dummyVirtualEvidence = generateItemSpecificDummy();
-
-      return NextResponse.json({ 
-        virtualEvidence: dummyVirtualEvidence,
-        provider: providerName,
-        isDummy: true 
-      });
-    }
 
     // 언어에 따른 프롬프트 설정
     const systemMessage = safeLanguage === 'ko' ? 
@@ -280,38 +142,7 @@ ${isDemonstration ? 'Demonstration guides should present specific methods for ac
 **필요한 증빙**: ${safeEvidenceRequired}
 **AI 조언**: ${safeAdvice || '조언 없음'}
 
-**중요**: 이 특정 항목(${itemId})에만 해당하는 맞춤형 내용을 생성하세요. 다른 항목과 구별되는 고유한 특성을 반영해주세요.
-
-${isDemonstration ? 
-`다음 형식으로 한국어로 답변해주세요:
-
-🎯 **시연 가이드**
-
-🔹 **시연 준비사항**
-- 필요한 환경: [시연 환경 설정]
-- 준비 자료: [시연에 필요한 자료들]
-- 참석자: [시연 참석 대상자]
-- 소요 시간: [예상 시연 시간]
-
-🔹 **시연 절차**
-1. **시작 단계**: [시연 시작 방법]
-2. **핵심 기능 시연**: [주요 시연 내용]
-3. **질의응답**: [예상 질문과 답변 준비]
-4. **마무리**: [시연 마무리 방법]
-
-🔹 **시연 시나리오**
-- 시나리오 1: [구체적인 시연 시나리오]
-- 시나리오 2: [대안 시연 시나리오]
-- 시나리오 3: [추가 시연 시나리오]
-
-🔹 **시연 성공 기준**
-- 평가 포인트: [시연에서 보여줘야 할 핵심 요소들]
-- 성공 지표: [시연 성공을 판단하는 기준]
-
-💡 **시연 팁**: [성공적인 시연을 위한 실무 조언]
-
-실제 MSP 검증 환경에서 효과적으로 시연할 수 있는 구체적이고 현실적인 가이드를 만들어주세요.` :
-`다음 형식으로 한국어로 답변해주세요:
+**중요**: 이 특정 항목(${itemId})에만 해당하는 맞춤형 내용을 생성하세요.
 
 📋 **가상증빙예제-참고용**
 
@@ -330,24 +161,7 @@ ${isDemonstration ?
 - 내용: [문서의 주요 내용 설명]
 - 작성자/승인자: [역할], 날짜: [날짜]
 
-${needsVisualContent ? `
-📊 **시각적 자료 예제**
-
-\`\`\`
-[여기에 ASCII 아트나 텍스트 기반 다이어그램을 포함하세요]
-예: 아키텍처 다이어그램, 프로세스 플로우, 조직도 등
-\`\`\`
-
-🎨 **시각적 자료 설명**
-- 자료 유형: [인포그래픽/다이어그램/슬라이드 등]
-- 주요 구성요소: [포함되어야 할 핵심 요소들]
-- 시각화 포인트: [강조해야 할 핵심 메시지]
-- 제작 도구 추천: [PowerPoint, Visio, Draw.io 등]
-` : ''}
-
-💡 **실무 팁**: [실제 준비 시 고려사항]
-
-실제 MSP 환경에서 사용할 수 있는 구체적이고 현실적인 예제를 만들어주세요. 파일명, 내용, 담당자 등을 실무에 맞게 구체적으로 작성해주세요.`}` :
+💡 **실무 팁**: [실제 준비 시 고려사항]` :
       `Please generate ${isDemonstration ? 'demonstration guide' : 'virtual evidence examples'} for the following AWS MSP assessment item:
 
 **Item ID**: ${itemId}
@@ -357,38 +171,7 @@ ${needsVisualContent ? `
 **Evidence Required**: ${safeEvidenceRequired}
 **AI Advice**: ${safeAdvice || 'No advice available'}
 
-**IMPORTANT**: Generate customized content specific to this item (${itemId}) only. Reflect unique characteristics that distinguish it from other items.
-
-${isDemonstration ?
-`Please respond in the following format:
-
-🎯 **Demonstration Guide**
-
-🔹 **Demonstration Preparation**
-- Required Environment: [Demo environment setup]
-- Preparation Materials: [Materials needed for demo]
-- Attendees: [Target audience for demo]
-- Duration: [Expected demo time]
-
-🔹 **Demonstration Procedure**
-1. **Opening**: [How to start the demonstration]
-2. **Core Feature Demo**: [Main demonstration content]
-3. **Q&A Session**: [Expected questions and answer preparation]
-4. **Closing**: [How to conclude the demonstration]
-
-🔹 **Demonstration Scenarios**
-- Scenario 1: [Specific demonstration scenario]
-- Scenario 2: [Alternative demonstration scenario]
-- Scenario 3: [Additional demonstration scenario]
-
-🔹 **Success Criteria**
-- Evaluation Points: [Key elements to show in demonstration]
-- Success Indicators: [Criteria for successful demonstration]
-
-💡 **Demonstration Tips**: [Practical advice for successful demonstration]
-
-Please create specific and realistic guides that can be effectively demonstrated in actual MSP validation environments.` :
-`Please respond in the following format:
+**IMPORTANT**: Generate customized content specific to this item (${itemId}) only.
 
 📋 **Virtual Evidence Examples**
 
@@ -407,32 +190,15 @@ Please create specific and realistic guides that can be effectively demonstrated
 - Content: [Main content description]
 - Author/Approver: [Role], Date: [Date]
 
-${needsVisualContent ? `
-📊 **Visual Material Examples**
+💡 **Practical Tips**: [Considerations for actual preparation]`;
 
-\`\`\`
-[Include ASCII art or text-based diagrams here]
-Examples: Architecture diagrams, process flows, organizational charts, etc.
-\`\`\`
-
-🎨 **Visual Material Description**
-- Material Type: [Infographic/Diagram/Slides etc.]
-- Key Components: [Core elements to include]
-- Visualization Points: [Key messages to emphasize]
-- Recommended Tools: [PowerPoint, Visio, Draw.io etc.]
-` : ''}
-
-💡 **Practical Tips**: [Considerations for actual preparation]
-
-Please create specific and realistic examples that can be used in actual MSP environments. Write filenames, content, and responsible persons specifically according to practical needs.`}`;
-
-    // LLM 서비스를 통해 가상증빙예제 생성 (높은 창의성으로 각 항목별 고유 내용 생성)
-    llmConfig.temperature = 0.9; // 높은 창의성으로 각 항목별 다른 결과 생성
-    llmConfig.maxTokens = 2000;  // 더 상세한 내용 생성
+    // LLM 서비스를 통해 가상증빙예제 생성
+    llmConfig.temperature = 0.9;
+    llmConfig.maxTokens = 2000;
     
     const result = await callLLM(userPrompt, systemMessage, llmConfig);
 
-    // 생성된 가상증빙예제를 서버 사이드 캐시에 저장 (모든 사용자 공통)
+    // 생성된 가상증빙예제를 서버 사이드 캐시에 저장
     setCachedVirtualEvidence(itemId, safeLanguage, result.content);
 
     return NextResponse.json({ 

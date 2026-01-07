@@ -10,11 +10,11 @@ export function parseMarkdownToHtml(markdown: string): string {
   
   // 코드 블록 (```...```) - 먼저 처리하여 내부 내용 보호
   html = html.replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    return `<pre style="background: #1e1e1e; color: #d4d4d4; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.5; margin: 12px 0;"><code>${escapeHtml(code.trim())}</code></pre>`;
+    return `<pre style="background: #f8fafc; color: #1e293b; padding: 16px; border-radius: 8px; overflow-x: auto; font-family: 'Consolas', 'Monaco', monospace; font-size: 13px; line-height: 1.6; margin: 12px 0; border: 1px solid #e2e8f0;"><code style="color: #1e293b;">${escapeHtml(code.trim())}</code></pre>`;
   });
   
   // 인라인 코드 (`...`)
-  html = html.replace(/`([^`]+)`/g, '<code style="background: #f3f4f6; color: #e11d48; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em;">$1</code>');
+  html = html.replace(/`([^`]+)`/g, '<code style="background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 0.9em; border: 1px solid #e2e8f0;">$1</code>');
   
   // 헤더 (## 또는 **헤더**)
   html = html.replace(/^### (.+)$/gm, '<h4 style="font-size: 16px; font-weight: 700; color: #1f2937; margin: 20px 0 12px 0; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb;">$1</h4>');

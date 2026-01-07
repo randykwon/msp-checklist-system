@@ -40,6 +40,8 @@ interface LLMConfig {
   awsRegion?: string;
   awsAccessKeyId?: string;
   awsSecretAccessKey?: string;
+  inferenceProfileArn?: string; // Claude 4.5+ 모델용 inference profile ARN
+  autoCreateInferenceProfile?: boolean; // 시스템 정의 Inference Profile 자동 찾기
   // LLM 파라미터
   temperature?: number;
   maxTokens?: number;
@@ -50,6 +52,13 @@ interface GenerationOptions {
   includeKorean: boolean;
   includeEnglish: boolean;
 }
+
+// Inference Profile이 필요한 모델 목록
+const INFERENCE_PROFILE_REQUIRED_MODELS = [
+  'anthropic.claude-opus-4-5-20251101-v1:0',
+  'anthropic.claude-sonnet-4-5-20250929-v1:0',
+  'anthropic.claude-haiku-4-5-20251001-v1:0',
+];
 
 const LLM_PROVIDERS = {
   openai: {
@@ -89,11 +98,37 @@ const LLM_PROVIDERS = {
     name: 'AWS Bedrock',
     icon: '☁️',
     models: [
+      // Claude 4.5 모델 (Inference Profile 필요)
+      { id: 'anthropic.claude-opus-4-5-20251101-v1:0', name: '🔐 Claude 4.5 Opus (Inference Profile 필요)' },
+      { id: 'anthropic.claude-sonnet-4-5-20250929-v1:0', name: '🔐 Claude 4.5 Sonnet (Inference Profile 필요)' },
+      { id: 'anthropic.claude-haiku-4-5-20251001-v1:0', name: '🔐 Claude 4.5 Haiku (Inference Profile 필요)' },
+      // Claude 3.5 모델 (On-Demand 지원)
       { id: 'anthropic.claude-3-5-sonnet-20241022-v2:0', name: 'Claude 3.5 Sonnet v2 (추천)' },
-      { id: 'anthropic.claude-3-5-sonnet-20240620-v1:0', name: 'Claude 3.5 Sonnet' },
-      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus' },
+      { id: 'anthropic.claude-3-5-sonnet-20240620-v1:0', name: 'Claude 3.5 Sonnet v1' },
+      { id: 'anthropic.claude-3-5-haiku-20241022-v1:0', name: 'Claude 3.5 Haiku (빠름)' },
+      // Claude 3 모델
+      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus (고성능)' },
       { id: 'anthropic.claude-3-sonnet-20240229-v1:0', name: 'Claude 3 Sonnet' },
-      { id: 'anthropic.claude-3-haiku-20240307-v1:0', name: 'Claude 3 Haiku' },
+      { id: 'anthropic.claude-3-haiku-20240307-v1:0', name: 'Claude 3 Haiku (경제적)' },
+      // Amazon Titan 모델
+      { id: 'amazon.titan-text-premier-v1:0', name: 'Amazon Titan Text Premier' },
+      { id: 'amazon.titan-text-express-v1', name: 'Amazon Titan Text Express' },
+      { id: 'amazon.titan-text-lite-v1', name: 'Amazon Titan Text Lite (경제적)' },
+      // Meta Llama 모델
+      { id: 'meta.llama3-2-90b-instruct-v1:0', name: 'Llama 3.2 90B Instruct' },
+      { id: 'meta.llama3-2-11b-instruct-v1:0', name: 'Llama 3.2 11B Instruct' },
+      { id: 'meta.llama3-1-70b-instruct-v1:0', name: 'Llama 3.1 70B Instruct' },
+      { id: 'meta.llama3-1-8b-instruct-v1:0', name: 'Llama 3.1 8B Instruct (경제적)' },
+      // Mistral 모델
+      { id: 'mistral.mistral-large-2407-v1:0', name: 'Mistral Large (2407)' },
+      { id: 'mistral.mixtral-8x7b-instruct-v0:1', name: 'Mixtral 8x7B Instruct' },
+      { id: 'mistral.mistral-7b-instruct-v0:2', name: 'Mistral 7B Instruct (경제적)' },
+      // Cohere 모델
+      { id: 'cohere.command-r-plus-v1:0', name: 'Cohere Command R+' },
+      { id: 'cohere.command-r-v1:0', name: 'Cohere Command R' },
+      // AI21 모델
+      { id: 'ai21.jamba-1-5-large-v1:0', name: 'AI21 Jamba 1.5 Large' },
+      { id: 'ai21.jamba-1-5-mini-v1:0', name: 'AI21 Jamba 1.5 Mini (경제적)' },
     ],
     color: '#FF9900',
   },
@@ -123,6 +158,8 @@ export default function CachePage() {
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [showImportModal, setShowImportModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [exportSelectedVersion, setExportSelectedVersion] = useState<string>('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [detailVersion, setDetailVersion] = useState<CacheVersion | null>(null);
@@ -139,6 +176,7 @@ export default function CachePage() {
     awsRegion: 'ap-northeast-2',
     awsAccessKeyId: '',
     awsSecretAccessKey: '',
+    inferenceProfileArn: '',
     temperature: 0.8,
     maxTokens: 8192,
   });
@@ -146,10 +184,43 @@ export default function CachePage() {
     includeKorean: true,
     includeEnglish: true,
   });
+  const [envConfigLoaded, setEnvConfigLoaded] = useState(false);
+
+  // 선택된 모델이 Inference Profile이 필요한지 확인
+  const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
+
+  // .env.local에서 LLM 설정 불러오기
+  const loadEnvConfig = async () => {
+    try {
+      const response = await fetch('/api/llm-config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.config) {
+          const config = data.config;
+          setLLMConfig(prev => ({
+            ...prev,
+            // Bedrock 설정
+            awsAccessKeyId: config.bedrock.awsAccessKeyId || prev.awsAccessKeyId,
+            awsSecretAccessKey: config.bedrock.awsSecretAccessKey || prev.awsSecretAccessKey,
+            awsRegion: config.bedrock.awsRegion || prev.awsRegion,
+            // OpenAI 설정
+            apiKey: prev.provider === 'openai' ? (config.openai.apiKey || prev.apiKey) :
+                    prev.provider === 'gemini' ? (config.gemini.apiKey || prev.apiKey) :
+                    prev.provider === 'claude' ? (config.claude.apiKey || prev.apiKey) : prev.apiKey,
+          }));
+          setEnvConfigLoaded(true);
+          console.log('✅ LLM config loaded from .env.local');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load LLM config:', error);
+    }
+  };
 
   useEffect(() => {
     setIsMounted(true);
     loadCacheData();
+    loadEnvConfig();
   }, []);
 
   const loadCacheData = async () => {
@@ -219,6 +290,8 @@ export default function CachePage() {
             awsRegion: llmConfig.awsRegion,
             awsAccessKeyId: llmConfig.awsAccessKeyId,
             awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            inferenceProfileArn: llmConfig.inferenceProfileArn,
+            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
             temperature: llmConfig.temperature,
             maxTokens: llmConfig.maxTokens,
           }
@@ -248,12 +321,39 @@ export default function CachePage() {
     setShowLLMConfigModal(true);
   };
 
-  const handleProviderChange = (provider: 'openai' | 'gemini' | 'claude' | 'bedrock') => {
-    setLLMConfig({
+  const handleProviderChange = async (provider: 'openai' | 'gemini' | 'claude' | 'bedrock') => {
+    // 먼저 provider와 model 변경
+    const newConfig: LLMConfig = {
       ...llmConfig,
       provider,
       model: LLM_PROVIDERS[provider].models[0].id,
-    });
+    };
+    
+    // .env.local에서 해당 provider의 API 키 불러오기
+    try {
+      const response = await fetch('/api/llm-config');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.config) {
+          const config = data.config;
+          if (provider === 'openai' && config.openai.apiKey) {
+            newConfig.apiKey = config.openai.apiKey;
+          } else if (provider === 'gemini' && config.gemini.apiKey) {
+            newConfig.apiKey = config.gemini.apiKey;
+          } else if (provider === 'claude' && config.claude.apiKey) {
+            newConfig.apiKey = config.claude.apiKey;
+          } else if (provider === 'bedrock') {
+            newConfig.awsAccessKeyId = config.bedrock.awsAccessKeyId || '';
+            newConfig.awsSecretAccessKey = config.bedrock.awsSecretAccessKey || '';
+            newConfig.awsRegion = config.bedrock.awsRegion || 'ap-northeast-2';
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load API key for provider:', error);
+    }
+    
+    setLLMConfig(newConfig);
   };
 
   const setActiveVersion = async (cacheType: 'advice' | 'virtual_evidence', version: string) => {
@@ -287,19 +387,27 @@ export default function CachePage() {
   };
   const showMessage = showMessageFunc;
 
-  // Export 캐시 기능 - 활성 버전을 기본으로 사용
-  const handleExportCache = async () => {
-    // 활성 버전이 있으면 활성 버전 사용, 없으면 선택된 버전 사용
-    const exportVersion = activeVersions.advice || selectedVersion;
+  // 내보내기 모달 열기
+  const openExportModal = () => {
+    // 기본값: 활성 버전 또는 첫 번째 버전
+    setExportSelectedVersion(activeVersions.advice || (versions.length > 0 ? versions[0].version : ''));
+    setShowExportModal(true);
+  };
+
+  // Export 캐시 기능 - 선택된 버전으로 내보내기
+  const handleExportCache = async (versionToExport?: string) => {
+    const exportVersion = versionToExport || exportSelectedVersion;
     
     if (!exportVersion) {
-      showMessage('내보낼 버전을 선택해주세요. (활성 버전이 설정되어 있지 않습니다)', 'error');
+      showMessage('내보낼 버전을 선택해주세요.', 'error');
       return;
     }
     
     try {
       setIsExporting(true);
-      const versionLabel = exportVersion === activeVersions.advice ? `${exportVersion} (활성)` : exportVersion;
+      setShowExportModal(false);
+      const isActive = exportVersion === activeVersions.advice;
+      const versionLabel = isActive ? `${exportVersion} (활성)` : exportVersion;
       showMessage(`캐시 데이터를 내보내는 중... (버전: ${versionLabel})`, 'info');
       
       const response = await fetch(`/api/advice-cache?action=export&version=${exportVersion}`);
@@ -540,17 +648,17 @@ export default function CachePage() {
                     📥 가져오기
                   </button>
                   <button
-                    onClick={handleExportCache}
-                    disabled={isExporting || (!activeVersions.advice && !selectedVersion)}
+                    onClick={openExportModal}
+                    disabled={isExporting || versions.length === 0}
                     style={{
                       padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#8B5CF6',
                       background: 'white', border: 'none', borderRadius: 8, 
-                      cursor: isExporting || (!activeVersions.advice && !selectedVersion) ? 'not-allowed' : 'pointer',
+                      cursor: isExporting || versions.length === 0 ? 'not-allowed' : 'pointer',
                       display: 'flex', alignItems: 'center', gap: 6,
-                      opacity: isExporting || (!activeVersions.advice && !selectedVersion) ? 0.7 : 1
+                      opacity: isExporting || versions.length === 0 ? 0.7 : 1
                     }}
                   >
-                    {isExporting ? '⏳ 내보내는 중...' : `📤 내보내기${activeVersions.advice ? ' (활성버전)' : ''}`}
+                    {isExporting ? '⏳ 내보내는 중...' : '📤 내보내기'}
                   </button>
                   <button
                     onClick={loadCacheData}
@@ -1176,6 +1284,79 @@ export default function CachePage() {
                           ⚠️ AWS IAM 사용자에게 <code style={{ background: '#FDE68A', padding: '2px 6px', borderRadius: 4 }}>bedrock:InvokeModel</code> 권한이 필요합니다.
                         </p>
                       </div>
+                      
+                      {/* Inference Profile ARN 입력 (Claude 4.5+ 모델용) */}
+                      {needsInferenceProfile && (
+                        <div style={{ marginBottom: 24 }}>
+                          <div style={{ padding: 16, borderRadius: 12, background: '#DBEAFE', border: '1px solid #3B82F6', marginBottom: 16 }}>
+                            <p style={{ margin: 0, fontSize: 13, color: '#1E40AF', lineHeight: 1.6 }}>
+                              🔐 <strong>Claude 4.5 모델</strong>은 Inference Profile이 필요합니다.<br/>
+                              <br/>
+                              <strong>옵션 1: 자동 찾기</strong> - 시스템 정의 Inference Profile을 자동으로 찾습니다.<br/>
+                              <strong>옵션 2: 수동 입력</strong> - AWS Bedrock 콘솔에서 생성한 ARN을 입력합니다.
+                            </p>
+                          </div>
+                          
+                          {/* 자동 찾기 체크박스 */}
+                          <div style={{ marginBottom: 16, padding: 12, borderRadius: 8, background: '#F0FDF4', border: '1px solid #10B981' }}>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                              <input
+                                type="checkbox"
+                                checked={llmConfig.autoCreateInferenceProfile || false}
+                                onChange={(e) => setLLMConfig({ 
+                                  ...llmConfig, 
+                                  autoCreateInferenceProfile: e.target.checked,
+                                  inferenceProfileArn: e.target.checked ? '' : llmConfig.inferenceProfileArn
+                                })}
+                                style={{ width: 18, height: 18 }}
+                              />
+                              <span style={{ fontSize: 14, fontWeight: 600, color: '#065F46' }}>
+                                🔍 시스템 정의 Inference Profile 자동 찾기 (권장)
+                              </span>
+                            </label>
+                            <p style={{ margin: '8px 0 0 26px', fontSize: 12, color: '#047857' }}>
+                              AWS에서 제공하는 global/apac Inference Profile을 자동으로 찾아 사용합니다.
+                            </p>
+                          </div>
+                          
+                          {/* 수동 입력 (자동 찾기가 비활성화된 경우만) */}
+                          {!llmConfig.autoCreateInferenceProfile && (
+                            <>
+                              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                                Inference Profile ARN <span style={{ color: '#EF4444' }}>*</span>
+                              </label>
+                              <input
+                                type="text"
+                                value={llmConfig.inferenceProfileArn || ''}
+                                onChange={(e) => setLLMConfig({ ...llmConfig, inferenceProfileArn: e.target.value })}
+                                placeholder="arn:aws:bedrock:region:account-id:inference-profile/profile-id"
+                                style={{
+                                  width: '100%', padding: '12px 16px', fontSize: 14, 
+                                  border: `2px solid ${llmConfig.inferenceProfileArn ? '#10B981' : '#EF4444'}`,
+                                  borderRadius: 10, boxSizing: 'border-box',
+                                  background: llmConfig.inferenceProfileArn ? '#F0FDF4' : '#FEF2F2'
+                                }}
+                              />
+                              <div style={{ marginTop: 8, padding: 12, borderRadius: 8, background: '#F0FDF4', border: '1px solid #10B981' }}>
+                                <p style={{ margin: 0, fontSize: 12, color: '#065F46' }}>
+                                  <strong>✅ 올바른 형식 (시스템 정의):</strong><br/>
+                                  <code style={{ background: '#D1FAE5', padding: '2px 6px', borderRadius: 4, fontSize: 11 }}>
+                                    arn:aws:bedrock:ap-northeast-2:ACCOUNT_ID:inference-profile/global.anthropic.claude-sonnet-4-5-20250929-v1:0
+                                  </code>
+                                </p>
+                              </div>
+                              <div style={{ marginTop: 8, padding: 12, borderRadius: 8, background: '#FEF2F2', border: '1px solid #EF4444' }}>
+                                <p style={{ margin: 0, fontSize: 12, color: '#991B1B' }}>
+                                  <strong>❌ 잘못된 형식 (Foundation Model ARN):</strong><br/>
+                                  <code style={{ background: '#FECACA', padding: '2px 6px', borderRadius: 4, fontSize: 11 }}>
+                                    arn:aws:bedrock:us-east-1::foundation-model/anthropic.claude-sonnet-4-5-v2:0
+                                  </code>
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </>
                   )}
 
@@ -1279,7 +1460,8 @@ export default function CachePage() {
                     onClick={generateCache}
                     disabled={isGenerating || 
                       (llmConfig.provider !== 'bedrock' && !llmConfig.apiKey) ||
-                      (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey))
+                      (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey)) ||
+                      (needsInferenceProfile && !llmConfig.inferenceProfileArn && !llmConfig.autoCreateInferenceProfile)
                     }
                     style={{
                       width: '100%', padding: '14px 24px', fontSize: 16, fontWeight: 600, color: 'white',
@@ -1287,10 +1469,101 @@ export default function CachePage() {
                       border: 'none', borderRadius: 12, cursor: 'pointer',
                       opacity: (isGenerating || 
                         (llmConfig.provider !== 'bedrock' && !llmConfig.apiKey) ||
-                        (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey))) ? 0.5 : 1
+                        (llmConfig.provider === 'bedrock' && (!llmConfig.awsAccessKeyId || !llmConfig.awsSecretAccessKey)) ||
+                        (needsInferenceProfile && !llmConfig.inferenceProfileArn && !llmConfig.autoCreateInferenceProfile)) ? 0.5 : 1
                     }}
                   >
                     {isGenerating ? '⏳ 캐시 생성 중...' : '🚀 캐시 생성 시작'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Export 모달 - 버전 선택 */}
+          {showExportModal && (
+            <div style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 50
+            }}>
+              <div style={{
+                width: '90%', maxWidth: 500, borderRadius: 16,
+                boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white'
+              }}>
+                <div style={{
+                  padding: '20px 24px',
+                  background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                  color: 'white', borderRadius: '16px 16px 0 0',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+                }}>
+                  <h3 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📤 조언 캐시 내보내기</h3>
+                  <button
+                    onClick={() => setShowExportModal(false)}
+                    style={{
+                      padding: '8px 16px', fontSize: 14, fontWeight: 600, color: '#8B5CF6',
+                      background: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                    }}
+                  >
+                    ✕ 닫기
+                  </button>
+                </div>
+                <div style={{ padding: 24 }}>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                      내보낼 버전 선택
+                    </label>
+                    <select
+                      value={exportSelectedVersion}
+                      onChange={(e) => setExportSelectedVersion(e.target.value)}
+                      style={{
+                        width: '100%', padding: '12px 16px', fontSize: 14,
+                        border: '2px solid #E4E6EB', borderRadius: 10,
+                        background: 'white', cursor: 'pointer'
+                      }}
+                    >
+                      {versions.map((v) => (
+                        <option key={v.version} value={v.version}>
+                          {v.version} {v.version === activeVersions.advice ? '⭐ (활성)' : ''} - {new Date(v.createdAt).toLocaleString('ko-KR')}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  {/* 선택된 버전 정보 */}
+                  {exportSelectedVersion && (
+                    <div style={{
+                      padding: 16, borderRadius: 12, background: '#EDE9FE',
+                      border: '1px solid #8B5CF6', marginBottom: 20
+                    }}>
+                      <div style={{ fontSize: 13, color: '#5B21B6' }}>
+                        <strong>선택된 버전:</strong> {exportSelectedVersion}
+                        {exportSelectedVersion === activeVersions.advice && (
+                          <span style={{ marginLeft: 8, padding: '2px 8px', background: '#10B981', color: 'white', borderRadius: 4, fontSize: 11 }}>
+                            활성 버전
+                          </span>
+                        )}
+                      </div>
+                      <div style={{ fontSize: 12, color: '#7C3AED', marginTop: 4 }}>
+                        생성일: {versions.find(v => v.version === exportSelectedVersion)?.createdAt 
+                          ? new Date(versions.find(v => v.version === exportSelectedVersion)!.createdAt).toLocaleString('ko-KR')
+                          : '-'}
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={() => handleExportCache()}
+                    disabled={!exportSelectedVersion || isExporting}
+                    style={{
+                      width: '100%', padding: '14px 24px', fontSize: 16, fontWeight: 600,
+                      color: 'white', background: !exportSelectedVersion || isExporting 
+                        ? '#D1D5DB' 
+                        : 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                      border: 'none', borderRadius: 12, cursor: !exportSelectedVersion || isExporting ? 'not-allowed' : 'pointer'
+                    }}
+                  >
+                    {isExporting ? '⏳ 내보내는 중...' : '📤 내보내기'}
                   </button>
                 </div>
               </div>

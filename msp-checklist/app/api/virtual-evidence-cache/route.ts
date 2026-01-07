@@ -73,6 +73,7 @@ export async function POST(request: NextRequest) {
     
     console.log('🚀 Starting virtual evidence generation with options:', options);
     console.log('🤖 LLM Config:', llmConfig ? { provider: llmConfig.provider, model: llmConfig.model } : 'default');
+    console.log('🔑 Inference Profile ARN:', llmConfig?.inferenceProfileArn || '(not provided)');
     
     // 가상증빙예제 생성 시작 (llmConfig 전달)
     const result = await generator.generateAndCacheAllVirtualEvidence(options || {}, llmConfig);

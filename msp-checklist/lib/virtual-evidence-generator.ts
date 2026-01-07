@@ -2,6 +2,7 @@ import { prerequisitesData } from '@/data/assessment-data';
 import { technicalValidationData } from '@/data/technical-validation-data';
 import { callLLM, LLMConfig, getDefaultLLMConfig } from './llm-service';
 import { getVirtualEvidenceCacheService } from './virtual-evidence-cache';
+import { updateProgress, resetProgress, addError } from './generation-progress';
 
 interface GenerationOptions {
   includeAdvice?: boolean;
@@ -16,6 +17,7 @@ interface GenerationResult {
   totalItems: number;
   koEvidence: any[];
   enEvidence: any[];
+  errors: Array<{ itemId: string; language: string; error: string }>;
 }
 
 class VirtualEvidenceGenerator {
@@ -38,6 +40,8 @@ class VirtualEvidenceGenerator {
         awsRegion: llmConfig.awsRegion || defaultConfig.awsRegion,
         awsAccessKeyId: llmConfig.awsAccessKeyId || defaultConfig.awsAccessKeyId,
         awsSecretAccessKey: llmConfig.awsSecretAccessKey || defaultConfig.awsSecretAccessKey,
+        inferenceProfileArn: llmConfig.inferenceProfileArn,
+        autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
         temperature: llmConfig.temperature ?? defaultConfig.temperature ?? 0.8,
         maxTokens: llmConfig.maxTokens ?? defaultConfig.maxTokens ?? 8192,
       };
@@ -79,11 +83,25 @@ class VirtualEvidenceGenerator {
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);
     const version = `${timestamp.slice(0, 8)}_${timestamp.slice(8, 14)}_${providerName}_${modelName}`;
     
+    // 총 처리할 항목 수 계산 (언어 수 * 항목 수)
+    const totalItemsToProcess = languages.length * allItems.length;
+    
+    // 진행 상태 초기화
+    resetProgress('virtual-evidence');
+    updateProgress('virtual-evidence', {
+      status: 'running',
+      totalItems: totalItemsToProcess,
+      completedItems: 0,
+      startTime: new Date().toISOString(),
+      version,
+    });
+    
     const results: GenerationResult = {
       version,
       totalItems: allItems.length,
       koEvidence: [],
-      enEvidence: []
+      enEvidence: [],
+      errors: [],
     };
 
     // 버전 정보를 먼저 저장 (외래 키 제약 조건을 위해)
@@ -94,13 +112,28 @@ class VirtualEvidenceGenerator {
       description: `Generated virtual evidence cache for ${allItems.length} items`
     });
 
+    let completedCount = 0;
+
     // 각 언어별로 처리
     for (const language of languages) {
       console.log(`🌐 Processing language: ${language}`);
+      let languageErrors = 0;
+      const maxErrors = 3; // 연속 에러 허용 횟수
+      
+      updateProgress('virtual-evidence', {
+        currentLanguage: language,
+      });
       
       for (let i = 0; i < allItems.length; i++) {
         const item = allItems[i];
+        const itemTitle = language === 'ko' && item.titleKo ? item.titleKo : item.title;
         console.log(`📝 Processing item ${i + 1}/${allItems.length}: ${item.id} (${language})`);
+
+        // 진행 상태 업데이트
+        updateProgress('virtual-evidence', {
+          currentItem: item.id,
+          currentItemTitle: itemTitle,
+        });
 
         try {
           // 기존 캐시 확인 (강제 재생성이 아닌 경우)
@@ -108,6 +141,9 @@ class VirtualEvidenceGenerator {
             const existingEvidence = this.cacheService.getCachedVirtualEvidence(item.id, language);
             if (existingEvidence) {
               console.log(`✅ Using existing cache for ${item.id} (${language})`);
+              completedCount++;
+              updateProgress('virtual-evidence', { completedItems: completedCount });
+              
               if (language === 'ko') {
                 results.koEvidence.push({
                   itemId: item.id,
@@ -153,45 +189,37 @@ class VirtualEvidenceGenerator {
           }
 
           console.log(`✅ Generated and cached virtual evidence for ${item.id} (${language})`);
+          languageErrors = 0; // 성공 시 에러 카운트 리셋
           
           // API 호출 간격 조절 (rate limiting 방지)
           await new Promise(resolve => setTimeout(resolve, 100));
           
         } catch (error) {
           console.error(`❌ Failed to generate virtual evidence for ${item.id} (${language}):`, error);
+          languageErrors++;
           
-          // 오류 발생 시 더미 데이터 저장
-          const dummyEvidence = this.generateDummyVirtualEvidence(item, language);
-          this.cacheService.saveCachedVirtualEvidence({
-            itemId: item.id,
-            category: item.category,
-            title: language === 'ko' && item.titleKo ? item.titleKo : item.title,
-            virtualEvidence: dummyEvidence,
-            language,
-            version
-          });
-
-          if (language === 'ko') {
-            results.koEvidence.push({
-              itemId: item.id,
-              virtualEvidence: dummyEvidence,
-              fromCache: false,
-              isDummy: true
-            });
-          } else {
-            results.enEvidence.push({
-              itemId: item.id,
-              virtualEvidence: dummyEvidence,
-              fromCache: false,
-              isDummy: true
-            });
+          // 연속 에러가 너무 많으면 해당 언어 처리 중단하고 다음 언어로
+          if (languageErrors >= maxErrors) {
+            console.error(`⚠️ Too many consecutive errors (${maxErrors}) for ${language}. Moving to next language...`);
+            break;
           }
+          
+          // 개별 항목 에러는 건너뛰고 계속 진행
+          console.log(`⏭️ Skipping ${item.id} (${language}) and continuing...`);
+          continue;
         }
       }
     }
 
     console.log('🎉 Virtual evidence generation completed!');
-    console.log(`📊 Results: ${results.koEvidence.length} Korean, ${results.enEvidence.length} English`);
+    console.log(`📊 Results: ${results.koEvidence.length} Korean, ${results.enEvidence.length} English (Total items: ${allItems.length})`);
+    
+    // 생성 실패한 항목이 있으면 경고
+    const expectedTotal = languages.length * allItems.length;
+    const actualTotal = results.koEvidence.length + results.enEvidence.length;
+    if (actualTotal < expectedTotal) {
+      console.warn(`⚠️ Some items were skipped due to errors. Expected: ${expectedTotal}, Actual: ${actualTotal}`);
+    }
     
     return results;
   }
@@ -436,75 +464,6 @@ Please create specific and realistic examples that can be used in actual MSP env
     const result = await callLLM(userPrompt, systemMessage, config);
 
     return result.content;
-  }
-
-  private generateDummyVirtualEvidence(item: any, language: 'ko' | 'en'): string {
-    const getItemCategory = (itemId: string) => {
-      if (itemId.startsWith('BUS')) return 'Business';
-      if (itemId.startsWith('PEO')) return 'People';
-      if (itemId.startsWith('GOV')) return 'Governance';
-      if (itemId.startsWith('PLAT')) return 'Platform';
-      if (itemId.startsWith('SEC')) return 'Security';
-      if (itemId.startsWith('OPS')) return 'Operations';
-      return 'General';
-    };
-
-    const itemCategory = getItemCategory(item.id);
-    const title = language === 'ko' && item.titleKo ? item.titleKo : item.title;
-    
-    const categorySpecific: Record<string, string> = {
-      'Business': language === 'ko' ? '사업 계획서, 재무 보고서, 고객 계약서' : 'Business plans, financial reports, customer contracts',
-      'People': language === 'ko' ? '인증서, 교육 이수증, 조직도' : 'Certifications, training certificates, organizational charts',
-      'Governance': language === 'ko' ? '정책 문서, 프로세스 매뉴얼, 감사 보고서' : 'Policy documents, process manuals, audit reports',
-      'Platform': language === 'ko' ? '아키텍처 다이어그램, 기술 문서, 구성 스크립트' : 'Architecture diagrams, technical docs, configuration scripts',
-      'Security': language === 'ko' ? '보안 정책, 취약점 스캔 결과, 액세스 로그' : 'Security policies, vulnerability scan results, access logs',
-      'Operations': language === 'ko' ? '운영 매뉴얼, 모니터링 대시보드, SLA 보고서' : 'Operations manuals, monitoring dashboards, SLA reports',
-      'General': language === 'ko' ? '일반 문서, 정책 자료, 가이드라인' : 'General documents, policy materials, guidelines'
-    };
-
-    const specificContent = categorySpecific[itemCategory] || (language === 'ko' ? '관련 문서' : 'related documents');
-
-    return language === 'ko' ? 
-      `📋 **${item.id} 가상증빙예제-참고용 (더미 데이터)**
-
-**${title}** 항목을 위한 맞춤형 증빙예제:
-
-🔹 **문서 1: ${itemCategory} 특화 문서**
-- 파일명: ${item.id}_${itemCategory}_${title.replace(/\s+/g, '_')}_v2.1.pdf
-- 내용: ${title} 요구사항 충족을 위한 ${specificContent}
-- 승인자: ${itemCategory === 'Security' ? 'CISO' : itemCategory === 'Operations' ? 'COO' : 'CTO'}, 승인일: 2024-${Math.floor(Math.random() * 12) + 1}-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **문서 2: ${item.id} 구현 증빙**
-- 파일명: ${item.id}_Implementation_Evidence_${new Date().getFullYear()}.xlsx
-- 내용: ${item.description?.substring(0, 50) || title}... 관련 구현 결과 및 메트릭
-- 담당자: ${itemCategory} 팀장, 작성일: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **문서 3: ${itemCategory} 검증 자료**
-- 파일명: ${item.id}_${itemCategory}_Validation_${Date.now().toString().slice(-6)}.png
-- 내용: ${title} 관련 시스템 화면 및 설정 증빙
-- 검증일: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-💡 **${item.id} 실무 팁**: 이 특정 항목(${title})에 맞는 구체적인 증빙자료를 준비하세요.` :
-      `📋 **${item.id} Virtual Evidence Example (Dummy Data)**
-
-Customized evidence example for **${title}**:
-
-🔹 **Document 1: ${itemCategory} Specialized Document**
-- Filename: ${item.id}_${itemCategory}_${title.replace(/\s+/g, '_')}_v2.1.pdf
-- Content: ${specificContent} for ${title} requirement compliance
-- Approved by: ${itemCategory === 'Security' ? 'CISO' : itemCategory === 'Operations' ? 'COO' : 'CTO'}, Date: 2024-${Math.floor(Math.random() * 12) + 1}-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **Document 2: ${item.id} Implementation Evidence**
-- Filename: ${item.id}_Implementation_Evidence_${new Date().getFullYear()}.xlsx
-- Content: ${item.description?.substring(0, 50) || title}... related implementation results and metrics
-- Owner: ${itemCategory} Team Lead, Created: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-🔹 **Document 3: ${itemCategory} Validation Materials**
-- Filename: ${item.id}_${itemCategory}_Validation_${Date.now().toString().slice(-6)}.png
-- Content: ${title} related system screens and configuration evidence
-- Validated: 2024-12-${Math.floor(Math.random() * 28) + 1}
-
-💡 **${item.id} Practical Note**: Prepare specific evidence materials for this particular item (${title}).`;
   }
 }
 
