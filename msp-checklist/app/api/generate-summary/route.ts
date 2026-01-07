@@ -31,53 +31,71 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 활성 버전 조회
-    const dbPath = path.join(process.cwd(), 'msp-assessment.db');
-    const db = new Database(dbPath);
+    // 활성 버전 조회 (msp-assessment.db에서)
+    const mainDbPath = path.join(process.cwd(), 'msp-assessment.db');
+    const mainDb = new Database(mainDbPath);
     
     let activeVersion: string | null = null;
     try {
       const cacheType = type === 'advice' ? 'advice' : 'virtual_evidence';
-      const versionQuery = db.prepare('SELECT version FROM active_cache_versions WHERE cache_type = ?');
+      const versionQuery = mainDb.prepare('SELECT version FROM active_cache_versions WHERE cache_type = ?');
       const versionResult = versionQuery.get(cacheType) as { version: string } | undefined;
       activeVersion = versionResult?.version || null;
     } catch (e) {
       console.error('Error getting active version:', e);
     }
+    mainDb.close();
 
     if (!activeVersion) {
-      db.close();
       return NextResponse.json(
         { error: `활성화된 ${type === 'advice' ? '조언' : '가상증빙'} 캐시 버전이 없습니다.` },
         { status: 400 }
       );
     }
 
-    // 캐시 데이터 조회
+    // 캐시 데이터 조회 (advice-cache.db에서)
+    const cacheDbPath = path.join(process.cwd(), 'advice-cache.db');
+    
+    // 캐시 DB가 없으면 에러
+    if (!fs.existsSync(cacheDbPath)) {
+      return NextResponse.json(
+        { error: `캐시 데이터베이스가 없습니다. (${cacheDbPath})` },
+        { status: 400 }
+      );
+    }
+    
+    const cacheDb = new Database(cacheDbPath);
     let cacheItems: CacheItem[] = [];
     try {
       if (type === 'advice') {
-        const query = db.prepare(`
+        const query = cacheDb.prepare(`
           SELECT item_id, category, title, advice as advice_content, language 
           FROM advice_cache 
           WHERE version = ? AND language = 'ko'
           ORDER BY category, item_id
         `);
         cacheItems = query.all(activeVersion) as CacheItem[];
+        console.log(`[Generate Summary] Found ${cacheItems.length} advice items for version ${activeVersion}`);
       } else {
-        const query = db.prepare(`
+        const query = cacheDb.prepare(`
           SELECT item_id, category, title, virtual_evidence as virtual_evidence_content, language 
           FROM virtual_evidence_cache 
           WHERE version = ? AND language = 'ko'
           ORDER BY category, item_id
         `);
         cacheItems = query.all(activeVersion) as CacheItem[];
+        console.log(`[Generate Summary] Found ${cacheItems.length} virtual evidence items for version ${activeVersion}`);
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error('Error getting cache items:', e);
+      cacheDb.close();
+      return NextResponse.json(
+        { error: `캐시 데이터 조회 실패: ${e.message}` },
+        { status: 500 }
+      );
     }
     
-    db.close();
+    cacheDb.close();
 
     if (cacheItems.length === 0) {
       return NextResponse.json(
