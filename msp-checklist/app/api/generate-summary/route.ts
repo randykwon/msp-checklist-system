@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createLLMService, LLMMessage, LLMConfig, getOrCreateInferenceProfile } from '@/lib/llm-service';
+import { callLLM, LLMConfig, getOrCreateInferenceProfile } from '@/lib/llm-service';
 import Database from 'better-sqlite3';
 import path from 'path';
 import fs from 'fs';
@@ -105,7 +105,7 @@ export async function POST(request: NextRequest) {
     }
 
     // LLM 설정 처리
-    let finalLLMConfig: LLMConfig | undefined = undefined;
+    let finalLLMConfig: LLMConfig;
     
     if (llmConfig) {
       console.log('[Generate Summary] Using custom LLM config:', llmConfig.provider, llmConfig.model);
@@ -116,14 +116,18 @@ export async function POST(request: NextRequest) {
           llmConfig.autoCreateInferenceProfile) {
         try {
           console.log('[Generate Summary] Auto-finding inference profile for:', llmConfig.model);
-          const inferenceProfileArn = await getOrCreateInferenceProfile(
-            llmConfig.model,
-            llmConfig.awsRegion || 'ap-northeast-2',
-            llmConfig.awsAccessKeyId,
-            llmConfig.awsSecretAccessKey
-          );
-          llmConfig.inferenceProfileArn = inferenceProfileArn;
-          console.log('[Generate Summary] Found inference profile:', inferenceProfileArn);
+          const tempConfig: LLMConfig = {
+            provider: 'bedrock',
+            model: llmConfig.model,
+            awsRegion: llmConfig.awsRegion || 'ap-northeast-2',
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+          };
+          const inferenceProfileArn = await getOrCreateInferenceProfile(tempConfig, llmConfig.model);
+          if (inferenceProfileArn) {
+            llmConfig.inferenceProfileArn = inferenceProfileArn;
+            console.log('[Generate Summary] Found inference profile:', inferenceProfileArn);
+          }
         } catch (error: any) {
           console.error('[Generate Summary] Failed to find inference profile:', error.message);
           return NextResponse.json(
@@ -141,11 +145,21 @@ export async function POST(request: NextRequest) {
         awsAccessKeyId: llmConfig.awsAccessKeyId,
         awsSecretAccessKey: llmConfig.awsSecretAccessKey,
         inferenceProfileArn: llmConfig.inferenceProfileArn,
+        temperature: llmConfig.temperature || 0.5,
+        maxTokens: llmConfig.maxTokens || 2000,
+      };
+    } else {
+      // 기본 설정 사용
+      finalLLMConfig = {
+        provider: 'bedrock',
+        model: process.env.BEDROCK_MODEL || 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+        awsRegion: process.env.AWS_REGION || 'ap-northeast-2',
+        awsAccessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        awsSecretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+        temperature: 0.5,
+        maxTokens: 2000,
       };
     }
-
-    // LLM 서비스 생성
-    const llmService = createLLMService(finalLLMConfig);
 
     // 카테고리별로 그룹화
     const categorizedItems: Record<string, CacheItem[]> = {};
@@ -200,16 +214,9 @@ ${contentForSummary}
 4. 실무자가 바로 활용할 수 있는 형태로 작성
 5. 마크다운 형식 사용`;
 
-    const messages: LLMMessage[] = [
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: userPrompt }
-    ];
-
-    // LLM 호출
-    const response = await llmService.generateText(messages, {
-      temperature: llmConfig?.temperature || 0.5,
-      maxTokens: llmConfig?.maxTokens || 2000
-    });
+    // LLM 호출 (callLLM 함수 사용)
+    console.log('[Generate Summary] Calling LLM with config:', finalLLMConfig.provider, finalLLMConfig.model);
+    const response = await callLLM(userPrompt, systemPrompt, finalLLMConfig);
 
     // 요약 결과 저장 (선택적)
     const summaryDir = path.join(process.cwd(), 'cache', 'summaries');
@@ -227,7 +234,8 @@ ${contentForSummary}
       summary: response.content,
       version: activeVersion,
       itemCount: cacheItems.length,
-      provider: llmService.getProviderName(),
+      provider: finalLLMConfig.provider,
+      model: finalLLMConfig.model,
       usage: response.usage,
       savedTo: summaryFileName
     });
