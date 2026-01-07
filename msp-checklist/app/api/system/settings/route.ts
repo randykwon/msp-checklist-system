@@ -11,23 +11,24 @@ export async function GET(request: NextRequest) {
     
     // 시스템 설정 테이블이 없으면 기본값 반환
     try {
-      const stmt = db.prepare('SELECT key, value FROM system_settings');
-      const rows = stmt.all() as { key: string; value: string }[];
+      // Admin에서 사용하는 컬럼명: setting_key, setting_value
+      const stmt = db.prepare('SELECT setting_key, setting_value FROM system_settings');
+      const rows = stmt.all() as { setting_key: string; setting_value: string }[];
       
       const settings: Record<string, any> = {
         evidenceUploadEnabled: false
       };
       
       for (const row of rows) {
-        if (row.value === 'true') {
-          settings[row.key] = true;
-        } else if (row.value === 'false') {
-          settings[row.key] = false;
+        if (row.setting_value === 'true') {
+          settings[row.setting_key] = true;
+        } else if (row.setting_value === 'false') {
+          settings[row.setting_key] = false;
         } else {
           try {
-            settings[row.key] = JSON.parse(row.value);
+            settings[row.setting_key] = JSON.parse(row.setting_value);
           } catch {
-            settings[row.key] = row.value;
+            settings[row.setting_key] = row.setting_value;
           }
         }
       }
