@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     try {
       if (type === 'advice') {
         const query = db.prepare(`
-          SELECT item_id, category, title, advice_content, language 
+          SELECT item_id, category, title, advice as advice_content, language 
           FROM advice_cache 
           WHERE version = ? AND language = 'ko'
           ORDER BY category, item_id
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         cacheItems = query.all(activeVersion) as CacheItem[];
       } else {
         const query = db.prepare(`
-          SELECT item_id, category, title, virtual_evidence_content, language 
+          SELECT item_id, category, title, virtual_evidence as virtual_evidence_content, language 
           FROM virtual_evidence_cache 
           WHERE version = ? AND language = 'ko'
           ORDER BY category, item_id
