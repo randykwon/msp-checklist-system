@@ -185,6 +185,12 @@ export default function VirtualEvidencePage() {
   });
   const [envConfigLoaded, setEnvConfigLoaded] = useState(false);
 
+  // 요약 생성 관련 state
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [summaryContent, setSummaryContent] = useState<string>('');
+  const [summaryInfo, setSummaryInfo] = useState<{version: string; itemCount: number; provider: string} | null>(null);
+
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
 
@@ -313,6 +319,59 @@ export default function VirtualEvidencePage() {
       showMessage('캐시 생성 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsGenerating(false);
+    }
+  };
+
+  // 요약 생성 함수
+  const generateSummary = async () => {
+    if (!activeVersions.virtualEvidence) {
+      showMessage('활성화된 가상증빙 캐시 버전이 없습니다. 먼저 버전을 활성화해주세요.', 'error');
+      return;
+    }
+    
+    try {
+      setIsGeneratingSummary(true);
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 가상증빙 요약을 생성 중입니다...`, 'info');
+      
+      const response = await fetch('/api/generate-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'virtual_evidence',
+          llmConfig: {
+            provider: llmConfig.provider,
+            model: llmConfig.model,
+            apiKey: llmConfig.apiKey,
+            awsRegion: llmConfig.awsRegion,
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            inferenceProfileArn: llmConfig.inferenceProfileArn,
+            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+            temperature: 0.5,
+            maxTokens: 2000,
+          }
+        }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        setSummaryContent(result.summary);
+        setSummaryInfo({
+          version: result.version,
+          itemCount: result.itemCount,
+          provider: result.provider
+        });
+        setShowSummaryModal(true);
+        showMessage('요약 생성 완료!', 'success');
+      } else {
+        const error = await response.json();
+        showMessage(`요약 생성 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to generate summary:', error);
+      showMessage('요약 생성 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsGeneratingSummary(false);
     }
   };
 
@@ -630,6 +689,19 @@ export default function VirtualEvidencePage() {
                   <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>평가 항목별 AI 가상증빙예제 캐시를 독립적으로 관리합니다</p>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={generateSummary}
+                    disabled={isGeneratingSummary || !activeVersions.virtualEvidence}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#F59E0B',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isGeneratingSummary || !activeVersions.virtualEvidence ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isGeneratingSummary || !activeVersions.virtualEvidence ? 0.7 : 1
+                    }}
+                  >
+                    {isGeneratingSummary ? '⏳ 요약 중...' : '📋 요약 생성'}
+                  </button>
                   <button
                     onClick={() => setShowImportModal(true)}
                     style={{
@@ -1779,6 +1851,93 @@ export default function VirtualEvidencePage() {
           )}
         </div>
       </PermissionGuard>
+
+      {/* 요약 모달 */}
+      {showSummaryModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowSummaryModal(false)}
+        >
+          <div 
+            style={{ 
+              width: '100%', maxWidth: 800, maxHeight: '90vh', background: 'white', 
+              borderRadius: 16, overflow: 'hidden', boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* 헤더 */}
+            <div style={{ 
+              padding: '16px 20px', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', 
+              color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' 
+            }}>
+              <div>
+                <div style={{ fontSize: 18, fontWeight: 700 }}>📋 가상증빙예제 요약</div>
+                {summaryInfo && (
+                  <div style={{ fontSize: 12, opacity: 0.9, marginTop: 4 }}>
+                    버전: {summaryInfo.version} | {summaryInfo.itemCount}개 항목 | {summaryInfo.provider}
+                  </div>
+                )}
+              </div>
+              <button 
+                onClick={() => setShowSummaryModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: '50%', color: 'white', 
+                  fontSize: 20, cursor: 'pointer', display: 'flex', 
+                  alignItems: 'center', justifyContent: 'center' 
+                }}
+              >×</button>
+            </div>
+            
+            {/* 콘텐츠 */}
+            <div style={{ padding: 24, maxHeight: 'calc(90vh - 140px)', overflow: 'auto' }}>
+              <div 
+                style={{ 
+                  fontSize: 14, 
+                  color: '#1C1E21', 
+                  lineHeight: 1.8,
+                  whiteSpace: 'pre-wrap'
+                }}
+                dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
+              />
+            </div>
+            
+            {/* 푸터 */}
+            <div style={{ 
+              padding: '12px 20px', background: '#F0F2F5', borderTop: '1px solid #E4E6EB', 
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
+            }}>
+              <button 
+                onClick={() => {
+                  navigator.clipboard.writeText(summaryContent);
+                  alert('요약 내용이 클립보드에 복사되었습니다.');
+                }}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: '#6366F1', background: 'white', 
+                  border: '1px solid #6366F1', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                📋 복사
+              </button>
+              <button 
+                onClick={() => setShowSummaryModal(false)}
+                style={{ 
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600, 
+                  color: 'white', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer' 
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
