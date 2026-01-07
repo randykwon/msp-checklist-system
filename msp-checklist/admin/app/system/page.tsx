@@ -423,62 +423,99 @@ export default function SystemPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3 className="text-lg font-semibold text-gray-900">📁 증빙 파일 저장소</h3>
-              {!editingStorage ? (
-                <button
-                  onClick={() => setEditingStorage(true)}
-                  style={{
-                    padding: '6px 12px',
-                    fontSize: 13,
-                    fontWeight: 500,
-                    color: '#6366F1',
-                    background: '#EEF2FF',
-                    border: '1px solid #C7D2FE',
-                    borderRadius: 6,
-                    cursor: 'pointer'
-                  }}
-                >
-                  ✏️ 설정 편집
-                </button>
-              ) : (
-                <div style={{ display: 'flex', gap: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* 증빙 자료 업로드 활성화 토글 */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 13, fontWeight: 500, color: evidenceUploadEnabled ? '#047857' : '#B91C1C' }}>
+                    {evidenceUploadEnabled ? '✅ 업로드 활성화' : '🚫 업로드 비활성화'}
+                  </span>
                   <button
-                    onClick={handleSaveStorageSettings}
+                    onClick={handleToggleEvidenceUpload}
                     disabled={updatingSettings}
                     style={{
-                      padding: '6px 12px',
-                      fontSize: 13,
-                      fontWeight: 500,
-                      color: 'white',
-                      background: updatingSettings ? '#9CA3AF' : '#10B981',
+                      position: 'relative',
+                      width: 48,
+                      height: 24,
+                      borderRadius: 12,
                       border: 'none',
-                      borderRadius: 6,
-                      cursor: updatingSettings ? 'not-allowed' : 'pointer'
+                      cursor: updatingSettings ? 'not-allowed' : 'pointer',
+                      background: evidenceUploadEnabled 
+                        ? 'linear-gradient(135deg, #42B883 0%, #35495E 100%)' 
+                        : '#E4E6EB',
+                      transition: 'all 0.3s ease',
+                      opacity: updatingSettings ? 0.7 : 1
                     }}
                   >
-                    {updatingSettings ? '저장 중...' : '💾 저장'}
+                    <span style={{
+                      position: 'absolute',
+                      top: 2,
+                      left: evidenceUploadEnabled ? 26 : 2,
+                      width: 20,
+                      height: 20,
+                      borderRadius: '50%',
+                      background: 'white',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                      transition: 'left 0.3s ease'
+                    }} />
                   </button>
+                </div>
+                {!editingStorage ? (
                   <button
-                    onClick={() => {
-                      setEditingStorage(false);
-                      setStoragePathInput(evidenceStats.storagePath || '');
-                      setS3BucketInput(evidenceStats.s3Bucket || '');
-                      setS3PrefixInput(evidenceStats.s3Prefix || '');
-                    }}
+                    onClick={() => setEditingStorage(true)}
                     style={{
                       padding: '6px 12px',
                       fontSize: 13,
                       fontWeight: 500,
-                      color: '#6B7280',
-                      background: '#F3F4F6',
-                      border: '1px solid #D1D5DB',
+                      color: '#6366F1',
+                      background: '#EEF2FF',
+                      border: '1px solid #C7D2FE',
                       borderRadius: 6,
                       cursor: 'pointer'
                     }}
                   >
-                    취소
+                    ✏️ 설정 편집
                   </button>
-                </div>
-              )}
+                ) : (
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={handleSaveStorageSettings}
+                      disabled={updatingSettings}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: 'white',
+                        background: updatingSettings ? '#9CA3AF' : '#10B981',
+                        border: 'none',
+                        borderRadius: 6,
+                        cursor: updatingSettings ? 'not-allowed' : 'pointer'
+                      }}
+                    >
+                      {updatingSettings ? '저장 중...' : '💾 저장'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingStorage(false);
+                        setStoragePathInput(evidenceStats.storagePath || '');
+                        setS3BucketInput(evidenceStats.s3Bucket || '');
+                        setS3PrefixInput(evidenceStats.s3Prefix || '');
+                      }}
+                      style={{
+                        padding: '6px 12px',
+                        fontSize: 13,
+                        fontWeight: 500,
+                        color: '#6B7280',
+                        background: '#F3F4F6',
+                        border: '1px solid #D1D5DB',
+                        borderRadius: 6,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               <div style={{ 
