@@ -113,11 +113,15 @@ export default function UsersPage() {
     setActionLoading(true);
     try {
       const response = await fetch('/api/users/role', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ userId, role: newRole })
       });
       if (response.ok) { fetchUsers(); setShowEditModal(false); setMessage({ type: 'success', text: '역할이 변경되었습니다.' }); }
+      else {
+        const error = await response.json();
+        setMessage({ type: 'error', text: error.error || '역할 변경에 실패했습니다.' });
+      }
     } catch (error) { setMessage({ type: 'error', text: '역할 변경에 실패했습니다.' }); }
     finally { setActionLoading(false); }
   };
