@@ -188,8 +188,9 @@ export default function VirtualEvidencePage() {
   // 요약 생성 관련 state
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
+  const [showSummaryLLMModal, setShowSummaryLLMModal] = useState(false);
   const [summaryContent, setSummaryContent] = useState<string>('');
-  const [summaryInfo, setSummaryInfo] = useState<{version: string; itemCount: number; provider: string} | null>(null);
+  const [summaryInfo, setSummaryInfo] = useState<{version: string; itemCount: number; provider: string; model: string} | null>(null);
 
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
@@ -331,7 +332,8 @@ export default function VirtualEvidencePage() {
     
     try {
       setIsGeneratingSummary(true);
-      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 가상증빙 요약을 생성 중입니다...`, 'info');
+      setShowSummaryLLMModal(false);
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 가상증빙 요약을 생성 중입니다...`, 'info');
       
       const response = await fetch('/api/generate-summary', {
         method: 'POST',
@@ -359,7 +361,8 @@ export default function VirtualEvidencePage() {
         setSummaryInfo({
           version: result.version,
           itemCount: result.itemCount,
-          provider: result.provider
+          provider: result.provider,
+          model: result.model
         });
         setShowSummaryModal(true);
         showMessage('요약 생성 완료!', 'success');
@@ -373,6 +376,15 @@ export default function VirtualEvidencePage() {
     } finally {
       setIsGeneratingSummary(false);
     }
+  };
+
+  // 요약 LLM 선택 모달 열기
+  const openSummaryLLMModal = () => {
+    if (!activeVersions.virtualEvidence) {
+      showMessage('활성화된 가상증빙 캐시 버전이 없습니다. 먼저 버전을 활성화해주세요.', 'error');
+      return;
+    }
+    setShowSummaryLLMModal(true);
   };
 
   const openLLMConfigModal = () => {
@@ -690,7 +702,7 @@ export default function VirtualEvidencePage() {
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
                   <button
-                    onClick={generateSummary}
+                    onClick={openSummaryLLMModal}
                     disabled={isGeneratingSummary || !activeVersions.virtualEvidence}
                     style={{
                       padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#F59E0B',
@@ -1851,6 +1863,245 @@ export default function VirtualEvidencePage() {
           )}
         </div>
       </PermissionGuard>
+
+      {/* 요약 LLM 선택 모달 */}
+      {showSummaryLLMModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowSummaryLLMModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 600,
+              maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📋 요약 생성 - LLM 선택</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  요약 생성에 사용할 LLM을 선택하세요
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowSummaryLLMModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 20
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* 모달 내용 */}
+            <div style={{ padding: 24, maxHeight: 'calc(80vh - 140px)', overflowY: 'auto' }}>
+              {/* Provider 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  LLM Provider
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {Object.entries(LLM_PROVIDERS).map(([key, provider]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleProviderChange(key as 'openai' | 'gemini' | 'claude' | 'bedrock')}
+                      style={{
+                        padding: '12px 8px', border: `2px solid ${llmConfig.provider === key ? provider.color : '#E5E7EB'}`,
+                        borderRadius: 8, background: llmConfig.provider === key ? `${provider.color}10` : 'white',
+                        cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{provider.icon}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: llmConfig.provider === key ? provider.color : '#6B7280' }}>
+                        {provider.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Model 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  모델 선택
+                </label>
+                <select
+                  value={llmConfig.model}
+                  onChange={(e) => setLLMConfig(prev => ({ ...prev, model: e.target.value }))}
+                  style={{
+                    width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB',
+                    borderRadius: 8, fontSize: 14, background: 'white'
+                  }}
+                >
+                  {LLM_PROVIDERS[llmConfig.provider].models.map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Inference Profile 자동 찾기 (Bedrock Claude 4.5 모델용) */}
+              {llmConfig.provider === 'bedrock' && needsInferenceProfile && (
+                <div style={{ 
+                  marginBottom: 20, padding: 16, background: '#FEF3C7', 
+                  borderRadius: 8, border: '1px solid #F59E0B' 
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span>🔐</span>
+                    <span style={{ fontWeight: 600, color: '#92400E' }}>Inference Profile 필요</span>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#92400E', margin: '0 0 12px' }}>
+                    이 모델은 Inference Profile이 필요합니다. 시스템 정의 프로필을 자동으로 찾습니다.
+                  </p>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={llmConfig.autoCreateInferenceProfile || false}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, autoCreateInferenceProfile: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#92400E' }}>시스템 정의 Inference Profile 자동 찾기</span>
+                  </label>
+                </div>
+              )}
+
+              {/* API Key 입력 (OpenAI, Gemini, Claude) */}
+              {llmConfig.provider !== 'bedrock' && (
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                    API Key
+                  </label>
+                  <div style={{ position: 'relative' }}>
+                    <input
+                      type={showApiKey ? 'text' : 'password'}
+                      value={llmConfig.apiKey || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, apiKey: e.target.value }))}
+                      placeholder={`${LLM_PROVIDERS[llmConfig.provider].name} API Key`}
+                      style={{
+                        width: '100%', padding: '10px 40px 10px 12px', border: '1px solid #D1D5DB',
+                        borderRadius: 8, fontSize: 14
+                      }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      style={{
+                        position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                        background: 'none', border: 'none', cursor: 'pointer', fontSize: 18
+                      }}
+                    >
+                      {showApiKey ? '🙈' : '👁️'}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* AWS Bedrock 설정 */}
+              {llmConfig.provider === 'bedrock' && (
+                <>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                      AWS Region
+                    </label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsRegion || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, awsRegion: e.target.value }))}
+                      placeholder="ap-northeast-2"
+                      style={{
+                        width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB',
+                        borderRadius: 8, fontSize: 14
+                      }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                      AWS Access Key ID
+                    </label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsAccessKeyId || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, awsAccessKeyId: e.target.value }))}
+                      placeholder="AWS Access Key ID"
+                      style={{
+                        width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB',
+                        borderRadius: 8, fontSize: 14
+                      }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                      AWS Secret Access Key
+                    </label>
+                    <div style={{ position: 'relative' }}>
+                      <input
+                        type={showAwsSecretKey ? 'text' : 'password'}
+                        value={llmConfig.awsSecretAccessKey || ''}
+                        onChange={(e) => setLLMConfig(prev => ({ ...prev, awsSecretAccessKey: e.target.value }))}
+                        placeholder="AWS Secret Access Key"
+                        style={{
+                          width: '100%', padding: '10px 40px 10px 12px', border: '1px solid #D1D5DB',
+                          borderRadius: 8, fontSize: 14
+                        }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAwsSecretKey(!showAwsSecretKey)}
+                        style={{
+                          position: 'absolute', right: 8, top: '50%', transform: 'translateY(-50%)',
+                          background: 'none', border: 'none', cursor: 'pointer', fontSize: 18
+                        }}
+                      >
+                        {showAwsSecretKey ? '🙈' : '👁️'}
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* 모달 푸터 */}
+            <div style={{ 
+              padding: '16px 24px', borderTop: '1px solid #E5E7EB',
+              display: 'flex', justifyContent: 'flex-end', gap: 12
+            }}>
+              <button
+                onClick={() => setShowSummaryLLMModal(false)}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  background: '#F3F4F6', color: '#374151', border: 'none',
+                  borderRadius: 8, cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={generateSummary}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+                  color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                }}
+              >
+                📋 요약 생성
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 요약 모달 */}
       {showSummaryModal && (
