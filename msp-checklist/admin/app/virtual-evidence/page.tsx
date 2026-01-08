@@ -185,6 +185,15 @@ export default function VirtualEvidencePage() {
   });
   const [envConfigLoaded, setEnvConfigLoaded] = useState(false);
 
+  // 항목별 요약 관련 state
+  const [isGeneratingItemSummary, setIsGeneratingItemSummary] = useState(false);
+  const [showItemSummaryModal, setShowItemSummaryModal] = useState(false);
+  const [showItemSummaryLLMModal, setShowItemSummaryLLMModal] = useState(false);
+  const [itemSummaryVersions, setItemSummaryVersions] = useState<Array<{version: string; created_at: string; item_count: number}>>([]);
+  const [selectedItemSummaryVersion, setSelectedItemSummaryVersion] = useState<string>('');
+  const [itemSummaries, setItemSummaries] = useState<Array<{item_id: string; category: string; title: string; summary: string}>>([]);
+  const [isLoadingItemSummaries, setIsLoadingItemSummaries] = useState(false);
+
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
 
@@ -318,6 +327,109 @@ export default function VirtualEvidencePage() {
 
   const openLLMConfigModal = () => {
     setShowLLMConfigModal(true);
+  };
+
+  // 항목별 요약 생성 LLM 선택 모달 열기
+  const openItemSummaryLLMModal = () => {
+    if (!activeVersions.virtualEvidence) {
+      showMessage('활성화된 가상증빙예제 캐시 버전이 없습니다. 먼저 버전을 활성화해주세요.', 'error');
+      return;
+    }
+    setShowItemSummaryLLMModal(true);
+  };
+
+  // 항목별 요약 생성
+  const generateItemSummaries = async () => {
+    if (!activeVersions.virtualEvidence) {
+      showMessage('활성화된 가상증빙예제 캐시 버전이 없습니다.', 'error');
+      return;
+    }
+
+    try {
+      setIsGeneratingItemSummary(true);
+      setShowItemSummaryLLMModal(false);
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 항목별 요약을 생성 중입니다...`, 'info');
+
+      const response = await fetch('/api/virtual-evidence-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceVersion: activeVersions.virtualEvidence,
+          llmConfig: {
+            provider: llmConfig.provider,
+            model: llmConfig.model,
+            apiKey: llmConfig.apiKey,
+            awsRegion: llmConfig.awsRegion,
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            inferenceProfileArn: llmConfig.inferenceProfileArn,
+            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+            temperature: 0.5,
+            maxTokens: 1000,
+          }
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        showMessage(`항목별 요약 생성 완료! 버전: ${result.version}, 성공: ${result.successCount}/${result.totalItems}`, 'success');
+        await loadItemSummaryVersions();
+      } else {
+        const error = await response.json();
+        showMessage(`요약 생성 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to generate item summaries:', error);
+      showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsGeneratingItemSummary(false);
+    }
+  };
+
+  // 항목별 요약 버전 목록 로드
+  const loadItemSummaryVersions = async () => {
+    try {
+      const response = await fetch('/api/virtual-evidence-summary?action=versions');
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaryVersions(data.versions || []);
+        if (data.versions && data.versions.length > 0 && !selectedItemSummaryVersion) {
+          setSelectedItemSummaryVersion(data.versions[0].version);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load item summary versions:', error);
+    }
+  };
+
+  // 항목별 요약 목록 로드
+  const loadItemSummaries = async (version: string) => {
+    try {
+      setIsLoadingItemSummaries(true);
+      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${version}&language=ko`);
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaries(data.summaries || []);
+        setShowItemSummaryModal(true);
+      } else {
+        showMessage('요약 목록을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load item summaries:', error);
+      showMessage('요약 목록 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingItemSummaries(false);
+    }
+  };
+
+  // 요약 보기 버튼 클릭
+  const handleViewItemSummaries = async () => {
+    await loadItemSummaryVersions();
+    if (itemSummaryVersions.length > 0) {
+      await loadItemSummaries(itemSummaryVersions[0].version);
+    } else {
+      showMessage('생성된 요약이 없습니다. 먼저 항목별 요약을 생성해주세요.', 'info');
+    }
   };
 
   const handleProviderChange = async (provider: 'openai' | 'gemini' | 'claude' | 'bedrock') => {
@@ -630,6 +742,32 @@ export default function VirtualEvidencePage() {
                   <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>평가 항목별 AI 가상증빙예제 캐시를 독립적으로 관리합니다</p>
                 </div>
                 <div style={{ display: 'flex', gap: 12 }}>
+                  <button
+                    onClick={openItemSummaryLLMModal}
+                    disabled={isGeneratingItemSummary || !activeVersions.virtualEvidence}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#F59E0B',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isGeneratingItemSummary || !activeVersions.virtualEvidence ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isGeneratingItemSummary || !activeVersions.virtualEvidence ? 0.7 : 1
+                    }}
+                  >
+                    {isGeneratingItemSummary ? '⏳ 요약 생성 중...' : '📝 항목별 요약'}
+                  </button>
+                  <button
+                    onClick={handleViewItemSummaries}
+                    disabled={isLoadingItemSummaries}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#6366F1',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isLoadingItemSummaries ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isLoadingItemSummaries ? 0.7 : 1
+                    }}
+                  >
+                    {isLoadingItemSummaries ? '⏳ 로딩...' : '📖 요약 보기'}
+                  </button>
                   <button
                     onClick={() => setShowImportModal(true)}
                     style={{
@@ -1779,6 +1917,257 @@ export default function VirtualEvidencePage() {
           )}
         </div>
       </PermissionGuard>
+
+      {/* 항목별 요약 LLM 선택 모달 */}
+      {showItemSummaryLLMModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowItemSummaryLLMModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 600,
+              maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📝 항목별 요약 생성</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  가상증빙예제를 항목별로 3-5줄로 요약합니다
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowItemSummaryLLMModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 20
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* 모달 내용 */}
+            <div style={{ padding: 24, maxHeight: 'calc(80vh - 140px)', overflowY: 'auto' }}>
+              {/* Provider 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  LLM Provider
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {Object.entries(LLM_PROVIDERS).map(([key, provider]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleProviderChange(key as 'openai' | 'gemini' | 'claude' | 'bedrock')}
+                      style={{
+                        padding: '12px 8px', border: `2px solid ${llmConfig.provider === key ? provider.color : '#E5E7EB'}`,
+                        borderRadius: 8, background: llmConfig.provider === key ? `${provider.color}10` : 'white',
+                        cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{provider.icon}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: llmConfig.provider === key ? provider.color : '#6B7280' }}>
+                        {provider.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Model 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  모델 선택
+                </label>
+                <select
+                  value={llmConfig.model}
+                  onChange={(e) => setLLMConfig(prev => ({ ...prev, model: e.target.value }))}
+                  style={{
+                    width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB',
+                    borderRadius: 8, fontSize: 14, background: 'white'
+                  }}
+                >
+                  {LLM_PROVIDERS[llmConfig.provider].models.map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Inference Profile 자동 찾기 (Bedrock Claude 4.5 모델용) */}
+              {llmConfig.provider === 'bedrock' && needsInferenceProfile && (
+                <div style={{ 
+                  marginBottom: 20, padding: 16, background: '#FEF3C7', 
+                  borderRadius: 8, border: '1px solid #F59E0B' 
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                    <span>🔐</span>
+                    <span style={{ fontWeight: 600, color: '#92400E' }}>Inference Profile 필요</span>
+                  </div>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={llmConfig.autoCreateInferenceProfile || false}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, autoCreateInferenceProfile: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#92400E' }}>시스템 정의 Inference Profile 자동 찾기</span>
+                  </label>
+                </div>
+              )}
+            </div>
+
+            {/* 모달 푸터 */}
+            <div style={{ 
+              padding: '16px 24px', borderTop: '1px solid #E5E7EB',
+              display: 'flex', justifyContent: 'flex-end', gap: 12
+            }}>
+              <button
+                onClick={() => setShowItemSummaryLLMModal(false)}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  background: '#F3F4F6', color: '#374151', border: 'none',
+                  borderRadius: 8, cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={generateItemSummaries}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  background: 'linear-gradient(135deg, #F59E0B 0%, #FBBF24 100%)',
+                  color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer'
+                }}
+              >
+                📝 요약 생성 시작
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 항목별 요약 보기 모달 */}
+      {showItemSummaryModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowItemSummaryModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 900,
+              maxHeight: '90vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📖 가상증빙예제 항목별 요약</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  총 {itemSummaries.length}개 항목
+                </p>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <select
+                  value={selectedItemSummaryVersion}
+                  onChange={(e) => {
+                    setSelectedItemSummaryVersion(e.target.value);
+                    loadItemSummaries(e.target.value);
+                  }}
+                  style={{
+                    padding: '8px 12px', fontSize: 13, borderRadius: 8, border: 'none',
+                    background: 'rgba(255,255,255,0.2)', color: 'white'
+                  }}
+                >
+                  {itemSummaryVersions.map(v => (
+                    <option key={v.version} value={v.version} style={{ color: '#374151' }}>
+                      {v.version.substring(0, 40)}... ({v.item_count}개)
+                    </option>
+                  ))}
+                </select>
+                <button 
+                  onClick={() => setShowItemSummaryModal(false)}
+                  style={{ 
+                    width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                    border: 'none', borderRadius: 8, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: 20
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            
+            {/* 모달 내용 */}
+            <div style={{ padding: 24, maxHeight: 'calc(90vh - 100px)', overflowY: 'auto' }}>
+              {itemSummaries.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
+                  <p>요약 데이터가 없습니다.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {itemSummaries.map((summary, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        padding: 16, border: '1px solid #E5E7EB', borderRadius: 12,
+                        background: 'white'
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                        <span style={{ 
+                          padding: '4px 10px', background: '#EDE9FE', 
+                          borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#7C3AED' 
+                        }}>
+                          {summary.item_id}
+                        </span>
+                        <span style={{ 
+                          padding: '4px 10px', background: '#DCFCE7', 
+                          borderRadius: 6, fontSize: 12, fontWeight: 600, color: '#16A34A' 
+                        }}>
+                          {summary.category}
+                        </span>
+                      </div>
+                      <div style={{ fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                        {summary.title}
+                      </div>
+                      <div 
+                        style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6 }}
+                        dangerouslySetInnerHTML={createMarkdownHtml(summary.summary)}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }

@@ -158,10 +158,15 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   const [isVirtualEvidenceFromServerCache, setIsVirtualEvidenceFromServerCache] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   
-  // 요약 관련 state
+  // 조언 요약 관련 state
   const [showSummaryInline, setShowSummaryInline] = useState(false);
   const [summaryContent, setSummaryContent] = useState<string>('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  
+  // 가상증빙예제 요약 관련 state
+  const [showVESummaryInline, setShowVESummaryInline] = useState(false);
+  const [veSummaryContent, setVESummaryContent] = useState<string>('');
+  const [isLoadingVESummary, setIsLoadingVESummary] = useState(false);
   
   // 증빙 파일 업로드 및 평가 관련 상태
   const [evidenceFiles, setEvidenceFiles] = useState<EvidenceFile[]>([]);
@@ -316,6 +321,66 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       setVirtualEvidenceError('가상증빙예제 생성 중 오류가 발생했습니다.');
     } finally {
       setIsGeneratingVirtualEvidence(false);
+    }
+  };
+
+  // 가상증빙예제 + 요약 통합 보기 함수
+  const handleShowVirtualEvidenceAndSummary = async () => {
+    // 이미 가상증빙예제가 있으면 토글
+    if (virtualEvidenceContent) {
+      const newState = !showVirtualEvidence;
+      setShowVirtualEvidence(newState);
+      setShowVESummaryInline(newState);
+      return;
+    }
+
+    setIsGeneratingVirtualEvidence(true);
+    setIsLoadingVESummary(true);
+    setVirtualEvidenceError('');
+    
+    try {
+      // 가상증빙예제와 요약을 병렬로 로드
+      const [veResponse, summaryResponse] = await Promise.all([
+        // 가상증빙예제 로드
+        fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`),
+        // 요약 로드
+        fetch(`/api/virtual-evidence-summary?action=item&itemId=${item.id}&language=${itemLanguage}`)
+      ]);
+
+      // 가상증빙예제 처리
+      if (veResponse.ok) {
+        const veData = await veResponse.json();
+        if (veData.evidence && veData.evidence.virtualEvidence) {
+          setVirtualEvidenceContent(veData.evidence.virtualEvidence);
+          setVirtualEvidence(item.id, veData.evidence.virtualEvidence, itemLanguage);
+          setIsVirtualEvidenceFromServerCache(true);
+          setShowVirtualEvidence(true);
+        } else {
+          // 캐시에 없으면 생성 시도
+          await generateVirtualEvidence();
+          setShowVirtualEvidence(true);
+        }
+      }
+
+      // 요약 처리
+      if (summaryResponse.ok) {
+        const summaryData = await summaryResponse.json();
+        if (summaryData.summaries && summaryData.summaries.length > 0) {
+          setVESummaryContent(summaryData.summaries[0].summary);
+        } else {
+          setVESummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
+        }
+        setShowVESummaryInline(true);
+      }
+      
+    } catch (error: any) {
+      console.error('Error fetching virtual evidence:', error);
+      setVirtualEvidenceError(itemLanguage === 'ko' ? 
+        '가상증빙예제를 불러오는 중 오류가 발생했습니다.' : 
+        'An error occurred while loading virtual evidence.');
+    } finally {
+      setIsGeneratingVirtualEvidence(false);
+      setIsLoadingVESummary(false);
     }
   };
 
@@ -1220,66 +1285,23 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               </h5>
               <div style={{ display: 'flex', gap: 8 }}>
                 <button
-                  onClick={async () => {
-                    if (showVirtualEvidence) {
-                      // 이미 표시 중이면 숨기기
-                      setShowVirtualEvidence(false);
-                    } else if (virtualEvidenceContent) {
-                      // 캐시된 내용이 있으면 바로 표시
-                      setShowVirtualEvidence(true);
-                    } else {
-                      // 캐시가 없으면 생성 후 표시
-                      setIsGeneratingVirtualEvidence(true);
-                      setVirtualEvidenceError('');
-                      
-                      try {
-                        const response = await fetch('/api/virtual-evidence', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({
-                            itemId: item.id,
-                            title: itemLanguage === 'ko' ? item.titleKo || item.title : item.title,
-                            description: itemLanguage === 'ko' ? item.descriptionKo || item.description : item.description,
-                            evidenceRequired: itemLanguage === 'ko' ? item.evidenceRequiredKo || item.evidenceRequired : item.evidenceRequired,
-                            advice: adviceContent,
-                            language: itemLanguage
-                          }),
-                        });
-
-                        if (response.ok) {
-                          const data = await response.json();
-                          setVirtualEvidenceContent(data.virtualEvidence);
-                          setIsVirtualEvidenceFromServerCache(data.fromCache || false);
-                          setVirtualEvidence(item.id, data.virtualEvidence, itemLanguage);
-                          setShowVirtualEvidence(true); // 생성 후 자동으로 표시
-                        } else {
-                          const errorData = await response.json();
-                          setVirtualEvidenceError(errorData.error || '가상증빙예제 생성에 실패했습니다.');
-                        }
-                      } catch (error) {
-                        console.error('Error generating virtual evidence:', error);
-                        setVirtualEvidenceError('가상증빙예제 생성 중 오류가 발생했습니다.');
-                      } finally {
-                        setIsGeneratingVirtualEvidence(false);
-                      }
-                    }
-                  }}
-                  disabled={isGeneratingVirtualEvidence}
+                  onClick={handleShowVirtualEvidenceAndSummary}
+                  disabled={isGeneratingVirtualEvidence || isLoadingVESummary}
                   style={{
                     padding: '6px 12px',
                     fontSize: 12,
                     fontWeight: 600,
-                    background: 'white',
-                    color: '#8B5CF6',
+                    background: showVirtualEvidence ? 'white' : 'rgba(255,255,255,0.2)',
+                    color: showVirtualEvidence ? '#8B5CF6' : 'white',
                     border: 'none',
                     borderRadius: 6,
-                    cursor: isGeneratingVirtualEvidence ? 'not-allowed' : 'pointer',
-                    opacity: isGeneratingVirtualEvidence ? 0.7 : 1
+                    cursor: (isGeneratingVirtualEvidence || isLoadingVESummary) ? 'not-allowed' : 'pointer',
+                    opacity: (isGeneratingVirtualEvidence || isLoadingVESummary) ? 0.7 : 1
                   }}
                 >
                   {(() => {
-                    if (isGeneratingVirtualEvidence) {
-                      return itemLanguage === 'ko' ? '⏳ 생성 중...' : '⏳ Generating...';
+                    if (isGeneratingVirtualEvidence || isLoadingVESummary) {
+                      return itemLanguage === 'ko' ? '⏳ 로딩...' : '⏳ Loading...';
                     } else if (showVirtualEvidence) {
                       return itemLanguage === 'ko' ? '🔼 숨기기' : '🔼 Hide';
                     } else if (virtualEvidenceContent) {
@@ -1308,6 +1330,37 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   borderRadius: 10,
                   border: '1px solid #DDD6FE'
                 }}>
+                  {/* 가상증빙예제 요약 표시 (먼저 표시) */}
+                  {showVESummaryInline && veSummaryContent && (
+                    <div style={{
+                      marginBottom: 16,
+                      padding: 16,
+                      background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                      borderRadius: 8,
+                      border: '1px solid #F59E0B'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                        <span style={{ fontSize: 16 }}>📝</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: '#92400E' }}>
+                          {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
+                        </span>
+                        <span style={{
+                          padding: '2px 8px',
+                          fontSize: 11,
+                          background: '#F59E0B',
+                          color: 'white',
+                          borderRadius: 10
+                        }}>
+                          {itemLanguage === 'ko' ? '3~5줄 정리' : 'Quick Overview'}
+                        </span>
+                      </div>
+                      <div 
+                        style={{ fontSize: 13, color: '#92400E', lineHeight: 1.6 }}
+                        dangerouslySetInnerHTML={createMarkdownHtml(veSummaryContent)}
+                      />
+                    </div>
+                  )}
+
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 12 }}>
                     {(() => {
                       const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
@@ -1331,7 +1384,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                                 color: '#2E7D32',
                                 borderRadius: 10
                               }}>
-                                {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                                {itemLanguage === 'ko' ? '상세 내용' : 'Details'}
                               </span>
                             </p>
                             <p style={{ fontSize: 12, color: '#7C3AED' }}>
