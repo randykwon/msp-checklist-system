@@ -2394,7 +2394,7 @@ export default function CachePage() {
                         </div>
                         <div 
                           style={{ fontSize: 14, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
-                          dangerouslySetInnerHTML={{ __html: createMarkdownHtml(item.summary) }}
+                          dangerouslySetInnerHTML={createMarkdownHtml(item.summary)}
                         />
                       </div>
                     ))}
