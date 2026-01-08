@@ -196,6 +196,16 @@ export default function CachePage() {
   const [summaryContent, setSummaryContent] = useState<string>('');
   const [summaryInfo, setSummaryInfo] = useState<{version: string; itemCount: number; provider: string; model: string} | null>(null);
 
+  // 항목별 요약 관련 state
+  const [isGeneratingItemSummary, setIsGeneratingItemSummary] = useState(false);
+  const [showItemSummaryLLMModal, setShowItemSummaryLLMModal] = useState(false);
+  const [showItemSummaryListModal, setShowItemSummaryListModal] = useState(false);
+  const [itemSummaryVersions, setItemSummaryVersions] = useState<Array<{version: string; created_at: string; item_count: number}>>([]);
+  const [selectedItemSummaryVersion, setSelectedItemSummaryVersion] = useState<string>('');
+  const [itemSummaries, setItemSummaries] = useState<Array<{id: number; item_id: string; category: string; title: string; summary: string}>>([]);
+  const [isLoadingItemSummaries, setIsLoadingItemSummaries] = useState(false);
+  const [itemSummaryProgress, setItemSummaryProgress] = useState<{current: number; total: number} | null>(null);
+
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
 
@@ -432,6 +442,126 @@ export default function CachePage() {
     } catch (error) {
       console.error('Failed to load summary content:', error);
       showMessage('요약 내용 로드 중 오류가 발생했습니다.', 'error');
+    }
+  };
+
+  // 항목별 요약 LLM 선택 모달 열기
+  const openItemSummaryLLMModal = () => {
+    if (!activeVersions.advice) {
+      showMessage('활성화된 조언 캐시 버전이 없습니다. 먼저 버전을 활성화해주세요.', 'error');
+      return;
+    }
+    setShowItemSummaryLLMModal(true);
+  };
+
+  // 항목별 요약 생성
+  const generateItemSummaries = async () => {
+    if (!activeVersions.advice) {
+      showMessage('활성화된 조언 캐시 버전이 없습니다.', 'error');
+      return;
+    }
+    
+    try {
+      setIsGeneratingItemSummary(true);
+      setShowItemSummaryLLMModal(false);
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 항목별 요약을 생성 중입니다... (61개 항목, 약 5-10분 소요)`, 'info');
+      
+      const response = await fetch('/api/advice-summary', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sourceVersion: activeVersions.advice,
+          llmConfig: {
+            provider: llmConfig.provider,
+            model: llmConfig.model,
+            apiKey: llmConfig.apiKey,
+            awsRegion: llmConfig.awsRegion,
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+            inferenceProfileArn: llmConfig.inferenceProfileArn,
+            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+          }
+        }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        showMessage(`항목별 요약 생성 완료! ${result.successCount}/${result.totalItems}개 성공`, 'success');
+        // 버전 목록 새로고침
+        loadItemSummaryVersions();
+      } else {
+        const error = await response.json();
+        showMessage(`항목별 요약 생성 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to generate item summaries:', error);
+      showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsGeneratingItemSummary(false);
+    }
+  };
+
+  // 항목별 요약 버전 목록 불러오기
+  const loadItemSummaryVersions = async () => {
+    try {
+      setIsLoadingItemSummaries(true);
+      const response = await fetch('/api/advice-summary?action=versions');
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaryVersions(data.versions || []);
+        setShowItemSummaryListModal(true);
+      } else {
+        showMessage('항목별 요약 버전 목록을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load item summary versions:', error);
+      showMessage('항목별 요약 버전 목록 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingItemSummaries(false);
+    }
+  };
+
+  // 특정 버전의 항목별 요약 불러오기
+  const loadItemSummariesByVersion = async (version: string) => {
+    try {
+      setIsLoadingItemSummaries(true);
+      setSelectedItemSummaryVersion(version);
+      const response = await fetch(`/api/advice-summary?action=list&version=${encodeURIComponent(version)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaries(data.summaries || []);
+      } else {
+        showMessage('항목별 요약을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load item summaries:', error);
+      showMessage('항목별 요약 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingItemSummaries(false);
+    }
+  };
+
+  // 항목별 요약 버전 삭제
+  const deleteItemSummaryVersion = async (version: string) => {
+    if (!confirm(`버전 "${version}"을 삭제하시겠습니까?`)) return;
+    
+    try {
+      const response = await fetch(`/api/advice-summary?version=${encodeURIComponent(version)}`, {
+        method: 'DELETE',
+      });
+      if (response.ok) {
+        showMessage('버전이 삭제되었습니다.', 'success');
+        loadItemSummaryVersions();
+        if (selectedItemSummaryVersion === version) {
+          setSelectedItemSummaryVersion('');
+          setItemSummaries([]);
+        }
+      } else {
+        showMessage('버전 삭제에 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to delete item summary version:', error);
+      showMessage('버전 삭제 중 오류가 발생했습니다.', 'error');
     }
   };
 
@@ -754,7 +884,33 @@ export default function CachePage() {
                   <h1 style={{ margin: 0, fontSize: 24, fontWeight: 700 }}>💡 조언 캐시 관리</h1>
                   <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 14 }}>평가 항목별 AI 조언과 가상 증빙 예제 캐시를 관리합니다</p>
                 </div>
-                <div style={{ display: 'flex', gap: 12 }}>
+                <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                  <button
+                    onClick={openItemSummaryLLMModal}
+                    disabled={isGeneratingItemSummary || !activeVersions.advice}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#10B981',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isGeneratingItemSummary || !activeVersions.advice ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isGeneratingItemSummary || !activeVersions.advice ? 0.7 : 1
+                    }}
+                  >
+                    {isGeneratingItemSummary ? '⏳ 생성 중...' : '📝 항목별 요약'}
+                  </button>
+                  <button
+                    onClick={loadItemSummaryVersions}
+                    disabled={isLoadingItemSummaries}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#059669',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isLoadingItemSummaries ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isLoadingItemSummaries ? 0.7 : 1
+                    }}
+                  >
+                    {isLoadingItemSummaries ? '⏳ 로딩...' : '📖 요약 보기'}
+                  </button>
                   <button
                     onClick={openSummaryLLMModal}
                     disabled={isGeneratingSummary || !activeVersions.advice}
@@ -766,7 +922,7 @@ export default function CachePage() {
                       opacity: isGeneratingSummary || !activeVersions.advice ? 0.7 : 1
                     }}
                   >
-                    {isGeneratingSummary ? '⏳ 요약 중...' : '📋 요약 생성'}
+                    {isGeneratingSummary ? '⏳ 요약 중...' : '📋 전체 요약'}
                   </button>
                   <button
                     onClick={loadSummaryList}
@@ -779,7 +935,7 @@ export default function CachePage() {
                       opacity: isLoadingSummaryList ? 0.7 : 1
                     }}
                   >
-                    {isLoadingSummaryList ? '⏳ 로딩...' : '👁️ 요약 보기'}
+                    {isLoadingSummaryList ? '⏳ 로딩...' : '👁️ 전체 요약 보기'}
                   </button>
                   <button
                     onClick={() => setShowImportModal(true)}
@@ -1931,6 +2087,324 @@ export default function CachePage() {
           )}
         </div>
       </PermissionGuard>
+
+      {/* 항목별 요약 LLM 선택 모달 */}
+      {showItemSummaryLLMModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowItemSummaryLLMModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 600,
+              maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📝 항목별 요약 생성</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  61개 항목 각각의 조언을 3-5줄로 요약합니다 (약 5-10분 소요)
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowItemSummaryLLMModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 20
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ padding: 24, maxHeight: 'calc(80vh - 140px)', overflowY: 'auto' }}>
+              {/* Provider 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  LLM Provider
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+                  {Object.entries(LLM_PROVIDERS).map(([key, provider]) => (
+                    <button
+                      key={key}
+                      onClick={() => handleProviderChange(key as 'openai' | 'gemini' | 'claude' | 'bedrock')}
+                      style={{
+                        padding: '12px 8px', border: `2px solid ${llmConfig.provider === key ? provider.color : '#E5E7EB'}`,
+                        borderRadius: 8, background: llmConfig.provider === key ? `${provider.color}10` : 'white',
+                        cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4
+                      }}
+                    >
+                      <span style={{ fontSize: 24 }}>{provider.icon}</span>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: llmConfig.provider === key ? provider.color : '#6B7280' }}>
+                        {provider.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Model 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  모델 선택
+                </label>
+                <select
+                  value={llmConfig.model}
+                  onChange={(e) => setLLMConfig(prev => ({ ...prev, model: e.target.value }))}
+                  style={{
+                    width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB',
+                    borderRadius: 8, fontSize: 14, background: 'white'
+                  }}
+                >
+                  {LLM_PROVIDERS[llmConfig.provider].models.map(model => (
+                    <option key={model.id} value={model.id}>{model.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Inference Profile 자동 찾기 */}
+              {llmConfig.provider === 'bedrock' && needsInferenceProfile && (
+                <div style={{ 
+                  marginBottom: 20, padding: 16, background: '#FEF3C7', 
+                  borderRadius: 8, border: '1px solid #F59E0B' 
+                }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={llmConfig.autoCreateInferenceProfile || false}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, autoCreateInferenceProfile: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#92400E' }}>시스템 정의 Inference Profile 자동 찾기</span>
+                  </label>
+                </div>
+              )}
+
+              {/* AWS Bedrock 설정 */}
+              {llmConfig.provider === 'bedrock' && (
+                <>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>AWS Region</label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsRegion || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, awsRegion: e.target.value }))}
+                      placeholder="ap-northeast-2"
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 16 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>AWS Access Key ID</label>
+                    <input
+                      type="text"
+                      value={llmConfig.awsAccessKeyId || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, awsAccessKeyId: e.target.value }))}
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }}
+                    />
+                  </div>
+                  <div style={{ marginBottom: 20 }}>
+                    <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>AWS Secret Access Key</label>
+                    <input
+                      type="password"
+                      value={llmConfig.awsSecretAccessKey || ''}
+                      onChange={(e) => setLLMConfig(prev => ({ ...prev, awsSecretAccessKey: e.target.value }))}
+                      style={{ width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }}
+                    />
+                  </div>
+                </>
+              )}
+
+              {/* API Key (OpenAI, Gemini, Claude) */}
+              {llmConfig.provider !== 'bedrock' && (
+                <div style={{ marginBottom: 20 }}>
+                  <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>API Key</label>
+                  <input
+                    type="password"
+                    value={llmConfig.apiKey || ''}
+                    onChange={(e) => setLLMConfig(prev => ({ ...prev, apiKey: e.target.value }))}
+                    style={{ width: '100%', padding: '10px 12px', border: '1px solid #D1D5DB', borderRadius: 8, fontSize: 14 }}
+                  />
+                </div>
+              )}
+            </div>
+
+            <div style={{ padding: '16px 24px', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button
+                onClick={() => setShowItemSummaryLLMModal(false)}
+                style={{ padding: '10px 20px', fontSize: 14, fontWeight: 600, background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+              >
+                취소
+              </button>
+              <button
+                onClick={generateItemSummaries}
+                style={{ padding: '10px 20px', fontSize: 14, fontWeight: 600, background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)', color: 'white', border: 'none', borderRadius: 8, cursor: 'pointer' }}
+              >
+                📝 항목별 요약 생성 시작
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 항목별 요약 목록 모달 */}
+      {showItemSummaryListModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowItemSummaryListModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 1000,
+              maxHeight: '90vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #059669 0%, #10B981 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📖 항목별 요약 보기</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  버전을 선택하여 각 항목의 요약을 확인합니다
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowItemSummaryListModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 20
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', height: 'calc(90vh - 80px)' }}>
+              {/* 버전 목록 (왼쪽) */}
+              <div style={{ width: 280, borderRight: '1px solid #E5E7EB', overflowY: 'auto', padding: 16 }}>
+                <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#374151' }}>버전 목록</h3>
+                {itemSummaryVersions.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 20, color: '#6B7280' }}>
+                    <p>생성된 요약이 없습니다.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {itemSummaryVersions.map((v, idx) => (
+                      <div 
+                        key={idx}
+                        style={{
+                          padding: 12, borderRadius: 8, cursor: 'pointer',
+                          background: selectedItemSummaryVersion === v.version ? '#ECFDF5' : '#F9FAFB',
+                          border: `1px solid ${selectedItemSummaryVersion === v.version ? '#10B981' : '#E5E7EB'}`
+                        }}
+                      >
+                        <div 
+                          onClick={() => loadItemSummariesByVersion(v.version)}
+                          style={{ marginBottom: 8 }}
+                        >
+                          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', wordBreak: 'break-all' }}>
+                            {v.version.replace('summary_', '').substring(0, 30)}...
+                          </div>
+                          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>
+                            {new Date(v.created_at).toLocaleString('ko-KR')}
+                          </div>
+                          <div style={{ fontSize: 11, color: '#10B981', marginTop: 2 }}>
+                            {v.item_count}개 항목
+                          </div>
+                        </div>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteItemSummaryVersion(v.version); }}
+                          style={{
+                            padding: '4px 8px', fontSize: 11, background: '#FEE2E2', color: '#DC2626',
+                            border: 'none', borderRadius: 4, cursor: 'pointer'
+                          }}
+                        >
+                          삭제
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* 요약 내용 (오른쪽) */}
+              <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+                {!selectedItemSummaryVersion ? (
+                  <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>👈</div>
+                    <p>왼쪽에서 버전을 선택하세요</p>
+                  </div>
+                ) : isLoadingItemSummaries ? (
+                  <div style={{ textAlign: 'center', padding: 40 }}>
+                    <div style={{ width: 40, height: 40, border: '4px solid #E5E7EB', borderTopColor: '#10B981', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                    <p style={{ marginTop: 16, color: '#6B7280' }}>로딩 중...</p>
+                  </div>
+                ) : itemSummaries.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
+                    <p>요약 데이터가 없습니다.</p>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {itemSummaries.map((item, idx) => (
+                      <div 
+                        key={idx}
+                        style={{
+                          padding: 16, background: '#F9FAFB', borderRadius: 12,
+                          border: '1px solid #E5E7EB'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                          <span style={{ 
+                            padding: '2px 8px', background: '#DBEAFE', color: '#1D4ED8',
+                            borderRadius: 4, fontSize: 12, fontWeight: 600
+                          }}>
+                            {item.item_id}
+                          </span>
+                          <span style={{ 
+                            padding: '2px 8px', background: '#F3E8FF', color: '#7C3AED',
+                            borderRadius: 4, fontSize: 11
+                          }}>
+                            {item.category}
+                          </span>
+                        </div>
+                        <div style={{ fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                          {item.title}
+                        </div>
+                        <div 
+                          style={{ fontSize: 14, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
+                          dangerouslySetInnerHTML={{ __html: createMarkdownHtml(item.summary) }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 요약 목록 모달 */}
       {showSummaryListModal && (
