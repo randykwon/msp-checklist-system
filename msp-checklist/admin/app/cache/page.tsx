@@ -190,6 +190,9 @@ export default function CachePage() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
   const [showSummaryLLMModal, setShowSummaryLLMModal] = useState(false);
+  const [showSummaryListModal, setShowSummaryListModal] = useState(false);
+  const [summaryList, setSummaryList] = useState<Array<{filename: string; type: string; version: string; createdAt: string; size: number}>>([]);
+  const [isLoadingSummaryList, setIsLoadingSummaryList] = useState(false);
   const [summaryContent, setSummaryContent] = useState<string>('');
   const [summaryInfo, setSummaryInfo] = useState<{version: string; itemCount: number; provider: string; model: string} | null>(null);
 
@@ -386,6 +389,50 @@ export default function CachePage() {
       return;
     }
     setShowSummaryLLMModal(true);
+  };
+
+  // 요약 목록 불러오기
+  const loadSummaryList = async () => {
+    try {
+      setIsLoadingSummaryList(true);
+      const response = await fetch('/api/generate-summary?type=advice');
+      if (response.ok) {
+        const data = await response.json();
+        setSummaryList(data.summaries || []);
+        setShowSummaryListModal(true);
+      } else {
+        showMessage('요약 목록을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load summary list:', error);
+      showMessage('요약 목록 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingSummaryList(false);
+    }
+  };
+
+  // 특정 요약 내용 불러오기
+  const loadSummaryContent = async (filename: string) => {
+    try {
+      const response = await fetch(`/api/generate-summary?filename=${encodeURIComponent(filename)}`);
+      if (response.ok) {
+        const data = await response.json();
+        setSummaryContent(data.content);
+        setSummaryInfo({
+          version: filename.split('_summary_')[1]?.split('_')[0] || 'unknown',
+          itemCount: 0,
+          provider: '저장된 요약',
+          model: ''
+        });
+        setShowSummaryListModal(false);
+        setShowSummaryModal(true);
+      } else {
+        showMessage('요약 내용을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load summary content:', error);
+      showMessage('요약 내용 로드 중 오류가 발생했습니다.', 'error');
+    }
   };
 
   const openLLMConfigModal = () => {
@@ -720,6 +767,19 @@ export default function CachePage() {
                     }}
                   >
                     {isGeneratingSummary ? '⏳ 요약 중...' : '📋 요약 생성'}
+                  </button>
+                  <button
+                    onClick={loadSummaryList}
+                    disabled={isLoadingSummaryList}
+                    style={{
+                      padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#6366F1',
+                      background: 'white', border: 'none', borderRadius: 8, 
+                      cursor: isLoadingSummaryList ? 'not-allowed' : 'pointer',
+                      display: 'flex', alignItems: 'center', gap: 6,
+                      opacity: isLoadingSummaryList ? 0.7 : 1
+                    }}
+                  >
+                    {isLoadingSummaryList ? '⏳ 로딩...' : '👁️ 요약 보기'}
                   </button>
                   <button
                     onClick={() => setShowImportModal(true)}
@@ -1871,6 +1931,102 @@ export default function CachePage() {
           )}
         </div>
       </PermissionGuard>
+
+      {/* 요약 목록 모달 */}
+      {showSummaryListModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 100, padding: 20 
+          }}
+          onClick={() => setShowSummaryListModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 700,
+              maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* 모달 헤더 */}
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #6366F1 0%, #818CF8 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>👁️ 저장된 요약 목록</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
+                  이전에 생성된 조언 요약을 확인합니다
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowSummaryListModal(false)}
+                style={{ 
+                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 20
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            {/* 모달 내용 */}
+            <div style={{ padding: 24, maxHeight: 'calc(80vh - 80px)', overflowY: 'auto' }}>
+              {summaryList.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
+                  <p>저장된 요약이 없습니다.</p>
+                  <p style={{ fontSize: 13 }}>요약 생성 버튼을 클릭하여 새 요약을 만들어보세요.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {summaryList.map((summary, index) => (
+                    <div 
+                      key={index}
+                      onClick={() => loadSummaryContent(summary.filename)}
+                      style={{
+                        padding: 16, border: '1px solid #E5E7EB', borderRadius: 12,
+                        cursor: 'pointer', transition: 'all 0.2s',
+                        background: 'white'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.borderColor = '#6366F1';
+                        e.currentTarget.style.background = '#F5F3FF';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.borderColor = '#E5E7EB';
+                        e.currentTarget.style.background = 'white';
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <div style={{ fontWeight: 600, color: '#374151', marginBottom: 4 }}>
+                            📋 {summary.version}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#6B7280' }}>
+                            {new Date(summary.createdAt).toLocaleString('ko-KR')}
+                          </div>
+                        </div>
+                        <div style={{ 
+                          padding: '4px 8px', background: '#EEF2FF', 
+                          borderRadius: 6, fontSize: 11, color: '#6366F1', fontWeight: 500 
+                        }}>
+                          {(summary.size / 1024).toFixed(1)} KB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 요약 LLM 선택 모달 */}
       {showSummaryLLMModal && (

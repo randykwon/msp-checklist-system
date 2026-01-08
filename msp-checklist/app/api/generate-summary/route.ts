@@ -20,6 +20,81 @@ interface CacheItem {
   language: string;
 }
 
+interface SummaryFile {
+  filename: string;
+  type: 'advice' | 'virtual_evidence';
+  version: string;
+  createdAt: string;
+}
+
+// GET: 저장된 요약 목록 조회 또는 특정 요약 내용 조회
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const type = searchParams.get('type'); // 'advice' or 'virtual_evidence'
+    const filename = searchParams.get('filename'); // 특정 파일 내용 조회
+    
+    const summaryDir = path.join(process.cwd(), 'cache', 'summaries');
+    
+    // 디렉토리가 없으면 빈 목록 반환
+    if (!fs.existsSync(summaryDir)) {
+      return NextResponse.json({ summaries: [] });
+    }
+    
+    // 특정 파일 내용 조회
+    if (filename) {
+      const filePath = path.join(summaryDir, filename);
+      if (!fs.existsSync(filePath)) {
+        return NextResponse.json({ error: '요약 파일을 찾을 수 없습니다.' }, { status: 404 });
+      }
+      const content = fs.readFileSync(filePath, 'utf-8');
+      return NextResponse.json({ 
+        success: true, 
+        filename,
+        content 
+      });
+    }
+    
+    // 요약 목록 조회
+    const files = fs.readdirSync(summaryDir)
+      .filter(f => f.endsWith('.md'))
+      .filter(f => !type || f.startsWith(type + '_summary_'))
+      .map(filename => {
+        const stats = fs.statSync(path.join(summaryDir, filename));
+        // 파일명 파싱: {type}_summary_{version}_{timestamp}.md
+        const parts = filename.replace('.md', '').split('_summary_');
+        const fileType = parts[0] as 'advice' | 'virtual_evidence';
+        const rest = parts[1] || '';
+        // version과 timestamp 분리 (timestamp는 마지막 ISO 형식)
+        const lastUnderscoreIdx = rest.lastIndexOf('_');
+        const secondLastIdx = rest.lastIndexOf('_', lastUnderscoreIdx - 1);
+        // timestamp 형식: 2026-01-08T12-34-56-789Z
+        const version = rest.substring(0, secondLastIdx > 0 ? secondLastIdx : rest.length);
+        
+        return {
+          filename,
+          type: fileType,
+          version: version || 'unknown',
+          createdAt: stats.mtime.toISOString(),
+          size: stats.size
+        };
+      })
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    
+    return NextResponse.json({ 
+      success: true,
+      summaries: files 
+    });
+    
+  } catch (error: any) {
+    console.error('Error getting summaries:', error);
+    return NextResponse.json(
+      { error: 'Failed to get summaries', details: error.message },
+      { status: 500 }
+    );
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { type, llmConfig } = await request.json();
