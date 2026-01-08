@@ -65,13 +65,24 @@ export async function POST(request: NextRequest) {
     const mainAppUrl = process.env.MAIN_APP_URL || 'http://localhost:3010';
     const url = `${mainAppUrl}/api/advice-summary`;
     
-    console.log('[Admin Proxy] Forwarding advice-summary POST request');
+    console.log('[Admin Proxy] Forwarding advice-summary POST request to:', url);
     
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
+    
+    // 응답이 JSON인지 확인
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('[Admin Proxy] Non-JSON response from main app:', text.substring(0, 200));
+      return NextResponse.json(
+        { error: '메인 앱에서 잘못된 응답을 받았습니다. 메인 앱을 재시작해주세요.', details: 'Non-JSON response' },
+        { status: 502 }
+      );
+    }
     
     const data = await response.json();
     

@@ -39,6 +39,17 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
+    // 응답이 JSON인지 확인
+    const contentType = response.headers.get('content-type');
+    if (!contentType || !contentType.includes('application/json')) {
+      const text = await response.text();
+      console.error('[Admin Proxy] Non-JSON response from main app:', text.substring(0, 200));
+      return NextResponse.json(
+        { error: '메인 앱에서 잘못된 응답을 받았습니다. 메인 앱을 재시작해주세요.', details: 'Non-JSON response' },
+        { status: 502 }
+      );
+    }
+
     const data = await response.json();
     return NextResponse.json(data, { status: response.status });
   } catch (error: any) {
