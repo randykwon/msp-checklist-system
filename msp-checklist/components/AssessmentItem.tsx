@@ -158,6 +158,11 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
   const [isVirtualEvidenceFromServerCache, setIsVirtualEvidenceFromServerCache] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
   
+  // 요약 관련 state
+  const [showSummaryInline, setShowSummaryInline] = useState(false);
+  const [summaryContent, setSummaryContent] = useState<string>('');
+  const [isLoadingSummary, setIsLoadingSummary] = useState(false);
+  
   // 증빙 파일 업로드 및 평가 관련 상태
   const [evidenceFiles, setEvidenceFiles] = useState<EvidenceFile[]>([]);
   const [isEvaluating, setIsEvaluating] = useState(false);
@@ -624,6 +629,44 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
     }
   };
 
+  // 요약 로드 함수
+  const handleSummaryClick = async () => {
+    // 이미 요약이 있으면 토글
+    if (summaryContent) {
+      setShowSummaryInline(!showSummaryInline);
+      return;
+    }
+
+    setIsLoadingSummary(true);
+    
+    try {
+      // 최신 버전의 요약 가져오기
+      const response = await fetch(`/api/advice-summary?action=item&itemId=${item.id}&language=${itemLanguage}`);
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.summaries && data.summaries.length > 0) {
+          // 가장 최신 요약 사용
+          setSummaryContent(data.summaries[0].summary);
+          setShowSummaryInline(true);
+        } else {
+          // 요약이 없는 경우
+          setSummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
+          setShowSummaryInline(true);
+        }
+      } else {
+        setSummaryContent(itemLanguage === 'ko' ? '요약을 불러오는데 실패했습니다.' : 'Failed to load summary.');
+        setShowSummaryInline(true);
+      }
+    } catch (error) {
+      console.error('Error loading summary:', error);
+      setSummaryContent(itemLanguage === 'ko' ? '요약을 불러오는 중 오류가 발생했습니다.' : 'Error loading summary.');
+      setShowSummaryInline(true);
+    } finally {
+      setIsLoadingSummary(false);
+    }
+  };
+
   // 하이드레이션 전에는 기본 상태로 렌더링
   if (!isHydrated) {
     return (
@@ -999,6 +1042,24 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       {showAdviceInline ? t('assessmentItem.hideAdvice') : t('assessmentItem.showAdvice')}
                     </button>
                   )}
+                  {/* 요약보기 버튼 */}
+                  <button
+                    onClick={handleSummaryClick}
+                    disabled={isLoadingSummary}
+                    style={{
+                      padding: '8px 14px',
+                      fontSize: 13,
+                      fontWeight: 600,
+                      background: showSummaryInline ? 'white' : 'rgba(255,255,255,0.2)',
+                      color: showSummaryInline ? '#F59E0B' : 'white',
+                      border: 'none',
+                      borderRadius: 8,
+                      cursor: isLoadingSummary ? 'not-allowed' : 'pointer',
+                      opacity: isLoadingSummary ? 0.7 : 1
+                    }}
+                  >
+                    {isLoadingSummary ? '⏳' : showSummaryInline ? '🔼 요약 숨기기' : '📝 요약 보기'}
+                  </button>
                   {/* 조언이 없을 때만 생성 버튼 표시 */}
                   {!adviceContent && (
                     <button
@@ -1059,6 +1120,43 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     <div 
                       style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
+                    />
+                  </div>
+                )}
+
+                {/* 인라인 요약 표시 */}
+                {showSummaryInline && summaryContent && (
+                  <div style={{
+                    marginTop: 16,
+                    padding: 20,
+                    background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                    borderRadius: 12,
+                    border: '1px solid #F59E0B'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        📝 {itemLanguage === 'ko' ? '조언 요약' : 'Advice Summary'}
+                        <span style={{
+                          padding: '4px 10px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: '#F59E0B',
+                          color: 'white',
+                          borderRadius: 12
+                        }}>
+                          {itemLanguage === 'ko' ? '핵심 정리' : 'Key Points'}
+                        </span>
+                      </h6>
+                      <button
+                        onClick={() => setShowSummaryInline(false)}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#92400E', fontSize: 20, fontWeight: 'bold' }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                    <div 
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#92400E' }}
+                      dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
                   </div>
                 )}
