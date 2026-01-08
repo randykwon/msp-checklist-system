@@ -629,40 +629,77 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
     }
   };
 
-  // 요약 로드 함수
-  const handleSummaryClick = async () => {
-    // 이미 요약이 있으면 토글
-    if (summaryContent) {
-      setShowSummaryInline(!showSummaryInline);
+  // 조언 + 요약 통합 보기 함수
+  const handleShowAdviceAndSummary = async () => {
+    // 이미 조언이 있으면 토글
+    if (adviceContent) {
+      const newState = !showAdviceInline;
+      setShowAdviceInline(newState);
+      setShowSummaryInline(newState);
       return;
     }
 
+    setIsLoadingAdvice(true);
     setIsLoadingSummary(true);
+    setAdviceError('');
     
     try {
-      // 최신 버전의 요약 가져오기
-      const response = await fetch(`/api/advice-summary?action=item&itemId=${item.id}&language=${itemLanguage}`);
-      
-      if (response.ok) {
-        const data = await response.json();
-        if (data.summaries && data.summaries.length > 0) {
-          // 가장 최신 요약 사용
-          setSummaryContent(data.summaries[0].summary);
-          setShowSummaryInline(true);
-        } else {
-          // 요약이 없는 경우
-          setSummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
-          setShowSummaryInline(true);
-        }
+      // 조언과 요약을 병렬로 로드
+      const [adviceResponse, summaryResponse] = await Promise.all([
+        fetch('/api/advice', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            itemId: item.id,
+            title: itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title,
+            description: itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description,
+            evidenceRequired: itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired,
+            language: itemLanguage,
+          }),
+        }),
+        fetch(`/api/advice-summary?action=item&itemId=${item.id}&language=${itemLanguage}`)
+      ]);
+
+      // 조언 처리
+      if (adviceResponse.ok) {
+        const adviceData = await adviceResponse.json();
+        setAdviceContent(adviceData.advice);
+        setIsAdviceFromServerCache(adviceData.fromCache || false);
+        setAdvice(item.id, adviceData.advice, itemLanguage);
+        setShowAdviceInline(true);
       } else {
-        setSummaryContent(itemLanguage === 'ko' ? '요약을 불러오는데 실패했습니다.' : 'Failed to load summary.');
+        const errorData = await adviceResponse.json();
+        throw new Error(errorData.error || 'Failed to generate advice');
+      }
+
+      // 요약 처리
+      if (summaryResponse.ok) {
+        const summaryData = await summaryResponse.json();
+        if (summaryData.summaries && summaryData.summaries.length > 0) {
+          setSummaryContent(summaryData.summaries[0].summary);
+        } else {
+          setSummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
+        }
         setShowSummaryInline(true);
       }
-    } catch (error) {
-      console.error('Error loading summary:', error);
-      setSummaryContent(itemLanguage === 'ko' ? '요약을 불러오는 중 오류가 발생했습니다.' : 'Error loading summary.');
-      setShowSummaryInline(true);
+      
+    } catch (error: any) {
+      console.error('Error fetching advice:', error);
+      
+      let errorMessage = '';
+      if (error.message.includes('API key')) {
+        errorMessage = itemLanguage === 'ko' ? 
+          'OpenAI API 키가 설정되지 않았습니다. 관리자에게 문의하세요.' : 
+          'OpenAI API key is not configured. Please contact the administrator.';
+      } else {
+        errorMessage = itemLanguage === 'ko' ? 
+          '조언을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.' : 
+          'An error occurred while generating advice. Please try again.';
+      }
+      
+      setAdviceError(errorMessage);
     } finally {
+      setIsLoadingAdvice(false);
       setIsLoadingSummary(false);
     }
   };
@@ -1025,61 +1062,24 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   📋 {t('assessmentItem.evidenceRequired')}
                 </h5>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  {adviceContent && (
-                    <button
-                      onClick={() => setShowAdviceInline(!showAdviceInline)}
-                      style={{
-                        padding: '8px 14px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        background: 'rgba(255,255,255,0.2)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: 8,
-                        cursor: 'pointer'
-                      }}
-                    >
-                      {showAdviceInline ? t('assessmentItem.hideAdvice') : t('assessmentItem.showAdvice')}
-                    </button>
-                  )}
-                  {/* 요약보기 버튼 */}
+                  {/* 조언 + 요약 통합 버튼 */}
                   <button
-                    onClick={handleSummaryClick}
-                    disabled={isLoadingSummary}
+                    onClick={handleShowAdviceAndSummary}
+                    disabled={isLoadingAdvice || isLoadingSummary}
                     style={{
                       padding: '8px 14px',
                       fontSize: 13,
                       fontWeight: 600,
-                      background: showSummaryInline ? 'white' : 'rgba(255,255,255,0.2)',
-                      color: showSummaryInline ? '#F59E0B' : 'white',
+                      background: showAdviceInline ? 'white' : 'rgba(255,255,255,0.2)',
+                      color: showAdviceInline ? '#42B883' : 'white',
                       border: 'none',
                       borderRadius: 8,
-                      cursor: isLoadingSummary ? 'not-allowed' : 'pointer',
-                      opacity: isLoadingSummary ? 0.7 : 1
+                      cursor: (isLoadingAdvice || isLoadingSummary) ? 'not-allowed' : 'pointer',
+                      opacity: (isLoadingAdvice || isLoadingSummary) ? 0.7 : 1
                     }}
                   >
-                    {isLoadingSummary ? '⏳' : showSummaryInline ? '🔼 요약 숨기기' : '📝 요약 보기'}
+                    {(isLoadingAdvice || isLoadingSummary) ? '⏳ 로딩...' : showAdviceInline ? '🔼 조언 숨기기' : '💡 조언 보기'}
                   </button>
-                  {/* 조언이 없을 때만 생성 버튼 표시 */}
-                  {!adviceContent && (
-                    <button
-                      onClick={handleAdviceClick}
-                      disabled={isLoadingAdvice}
-                      style={{
-                        padding: '8px 14px',
-                        fontSize: 13,
-                        fontWeight: 600,
-                        background: 'white',
-                        color: '#42B883',
-                        border: 'none',
-                        borderRadius: 8,
-                        cursor: isLoadingAdvice ? 'not-allowed' : 'pointer',
-                        opacity: isLoadingAdvice ? 0.7 : 1
-                      }}
-                    >
-                      💡 {isLoadingAdvice ? t('assessmentItem.generating') : t('assessmentItem.adviceButton')}
-                    </button>
-                  )}
                 </div>
               </div>
               <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
@@ -1087,7 +1087,38 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
                 </div>
               
-                {/* 인라인 조언 표시 */}
+                {/* 인라인 요약 표시 (먼저 표시) */}
+                {showSummaryInline && summaryContent && (
+                  <div style={{
+                    marginTop: 16,
+                    padding: 20,
+                    background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                    borderRadius: 12,
+                    border: '1px solid #F59E0B'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                        📝 {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
+                        <span style={{
+                          padding: '4px 10px',
+                          fontSize: 12,
+                          fontWeight: 600,
+                          background: '#F59E0B',
+                          color: 'white',
+                          borderRadius: 12
+                        }}>
+                          {itemLanguage === 'ko' ? '3~5줄 정리' : 'Quick Overview'}
+                        </span>
+                      </h6>
+                    </div>
+                    <div 
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#92400E' }}
+                      dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
+                    />
+                  </div>
+                )}
+
+                {/* 인라인 조언 표시 (요약 아래에 표시) */}
                 {showAdviceInline && adviceContent && (
                   <div style={{
                     marginTop: 16,
@@ -1107,56 +1138,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                           color: '#1B5E20',
                           borderRadius: 12
                         }}>
-                          {itemLanguage === 'ko' ? '공용 캐시' : 'Shared Cache'}
+                          {itemLanguage === 'ko' ? '상세 조언' : 'Detailed Advice'}
                         </span>
                       </h6>
-                      <button
-                        onClick={() => setShowAdviceInline(false)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1B5E20', fontSize: 20, fontWeight: 'bold' }}
-                      >
-                        ✕
-                      </button>
                     </div>
                     <div 
                       style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
-                    />
-                  </div>
-                )}
-
-                {/* 인라인 요약 표시 */}
-                {showSummaryInline && summaryContent && (
-                  <div style={{
-                    marginTop: 16,
-                    padding: 20,
-                    background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
-                    borderRadius: 12,
-                    border: '1px solid #F59E0B'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
-                        📝 {itemLanguage === 'ko' ? '조언 요약' : 'Advice Summary'}
-                        <span style={{
-                          padding: '4px 10px',
-                          fontSize: 12,
-                          fontWeight: 600,
-                          background: '#F59E0B',
-                          color: 'white',
-                          borderRadius: 12
-                        }}>
-                          {itemLanguage === 'ko' ? '핵심 정리' : 'Key Points'}
-                        </span>
-                      </h6>
-                      <button
-                        onClick={() => setShowSummaryInline(false)}
-                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#92400E', fontSize: 20, fontWeight: 'bold' }}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                    <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#92400E' }}
-                      dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
                   </div>
                 )}
