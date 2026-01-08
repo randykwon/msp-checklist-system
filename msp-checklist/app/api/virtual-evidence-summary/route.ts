@@ -149,7 +149,7 @@ export async function GET(request: NextRequest) {
 // POST: 모든 항목의 요약 생성
 export async function POST(request: NextRequest) {
   try {
-    const { llmConfig, sourceVersion } = await request.json();
+    const { llmConfig, sourceVersion, language = 'ko' } = await request.json();
 
     // 활성 버전 또는 지정된 버전에서 가상증빙예제 데이터 가져오기
     const mainDbPath = path.join(process.cwd(), 'msp-assessment.db');
@@ -188,19 +188,19 @@ export async function POST(request: NextRequest) {
     const veItems = cacheDb.prepare(`
       SELECT item_id, category, title, virtual_evidence, language 
       FROM virtual_evidence_cache 
-      WHERE version = ? AND language = 'ko'
+      WHERE version = ? AND language = ?
       ORDER BY category, item_id
-    `).all(veVersion) as VirtualEvidenceItem[];
+    `).all(veVersion, language) as VirtualEvidenceItem[];
 
     if (veItems.length === 0) {
       cacheDb.close();
       return NextResponse.json(
-        { error: `가상증빙예제 데이터가 없습니다. (버전: ${veVersion})` },
+        { error: language === 'ko' ? `가상증빙예제 데이터가 없습니다. (버전: ${veVersion})` : `No virtual evidence data found. (version: ${veVersion})` },
         { status: 400 }
       );
     }
 
-    console.log(`[VE Summary] Found ${veItems.length} virtual evidence items for version ${veVersion}`);
+    console.log(`[VE Summary] Found ${veItems.length} virtual evidence items for version ${veVersion} (${language})`);
 
     // LLM 설정 처리
     let finalLLMConfig: LLMConfig;
@@ -252,12 +252,13 @@ export async function POST(request: NextRequest) {
 
     // 새 요약 버전 생성
     const timestamp = new Date().toISOString().replace(/[-:T]/g, '').substring(0, 14);
-    const summaryVersion = `ve_summary_${veVersion}_${timestamp}_${finalLLMConfig.provider}`;
+    const summaryVersion = `ve_summary_${veVersion}_${language}_${timestamp}_${finalLLMConfig.provider}`;
 
     console.log(`[VE Summary] Generating summaries with version: ${summaryVersion}`);
 
-    // 각 항목별 요약 생성
-    const systemPrompt = `당신은 AWS MSP 파트너 프로그램 전문가입니다.
+    // 각 항목별 요약 생성 (언어별 프롬프트)
+    const systemPrompt = language === 'ko'
+      ? `당신은 AWS MSP 파트너 프로그램 전문가입니다.
 제공된 가상증빙예제를 3-5줄로 핵심만 요약해주세요.
 
 요약 규칙:
@@ -265,7 +266,16 @@ export async function POST(request: NextRequest) {
 - 핵심 증빙 유형과 내용만 간결하게 정리
 - 실무자가 바로 활용할 수 있는 형태
 - 이모지 사용하여 가독성 향상
-- 마크다운 형식 사용`;
+- 마크다운 형식 사용`
+      : `You are an AWS MSP Partner Program expert.
+Please summarize the provided virtual evidence example in 3-5 lines, focusing on key points.
+
+Summary rules:
+- Must be within 3-5 lines
+- Concisely organize only the key evidence types and content
+- Format that practitioners can immediately use
+- Use emojis to improve readability
+- Use markdown format`;
 
     const insertStmt = cacheDb.prepare(`
       INSERT OR REPLACE INTO virtual_evidence_summary_cache 
@@ -281,13 +291,22 @@ export async function POST(request: NextRequest) {
       try {
         console.log(`[VE Summary] Processing ${item.item_id}: ${item.title}`);
         
-        const userPrompt = `다음 가상증빙예제를 3-5줄로 요약해주세요:
+        const userPrompt = language === 'ko'
+          ? `다음 가상증빙예제를 3-5줄로 요약해주세요:
 
 **항목 ID:** ${item.item_id}
 **제목:** ${item.title}
 **카테고리:** ${item.category}
 
 **가상증빙예제:**
+${item.virtual_evidence}`
+          : `Please summarize the following virtual evidence example in 3-5 lines:
+
+**Item ID:** ${item.item_id}
+**Title:** ${item.title}
+**Category:** ${item.category}
+
+**Virtual Evidence:**
 ${item.virtual_evidence}`;
 
         const response = await callLLM(userPrompt, systemPrompt, finalLLMConfig);
@@ -298,7 +317,7 @@ ${item.virtual_evidence}`;
           item.category,
           item.title,
           response.content,
-          'ko'
+          language
         );
         
         successCount++;
@@ -329,14 +348,15 @@ ${item.virtual_evidence}`;
     const savedSummaries = finalDb.prepare(`
       SELECT item_id, category, title, summary 
       FROM virtual_evidence_summary_cache 
-      WHERE version = ? AND language = 'ko'
+      WHERE version = ? AND language = ?
       ORDER BY category, item_id
-    `).all(summaryVersion);
+    `).all(summaryVersion, language);
     finalDb.close();
     
     fs.writeFileSync(summaryFilePath, JSON.stringify({
       version: summaryVersion,
       sourceVersion: veVersion,
+      language,
       provider: finalLLMConfig.provider,
       model: finalLLMConfig.model,
       createdAt: new Date().toISOString(),
@@ -350,6 +370,7 @@ ${item.virtual_evidence}`;
       success: true,
       version: summaryVersion,
       sourceVersion: veVersion,
+      language,
       totalItems: veItems.length,
       successCount,
       errorCount,

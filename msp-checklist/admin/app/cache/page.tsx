@@ -194,6 +194,11 @@ export default function CachePage() {
   const [selectedItemSummaryVersion, setSelectedItemSummaryVersion] = useState<string>('');
   const [itemSummaries, setItemSummaries] = useState<Array<{id: number; item_id: string; category: string; title: string; summary: string}>>([]);
   const [isLoadingItemSummaries, setIsLoadingItemSummaries] = useState(false);
+  const [summaryLanguageOptions, setSummaryLanguageOptions] = useState<{korean: boolean; english: boolean}>({
+    korean: true,
+    english: false,
+  });
+  const [summaryViewLanguage, setSummaryViewLanguage] = useState<'ko' | 'en'>('ko');
 
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
@@ -341,39 +346,85 @@ export default function CachePage() {
       showMessage('활성화된 조언 캐시 버전이 없습니다.', 'error');
       return;
     }
+
+    if (!summaryLanguageOptions.korean && !summaryLanguageOptions.english) {
+      showMessage('최소 하나의 언어를 선택해주세요.', 'error');
+      return;
+    }
     
     try {
       setIsGeneratingItemSummary(true);
       setShowItemSummaryLLMModal(false);
-      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 항목별 요약을 생성 중입니다... (61개 항목, 약 5-10분 소요)`, 'info');
       
-      const response = await fetch('/api/advice-summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceVersion: activeVersions.advice,
-          llmConfig: {
-            provider: llmConfig.provider,
-            model: llmConfig.model,
-            apiKey: llmConfig.apiKey,
-            awsRegion: llmConfig.awsRegion,
-            awsAccessKeyId: llmConfig.awsAccessKeyId,
-            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
-            inferenceProfileArn: llmConfig.inferenceProfileArn,
-            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
-          }
-        }),
-      });
+      const languages = [];
+      if (summaryLanguageOptions.korean) languages.push('한국어');
+      if (summaryLanguageOptions.english) languages.push('영어');
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 ${languages.join(', ')} 항목별 요약을 생성 중입니다... (61개 항목, 약 5-10분 소요)`, 'info');
       
-      if (response.ok) {
-        const result = await response.json();
-        showMessage(`항목별 요약 생성 완료! ${result.successCount}/${result.totalItems}개 성공`, 'success');
-        // 버전 목록 새로고침
-        loadItemSummaryVersions();
-      } else {
-        const error = await response.json();
-        showMessage(`항목별 요약 생성 실패: ${error.error}`, 'error');
+      // 선택된 언어별로 요약 생성
+      const results = [];
+      
+      if (summaryLanguageOptions.korean) {
+        const koResponse = await fetch('/api/advice-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceVersion: activeVersions.advice,
+            language: 'ko',
+            llmConfig: {
+              provider: llmConfig.provider,
+              model: llmConfig.model,
+              apiKey: llmConfig.apiKey,
+              awsRegion: llmConfig.awsRegion,
+              awsAccessKeyId: llmConfig.awsAccessKeyId,
+              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+              inferenceProfileArn: llmConfig.inferenceProfileArn,
+              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+            }
+          }),
+        });
+        
+        if (koResponse.ok) {
+          const result = await koResponse.json();
+          results.push(`한국어: ${result.successCount}/${result.totalItems}`);
+        } else {
+          const error = await koResponse.json();
+          results.push(`한국어 실패: ${error.error}`);
+        }
       }
+      
+      if (summaryLanguageOptions.english) {
+        const enResponse = await fetch('/api/advice-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceVersion: activeVersions.advice,
+            language: 'en',
+            llmConfig: {
+              provider: llmConfig.provider,
+              model: llmConfig.model,
+              apiKey: llmConfig.apiKey,
+              awsRegion: llmConfig.awsRegion,
+              awsAccessKeyId: llmConfig.awsAccessKeyId,
+              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+              inferenceProfileArn: llmConfig.inferenceProfileArn,
+              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+            }
+          }),
+        });
+        
+        if (enResponse.ok) {
+          const result = await enResponse.json();
+          results.push(`영어: ${result.successCount}/${result.totalItems}`);
+        } else {
+          const error = await enResponse.json();
+          results.push(`영어 실패: ${error.error}`);
+        }
+      }
+      
+      showMessage(`항목별 요약 생성 완료! ${results.join(', ')}`, 'success');
+      // 버전 목록 새로고침
+      loadItemSummaryVersions();
     } catch (error) {
       console.error('Failed to generate item summaries:', error);
       showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
@@ -403,11 +454,11 @@ export default function CachePage() {
   };
 
   // 특정 버전의 항목별 요약 불러오기
-  const loadItemSummariesByVersion = async (version: string) => {
+  const loadItemSummariesByVersion = async (version: string, lang: 'ko' | 'en' = 'ko') => {
     try {
       setIsLoadingItemSummaries(true);
       setSelectedItemSummaryVersion(version);
-      const response = await fetch(`/api/advice-summary?action=list&version=${encodeURIComponent(version)}`);
+      const response = await fetch(`/api/advice-summary?action=list&version=${encodeURIComponent(version)}&language=${lang}`);
       if (response.ok) {
         const data = await response.json();
         setItemSummaries(data.summaries || []);
@@ -2094,6 +2145,36 @@ export default function CachePage() {
                   />
                 </div>
               )}
+
+              {/* 언어 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  생성할 언어 선택
+                </label>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={summaryLanguageOptions.korean}
+                      onChange={(e) => setSummaryLanguageOptions(prev => ({ ...prev, korean: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#374151' }}>🇰🇷 한국어</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={summaryLanguageOptions.english}
+                      onChange={(e) => setSummaryLanguageOptions(prev => ({ ...prev, english: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#374151' }}>🌐 영어 (English)</span>
+                  </label>
+                </div>
+                <p style={{ margin: '8px 0 0', fontSize: 12, color: '#6B7280' }}>
+                  선택한 언어별로 요약이 생성됩니다. 여러 언어 선택 시 순차적으로 생성됩니다.
+                </p>
+              </div>
             </div>
 
             <div style={{ padding: '16px 24px', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
@@ -2143,17 +2224,50 @@ export default function CachePage() {
                   버전을 선택하여 각 항목의 요약을 확인합니다
                 </p>
               </div>
-              <button 
-                onClick={() => setShowItemSummaryListModal(false)}
-                style={{ 
-                  width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
-                  border: 'none', borderRadius: 8, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: 'white', fontSize: 20
-                }}
-              >
-                ✕
-              </button>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* 언어 선택 탭 */}
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 2 }}>
+                  <button
+                    onClick={() => {
+                      setSummaryViewLanguage('ko');
+                      if (selectedItemSummaryVersion) loadItemSummariesByVersion(selectedItemSummaryVersion, 'ko');
+                    }}
+                    style={{
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
+                      background: summaryViewLanguage === 'ko' ? 'white' : 'transparent',
+                      color: summaryViewLanguage === 'ko' ? '#10B981' : 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🇰🇷 한국어
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSummaryViewLanguage('en');
+                      if (selectedItemSummaryVersion) loadItemSummariesByVersion(selectedItemSummaryVersion, 'en');
+                    }}
+                    style={{
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
+                      background: summaryViewLanguage === 'en' ? 'white' : 'transparent',
+                      color: summaryViewLanguage === 'en' ? '#10B981' : 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🌐 English
+                  </button>
+                </div>
+                <button 
+                  onClick={() => setShowItemSummaryListModal(false)}
+                  style={{ 
+                    width: 36, height: 36, background: 'rgba(255,255,255,0.2)', 
+                    border: 'none', borderRadius: 8, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontSize: 20
+                  }}
+                >
+                  ✕
+                </button>
+              </div>
             </div>
             
             <div style={{ display: 'flex', height: 'calc(90vh - 80px)' }}>
@@ -2176,7 +2290,7 @@ export default function CachePage() {
                         }}
                       >
                         <div 
-                          onClick={() => loadItemSummariesByVersion(v.version)}
+                          onClick={() => loadItemSummariesByVersion(v.version, summaryViewLanguage)}
                           style={{ marginBottom: 8 }}
                         >
                           <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', wordBreak: 'break-all' }}>

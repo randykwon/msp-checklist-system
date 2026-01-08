@@ -193,6 +193,11 @@ export default function VirtualEvidencePage() {
   const [selectedItemSummaryVersion, setSelectedItemSummaryVersion] = useState<string>('');
   const [itemSummaries, setItemSummaries] = useState<Array<{item_id: string; category: string; title: string; summary: string}>>([]);
   const [isLoadingItemSummaries, setIsLoadingItemSummaries] = useState(false);
+  const [summaryLanguageOptions, setSummaryLanguageOptions] = useState<{korean: boolean; english: boolean}>({
+    korean: true,
+    english: false,
+  });
+  const [summaryViewLanguage, setSummaryViewLanguage] = useState<'ko' | 'en'>('ko');
 
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
@@ -345,39 +350,87 @@ export default function VirtualEvidencePage() {
       return;
     }
 
+    if (!summaryLanguageOptions.korean && !summaryLanguageOptions.english) {
+      showMessage('최소 하나의 언어를 선택해주세요.', 'error');
+      return;
+    }
+
     try {
       setIsGeneratingItemSummary(true);
       setShowItemSummaryLLMModal(false);
-      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 항목별 요약을 생성 중입니다...`, 'info');
+      
+      const languages = [];
+      if (summaryLanguageOptions.korean) languages.push('한국어');
+      if (summaryLanguageOptions.english) languages.push('영어');
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 ${languages.join(', ')} 항목별 요약을 생성 중입니다...`, 'info');
 
-      const response = await fetch('/api/virtual-evidence-summary', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          sourceVersion: activeVersions.virtualEvidence,
-          llmConfig: {
-            provider: llmConfig.provider,
-            model: llmConfig.model,
-            apiKey: llmConfig.apiKey,
-            awsRegion: llmConfig.awsRegion,
-            awsAccessKeyId: llmConfig.awsAccessKeyId,
-            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
-            inferenceProfileArn: llmConfig.inferenceProfileArn,
-            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
-            temperature: 0.5,
-            maxTokens: 1000,
-          }
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        showMessage(`항목별 요약 생성 완료! 버전: ${result.version}, 성공: ${result.successCount}/${result.totalItems}`, 'success');
-        await loadItemSummaryVersions();
-      } else {
-        const error = await response.json();
-        showMessage(`요약 생성 실패: ${error.error}`, 'error');
+      // 선택된 언어별로 요약 생성
+      const results = [];
+      
+      if (summaryLanguageOptions.korean) {
+        const koResponse = await fetch('/api/virtual-evidence-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceVersion: activeVersions.virtualEvidence,
+            language: 'ko',
+            llmConfig: {
+              provider: llmConfig.provider,
+              model: llmConfig.model,
+              apiKey: llmConfig.apiKey,
+              awsRegion: llmConfig.awsRegion,
+              awsAccessKeyId: llmConfig.awsAccessKeyId,
+              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+              inferenceProfileArn: llmConfig.inferenceProfileArn,
+              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+              temperature: 0.5,
+              maxTokens: 1000,
+            }
+          }),
+        });
+        
+        if (koResponse.ok) {
+          const result = await koResponse.json();
+          results.push(`한국어: ${result.successCount}/${result.totalItems}`);
+        } else {
+          const error = await koResponse.json();
+          results.push(`한국어 실패: ${error.error}`);
+        }
       }
+      
+      if (summaryLanguageOptions.english) {
+        const enResponse = await fetch('/api/virtual-evidence-summary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sourceVersion: activeVersions.virtualEvidence,
+            language: 'en',
+            llmConfig: {
+              provider: llmConfig.provider,
+              model: llmConfig.model,
+              apiKey: llmConfig.apiKey,
+              awsRegion: llmConfig.awsRegion,
+              awsAccessKeyId: llmConfig.awsAccessKeyId,
+              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+              inferenceProfileArn: llmConfig.inferenceProfileArn,
+              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+              temperature: 0.5,
+              maxTokens: 1000,
+            }
+          }),
+        });
+        
+        if (enResponse.ok) {
+          const result = await enResponse.json();
+          results.push(`영어: ${result.successCount}/${result.totalItems}`);
+        } else {
+          const error = await enResponse.json();
+          results.push(`영어 실패: ${error.error}`);
+        }
+      }
+
+      showMessage(`항목별 요약 생성 완료! ${results.join(', ')}`, 'success');
+      await loadItemSummaryVersions();
     } catch (error) {
       console.error('Failed to generate item summaries:', error);
       showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
@@ -403,10 +456,10 @@ export default function VirtualEvidencePage() {
   };
 
   // 항목별 요약 목록 로드
-  const loadItemSummaries = async (version: string) => {
+  const loadItemSummaries = async (version: string, lang: 'ko' | 'en' = 'ko') => {
     try {
       setIsLoadingItemSummaries(true);
-      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${version}&language=ko`);
+      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${version}&language=${lang}`);
       if (response.ok) {
         const data = await response.json();
         setItemSummaries(data.summaries || []);
@@ -426,7 +479,7 @@ export default function VirtualEvidencePage() {
   const handleViewItemSummaries = async () => {
     await loadItemSummaryVersions();
     if (itemSummaryVersions.length > 0) {
-      await loadItemSummaries(itemSummaryVersions[0].version);
+      await loadItemSummaries(itemSummaryVersions[0].version, summaryViewLanguage);
     } else {
       showMessage('생성된 요약이 없습니다. 먼저 항목별 요약을 생성해주세요.', 'info');
     }
@@ -2028,6 +2081,36 @@ export default function VirtualEvidencePage() {
                   </label>
                 </div>
               )}
+
+              {/* 언어 선택 */}
+              <div style={{ marginBottom: 20 }}>
+                <label style={{ display: 'block', marginBottom: 8, fontWeight: 600, color: '#374151' }}>
+                  생성할 언어 선택
+                </label>
+                <div style={{ display: 'flex', gap: 16 }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={summaryLanguageOptions.korean}
+                      onChange={(e) => setSummaryLanguageOptions(prev => ({ ...prev, korean: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#374151' }}>🇰🇷 한국어</span>
+                  </label>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={summaryLanguageOptions.english}
+                      onChange={(e) => setSummaryLanguageOptions(prev => ({ ...prev, english: e.target.checked }))}
+                      style={{ width: 18, height: 18 }}
+                    />
+                    <span style={{ fontSize: 14, color: '#374151' }}>🌐 영어 (English)</span>
+                  </label>
+                </div>
+                <p style={{ margin: '8px 0 0', fontSize: 12, color: '#6B7280' }}>
+                  선택한 언어별로 요약이 생성됩니다. 여러 언어 선택 시 순차적으로 생성됩니다.
+                </p>
+              </div>
             </div>
 
             {/* 모달 푸터 */}
@@ -2091,11 +2174,42 @@ export default function VirtualEvidencePage() {
                 </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* 언어 선택 탭 */}
+                <div style={{ display: 'flex', background: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 2 }}>
+                  <button
+                    onClick={() => {
+                      setSummaryViewLanguage('ko');
+                      if (selectedItemSummaryVersion) loadItemSummaries(selectedItemSummaryVersion, 'ko');
+                    }}
+                    style={{
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
+                      background: summaryViewLanguage === 'ko' ? 'white' : 'transparent',
+                      color: summaryViewLanguage === 'ko' ? '#6366F1' : 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🇰🇷 한국어
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSummaryViewLanguage('en');
+                      if (selectedItemSummaryVersion) loadItemSummaries(selectedItemSummaryVersion, 'en');
+                    }}
+                    style={{
+                      padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
+                      background: summaryViewLanguage === 'en' ? 'white' : 'transparent',
+                      color: summaryViewLanguage === 'en' ? '#6366F1' : 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    🌐 English
+                  </button>
+                </div>
                 <select
                   value={selectedItemSummaryVersion}
                   onChange={(e) => {
                     setSelectedItemSummaryVersion(e.target.value);
-                    loadItemSummaries(e.target.value);
+                    loadItemSummaries(e.target.value, summaryViewLanguage);
                   }}
                   style={{
                     padding: '8px 12px', fontSize: 13, borderRadius: 8, border: 'none',
