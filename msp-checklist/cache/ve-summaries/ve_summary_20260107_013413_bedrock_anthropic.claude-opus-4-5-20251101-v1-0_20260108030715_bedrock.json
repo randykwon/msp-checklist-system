@@ -1,0 +1,378 @@
+{
+  "version": "ve_summary_20260107_013413_bedrock_anthropic.claude-opus-4-5-20251101-v1-0_20260108030715_bedrock",
+  "sourceVersion": "20260107_013413_bedrock_anthropic.claude-opus-4-5-20251101-v1-0",
+  "provider": "bedrock",
+  "model": "anthropic.claude-opus-4-5-20251101-v1:0",
+  "createdAt": "2026-01-08T03:14:47.326Z",
+  "totalItems": 61,
+  "successCount": 61,
+  "errorCount": 0,
+  "summaries": [
+    {
+      "item_id": "BUS-001",
+      "category": "Business",
+      "title": "회사 개요",
+      "summary": "## 📋 BUS-001 가상증빙예제 요약\n\n🎯 **핵심 증빙**: 18슬라이드 회사 개요 프레젠테이션 (PPT) - 회사 역사, 조직 현황, MSP 서비스 차별화 요소 포함\n\n📊 **주요 내용**: 전통적 MSP vs DevOps 자동화 중심 관리 비교표, AIOps/FinOps/24x7 한국어 지원 3대 차별화 요소, AWS 파트너십 현황 (Advanced Tier, 컴피턴시, 월 $4.2M 관리)\n\n📎 **보조 문서**: 발표 스크립트(Speaker Notes), 회사 소개 브로셔(PDF) 함께 제출"
+    },
+    {
+      "item_id": "BUS-002",
+      "category": "Business",
+      "title": "MSP 실무 성장",
+      "summary": "## 📋 BUS-002 MSP 실무 성장 - 가상증빙예제 요약\n\n🎯 **핵심 증빙**: 18개월 이내 체결된 **신규 MSP 계약서 2건** + **기존 고객 확장 부록 2건** (최소 4건 이상 필요)\n\n📄 **필수 문서**: ① 신규 고객 MSP 계약서(계약일/기간/서비스범위/월관리비용 명시) ② 기존 고객 확장 부록(원계약 대비 MRR 증가율/신규 워크로드 상세) ③ 고객 성장 요약 대시보드(MRR 증가액 정량화)\n\n⚠️ **주의사항**: 단순 갱신은 인정 불가, 반드시 **\"순수 신규/마이그레이션/리팩토링\"** 중 성장 유형 명시 필요"
+    },
+    {
+      "item_id": "BUS-003",
+      "category": "Business",
+      "title": "재무 계획 및 보고",
+      "summary": "## 📊 BUS-003 재무 계획 및 보고 - 증빙 요약\n\n📌 **비상장 기업**: 연간 예산서(수익/비용/투자계획) + 월간 재무보고서(KPI, 예산대비실적, 현금흐름) + 롤링 포캐스트 + 재무정책서 조합 제출\n\n📌 **상장 기업**: DART 분기보고서(재무제표, MD&A 포함) 1건으로 간편하게 충족 가능\n\n💡 **핵심 포인트**: 예산 vs 실적 비교 데이터 포함 시 재무관리 역량 입증에 유리하며, 경영진 승인 이력으로 거버넌스 체계도 함께 증명"
+    },
+    {
+      "item_id": "BUS-004",
+      "category": "Business",
+      "title": "시장 진출 전략",
+      "summary": "## 📋 BUS-004 가상증빙예제 요약\n\n🎯 **GTM 전략서**: 목표 시장을 중견기업/스타트업/규제산업 3개 세그먼트로 분류하고, MSP 적합성 스코어링(60점 이상 우선 제안) 기반 기회 식별 프로세스 수립\n📚 **영업 교육 프로그램**: 16시간 커리큘럼(서비스 이해→기회 발굴→제안/클로징→롤플레이)으로 구성, 26명 대상 중 23명 인증 합격\n💰 **핵심 가치 제안**: ROI 계산기 활용하여 내부 운영 대비 67% 비용 절감, 장애 대응 80% 단축 등 정량적 효과 제시"
+    },
+    {
+      "item_id": "BUSP-001",
+      "category": "Business",
+      "title": "웹 사이트 존재",
+      "summary": "## 📋 BUSP-001 가상증빙예제 요약\n\n🌐 **증빙 유형**: AWS MSP 서비스 랜딩 페이지 URL + 스크린샷 + 사례연구 링크 검증서\n\n📄 **핵심 제출물**: ① 공개 URL 및 페이지 스크린샷(PDF) ② 콘텐츠 상세 명세서 ③ 사례연구 링크 검증 체크리스트(5개 고객사)\n\n⚠️ **필수 조건**: 로그인 없이 접근 가능한 공개 페이지, AWS Partner 로고 표시, 최소 3개 이상 공개 사례연구 포함\n\n💡 **실무 포인트**: Design-Build-Manage-Optimize 서비스 체계, 정량적 성과(비용절감률, SLA 등), 고객사 로고 게재 승인 필수"
+    },
+    {
+      "item_id": "BUSP-002",
+      "category": "Business",
+      "title": "영업 및 마케팅 인증",
+      "summary": "## 📋 BUSP-002 가상증빙예제 요약\n\n🎯 **핵심 증빙**: 영업/마케팅 인력의 AWS Partner Accreditation 보유 현황 증명\n\n📁 **필수 제출물**: ① 인증 현황 스프레드시트(사번/이름/인증코드/완료일) ② AWS Skill Builder 인증서 PDF 묶음 ③ Partner Central 인증 현황 스크린샷\n\n✅ **인증 유형**: 일반 영업/마케팅 → Sales Accreditation (Business), 기술영업 → Accreditation (Technical)\n\n⚠️ **관리 포인트**: 인증 유효기간 2년, 만료 90일 전 갱신 알림 필요, 신규 입사자 60-90일 내 취득 필수"
+    },
+    {
+      "item_id": "BUSP-003",
+      "category": "Business",
+      "title": "고객 사례 연구",
+      "summary": "## 📋 BUSP-003 가상증빙예제 요약\n\n🎯 **공개 사례 2건** (제조업 클라우드 마이그레이션 + 핀테크 보안/컴플라이언스) + **비공개 사례 2건** (헬스케어 HIPAA 준수 + 이커머스 비용최적화) 필요\n\n📊 **핵심 구성요소**: 고객 과제 → AWS 솔루션 → 정량적 성과(비용절감률, 가용성, 응답시간 등) → 고객 증언/확인서\n\n🔗 **공개 사례**: 웹페이지 URL + PDF/비디오 형태로 외부 접근 가능해야 하며, 비공개 사례는 NDA 체결 고객명 익명처리 + 프로젝트 완료 확인서 첨부"
+    },
+    {
+      "item_id": "GOV-001",
+      "category": "Governance",
+      "title": "위험 및 완화 계획",
+      "summary": "## 📋 GOV-001 가상증빙예제 요약\n\n🔹 **종합 위험 분석 및 완화 계획서** - 재정적 위험(AWS 비용, 환율), 고객 집중도, 인력 이탈 등 주요 위험을 식별하고 RI 확보, 환헤지, 백업 인력 지정 등 구체적 완화 전략 수립\n\n🔹 **위험 관리 생명주기 프로세스(SOP)** - 4단계(식별→평가→완화→모니터링) 프로세스와 4×4 위험 평가 매트릭스, KRI 기반 일간/주간/월간/분기별 모니터링 체계 정의\n\n🔹 **분기별 위험 검토 회의록** - C-Level 참석 하에 위험 등급 변동 현황 리뷰, 신규 위험 식별(AWS 정책 변경, 고객 내재화 등), 완화 조치 이행 상태 점검 기록"
+    },
+    {
+      "item_id": "GOV-002",
+      "category": "Governance",
+      "title": "고객 만족도",
+      "summary": "## 📋 GOV-002 고객 만족도 - 가상증빙예제 요약\n\n🎯 **설문 시스템**: SurveyMonkey/Typeform 등을 통한 정기(분기별), 티켓 종료 후, 프로젝트 완료 시점의 다채널 CSAT/NPS 설문 수집 체계 시연\n\n📊 **분석 대시보드**: CSAT 점수(4.3/5), NPS(+42), 응답률(78%) 등 핵심 지표와 카테고리별(기술지원, 응답속도, 비용효율성 등) 만족도 트렌드 시각화\n\n🔄 **개선 프로세스**: 낮은 점수(3점 이하) 발생 시 24시간 내 CSM 연락 → 원인 파악 → 개선 실행 → 고객 피드백 루프 완료까지의 체계적 후속 조치 절차 증빙"
+    },
+    {
+      "item_id": "GOV-003",
+      "category": "Governance",
+      "title": "데이터 소유권 및 고객 오프보딩",
+      "summary": "## 📋 GOV-003 가상증빙예제 요약\n\n🔐 **데이터 소유권**: 고객 AWS 환경의 모든 데이터(리소스, 로그, 백업, IaC)는 전적으로 고객 소유이며, MSP는 서비스 목적으로만 접근\n\n⏱️ **오프보딩 타임라인**: 30일(계획수립) → 60일(권한이전) → 90일(MSP 리소스 정리) 완료의 명확한 기한 약속\n\n🔑 **자격증명 이전**: AWS Secrets Manager 통한 암호화 전달, Root/MFA/IAM 자격증명 고객 전달 후 48시간 내 MSP 사본 영구 삭제\n\n✅ **검증 체계**: 4단계 오프보딩 절차(준비→권한이전→IAM제거→검증), 고객 입회 하 MSP 접근 불가 확인 및 완료 확인서 서명"
+    },
+    {
+      "item_id": "GOV-004",
+      "category": "Governance",
+      "title": "운영 준비성",
+      "summary": "## 📋 GOV-004 운영 준비성 요약\n\n🎯 **Go-Live 전 운영 준비 상태를 체계적으로 검증하는 체크리스트 및 프로세스 문서**\n\n✅ **4개 핵심 영역 평가**: 인력 준비(담당자 배정, 교육), 도구 준비(모니터링, 접근권한), 프로세스 준비(인시던트/변경관리), 문서 준비(Runbook, 매뉴얼)\n\n📊 **D-14 통보 → 기술인수인계 → 도구설정 → D-3 리허설 → Go/No-Go 승인** 순서로 진행되며, 전체 48개 항목 100% 완료 시 Go-Live 승인"
+    },
+    {
+      "item_id": "GOV-005",
+      "category": "Governance",
+      "title": "공동 책임 모델",
+      "summary": "## 📋 GOV-005 가상증빙예제 요약\n\n🔹 **RACI 매트릭스 문서**: 인프라 보안, 데이터 보안, 네트워크, 운영/비용 관리 등 전 영역에 대해 MSP-고객-AWS 간 R/A/C/I 책임을 명확히 정의한 거버넌스 문서\n\n🔐 **보안 책임 분담 명세서**: AWS 공동 책임 모델 기반으로 접근제어, 네트워크 보안, 데이터 보호, 취약점 관리 등 보안 도메인별 책임 항목과 SLA 기준을 상세 명시\n\n📦 **고객 온보딩 패키지**: 실제 고객사(㈜테크스타트업코리아)와의 서비스 범위, 운영 기대사항, 에스컬레이션 매트릭스를 합의하고 **양측 서명**이 포함된 계약 부속서\n\n📊 **RACI 교육 자료**: 신규 고객 대상 역할/책임 이해를 위한 18장 교육 덱으로, AWS 공동 책임 모델과 실제 시나리오 기반 FAQ 포함"
+    },
+    {
+      "item_id": "GOV-006",
+      "category": "Governance",
+      "title": "지속가능성 모범 사례",
+      "summary": "## 📋 GOV-006 지속가능성 모범 사례 요약\n\n🌱 **핵심 증빙 3종**: ①지속가능성 최적화 프레임워크(탄소 최소화 리전 선택, Graviton 우선 채택, 서버리스 전환 정책) ②고객별 개선 실적 보고서(A금융 Graviton 전환으로 탄소 55%↓, B커머스 서버리스 전환으로 68%↓, C제조 스토리지 60%↓) ③Well-Architected 기반 지속가능성 아키텍처 리뷰 체크리스트\n\n📊 **핵심 지표**: vCPU 활용률 60%↑, 저탄소 리전 활용 70%↑, 신규 워크로드 서버리스 비율 50%↑ 목표\n\n✅ **증빙 포인트**: 프레임워크 문서화 + 실제 고객 적용 사례(정량적 성과) + 체계적 리뷰 프로세스로 지속가능성 모범 사례 입증"
+    },
+    {
+      "item_id": "GOVP-001",
+      "category": "Governance",
+      "title": "공급업체 관리",
+      "summary": "## 📋 GOVP-001 공급업체 관리 - 가상증빙예제 요약\n\n🔹 **SOP 문서**: 공급업체 선택·평가·관리 표준절차서 (5단계 프로세스: 요구사항 정의 → 후보 식별 → 보안/컴플라이언스 평가 → 기술 PoC → 최종 계약)\n\n🔹 **평가 기준**: 보안인증(30%), 기술적합성(25%), 재무안정성(15%), 서비스품질(15%), 비용효율성(15%) - 총점 70점 이상 합격\n\n🔹 **실제 평가 사례**: Datadog 모니터링 솔루션 평가결과서 (92/100점 합격, ISO27001/SOC2 등 인증 검증 완료)\n\n🔹 **관리 체계**: 공급업체 등록대장, 연 1회 정기 재평가, 보안인증 만료 90일 전 갱신 확인 프로세스 운영"
+    },
+    {
+      "item_id": "GOVP-002",
+      "category": "Governance",
+      "title": "운영 개선",
+      "summary": "## 📋 GOVP-002 운영 개선 - 가상증빙예제 요약\n\n🔹 **거버넌스 프레임워크**: IDEA Cycle(식별→개발→실행→평가) 기반 개선 프로세스와 RICE 우선순위 매트릭스를 활용한 체계적 운영 개선 관리 체계 문서\n\n🔹 **분기별 검토 보고서**: 개선 과제 완료율(84%), 비용 절감액(₩2.8억), MTTR 25% 개선 등 정량적 성과를 포함한 분기 운영 개선 실적 보고서\n\n🔹 **핵심 증빙 포인트**: 월간 OIC 회의체 운영, 영역별 워킹그룹 활동, Before/After 메트릭 비교를 통한 지속적 개선 실행 증거"
+    },
+    {
+      "item_id": "GOVP-003",
+      "category": "Governance",
+      "title": "지속가능성 약속",
+      "summary": "## 📋 GOVP-003 지속가능성 약속 - 증빙 요약\n\n🎯 **핵심 증빙 4종**: CEO 지속가능성 선언문(서명 필수), 지속가능성 경영 정책서(전사 적용), 전사 공지/리더십 메시지, 2024-2030 로드맵 및 KPI\n\n📌 **필수 포함 요소**: C-Level(CEO/CTO/CFO) 서명·승인 이력, 3-5년 장기 전략 연계, 구체적 KPI(탄소배출량, 에너지효율 등), 투자 계획\n\n☁️ **AWS 특화 내용**: Customer Carbon Footprint Tool 활용, Graviton 프로세서 전환 계획, Well-Architected 지속가능성 원칙 적용, 재생에너지 리전 우선 선택\n\n⚡ **실무 팁**: 단순 선언이 아닌 측정 가능한 목표와 분기별 이행 점검 체계 구축이 핵심"
+    },
+    {
+      "item_id": "OPS-001",
+      "category": "Operations",
+      "title": "서비스 수준 관리",
+      "summary": "## 📋 OPS-001 서비스 수준 관리 - 증빙 요약\n\n🎯 **핵심 증빙 4종**: SLA 정의서(응답시간/가용성 목표), 월간 성과보고서(달성률 98.7%), 고객 검토 회의록(분기별, 양측 서명), SLA 대시보드 스크린샷\n\n📊 **필수 포함 요소**: 심각도별 응답시간 정량화(P1: 15분 등), SLA 미달 건 원인분석 및 개선조치, 고객 피드백과 합의사항 문서화\n\n💡 **실무 팁**: 최소 3개월 연속 보고서 준비, 100% 달성보다 미달 시 개선프로세스 문서화가 성숙도 평가에 유리"
+    },
+    {
+      "item_id": "OPS-002",
+      "category": "Operations",
+      "title": "파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜",
+      "summary": "## 📋 OPS-002 가상증빙예제 요약\n\n🔹 **증빙 구성**: ① AWS Organizations 계정별 지원 플랜 현황표(Excel) ② Support Center 스크린샷(PDF) ③ CLI 자동화 검증 결과(JSON)\n\n🔹 **핵심 내용**: Management 계정은 Enterprise/Business 플랜 필수, Production 멤버 계정은 Enterprise 상속 또는 PLS(Partner-Led Support) 적용 증빙\n\n🔹 **검증 포인트**: 계정 ID, 지원 플랜 유형, TAM 배정 여부, PLS 계약 ID가 스크린샷에 명확히 표시되어야 함\n\n🔹 **실무 팁**: `aws support describe-severity-levels` CLI로 자동화 검증 권장, 만료일 30일 전 알림 설정 필수"
+    },
+    {
+      "item_id": "OPS-003",
+      "category": "Operations",
+      "title": "고객 소유 멤버 계정을 위한 AWS 지원 플랜",
+      "summary": "## 📋 OPS-003 가상증빙예제 요약\n\n🔹 **핵심 증빙 4종**: ① 고객 계정별 지원 플랜 현황 매트릭스(Excel) ② 플랜 업그레이드 권고 공문(PDF) ③ 권고 이력 추적 대시보드 ④ 고객 온보딩용 지원 플랜 가이드\n\n🔹 **주요 내용**: 프로덕션 계정은 Business 이상 필수 적용, Basic 플랜 사용 고객에게 업그레이드 권고 커뮤니케이션 수행 및 이력 관리\n\n🔹 **핵심 지표**: 전체 프로덕션 계정 중 87%가 Business 이상 적용, 권고→적용 평균 23일 소요\n\n🔹 **실무 포인트**: 월간 자동 플래깅으로 미준수 계정 식별, 장애 시 비즈니스 손실 대비 ROI 계산하여 고객 설득"
+    },
+    {
+      "item_id": "OPS-004",
+      "category": "Operations",
+      "title": "서비스 데스크 운영",
+      "summary": "## 📋 OPS-004 서비스 데스크 운영 - 증빙 요약\n\n🎯 **핵심 증빙 5종**: ①MSA 부속서(24x7 운영시간/SLA/다중채널 명시) ②서비스데스크 운영체계서(조직구성/교대근무/도구) ③월간 운영리포트(티켓처리현황/야간대응사례) ④On-Call 당직스케줄(에스컬레이션 연락망/PagerDuty) ⑤포털 스크린샷(ServiceNow/Amazon Connect)\n\n💡 **핵심 포인트**: 최소 3개 이상 커뮤니케이션 채널(전화/이메일/웹포털/Slack) 운영 증빙 필수, 야간·주말 실제 티켓 처리 이력으로 24x7 운영 실증\n\n⚠️ **주의사항**: 계약서만으로 부족 → 실제 On-Call 스케줄, 시간외 대응 기록 등 운영 증거 병행 준비 필요"
+    },
+    {
+      "item_id": "OPS-005",
+      "category": "Operations",
+      "title": "포괄적인 ITSM 플랫폼 구현",
+      "summary": "## 📋 OPS-005 가상증빙예제 요약\n\n🎯 **ServiceNow 등 ITSM 플랫폼**과 **AWS 서비스(CloudWatch, Health Dashboard, EventBridge)** 연동 환경에서 90분간 시연 진행\n\n📌 **4가지 핵심 프로세스 시연**: ① 인시던트/문제 관리(자동 생성→할당→에스컬레이션) ② 변경 관리(RFC→평가→CAB승인→구현) ③ 서비스 요청(카탈로그 기반 자동화) ④ 실시간 대시보드 보고\n\n⚡ **자동화 증빙 포인트**: CloudWatch 알람→인시던트 자동 생성, 동일 유형 3건 이상→Problem 티켓 자동 생성, 정책 기반 서비스 요청 자동 승인/Terraform 배포\n\n📊 **KPI 대시보드 필수**: SLA 준수율(98.5%), 평균 해결시간, 고객 만족도 등 실시간 운영 지표 시연 필요"
+    },
+    {
+      "item_id": "OPS-006",
+      "category": "Operations",
+      "title": "릴리스 관리",
+      "summary": "## 📋 OPS-006 릴리스 관리 - 가상증빙예제 요약\n\n🔹 **릴리스 정책**: Major/Minor/Patch/Hotfix 4단계 유형별 배포 주기, 승인 레벨, 롤백 시간 정의 (Dev→QA→Staging→Prod 파이프라인)\n\n🔹 **버전 관리**: Git Flow 브랜칭 전략 + Semantic Versioning 적용, PR 승인 시 최소 2명 리뷰어 필수\n\n🔹 **CI/CD 파이프라인**: AWS CodePipeline 기반 8단계 자동화 (소스→빌드→보안스캔→QA→테스트→Staging→승인→Prod Blue/Green 배포)\n\n🔹 **품질 게이트**: 환경 이동 시 테스트 커버리지 80%+, 보안스캔 통과, CAB 승인 등 단계별 조건 충족 필수"
+    },
+    {
+      "item_id": "OPS-007",
+      "category": "Operations",
+      "title": "구성 관리",
+      "summary": "## 📋 OPS-007 구성 관리 요약\n\n🔧 **핵심 도구**: AWS Config(90일+ 구성 기록), CloudTrail(변경 추적), ITSM(ServiceNow/Jira), IaC(Terraform/CloudFormation)\n\n📊 **시연 구성**: 구성 변경 추적 → 변경 실행자/승인자 추적 → 변경 알림 설정 (총 45분)\n\n✅ **핵심 증빙**: 변경 요청서 3건+, 승인 워크플로 다이어그램, 롤백 이력, 월간 구성 변경 리포트\n\n🔔 **자동화**: EventBridge 규칙으로 구성 변경 시 Slack/SNS 실시간 알림 연동"
+    },
+    {
+      "item_id": "OPS-008",
+      "category": "Operations",
+      "title": "패치 관리",
+      "summary": "## 📋 OPS-008 패치 관리 요약\n\n🔧 **AWS Systems Manager Patch Manager**를 활용한 멀티 OS(Windows/Linux) 중앙 집중식 패치 관리 시연\n📊 **커스텀 패치 베이스라인** 구성(Critical/Security 패치 자동 승인, 승인 대기 기간 설정)과 **패치 그룹** 관리\n⏰ **유지 관리 기간(Maintenance Window)** 설정으로 운영/개발 환경별 자동 패치 스케줄링\n🔄 **사전 스냅샷 생성 → 패치 적용 → 검증** 자동화 Runbook으로 롤백 기능 포함\n📈 **패치 컴플라이언스 대시보드**와 SNS 알림을 통한 실시간 모니터링 및 보고 체계"
+    },
+    {
+      "item_id": "OPS-009",
+      "category": "Operations",
+      "title": "고객 배포 파이프라인",
+      "summary": "## 📋 OPS-009 가상증빙예제 요약\n\n🚀 **CI/CD 파이프라인 라이브 시연** - CodePipeline/CodeBuild/CodeDeploy를 활용한 자동 배포 흐름 시연 (Git Push → 빌드 → 승인 → Blue/Green 배포)\n\n🔄 **자동 롤백 기능 검증** - 헬스체크 실패 시 자동 롤백 트리거 및 복구 과정 시연 (의도적 실패 배포로 검증)\n\n📊 **배포 이력 증빙** - 최소 10회 이상 배포 로그, 98%+ 성공률, 평균 9분 배포 시간 등 통계 대시보드 제시\n\n🏢 **다중 고객 표준화** - Terraform 모듈화된 파이프라인 템플릿으로 12개+ 고객 환경에 일관 적용 증빙"
+    },
+    {
+      "item_id": "OPS-010",
+      "category": "Operations",
+      "title": "이벤트 관리 및 동적 모니터링",
+      "summary": "## 📋 OPS-010 가상증빙예제 요약\n\n🎯 **증빙 유형**: 60분 실시간 시연 (시연 45분 + Q&A 15분)\n\n📊 **핵심 시연 내용**: CloudWatch 메트릭/로그/대시보드, X-Ray 분산추적, EventBridge 이벤트 규칙을 활용한 3-Tier 웹앱 모니터링 체계 시연\n\n🔔 **주요 구성 요소**: KPI 메트릭 정의서(가용성/성능/신뢰성), 커스텀 메트릭 수집 스크립트, Logs Insights 쿼리, 다단계 알람(Warning→Critical→Emergency)\n\n⚙️ **필수 준비물**: 운영 대시보드, 태그 표준 정책서, 장애 시뮬레이션 스크립트, SNS/PagerDuty/Slack 알림 채널 연동 확인"
+    },
+    {
+      "item_id": "OPS-011",
+      "category": "Operations",
+      "title": "운영 런북",
+      "summary": "## 📋 OPS-011 운영 런북 요약\n\n🔧 **EC2 인스턴스 장애 대응 런북** 형태의 증빙으로, CloudWatch 알람 트리거 조건과 환경별 대응 SLA(Critical 15분/High 30분/Medium 2시간)가 명시됨\n📝 **Step-by-Step 실행 절차** 포함: 초기 상황 파악 → 장애 유형 진단(System/Instance Status Check) → 복구 조치 → Failover/DR 절차 순서로 구성\n⚙️ **AWS CLI 명령어와 체크리스트** 형식으로 실무자가 즉시 활용 가능하며, 장애 유형별 원인-대응 매핑 테이블 제공\n✅ **승인 프로세스와 고객 통보 절차**가 포함되어 MSP 운영 거버넌스 준수 증빙으로 활용 가능"
+    },
+    {
+      "item_id": "OPS-012",
+      "category": "Operations",
+      "title": "이상 탐지",
+      "summary": "## 📋 OPS-012 이상 탐지 - 가상증빙예제 요약\n\n🔍 **CloudWatch Anomaly Detection** 기반 ML 이상 탐지 시스템 구축 증빙 (47개 메트릭, 2σ 밴드 적용)\n\n📊 **핵심 성과**: 일일 알람 127건→34건(-73%), False Positive 73%→12%(-84%), MTTR 45분→23분(-49%)\n\n🛠️ **증빙 구성**: 아키텍처 설계서 + CloudWatch 알람 스크린샷(23개 활성) + Terraform IaC 코드 + 효과 분석 보고서\n\n✅ **실제 사례**: 메모리 누수 4시간 조기 탐지, 트래픽 300% 급증 선제 대응 등 계절성 패턴 학습 효과 입증"
+    },
+    {
+      "item_id": "OPS-013",
+      "category": "Operations",
+      "title": "예측 모니터링 및 AIOps",
+      "summary": "## 📋 OPS-013 가상증빙예제 요약\n\n🎯 **핵심 증빙 구성**: 메가쇼핑(이커머스) 대상 AIOps 플랫폼 구축 사례로, SageMaker 기반 예측 모델(트래픽 95.8% 정확도), Lookout for Metrics, DevOps Guru를 활용한 선제적 모니터링 체계 증빙\n\n📊 **주요 성과 데이터**: 2024 블랙프라이데이 72시간 전 트래픽 급증 예측 → 선제 대응으로 장애 0건 달성 (전년 대비 다운타임 47분→0분, 매출손실 2.3억원→0원)\n\n🔧 **기술 증빙 포인트**: ① DeepAR+ 트래픽 예측 ② Random Cut Forest 이상탐지(F1: 0.929) ③ 리소스 고갈 7일 전 예측 ④ EventBridge+Step Functions 자동 대응 워크플로우\n\n💰 **ROI 증빙**: 월 비용 $4,200 대비 연간 $890,000 장애 비용 예방 (ROI 1,764%), MTTR 82% 감소(45분→8분)"
+    },
+    {
+      "item_id": "OPS-014",
+      "category": "Operations",
+      "title": "지식 관리",
+      "summary": "## 📋 OPS-014 지식 관리 - 요약\n\n🎯 **핵심 증빙:** Confluence/SharePoint 등 지식 관리 플랫폼에서 **내부 운영 프로세스 문서**와 **고객별 Runbook/아키텍처 문서**가 체계적으로 관리되는 라이브 시연\n\n📂 **필수 구성요소:** ① 인시던트 대응/변경관리 등 내부 프로세스 문서 ② 고객별 전용 Space(아키텍처, Runbook, RCA) ③ 실시간 검색 기능 ④ 버전 관리 및 접근 권한 체계\n\n✅ **평가 포인트:** 문서의 체계적 구조화, 실제 운영 활용 증거(최근 업데이트 이력), 5초 이내 검색 응답, 고객별 권한 분리 및 감사 로그"
+    },
+    {
+      "item_id": "OPS-015",
+      "category": "Operations",
+      "title": "재해 복구",
+      "summary": "## 📋 OPS-015 재해 복구 - 가상증빙예제 요약\n\n🎯 **핵심 증빙 3종**: ① RTO/RPO 정의서(고객별 Tier 분류, 백업 주기/보존 정책) ② AWS Backup 자동화 구성(Vault, Plan, 크로스리전 복제 스크린샷) ③ DR 복구 테스트 보고서(PITR 실행 타임라인, 결과 측정)\n\n📊 **주요 지표**: 백업 성공률 99.79%, RTO 목표 60분 대비 실측 53분 달성, RPO 15분 이내 충족, 데이터 무결성 100% 검증\n\n✅ **필수 요소**: 고객 워크로드별 RTO/RPO 정의, AWS Backup Plan 구성 증빙, 분기별 DR 테스트 실행 기록 및 결과 보고서"
+    },
+    {
+      "item_id": "OPS-016",
+      "category": "Operations",
+      "title": "클라우드 재무 관리",
+      "summary": "## 📋 OPS-016 가상증빙예제 요약\n\n💰 **TCO 분석 도구**: Migration Evaluator 및 자체 TCO 계산 도구로 온프레미스 vs AWS 5년 비용 비교 분석 (60% 절감 사례 포함)\n\n📊 **비용 모니터링 대시보드**: 멀티 어카운트 실시간 비용 현황, 예산 대비 실적, ML 기반 이상 탐지 및 자동 알림 체계 시연\n\n💳 **리셀러 빌링 시스템**: AWS CUR 기반 마진 적용, 고객별 사용량 대시보드, 자동 청구서 생성 프로세스 시연\n\n⏱️ **시연 구성**: 총 60-75분 (TCO 20분 + 모니터링 20분 + 빌링 15분 + Q&A 15분), FinOps 담당자 필수 참석"
+    },
+    {
+      "item_id": "OPS-017",
+      "category": "Operations",
+      "title": "마이그레이션",
+      "summary": "## 📋 OPS-017 마이그레이션 가상증빙예제 요약\n\n🔍 **핵심 증빙 유형**: 포트폴리오 발견/7Rs 전략 문서, 마이그레이션 거버넌스/커뮤니케이션 계획, RACI 매트릭스/교육 계획, 랜딩 존 설정 문서\n\n📊 **주요 내용**: AWS Application Discovery Service를 활용한 127개 애플리케이션/342대 서버 분석, 7Rs 전략별 분류(Replatform/Rehost/Refactor 등), SAP ECC→S/4HANA 리플랫포밍 계획 수립\n\n🏗️ **거버넌스 체계**: 스티어링 커미티(월1회), 프로젝트 관리위원회(주1회), Wave별 전환 계획(비핵심→SAP→MES), Go/No-Go 체크포인트 12개 항목 포함\n\n📚 **교육/인수인계**: 3단계 교육 프로그램(기초→심화→운영전환), RACI 매트릭스로 MSP/고객/AWS/파트너 역할 명확화, AWS Control Tower 기반 랜딩 존 구성"
+    },
+    {
+      "item_id": "OPS-018",
+      "category": "Operations",
+      "title": "인공지능",
+      "summary": "## 📋 OPS-018 인공지능 증빙 요약\n\n🤖 **고객 프로젝트**: Amazon Bedrock 기반 AI 챗봇(ABC금융), 상품설명 자동생성(XYZ이커머스) 등 생성형 AI 구축 SOW 및 완료보고서 (ROI 600% 등 정량 성과 포함)\n\n⚙️ **내부 활용**: 티켓 자동분류(정확도 93.2%), 인시던트 RCA 자동생성, 비용 이상탐지 등 운영 효율화 AI 스프린트 계획서\n\n🛡️ **거버넌스**: 승인된 AWS AI 서비스 목록(Bedrock, Amazon Q), PII 입력 금지, AI 생성물 인간 검토 필수 등 보안/윤리 정책 문서"
+    },
+    {
+      "item_id": "OPSP-001",
+      "category": "Operations",
+      "title": "인시던트 관리",
+      "summary": "## 📋 OPSP-001 인시던트 관리 - 가상증빙예제 요약\n\n🔹 **문서 1**: 인시던트 관리 정책/프로세스 문서 (식별→기록→분류→우선순위→조사→해결→종료 전 과정 포함, P1~P4 SLA 및 고객 커뮤니케이션 매트릭스 정의)\n\n🔹 **문서 2**: IT/보안 인시던트 대응 플레이북 (EC2 장애, RDS 장애, GuardDuty 위협 대응 등 상황별 단계별 조치 절차 및 에스컬레이션 기준 포함)\n\n💡 **핵심**: ServiceNow ITSM 기반 티켓 관리, CloudWatch/GuardDuty 연동 자동 탐지, 보안 인시던트 자동 P1 상향 조건 명시"
+    },
+    {
+      "item_id": "OPSP-002",
+      "category": "Operations",
+      "title": "문제 관리",
+      "summary": "## 📋 OPSP-002 문제 관리 - 가상증빙예제 요약\n\n🔍 **핵심 증빙 3종**: ① PIR(사후 인시던트 분석) 보고서 - 5 Whys 근본원인 분석 포함, ② 재발방지 Action Plan - 즉시/단기/장기 조치 항목별 담당자·일정·진행상태 추적, ③ 고객 커뮤니케이션 기록\n\n📊 **필수 포함 요소**: 인시던트 타임라인, 비즈니스 영향도(SLA 위반·손실액), 기여원인 분류(프로세스/기술/인력/모니터링), 실행계획 추적 매트릭스\n\n✅ **승인 체계**: 작성(SRE Engineer) → 검토(Operations Manager) → 승인(Service Delivery Director) 3단계 서명 필수"
+    },
+    {
+      "item_id": "OPSP-003",
+      "category": "Operations",
+      "title": "배포 위험 관리",
+      "summary": "## 📋 OPSP-003 배포 위험 관리 - 가상증빙예제 요약\n\n🔹 **배포 전략 표준 절차서**: Blue/Green, Canary, Rolling Update 등 배포 전략별 적용 조건과 위험도/복구시간 매트릭스 정의, 단계별 트래픽 전환 계획(1%→100%) 및 자동 롤백 트리거 조건(5xx 에러율 >1%, P99 >2초 등) 포함\n\n🔹 **롤백 절차 및 승인 체계**: 심각도별(Critical/Major/Minor) 롤백 결정 트리, 위험 등급별 승인 권한 매트릭스(Low→DevOps Engineer, Critical→CTO+고객 임원), AWS CLI 롤백 명령어 예시 제공\n\n🔹 **기술 구현 가이드**: ECS Blue/Green 배포 아키텍처(ALB+Target Group 이중화), CodeDeploy AppSpec 설정, Route53 연동 구성 등 AWS 서비스별 실제 구현 방법 상세 문서화"
+    },
+    {
+      "item_id": "OPSP-004",
+      "category": "Operations",
+      "title": "클라우드 재무 관리",
+      "summary": "## 📋 가상증빙예제 요약\n\n💰 **월간 비용 최적화 리포트**: 고객별 AWS 비용 현황, 서비스별 분석, 이상 탐지, Right-sizing/RI 전환 등 최적화 권장사항과 예상 절감액($8,940/월) 포함\n\n📊 **EC2 Right-sizing 상세 분석서**: CloudWatch 메트릭 기반 인스턴스별 CPU/Memory 사용률 분석, 권장 타입 변경안, 4주 구현 로드맵 및 롤백 계획 포함\n\n📈 **분기별 FinOps 리뷰 프레젠테이션**: 분기 비용 대비 예산 달성률, 최적화 성과(실제 절감 $67,340), 비용 효율성 점수 변화, 차기 분기 로드맵 제시"
+    },
+    {
+      "item_id": "OPSP-005",
+      "category": "Operations",
+      "title": "서비스 연속성",
+      "summary": "## 📋 OPSP-005 서비스 연속성 - 가상증빙예제 요약\n\n🔹 **BCP 정책서**: RTO 4시간/RPO 1시간 목표, 서울-부산-AWS 3단계 DR 구성, 분기별 테스트 일정 수립\n🔹 **DR 테스트 보고서**: 2024 Q2 Full Failover 테스트 실행, RTO 2시간/RPO 12분 달성 (목표 초과 달성), 티켓 시스템 전환 지연 이슈 발견 및 개선 조치 완료\n🔹 **비상 대응 Runbook**: NOC 장애/모니터링 도구 장애 시나리오별 단계별 절차, 자동화 스크립트 및 비상 연락체계 포함\n🔹 **핵심 포인트**: 백업 시스템(Datadog→Grafana, ServiceNow→Jira), PagerDuty 연동 자동 알림, 경영진 승인 체계 구축"
+    },
+    {
+      "item_id": "PEO-001",
+      "category": "People",
+      "title": "인력 온보딩",
+      "summary": "## 📋 PEO-001 인력 온보딩 - 가상증빙예제 요약\n\n🔹 **필수 증빙 3종**: ①완료된 온보딩 체크리스트(4단계: 조직이해→권한설정→기술교육→실무투입, 전자서명 포함), ②교육 이수 기록부(과정별 시간/점수/이수상태), ③온보딩 프로세스 정의서(버전관리 포함)\n\n🔹 **핵심 완료 기준**: 필수교육 100% 이수 + 역량평가 70점 이상 + 멘토/팀장 서명\n\n🔹 **실무 팁**: 전자서명 시스템 활용, 최근 6개월 내 완료 기록 2-3건 상시 준비, 개인정보 마스킹 처리 필수"
+    },
+    {
+      "item_id": "PEO-002",
+      "category": "People",
+      "title": "클라우드 우수성 센터 (CCOE)",
+      "summary": "## 📋 PEO-002 (CCOE) 가상증빙예제 요약\n\n🏢 **CCOE 헌장**: 미션/비전, 5대 Pillar(채택, 교육, 거버넌스, 전략, 운영), 의사결정 권한, KPI 정의 문서\n📊 **조직 구조도**: CTO 스폰서 하 CCOE 리더 및 5개 Guild(아키텍처/보안/DevOps/교육/FinOps) 체계와 역할 정의\n⚙️ **운영 프로세스**: 주간/월간 회의체 운영, Pre-Sales→Kickoff→구현→운영 단계별 CCOE 참여 워크플로우\n📁 **핵심 증빙**: 헌장(PDF), 조직도(PPT), 운영프로세스(PDF) - CTO/CCOE 리더 승인 필수"
+    },
+    {
+      "item_id": "PEO-003",
+      "category": "People",
+      "title": "인력 오프보딩",
+      "summary": "## 📋 PEO-003 인력 오프보딩 가상증빙예제 요약\n\n🔹 **체크리스트**: 퇴직자별 AD/AWS Partner Central/IAM/VPN/협업툴 액세스 종료 및 고객환경 권한 제거를 단계별로 기록한 완료 문서 (다중 승인자 서명 포함)\n\n🔹 **시스템 로그**: CloudTrail IAM 삭제, MFA 해제, Access Key 삭제, AD 비활성화, VPN 인증서 폐기 등 타임스탬프 기반 증적\n\n🔹 **정책 문서**: 오프보딩 유형별(자발적/비자발적/계약종료) 타임라인과 액세스 종료 절차를 명시한 정책서 (v3.2)"
+    },
+    {
+      "item_id": "PEOP-001",
+      "category": "People",
+      "title": "인력 기술",
+      "summary": "## 📝 PEOP-001 가상증빙예제 요약\n\n| 구분 | 핵심 내용 |\n|------|----------|\n| 📄 **필수 문서** | ① 연간 기술역량개발계획서 ② 12개월 학습활동 실적보고서 ③ AWS 인증현황 대시보드 |\n| 🎯 **증빙 포인트** | 분기별 교육 로드맵, 예산/시간 지원 정책, 인증 취득률(SAA 80%), 다양한 학습 유형 실적 |\n| ⚠️ **주의사항** | 평가 시점 기준 **최근 12개월** 활동만 유효, 인증서·수료증·참석자 명단 등 증빙 첨부 필수 |\n| 💡 **실무 팁** | AWS Skill Builder 팀 구독으로 학습 이력 자동화, Credly 배지 정기 백업, 내부 Tech Talk도 문서화 |"
+    },
+    {
+      "item_id": "PLAT-001",
+      "category": "Platform",
+      "title": "계정 관리",
+      "summary": "## 📋 PLAT-001 계정 관리 - 가상증빙예제 요약\n\n🔐 **핵심 증빙**: \"1고객=1계정\" 격리 정책서 + 신규/인수 계정 생성 SOP + 분기별 격리 현황 증적(엑셀)\n\n📁 **필수 문서 4종**: ①계정 격리 정책서(CISO 승인) ②신규 계정 프로비저닝 SOP ③기존 계정 인수 절차서 ④고객별 전용 계정 현황표\n\n✅ **핵심 포인트**: AWS Organizations OU 구조도 스크린샷 + 공유 계정 0개 증명 + 정책 준수율 100% 데이터 제시"
+    },
+    {
+      "item_id": "PLAT-002",
+      "category": "Platform",
+      "title": "솔루션 역량",
+      "summary": "## 📝 가상증빙예제 요약\n\n🏢 **이커머스 플랫폼 현대화 프로젝트** (한국디지털커머스) - Legacy to Cloud Native 전환 사례\n\n📄 **주요 증빙 문서**: BRD(비즈니스 요구사항 정의서) + HLD/LLD(상세 설계 문서)로 구성\n\n🎯 **핵심 내용**: 동시접속 10배 확장(5K→50K), 가용성 99.95% 달성, 운영비용 40% 절감, 배포주기 월1회→일10회 목표\n\n🏗️ **아키텍처**: EKS 기반 마이크로서비스(8개 서비스) + Aurora PostgreSQL + EventBridge 이벤트 드리븐 구조\n\n✅ **증빙 포인트**: 고객 승인 완료된 요구사항 정의서와 AWS 서비스 활용 상세 설계서로 솔루션 역량 입증"
+    },
+    {
+      "item_id": "PLAT-003",
+      "category": "Platform",
+      "title": "비기능적 요구사항",
+      "summary": "## 📋 PLAT-003 비기능적 요구사항 - 가상증빙예제 요약\n\n🎯 **핵심 증빙 유형**: NFR 정의서, SLA/모니터링 설계서, 성능 테스트 검증 보고서 3종 세트\n\n📊 **필수 포함 내용**: 성능(응답시간/TPS), 가용성(SLA%/RTO/RPO), 용량 요구사항을 정량적 목표값과 측정 기준으로 명시\n\n🔧 **모니터링 체계**: CloudWatch, X-Ray, Grafana 등 도구별 용도와 임계값, 서비스 등급별 SLA 티어 및 에스컬레이션 정책 정의\n\n✅ **검증 증빙**: 부하 테스트(JMeter/Locust) 및 Chaos Engineering(AWS FIS) 결과로 목표 대비 실측값 Pass/Fail 판정 기록"
+    },
+    {
+      "item_id": "PLAT-004",
+      "category": "Platform",
+      "title": "Well-Architected",
+      "summary": "## 📋 PLAT-004 가상증빙예제 요약\n\n🎯 **Well-Architected 6개 기둥 기반 상세 설계 문서** 2개 고객사 제출\n- **금융권 고객(피노바테크)**: 실시간 결제 플랫폼 - Multi-AZ EKS 클러스터, Aurora/ElastiCache/DynamoDB 구성, Security Hub 94% 준수\n- **핵심 증빙 포인트**: 보안(IAM/KMS/WAF), 운영우수성(Terraform IaC/GitOps), 안정성(99.97% 가용성, RTO 15분) 상세 설계\n- **필수 첨부물**: 아키텍처 다이어그램, Security Hub 스크린샷, 침투테스트 결과, Terraform 코드 저장소, 운영 Runbook"
+    },
+    {
+      "item_id": "PLAT-005",
+      "category": "Platform",
+      "title": "AWS 서비스 전문성",
+      "summary": "## 📋 PLAT-005 가상증빙예제 요약\n\n🎯 **증빙 유형**: 2개 고객 워크로드별 아키텍처 설계서 + 기술 구현서 + 고객 서명 확인서 세트\n\n📦 **핵심 내용**: 워크로드당 **7-8개 AWS 서비스** 활용 증빙 (EC2/VPC/RDS/S3 등 기본 서비스 제외)\n- **워크로드1**: Kinesis, SageMaker, Personalize, ElastiCache, API Gateway, Lambda, EventBridge 활용 실시간 추천 플랫폼\n- **워크로드2**: Redshift Serverless, Glue, Athena, QuickSight, Step Functions, SNS, Secrets Manager 활용 금융 분석 플랫폼\n\n✅ **필수 포함 요소**: 서비스별 구현 상세(코드/설정), 성능 개선 지표, 고객사 CTO/IT본부장 서명 확인서"
+    },
+    {
+      "item_id": "PLATP-001",
+      "category": "Platform",
+      "title": "전문가 설계 검토",
+      "summary": "## 📋 PLATP-001 (전문가 설계 검토) 가상증빙예제 요약\n\n🔸 **정책서**: 프로젝트 규모별 검토자 자격 기준 명시 (일반: SA Associate, 대형: SA Professional, 특수영역: Specialty 필수)\n\n🔸 **검토자 풀 관리대장**: AWS 인증 보유자 명단, 인증 유효기간, 월별 배정 기준 관리 (Excel)\n\n🔸 **설계 검토 보고서**: 실제 고객 프로젝트에 대한 검토 결과 - 검토자 인증번호/유효기간 명시, Well-Architected 6대 원칙 기반 판정, 전자서명 포함\n\n🔸 **핵심 포인트**: 정책 기준과 실제 검토 기록의 일치성 + 검토자 인증 유효성 증명이 감사 시 교차 확인됨"
+    },
+    {
+      "item_id": "SEC-001",
+      "category": "Security",
+      "title": "보안 정책 및 절차",
+      "summary": "## 📋 SEC-001 가상증빙예제 요약\n\n🔐 **옵션 A (인증 기반):** ISO 27001 인증서 + SOC 2 Type II 보고서로 증빙 (인증 범위에 \"MSP 서비스\" 포함 필수)\n\n📄 **옵션 B (프로세스 기반):** 정보보안 정책서 + 경영진 승인 회의록 + 세부 절차서 + 대표이사 승인서 조합\n\n⚠️ **핵심 체크포인트:** 인증서 유효기간 확인, 연 1회 이상 경영진 검토/승인 기록, 정책의 전 직원 접근성 확보 필수"
+    },
+    {
+      "item_id": "SEC-002",
+      "category": "Security",
+      "title": "보안 인식 교육 및 테스트",
+      "summary": "## 📋 SEC-002 가상증빙예제 요약\n\n🎓 **교육 완료 현황표**: 전 직원(47명) 100% 이수율, AWS Security Awareness 플랫폼 활용, 개인별 수료증 번호/유효기간 관리\n\n📜 **교육 정책서**: 신규입사자 30일 내 필수, 연 1회 갱신, 미이수자 시스템 접근 제한 절차 명문화\n\n🎣 **피싱 시뮬레이션 결과**: 분기별 테스트 실시, 클릭률 4.3%(목표 5% 미만 달성), 피싱 신고율 80.9%\n\n💡 **핵심 포인트**: `learnsecurity.amazon.com` 우선 활용 + 교육 이수율 100% 유지 + 피싱 테스트 결과 추이 관리"
+    },
+    {
+      "item_id": "SEC-003",
+      "category": "Security",
+      "title": "AWS 계정 구성",
+      "summary": "## 📋 SEC-003 (AWS 계정 구성) 증빙 요약\n\n🔐 **Security Hub 대시보드** - 47개 전체 계정의 보안 현황을 Organization 레벨에서 통합 모니터링하며, 부록 A 필수 항목(Root MFA, CloudTrail, GuardDuty 등) 100% 준수 현황 스크린샷\n\n⚠️ **Critical/High Findings 완화 계획서** - 발견된 보안 취약점별 상세 현황, 완화 상태, 담당자, 예정 완료일을 포함한 추적 관리 문서 (Excel)\n\n📜 **표준 보안 제어 정책서** - 부록 A 항목과 매핑된 필수 보안 제어 정책, 예외 처리 절차, CISO 승인 포함\n\n🤖 **Control Tower 자동화 증적** - Guardrails 및 SCP를 통한 보안 기준선 자동 배포 현황 캡처"
+    },
+    {
+      "item_id": "SEC-004",
+      "category": "Security",
+      "title": "신원 및 액세스 관리",
+      "summary": "## 📋 SEC-004 신원 및 액세스 관리 요약\n\n🔐 **핵심 증빙**: AWS IAM Identity Center 기반 중앙 집중식 IdP 아키텍처와 MFA 필수 인증 체계 시연\n👥 **역할 기반 접근 제어**: MSP-ReadOnly/L2-Operator/Admin 3단계 Permission Set으로 고객별·환경별 권한 분리\n⚡ **승인 워크플로우**: ITSM 연동 접근 요청 → 자동 검증 → 승인 → 임시 권한 프로비저닝 → TTL 만료 후 자동 회수\n📊 **감사 체계**: CloudTrail + IdP 로그 통합, 사용자 프로비저닝/디프로비저닝 절차서, Break-glass 비상 접근 절차 문서화"
+    },
+    {
+      "item_id": "SEC-005",
+      "category": "Security",
+      "title": "정책 관리",
+      "summary": "## 📋 SEC-005 정책 관리 요약\n\n🔍 **IAM Access Analyzer**를 활용한 분기별 정책 검토 체계 구축 - 12개 AWS 계정 대상 외부 액세스 분석 및 Finding 전량 해결 증적\n\n👥 **IAM 그룹/역할 권한 기준선** 관리 - 멤버십 변동 추적, Access Advisor 기반 미사용 권한(90일+) 식별 및 제거 조치\n\n📝 **정책 변경 관리 프로세스** - CloudTrail 기반 변경 감사 로그 + 승인 워크플로우(요청→승인→적용→검증) 문서화\n\n💡 **핵심 증빙**: Access Analyzer 보고서, 권한 기준선 검토서, 정책 변경 승인 이력, 콘솔 스크린샷(타임스탬프 포함)"
+    },
+    {
+      "item_id": "SEC-006",
+      "category": "Security",
+      "title": "역할 기반 액세스",
+      "summary": "## 📋 SEC-006 역할 기반 액세스 - 가상증빙예제 요약\n\n🔐 **인간 신원**: IAM Identity Center 기반 SSO로 기능별 Permission Set(CloudOps/Security/Developer/Billing) 할당, 정적 자격 증명(Access Key) 제로 정책 운영\n\n⚙️ **기계 신원**: EC2 Instance Profile, Lambda 실행 역할, ECS Task Role 등 100% IAM Role 기반 임시 자격 증명 사용 (자동 갱신, 최대 12시간 세션)\n\n🔍 **최소 권한 검증**: IAM Access Analyzer로 미사용 권한 연속 모니터링, 분기별 권한 리뷰 및 정책 검증 자동화\n\n📝 **감사 추적**: CloudTrail 전체 로깅으로 모든 AssumeRole 활동 기록, 90일 보관 및 교차 계정 접근 추적"
+    },
+    {
+      "item_id": "SEC-007",
+      "category": "Security",
+      "title": "다중 인증",
+      "summary": "## 📋 SEC-007 다중 인증 - 가상증빙예제 요약\n\n🔐 **IdP(Azure AD/Okta/IAM Identity Center)에서 MFA 강제 정책 설정 화면**을 보여주고, **실제 로그인 시 MFA 프롬프트가 표시**되는 라이브 시연 필요\n\n⛔ **MFA 미등록 계정의 AWS 접근 차단** 시연으로 우회 불가능함을 증명\n\n📊 조건부 액세스 정책 상세 설정, 사용자 MFA 등록 현황 대시보드, Sign-in/CloudTrail 로그 준비\n\n💡 **핵심 포인트**: 정책 활성화 상태 + 전체 사용자 적용 + 실제 동작 확인 (총 25분 소요)"
+    },
+    {
+      "item_id": "SEC-008",
+      "category": "Security",
+      "title": "취약점 관리",
+      "summary": "## 📋 SEC-008 취약점 관리 시연 가이드 요약\n\n🔍 **스캔 범위**: Amazon Inspector로 EC2, ECR 컨테이너, Lambda 함수를 자동 스캔하며, Security Hub와 통합하여 중앙 관리\n\n⚡ **자동화 워크플로우**: 취약점 발견 시 EventBridge → Lambda → Jira 티켓 자동 생성, Critical은 4시간 내 조치 목표\n\n📊 **핵심 시연 포인트**: Inspector 대시보드에서 Coverage 99%+, 실시간 스캔 트리거, Security Hub 통합 뷰 시연 (총 60분)\n\n🎯 **주요 증빙**: 취약점 분류 기준(CVSS), 월간 트렌드 리포트(3개월), Remediation 워크플로우, SSM Patch Manager 연동 자동 패치 프로세스"
+    },
+    {
+      "item_id": "SEC-009",
+      "category": "Security",
+      "title": "보안 이벤트 로깅",
+      "summary": "## 📋 SEC-009 보안 이벤트 로깅 - 요약\n\n🔐 **핵심 증빙**: CloudTrail, VPC Flow Logs, GuardDuty 등 AWS 보안 서비스 로그를 중앙 집중식으로 수집하는 아키텍처 구현 문서\n\n📊 **주요 구성**: Organization Trail 설정, 로그 무결성 검증(Log File Validation), S3 Object Lock을 통한 변조 방지\n\n⏰ **보존 정책**: 금융 규제 준수를 위해 CloudTrail 7년, VPC Flow Logs 1년 등 S3 라이프사이클 정책 적용 (Standard → IA → Glacier → Deep Archive)\n\n🚨 **실시간 모니터링**: EventBridge + GuardDuty 연동으로 Critical 이벤트 5분 이내, High 이벤트 15분 이내 알림 체계 구축"
+    },
+    {
+      "item_id": "SEC-010",
+      "category": "Security",
+      "title": "SaaS 도구 계정 액세스",
+      "summary": "## 📋 SEC-010 요약: SaaS 도구 계정 액세스\n\n🔐 **핵심 증빙**: 고객 AWS 계정에 접근하는 SaaS 도구(Datadog, CloudHealth, Prisma Cloud 등)의 인벤토리와 IAM 역할 신뢰 정책에 **External ID 적용** 증빙\n\n🛡️ **보안 통제**: 모든 교차 계정 액세스에 External ID 조건 필수 적용, IP 제한 추가, Confused Deputy 공격 방지\n\n📝 **필수 문서**: SaaS 도구 인벤토리(권한 범위/승인일), IAM Trust Policy JSON, 보안 검토 절차서, CloudTrail 로그 스크린샷\n\n✅ **관리 포인트**: 고객별 고유 External ID 생성, 90일 로테이션, 분기별 미사용 역할 정리 및 권한 재검토"
+    },
+    {
+      "item_id": "SECP-001",
+      "category": "Security",
+      "title": "액세스 키 노출 탐지",
+      "summary": "## 📋 가상증빙예제 요약\n\n🔐 **액세스 키 노출 탐지 자동화 시스템** 증빙으로, AWS Health RISK 이벤트 발생 시 EventBridge → Lambda → ServiceNow/Slack/PagerDuty 연동을 통한 **P1 티켓 자동 생성 및 15분 이내 초기 대응** 체계를 구축\n\n📄 **3종 핵심 문서**: ①대응 절차서(Runbook) - 5단계 즉시대응 + 에스컬레이션 매트릭스, ②자동화 아키텍처 명세서 - 127개 고객 계정 통합 모니터링, ③실제 인시던트 대응 사례(INC2024-1847) - MTTR 4분 58초 달성\n\n✅ **증빙 포인트**: 탐지→티켓생성 5초 이내 자동화, CloudTrail 기반 영향분석, 근본원인분석(RCA) 및 재발방지 대책까지 포함된 **End-to-End 보안 운영 역량** 입증"
+    },
+    {
+      "item_id": "SECP-002",
+      "category": "Security",
+      "title": "공개 리소스",
+      "summary": "## 📋 SECP-002 (공개 리소스) 가상증빙예제 요약\n\n🔒 **정책서**: S3/RDS/EC2/SG 등 리소스별 공개 노출 방지 기준과 민감 포트(SSH, RDP, DB 등) 무제한 액세스 금지 정책 수립\n\n⚙️ **AWS Config Rules**: 10개 탐지 규칙(s3-bucket-public-read-prohibited 등) 구성 및 Lambda 기반 Auto-Remediation으로 47개 고객 계정 적용\n\n📖 **Runbook**: EventBridge → Step Functions 워크플로우로 탐지-분류-자동차단-통보 절차와 심각도별 에스컬레이션 매트릭스 정의\n\n📊 **월간 보고서**: 12,847개 리소스 스캔, 23건 탐지(자동 18건/수동 5건) 및 MTTR 추적으로 지속적 모니터링 증빙"
+    }
+  ]
+}

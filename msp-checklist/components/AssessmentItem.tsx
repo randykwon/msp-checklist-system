@@ -331,6 +331,27 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       const newState = !showVirtualEvidence;
       setShowVirtualEvidence(newState);
       setShowVESummaryInline(newState);
+      
+      // 요약이 아직 로드되지 않았으면 로드
+      if (newState && !veSummaryContent) {
+        setIsLoadingVESummary(true);
+        try {
+          const summaryResponse = await fetch(`/api/virtual-evidence-summary?action=item&itemId=${item.id}&language=${itemLanguage}`);
+          if (summaryResponse.ok) {
+            const summaryData = await summaryResponse.json();
+            if (summaryData.summaries && summaryData.summaries.length > 0) {
+              setVESummaryContent(summaryData.summaries[0].summary);
+            } else {
+              setVESummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다. 관리자 페이지에서 요약을 생성해주세요.' : 'No summary available for this item yet. Please generate summaries from the admin page.');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading VE summary:', error);
+          setVESummaryContent(itemLanguage === 'ko' ? '요약을 불러오는데 실패했습니다.' : 'Failed to load summary.');
+        } finally {
+          setIsLoadingVESummary(false);
+        }
+      }
       return;
     }
 
@@ -368,8 +389,12 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
         if (summaryData.summaries && summaryData.summaries.length > 0) {
           setVESummaryContent(summaryData.summaries[0].summary);
         } else {
-          setVESummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
+          setVESummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다. 관리자 페이지에서 요약을 생성해주세요.' : 'No summary available for this item yet. Please generate summaries from the admin page.');
         }
+        setShowVESummaryInline(true);
+      } else {
+        // 요약 API 실패 시에도 메시지 표시
+        setVESummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다. 관리자 페이지에서 요약을 생성해주세요.' : 'No summary available for this item yet. Please generate summaries from the admin page.');
         setShowVESummaryInline(true);
       }
       
