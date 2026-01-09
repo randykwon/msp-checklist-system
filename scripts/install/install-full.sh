@@ -89,6 +89,7 @@ check_requirements() {
     TOTAL_MEM=$(free -m | awk '/^Mem:/{print $2}')
     if [ "$TOTAL_MEM" -lt 1800 ]; then
         log_warn "메모리가 2GB 미만입니다 (${TOTAL_MEM}MB). 성능 문제가 발생할 수 있습니다."
+        setup_swap
     else
         log_success "메모리: ${TOTAL_MEM}MB"
     fi
@@ -100,6 +101,56 @@ check_requirements() {
     else
         log_success "디스크 여유 공간: ${DISK_FREE}MB"
     fi
+}
+
+# Swap 메모리 설정 (메모리 부족 시)
+setup_swap() {
+    log_step "Swap 메모리 설정 중..."
+    
+    # 기존 Swap 확인
+    CURRENT_SWAP=$(free -m | awk '/^Swap:/{print $2}')
+    if [ "$CURRENT_SWAP" -gt 1000 ]; then
+        log_info "Swap이 이미 설정되어 있습니다: ${CURRENT_SWAP}MB"
+        return 0
+    fi
+    
+    # Swap 파일이 이미 존재하는지 확인
+    if [ -f /swapfile ]; then
+        log_info "Swap 파일이 이미 존재합니다. 활성화 확인 중..."
+        if ! swapon --show | grep -q /swapfile; then
+            sudo swapon /swapfile 2>/dev/null || true
+        fi
+        log_success "기존 Swap 파일 사용"
+        return 0
+    fi
+    
+    # 디스크 여유 공간 확인 (최소 3GB 필요)
+    DISK_FREE=$(df -m / | awk 'NR==2 {print $4}')
+    if [ "$DISK_FREE" -lt 3000 ]; then
+        log_warn "디스크 공간 부족으로 Swap을 생성할 수 없습니다."
+        log_warn "빌드 중 메모리 부족 오류가 발생할 수 있습니다."
+        return 1
+    fi
+    
+    log_info "2GB Swap 파일 생성 중... (시간이 걸릴 수 있습니다)"
+    
+    # Swap 파일 생성
+    sudo fallocate -l 2G /swapfile 2>/dev/null || sudo dd if=/dev/zero of=/swapfile bs=1M count=2048 status=progress
+    sudo chmod 600 /swapfile
+    sudo mkswap /swapfile
+    sudo swapon /swapfile
+    
+    # 재부팅 후에도 유지되도록 fstab에 추가
+    if ! grep -q '/swapfile' /etc/fstab; then
+        echo '/swapfile swap swap defaults 0 0' | sudo tee -a /etc/fstab > /dev/null
+    fi
+    
+    # 확인
+    NEW_SWAP=$(free -m | awk '/^Swap:/{print $2}')
+    log_success "Swap 설정 완료: ${NEW_SWAP}MB"
+    
+    # swappiness 조정 (빌드 시 더 적극적으로 swap 사용)
+    sudo sysctl vm.swappiness=60 2>/dev/null || true
 }
 
 # 시스템 패키지 설치
