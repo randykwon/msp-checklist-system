@@ -3,7 +3,7 @@
 # MSP 어드바이저 - EC2 완벽 설치 스크립트
 # 
 # 사용법:
-#   curl -fsSL https://raw.githubusercontent.com/your-repo/msp-advisor/main/scripts/install/install-full.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/randykwon/msp-checklist-system/main/scripts/install/install-full.sh | bash
 #   또는
 #   chmod +x install-full.sh && ./install-full.sh
 #
@@ -31,8 +31,8 @@ CYAN='\033[0;36m'
 NC='\033[0m'
 
 # 설정
-INSTALL_DIR="/opt/msp-advisor"
-GITHUB_REPO="https://github.com/your-repo/msp-advisor.git"
+INSTALL_DIR="/opt/msp-checklist-system"
+GITHUB_REPO="https://github.com/randykwon/msp-checklist-system.git"
 NODE_VERSION="20"
 NVM_VERSION="0.39.7"
 MAIN_PORT=3010
@@ -107,16 +107,20 @@ install_system_packages() {
     log_step "시스템 패키지 설치 중..."
     
     if [ "$PKG_MANAGER" = "yum" ]; then
-        sudo yum update -y
-        # curl은 Amazon Linux 2023에서 curl-minimal로 이미 설치되어 있음
-        # curl 패키지 설치 시 충돌 발생하므로 제외
-        sudo yum install -y git wget tar gzip gcc-c++ make python3 || {
-            log_warn "일부 패키지 설치 실패, 개별 설치 시도..."
-            sudo yum install -y git || true
-            sudo yum install -y wget || true
-            sudo yum install -y tar gzip || true
-            sudo yum install -y gcc-c++ make || true
-            sudo yum install -y python3 || true
+        sudo yum update -y || true
+        
+        # Amazon Linux 2023에서 curl-minimal과 curl 충돌 방지
+        # 개별 패키지 설치 (curl 의존성 있는 패키지 제외)
+        sudo yum install -y git || true
+        sudo yum install -y wget || true
+        sudo yum install -y tar || true
+        sudo yum install -y gzip || true
+        sudo yum install -y python3 || true
+        
+        # gcc-c++와 make는 curl 의존성이 있을 수 있으므로 --skip-broken 사용
+        sudo yum install -y gcc-c++ make --skip-broken || {
+            log_warn "gcc-c++ 설치 실패, development tools 그룹 설치 시도..."
+            sudo yum groupinstall -y "Development Tools" --skip-broken || true
         }
     else
         sudo apt-get update
@@ -128,6 +132,14 @@ install_system_packages() {
         log_success "curl 사용 가능: $(curl --version | head -1)"
     else
         log_error "curl을 찾을 수 없습니다."
+        exit 1
+    fi
+    
+    # git 확인
+    if command -v git &> /dev/null; then
+        log_success "git 사용 가능: $(git --version)"
+    else
+        log_error "git을 찾을 수 없습니다."
         exit 1
     fi
     
@@ -398,7 +410,7 @@ SCRIPT
     # 시작 스크립트
     cat > ${INSTALL_DIR}/start.sh << 'SCRIPT'
 #!/bin/bash
-cd /opt/msp-advisor
+cd /opt/msp-checklist-system
 pm2 start ecosystem.config.js
 pm2 status
 SCRIPT
@@ -421,7 +433,7 @@ SCRIPT
     cat > ${INSTALL_DIR}/update.sh << 'SCRIPT'
 #!/bin/bash
 set -e
-cd /opt/msp-advisor
+cd /opt/msp-checklist-system
 
 echo "[INFO] 서비스 중지..."
 pm2 stop all
@@ -447,7 +459,7 @@ rm -rf .next
 npm run build
 
 echo "[INFO] 서비스 재시작..."
-cd /opt/msp-advisor
+cd /opt/msp-checklist-system
 pm2 restart all
 
 echo "[✓] 업데이트 완료!"

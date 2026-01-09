@@ -313,15 +313,19 @@ install_amazon_packages() {
         return 0
     fi
     
-    sudo yum update -y
-    # curl은 Amazon Linux 2023에서 curl-minimal로 이미 설치되어 있음
-    # curl 패키지 설치 시 충돌 발생하므로 제외
-    sudo yum install -y wget tar gzip gcc-c++ make python3 || {
-        log_warn "일부 패키지 설치 실패, 개별 설치 시도..."
-        sudo yum install -y wget || true
-        sudo yum install -y tar gzip || true
-        sudo yum install -y gcc-c++ make || true
-        sudo yum install -y python3 || true
+    sudo yum update -y || true
+    
+    # Amazon Linux 2023에서 curl-minimal과 curl 충돌 방지
+    # 개별 패키지 설치 (curl 의존성 있는 패키지 제외)
+    sudo yum install -y wget || true
+    sudo yum install -y tar || true
+    sudo yum install -y gzip || true
+    sudo yum install -y python3 || true
+    
+    # gcc-c++와 make는 curl 의존성이 있을 수 있으므로 --skip-broken 사용
+    sudo yum install -y gcc-c++ make --skip-broken || {
+        log_warn "gcc-c++ 설치 실패, development tools 그룹 설치 시도..."
+        sudo yum groupinstall -y "Development Tools" --skip-broken || true
     }
     
     log_success "Amazon Linux 빌드 도구 설치 완료"
