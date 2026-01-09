@@ -531,6 +531,22 @@ SCRIPT
     log_success "관리 스크립트 생성 완료"
 }
 
+# 테스트 관리자 계정 생성
+create_admin_account() {
+    log_step "테스트 관리자 계정 생성 중..."
+    
+    # 서버가 시작될 때까지 잠시 대기
+    sleep 3
+    
+    # 관리자 생성 스크립트 실행
+    if [ -f "${INSTALL_DIR}/scripts/install/create-admin.sh" ]; then
+        bash "${INSTALL_DIR}/scripts/install/create-admin.sh" "admin@example.com" "admin123" "시스템관리자"
+    else
+        log_warn "관리자 생성 스크립트를 찾을 수 없습니다."
+        log_info "수동으로 생성하려면: ${INSTALL_DIR}/scripts/install/create-admin.sh"
+    fi
+}
+
 # 설치 완료 메시지
 print_completion() {
     # EC2 퍼블릭 IP 가져오기
@@ -545,12 +561,17 @@ print_completion() {
     echo "    메인 앱:  http://${PUBLIC_IP}:${MAIN_PORT}"
     echo "    Admin:   http://${PUBLIC_IP}:${ADMIN_PORT}"
     echo ""
+    echo "  테스트 관리자 계정:"
+    echo "    이메일:   admin@example.com"
+    echo "    비밀번호: admin123"
+    echo ""
     echo "  관리 명령어:"
     echo "    상태 확인:  ${INSTALL_DIR}/status.sh"
     echo "    시작:      ${INSTALL_DIR}/start.sh"
     echo "    중지:      ${INSTALL_DIR}/stop.sh"
     echo "    재시작:    ${INSTALL_DIR}/restart.sh"
     echo "    업데이트:  ${INSTALL_DIR}/update.sh"
+    echo "    관리자생성: ${INSTALL_DIR}/scripts/install/create-admin.sh [이메일] [비밀번호] [이름]"
     echo ""
     echo "  PM2 명령어:"
     echo "    pm2 status          - 상태 확인"
@@ -578,6 +599,7 @@ main() {
     setup_env
     setup_pm2
     create_management_scripts
+    create_admin_account
     print_completion
 }
 
