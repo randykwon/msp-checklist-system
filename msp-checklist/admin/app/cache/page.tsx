@@ -198,7 +198,62 @@ export default function CachePage() {
     korean: true,
     english: false,
   });
+
+  // 진행 상황 관련 state
+  const [progressInfo, setProgressInfo] = useState<{
+    isActive: boolean;
+    phase: 'korean' | 'english' | '';
+    current: number;
+    total: number;
+    itemId: string;
+    itemTitle: string;
+    completedTasks: number;
+    totalTasks: number;
+    percent: number;
+    errors: string[];
+  }>({
+    isActive: false,
+    phase: '',
+    current: 0,
+    total: 0,
+    itemId: '',
+    itemTitle: '',
+    completedTasks: 0,
+    totalTasks: 0,
+    percent: 0,
+    errors: [],
+  });
+
+  // 요약 생성 진행 상황 state
+  const [summaryProgressInfo, setSummaryProgressInfo] = useState<{
+    isActive: boolean;
+    phase: 'korean' | 'english' | '';
+    current: number;
+    total: number;
+    itemId: string;
+    itemTitle: string;
+    percent: number;
+    errors: string[];
+  }>({
+    isActive: false,
+    phase: '',
+    current: 0,
+    total: 0,
+    itemId: '',
+    itemTitle: '',
+    percent: 0,
+    errors: [],
+  });
   const [summaryViewLanguage, setSummaryViewLanguage] = useState<'ko' | 'en'>('ko');
+
+  // 활성 요약 버전 state
+  const [activeSummaryVersions, setActiveSummaryVersions] = useState<{
+    advice: { ko: string | null; en: string | null };
+    virtualEvidence: { ko: string | null; en: string | null };
+  }>({
+    advice: { ko: null, en: null },
+    virtualEvidence: { ko: null, en: null },
+  });
 
   // 선택된 모델이 Inference Profile이 필요한지 확인
   const needsInferenceProfile = INFERENCE_PROFILE_REQUIRED_MODELS.includes(llmConfig.model);
@@ -235,7 +290,48 @@ export default function CachePage() {
     setIsMounted(true);
     loadCacheData();
     loadEnvConfig();
+    loadActiveSummaryVersions();
   }, []);
+
+  // 활성 요약 버전 로드
+  const loadActiveSummaryVersions = async () => {
+    try {
+      const response = await fetch('/api/active-summary-version');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success && data.versions) {
+          setActiveSummaryVersions(data.versions);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load active summary versions:', error);
+    }
+  };
+
+  // 활성 요약 버전 설정
+  const setActiveSummaryVersionHandler = async (version: string, language: 'ko' | 'en') => {
+    try {
+      const response = await fetch('/api/active-summary-version', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          summaryType: 'advice',
+          language,
+          version,
+        }),
+      });
+      
+      if (response.ok) {
+        showMessage(`${language === 'ko' ? '한국어' : '영어'} 활성 버전이 설정되었습니다.`, 'success');
+        await loadActiveSummaryVersions();
+      } else {
+        showMessage('활성 버전 설정에 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to set active summary version:', error);
+      showMessage('활성 버전 설정 중 오류가 발생했습니다.', 'error');
+    }
+  };
 
   const loadCacheData = async () => {
     try {
@@ -278,22 +374,36 @@ export default function CachePage() {
       return;
     }
     
+    const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3010';
+    
     try {
       setIsGenerating(true);
       setShowLLMConfigModal(false);
+      
+      // 진행 상황 초기화
+      setProgressInfo({
+        isActive: true,
+        phase: '',
+        current: 0,
+        total: 0,
+        itemId: '',
+        itemTitle: '',
+        completedTasks: 0,
+        totalTasks: 0,
+        percent: 0,
+        errors: [],
+      });
+      
       const languages = [];
       if (generationOptions.includeKorean) languages.push('한국어');
       if (generationOptions.includeEnglish) languages.push('영어');
       showMessage(`${LLM_PROVIDERS[llmConfig.provider].name} (${llmConfig.model})로 ${languages.join(', ')} 조언 캐시 생성을 시작합니다...`, 'info');
       
-      const response = await fetch('/api/advice-cache', {
+      const response = await fetch(`${mainAppUrl}/api/advice-cache-stream`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
-          action: 'generate', 
           options: { 
-            includeVirtualEvidence: true, 
-            forceRegenerate: true,
             includeKorean: generationOptions.includeKorean,
             includeEnglish: generationOptions.includeEnglish,
           },
@@ -311,23 +421,98 @@ export default function CachePage() {
           }
         }),
       });
-      if (response.ok) {
-        const result = await response.json();
-        showMessage(`캐시 생성 완료! 버전: ${result.version}, 총 ${result.totalItems}개 항목 처리`, 'success');
-        // 새로 생성된 버전을 선택하도록 selectedVersion 초기화
-        setSelectedVersion('');
-        await loadCacheData();
-        // 새로 생성된 버전을 선택
-        setSelectedVersion(result.version);
-      } else {
-        const error = await response.json();
-        showMessage(`캐시 생성 실패: ${error.error}`, 'error');
+
+      if (!response.ok) {
+        throw new Error('스트림 연결 실패');
       }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let resultVersion = '';
+      const errors: string[] = [];
+
+      if (reader) {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value);
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (line.startsWith('data: ')) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                
+                switch (data.type) {
+                  case 'start':
+                    setProgressInfo(prev => ({
+                      ...prev,
+                      total: data.totalItems,
+                      totalTasks: data.totalTasks,
+                    }));
+                    break;
+                    
+                  case 'progress':
+                    setProgressInfo(prev => ({
+                      ...prev,
+                      phase: data.phase,
+                      current: data.current,
+                      total: data.total,
+                      itemId: data.itemId,
+                      itemTitle: data.itemTitle,
+                      completedTasks: data.completedTasks,
+                      totalTasks: data.totalTasks,
+                    }));
+                    break;
+                    
+                  case 'item-complete':
+                    setProgressInfo(prev => ({
+                      ...prev,
+                      completedTasks: data.completedTasks,
+                      totalTasks: data.totalTasks,
+                      percent: data.percent,
+                    }));
+                    break;
+                    
+                  case 'item-error':
+                    errors.push(`${data.itemId}: ${data.error}`);
+                    setProgressInfo(prev => ({
+                      ...prev,
+                      errors: [...prev.errors, `${data.itemId}: ${data.error}`],
+                    }));
+                    break;
+                    
+                  case 'complete':
+                    resultVersion = data.version;
+                    showMessage(`캐시 생성 완료! 버전: ${data.version}, 총 ${data.totalItems}개 항목 처리`, 'success');
+                    setSelectedVersion('');
+                    await loadCacheData();
+                    setSelectedVersion(data.version);
+                    break;
+                    
+                  case 'error':
+                    showMessage(`캐시 생성 실패: ${data.message}`, 'error');
+                    break;
+                }
+              } catch (e) {
+                // JSON 파싱 오류 무시
+              }
+            }
+          }
+        }
+      }
+
+      if (errors.length > 0) {
+        console.warn('Some items failed:', errors);
+      }
+
     } catch (error) {
       console.error('Failed to generate cache:', error);
       showMessage('캐시 생성 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsGenerating(false);
+      setProgressInfo(prev => ({ ...prev, isActive: false }));
     }
   };
 
@@ -359,81 +544,108 @@ export default function CachePage() {
       const languages = [];
       if (summaryLanguageOptions.korean) languages.push('한국어');
       if (summaryLanguageOptions.english) languages.push('영어');
-      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 ${languages.join(', ')} 항목별 요약을 생성 중입니다... (61개 항목, 약 5-10분 소요)`, 'info');
+      showMessage(`${LLM_PROVIDERS[llmConfig.provider].name}로 ${languages.join(', ')} 항목별 요약을 생성 중입니다... (약 5-10분 소요)`, 'info');
       
-      // 선택된 언어별로 요약 생성
-      const results = [];
+      // 프로그레스바 표시
+      setSummaryProgressInfo({
+        isActive: true,
+        phase: summaryLanguageOptions.korean ? 'korean' : 'english',
+        current: 0,
+        total: 61,
+        itemId: '',
+        itemTitle: '요약 생성 중...',
+        percent: 0,
+        errors: [],
+      });
       
+      const results: string[] = [];
+      
+      // 한국어 요약 생성 (Admin 자체 API 호출)
       if (summaryLanguageOptions.korean) {
-        const koResponse = await fetch('/api/advice-summary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceVersion: activeVersions.advice,
-            language: 'ko',
-            llmConfig: {
-              provider: llmConfig.provider,
-              model: llmConfig.model,
-              apiKey: llmConfig.apiKey,
-              awsRegion: llmConfig.awsRegion,
-              awsAccessKeyId: llmConfig.awsAccessKeyId,
-              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
-              inferenceProfileArn: llmConfig.inferenceProfileArn,
-              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
-            }
-          }),
-        });
+        setSummaryProgressInfo(prev => ({ ...prev, phase: 'korean', percent: 10 }));
         
-        if (koResponse.ok) {
-          const result = await koResponse.json();
-          results.push(`한국어: ${result.successCount}/${result.totalItems}`);
-        } else {
-          const error = await koResponse.json();
-          results.push(`한국어 실패: ${error.error}`);
+        try {
+          const response = await fetch('/api/advice-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sourceVersion: activeVersions.advice,
+              language: 'ko',
+              llmConfig: {
+                provider: llmConfig.provider,
+                model: llmConfig.model,
+                apiKey: llmConfig.apiKey,
+                awsRegion: llmConfig.awsRegion,
+                awsAccessKeyId: llmConfig.awsAccessKeyId,
+                awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+                inferenceProfileArn: llmConfig.inferenceProfileArn,
+                autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+              }
+            }),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            results.push(`한국어: ${result.successCount}/${result.totalItems}`);
+            setSummaryProgressInfo(prev => ({ ...prev, percent: 50 }));
+          } else {
+            const error = await response.json();
+            results.push(`한국어 실패: ${error.error}`);
+          }
+        } catch (koError: any) {
+          results.push(`한국어 실패: ${koError.message}`);
         }
       }
       
+      // 영어 요약 생성 (Admin 자체 API 호출)
       if (summaryLanguageOptions.english) {
-        const enResponse = await fetch('/api/advice-summary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sourceVersion: activeVersions.advice,
-            language: 'en',
-            llmConfig: {
-              provider: llmConfig.provider,
-              model: llmConfig.model,
-              apiKey: llmConfig.apiKey,
-              awsRegion: llmConfig.awsRegion,
-              awsAccessKeyId: llmConfig.awsAccessKeyId,
-              awsSecretAccessKey: llmConfig.awsSecretAccessKey,
-              inferenceProfileArn: llmConfig.inferenceProfileArn,
-              autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
-            }
-          }),
-        });
+        setSummaryProgressInfo(prev => ({ ...prev, phase: 'english', percent: summaryLanguageOptions.korean ? 60 : 10 }));
         
-        if (enResponse.ok) {
-          const result = await enResponse.json();
-          results.push(`영어: ${result.successCount}/${result.totalItems}`);
-        } else {
-          const error = await enResponse.json();
-          results.push(`영어 실패: ${error.error}`);
+        try {
+          const response = await fetch('/api/advice-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              sourceVersion: activeVersions.advice,
+              language: 'en',
+              llmConfig: {
+                provider: llmConfig.provider,
+                model: llmConfig.model,
+                apiKey: llmConfig.apiKey,
+                awsRegion: llmConfig.awsRegion,
+                awsAccessKeyId: llmConfig.awsAccessKeyId,
+                awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+                inferenceProfileArn: llmConfig.inferenceProfileArn,
+                autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
+              }
+            }),
+          });
+
+          if (response.ok) {
+            const result = await response.json();
+            results.push(`영어: ${result.successCount}/${result.totalItems}`);
+          } else {
+            const error = await response.json();
+            results.push(`영어 실패: ${error.error}`);
+          }
+        } catch (enError: any) {
+          results.push(`영어 실패: ${enError.message}`);
         }
       }
       
+      setSummaryProgressInfo(prev => ({ ...prev, percent: 100 }));
       showMessage(`항목별 요약 생성 완료! ${results.join(', ')}`, 'success');
-      // 버전 목록 새로고침
-      loadItemSummaryVersions();
+      refreshItemSummaryVersions();
     } catch (error) {
       console.error('Failed to generate item summaries:', error);
       showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsGeneratingItemSummary(false);
+      setSummaryProgressInfo(prev => ({ ...prev, isActive: false }));
     }
   };
 
-  // 항목별 요약 버전 목록 불러오기
+  // 항목별 요약 버전 목록 불러오기 (모달 열기)
   const loadItemSummaryVersions = async () => {
     try {
       setIsLoadingItemSummaries(true);
@@ -450,6 +662,19 @@ export default function CachePage() {
       showMessage('항목별 요약 버전 목록 로드 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsLoadingItemSummaries(false);
+    }
+  };
+
+  // 항목별 요약 버전 목록만 새로고침 (모달 열지 않음)
+  const refreshItemSummaryVersions = async () => {
+    try {
+      const response = await fetch('/api/advice-summary?action=versions');
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaryVersions(data.versions || []);
+      }
+    } catch (error) {
+      console.error('Failed to refresh item summary versions:', error);
     }
   };
 
@@ -902,6 +1127,160 @@ export default function CachePage() {
               border: `1px solid ${messageType === 'success' ? '#A5D6A7' : messageType === 'error' ? '#FECACA' : '#90CAF9'}`
             }}>
               {message}
+            </div>
+          )}
+
+          {/* 진행 상황 프로그레스바 */}
+          {progressInfo.isActive && (
+            <div style={{
+              padding: 20, borderRadius: 12,
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              color: 'white',
+              boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 24, height: 24, border: '3px solid rgba(255,255,255,0.3)',
+                    borderTopColor: 'white', borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                  <span style={{ fontWeight: 600, fontSize: 15 }}>
+                    {progressInfo.phase === 'korean' ? '🇰🇷 한국어 조언 생성 중...' : 
+                     progressInfo.phase === 'english' ? '🌐 영어 조언 생성 중...' : 
+                     '⏳ 준비 중...'}
+                  </span>
+                </div>
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.2)', 
+                  padding: '6px 14px', 
+                  borderRadius: 20,
+                  fontWeight: 700,
+                  fontSize: 14
+                }}>
+                  {progressInfo.percent}%
+                </div>
+              </div>
+              
+              {/* 프로그레스바 */}
+              <div style={{
+                height: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 4,
+                overflow: 'hidden', marginBottom: 12
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${progressInfo.percent}%`,
+                  background: 'linear-gradient(90deg, #4ade80 0%, #22c55e 100%)',
+                  borderRadius: 4,
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              
+              {/* 상세 정보 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, opacity: 0.9 }}>
+                <div>
+                  <span style={{ opacity: 0.7 }}>현재 항목: </span>
+                  <span style={{ fontWeight: 600 }}>{progressInfo.itemId}</span>
+                  {progressInfo.itemTitle && (
+                    <span style={{ opacity: 0.7, marginLeft: 8 }}>({progressInfo.itemTitle.substring(0, 30)}{progressInfo.itemTitle.length > 30 ? '...' : ''})</span>
+                  )}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600 }}>{progressInfo.completedTasks}</span>
+                  <span style={{ opacity: 0.7 }}> / {progressInfo.totalTasks} 완료</span>
+                </div>
+              </div>
+              
+              {/* 에러 목록 */}
+              {progressInfo.errors.length > 0 && (
+                <div style={{ marginTop: 12, padding: 10, background: 'rgba(239, 68, 68, 0.2)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚠️ 오류 발생 ({progressInfo.errors.length}건)</div>
+                  <div style={{ fontSize: 11, opacity: 0.9, maxHeight: 60, overflow: 'auto' }}>
+                    {progressInfo.errors.slice(-3).map((err, i) => (
+                      <div key={i}>{err}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+            </div>
+          )}
+
+          {/* 요약 생성 진행 상황 프로그레스바 */}
+          {summaryProgressInfo.isActive && (
+            <div style={{
+              padding: 20, borderRadius: 12,
+              background: 'linear-gradient(135deg, #10B981 0%, #34D399 100%)',
+              color: 'white',
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div style={{
+                    width: 24, height: 24, border: '3px solid rgba(255,255,255,0.3)',
+                    borderTopColor: 'white', borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }} />
+                  <span style={{ fontWeight: 600, fontSize: 15 }}>
+                    {summaryProgressInfo.phase === 'korean' ? '🇰🇷 한국어 요약 생성 중...' : 
+                     summaryProgressInfo.phase === 'english' ? '🌐 영어 요약 생성 중...' : 
+                     '⏳ 준비 중...'}
+                  </span>
+                </div>
+                <div style={{ 
+                  background: 'rgba(255,255,255,0.2)', 
+                  padding: '6px 14px', 
+                  borderRadius: 20,
+                  fontWeight: 700,
+                  fontSize: 14
+                }}>
+                  {summaryProgressInfo.percent}%
+                </div>
+              </div>
+              
+              {/* 프로그레스바 */}
+              <div style={{
+                height: 8, background: 'rgba(255,255,255,0.2)', borderRadius: 4,
+                overflow: 'hidden', marginBottom: 12
+              }}>
+                <div style={{
+                  height: '100%',
+                  width: `${summaryProgressInfo.percent}%`,
+                  background: 'linear-gradient(90deg, #fbbf24 0%, #f59e0b 100%)',
+                  borderRadius: 4,
+                  transition: 'width 0.3s ease'
+                }} />
+              </div>
+              
+              {/* 상세 정보 */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, opacity: 0.9 }}>
+                <div>
+                  <span style={{ opacity: 0.7 }}>현재 항목: </span>
+                  <span style={{ fontWeight: 600 }}>{summaryProgressInfo.itemId}</span>
+                  {summaryProgressInfo.itemTitle && (
+                    <span style={{ opacity: 0.7, marginLeft: 8 }}>({summaryProgressInfo.itemTitle.substring(0, 30)}{summaryProgressInfo.itemTitle.length > 30 ? '...' : ''})</span>
+                  )}
+                </div>
+                <div>
+                  <span style={{ fontWeight: 600 }}>{summaryProgressInfo.current}</span>
+                  <span style={{ opacity: 0.7 }}> / {summaryProgressInfo.total} 완료</span>
+                </div>
+              </div>
+              
+              {/* 에러 목록 */}
+              {summaryProgressInfo.errors.length > 0 && (
+                <div style={{ marginTop: 12, padding: 10, background: 'rgba(239, 68, 68, 0.2)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 4 }}>⚠️ 오류 발생 ({summaryProgressInfo.errors.length}건)</div>
+                  <div style={{ fontSize: 11, opacity: 0.9, maxHeight: 60, overflow: 'auto' }}>
+                    {summaryProgressInfo.errors.slice(-3).map((err, i) => (
+                      <div key={i}>{err}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              
+              <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
           )}
 
@@ -2272,54 +2651,118 @@ export default function CachePage() {
             
             <div style={{ display: 'flex', height: 'calc(90vh - 80px)' }}>
               {/* 버전 목록 (왼쪽) */}
-              <div style={{ width: 280, borderRight: '1px solid #E5E7EB', overflowY: 'auto', padding: 16 }}>
-                <h3 style={{ margin: '0 0 12px', fontSize: 14, fontWeight: 600, color: '#374151' }}>버전 목록</h3>
+              <div style={{ width: 300, borderRight: '1px solid #E5E7EB', overflowY: 'auto', padding: 16, background: '#F9FAFB' }}>
+                <h3 style={{ margin: '0 0 16px', fontSize: 14, fontWeight: 600, color: '#374151' }}>
+                  📦 요약 버전 목록
+                </h3>
                 {itemSummaryVersions.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: 20, color: '#6B7280' }}>
-                    <p>생성된 요약이 없습니다.</p>
+                    <p style={{ fontSize: 13 }}>생성된 요약이 없습니다.</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {itemSummaryVersions.map((v, idx) => (
-                      <div 
-                        key={idx}
-                        style={{
-                          padding: 12, borderRadius: 8, cursor: 'pointer',
-                          background: selectedItemSummaryVersion === v.version ? '#ECFDF5' : '#F9FAFB',
-                          border: `1px solid ${selectedItemSummaryVersion === v.version ? '#10B981' : '#E5E7EB'}`
-                        }}
-                      >
+                    {itemSummaryVersions.map((v, idx) => {
+                      const isSelected = selectedItemSummaryVersion === v.version;
+                      // 버전명에서 언어 추출
+                      const hasKo = v.version.includes('_ko_');
+                      const hasEn = v.version.includes('_en_');
+                      const langLabel = hasKo ? '🇰🇷' : hasEn ? '🌐' : '🇰🇷';
+                      const versionLang = hasKo ? 'ko' : hasEn ? 'en' : 'ko';
+                      const isActiveVersion = versionLang === 'ko' 
+                        ? activeSummaryVersions.advice.ko === v.version
+                        : activeSummaryVersions.advice.en === v.version;
+                      
+                      return (
                         <div 
-                          onClick={() => loadItemSummariesByVersion(v.version, summaryViewLanguage)}
-                          style={{ marginBottom: 8 }}
-                        >
-                          <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', wordBreak: 'break-all' }}>
-                            {v.version.replace('summary_', '').substring(0, 30)}...
-                          </div>
-                          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 4 }}>
-                            {new Date(v.created_at).toLocaleString('ko-KR')}
-                          </div>
-                          <div style={{ fontSize: 11, color: '#10B981', marginTop: 2 }}>
-                            {v.item_count}개 항목
-                          </div>
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); deleteItemSummaryVersion(v.version); }}
+                          key={idx}
                           style={{
-                            padding: '4px 8px', fontSize: 11, background: '#FEE2E2', color: '#DC2626',
-                            border: 'none', borderRadius: 4, cursor: 'pointer'
+                            padding: 12, borderRadius: 10, cursor: 'pointer',
+                            background: isSelected ? '#ECFDF5' : isActiveVersion ? '#FEF3C7' : 'white',
+                            border: `2px solid ${isSelected ? '#10B981' : isActiveVersion ? '#F59E0B' : '#E5E7EB'}`,
+                            transition: 'all 0.2s'
                           }}
                         >
-                          삭제
-                        </button>
-                      </div>
-                    ))}
+                          <div 
+                            onClick={() => loadItemSummariesByVersion(v.version, summaryViewLanguage)}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+                              <span style={{ fontSize: 16 }}>{langLabel}</span>
+                              <span style={{ 
+                                fontSize: 11, fontWeight: 600, color: '#6B7280',
+                                overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                                maxWidth: 160
+                              }}>
+                                {v.version.split('_').slice(-3, -1).join('_')}
+                              </span>
+                              {isActiveVersion && (
+                                <span style={{
+                                  padding: '1px 6px', fontSize: 9, fontWeight: 700,
+                                  background: '#F59E0B', color: 'white', borderRadius: 4
+                                }}>
+                                  활성
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#9CA3AF', marginBottom: 4 }}>
+                              {new Date(v.created_at).toLocaleString('ko-KR')}
+                            </div>
+                            <div style={{ fontSize: 12, color: '#10B981', fontWeight: 600 }}>
+                              {v.item_count}개 항목
+                            </div>
+                          </div>
+                          
+                          {/* 활성화 체크박스 */}
+                          <div 
+                            style={{ 
+                              display: 'flex', alignItems: 'center', gap: 8, 
+                              marginTop: 8, paddingTop: 8, borderTop: '1px solid #E5E7EB' 
+                            }}
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <label style={{ 
+                              display: 'flex', alignItems: 'center', gap: 6, 
+                              cursor: 'pointer', flex: 1, fontSize: 11, color: '#374151'
+                            }}>
+                              <input
+                                type="checkbox"
+                                checked={isActiveVersion}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setActiveSummaryVersionHandler(v.version, versionLang as 'ko' | 'en');
+                                  }
+                                }}
+                                style={{ 
+                                  width: 16, height: 16, cursor: 'pointer',
+                                  accentColor: '#F59E0B'
+                                }}
+                              />
+                              <span>{versionLang === 'ko' ? '한국어' : '영어'} 활성화</span>
+                            </label>
+                          </div>
+                          
+                          {/* 버전 액션 버튼 */}
+                          <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
+                            <button
+                              onClick={(e) => { e.stopPropagation(); deleteItemSummaryVersion(v.version); }}
+                              style={{
+                                flex: 1, padding: '6px 8px', fontSize: 11, fontWeight: 600,
+                                color: '#DC2626', background: '#FEE2E2',
+                                border: 'none', borderRadius: 6, cursor: 'pointer',
+                                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4
+                              }}
+                            >
+                              🗑️ 삭제
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
 
               {/* 요약 내용 (오른쪽) */}
-              <div style={{ flex: 1, overflowY: 'auto', padding: 16 }}>
+              <div style={{ flex: 1, overflowY: 'auto', padding: 20 }}>
                 {!selectedItemSummaryVersion ? (
                   <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
                     <div style={{ fontSize: 48, marginBottom: 16 }}>👈</div>
@@ -2332,7 +2775,9 @@ export default function CachePage() {
                   </div>
                 ) : itemSummaries.length === 0 ? (
                   <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
-                    <p>요약 데이터가 없습니다.</p>
+                    <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
+                    <p>선택한 언어의 요약 데이터가 없습니다.</p>
+                    <p style={{ fontSize: 13, marginTop: 8 }}>다른 언어를 선택하거나 요약을 생성해주세요.</p>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

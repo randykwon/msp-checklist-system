@@ -117,7 +117,7 @@ export default function LoginPage() {
             fontSize: '28px',
             fontWeight: 700,
             color: 'white'
-          }}>MSP 헬퍼</h1>
+          }}>MSP 어드바이저</h1>
           <p style={{
             margin: '8px 0 0',
             fontSize: '14px',
@@ -384,7 +384,7 @@ export default function LoginPage() {
           fontSize: '13px',
           color: 'rgba(255,255,255,0.8)'
         }}>
-          © 2024 MSP 헬퍼. All rights reserved.
+          © 2024 MSP 어드바이저. All rights reserved.
         </p>
       </div>
 

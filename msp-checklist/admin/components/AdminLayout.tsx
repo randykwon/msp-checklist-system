@@ -183,7 +183,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 fontWeight: 'var(--fb-font-weight-semibold)', 
                 color: 'white',
                 margin: 0
-              }}>MSP 헬퍼</h1>
+              }}>MSP 어드바이저</h1>
               <p style={{ 
                 fontSize: 'var(--fb-font-size-xs)', 
                 color: 'rgba(255,255,255,0.8)',
@@ -394,7 +394,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             fontWeight: 'var(--fb-font-weight-semibold)', 
             color: 'var(--fb-text-primary)',
             margin: 0
-          }}>MSP 헬퍼 관리자</h1>
+          }}>MSP 어드바이저 관리자</h1>
           <div style={{
             width: '36px',
             height: '36px',

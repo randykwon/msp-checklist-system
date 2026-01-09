@@ -10,8 +10,8 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 export const metadata: Metadata = {
-  title: "AWS MSP 자체 평가 헬퍼",
-  description: "AWS MSP 파트너 프로그램 자체 평가 헬퍼",
+  title: "AWS MSP 자체 평가 어드바이저",
+  description: "AWS MSP 파트너 프로그램 자체 평가 어드바이저",
 };
 
 export default function RootLayout({

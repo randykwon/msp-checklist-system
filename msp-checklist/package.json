@@ -2,9 +2,13 @@
   "name": "msp-checklist",
   "version": "0.1.0",
   "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev -p 3010",
-    "build": "next build",
+    "build": "npm run build:shared && next build",
+    "build:shared": "cd packages/shared && npm run build",
     "start": "next start -p 3010",
     "lint": "eslint",
     "cache": "node scripts/generate-advice-cache-node.js",
@@ -13,6 +17,7 @@
     "cache:stats": "npm run cache stats"
   },
   "dependencies": {
+    "@msp/shared": "file:packages/shared",
     "@aws-sdk/client-bedrock": "^3.962.0",
     "@aws-sdk/client-bedrock-runtime": "^3.958.0",
     "@types/bcryptjs": "^3.0.0",

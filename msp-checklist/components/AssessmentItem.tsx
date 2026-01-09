@@ -422,6 +422,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       setShowAdviceInline(false);
     }
     
+    // 언어 변경 시 요약 내용 초기화 (새 언어로 다시 로드 필요)
+    setSummaryContent('');
+    setShowSummaryInline(false);
+    
     // 언어 변경 시 캐시된 가상증빙예제가 있으면 로드
     const cachedVirtualEvidence = getVirtualEvidence(item.id, newLanguage);
     if (cachedVirtualEvidence) {
@@ -431,6 +435,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       setVirtualEvidenceContent('');
       setShowVirtualEvidence(false);
     }
+    
+    // 언어 변경 시 VE 요약 내용 초기화 (새 언어로 다시 로드 필요)
+    setVESummaryContent('');
+    setShowVESummaryInline(false);
   };
 
   const handleMetChange = (value: boolean | null) => {
@@ -726,6 +734,27 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       const newState = !showAdviceInline;
       setShowAdviceInline(newState);
       setShowSummaryInline(newState);
+      
+      // 요약이 아직 로드되지 않았으면 로드
+      if (newState && !summaryContent) {
+        setIsLoadingSummary(true);
+        try {
+          const summaryResponse = await fetch(`/api/advice-summary?action=item&itemId=${item.id}&language=${itemLanguage}`);
+          if (summaryResponse.ok) {
+            const summaryData = await summaryResponse.json();
+            if (summaryData.summaries && summaryData.summaries.length > 0) {
+              setSummaryContent(summaryData.summaries[0].summary);
+            } else {
+              setSummaryContent(itemLanguage === 'ko' ? '이 항목에 대한 요약이 아직 생성되지 않았습니다.' : 'No summary available for this item yet.');
+            }
+          }
+        } catch (error) {
+          console.error('Error loading advice summary:', error);
+          setSummaryContent(itemLanguage === 'ko' ? '요약을 불러오는데 실패했습니다.' : 'Failed to load summary.');
+        } finally {
+          setIsLoadingSummary(false);
+        }
+      }
       return;
     }
 
@@ -1120,11 +1149,40 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             <div style={{
               padding: '14px 18px',
               background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)',
-              color: 'white'
+              color: 'white',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}>
               <h5 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>
                 📝 {t('assessmentItem.description')}
               </h5>
+              <button
+                onClick={toggleItemLanguage}
+                style={{
+                  padding: '6px 12px',
+                  fontSize: 13,
+                  fontWeight: 600,
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: 6,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  transition: 'all 0.2s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.2)';
+                }}
+                title={itemLanguage === 'ko' ? 'Switch to English' : '한국어로 전환'}
+              >
+                {itemLanguage === 'ko' ? '🇰🇷 한국어' : '🌐 English'}
+              </button>
             </div>
             <div style={{ padding: 20, background: 'var(--theme-card-bg)' }}>
               <div style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-text-primary)', whiteSpace: 'pre-line' }}>

@@ -149,7 +149,7 @@ export default function LoginPage() {
             fontWeight: 700,
             color: 'white'
           }}>
-            {language === 'ko' ? 'AWS MSP 자체 평가 헬퍼' : 'AWS MSP Self-Assessment Helper'}
+            {language === 'ko' ? 'AWS MSP 자체 평가 어드바이저' : 'AWS MSP Self-Assessment Advisor'}
           </h1>
           <p style={{
             margin: '8px 0 0',

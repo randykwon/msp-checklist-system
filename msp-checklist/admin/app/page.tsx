@@ -156,7 +156,7 @@ export default function AdminHome() {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
               <div>
                 <h1 style={{ margin: 0, fontSize: 28, fontWeight: 700 }}>🏠 관리자 대시보드</h1>
-                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 15 }}>MSP 헬퍼 시스템 현황을 한눈에 확인하세요</p>
+                <p style={{ margin: '8px 0 0', opacity: 0.9, fontSize: 15 }}>MSP 어드바이저 시스템 현황을 한눈에 확인하세요</p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                 <button

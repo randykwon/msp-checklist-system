@@ -1,0 +1,379 @@
+{
+  "version": "ve_summary_20260107_013413_bedrock_anthropic.claude-opus-4-5-20251101-v1-0_en_20260108143436_bedrock",
+  "sourceVersion": "20260107_013413_bedrock_anthropic.claude-opus-4-5-20251101-v1-0",
+  "language": "en",
+  "provider": "bedrock",
+  "model": "anthropic.claude-opus-4-5-20251101-v1:0",
+  "createdAt": "2026-01-08T14:42:32.182Z",
+  "totalItems": 61,
+  "successCount": 61,
+  "errorCount": 0,
+  "summaries": [
+    {
+      "item_id": "BUS-001",
+      "category": "Business",
+      "title": "Company Overview",
+      "summary": "## BUS-001 Company Overview Summary\n\n📊 **Core Evidence**: Company overview presentation deck (18 min) covering founding history, global operations (4 offices), 847 employees (312 in AWS MSP practice), and 156 active managed customers across Healthcare/Financial Services/Retail/Manufacturing sectors.\n\n🏆 **AWS Partnership Proof**: Advanced Tier Partner with MSP designation since 2019, $4.2M monthly AWS billings, competencies in Migration/DevOps/Security, and 224+ AWS-certified employees.\n\n📎 **Supporting Materials**: Speaker notes with timing guide, Partner Central screenshots, org charts, billing summaries, NOC staffing schedules, and certification matrices bundled as appendices.\n\n💡 **Key Tips**: Quantify all metrics specifically (avoid vague statements), validate AWS data against Partner Central before audit, prepare 5-10 backup slides for deep-dive questions, and emphasize cloud-native automation approach vs. traditional MSP models."
+    },
+    {
+      "item_id": "BUS-002",
+      "category": "Business",
+      "title": "MSP Practice Growth",
+      "summary": "## 📋 BUS-002 Summary: MSP Practice Growth\n\n🎯 **Core Requirement**: Demonstrate minimum **4 qualifying contracts** showing net-new customers or significant scope expansion within the **past 18 months** for ongoing AWS managed services.\n\n📁 **Key Evidence Types**: Executed MSAs/addenda with dates, SOWs detailing AWS managed services scope, customer onboarding timelines, before/after architecture diagrams for expansions, and revenue growth documentation.\n\n👥 **Recommended Presenters**: VP of Sales or MSP Practice Lead, supported by Customer Success Manager and Finance Representative for contract validation.\n\n⚠️ **Critical Success Factors**: All contracts must be within 18-month window, specify ongoing operational responsibilities (not project-based), and show clear evidence of new relationships OR measurable scope increases (workloads/revenue growth)."
+    },
+    {
+      "item_id": "BUS-003",
+      "category": "Business",
+      "title": "Financial Planning and Reporting",
+      "summary": "## BUS-003: Financial Planning and Reporting - Summary\n\n📊 **4 types of evidence required**: Annual budget/quarterly forecast (Excel with revenue projections, cost structure, AWS competency investment allocation), Monthly financial performance report (P&L, AWS-specific KPIs like customer spend under management, variance analysis), Financial planning governance policy (planning cycle, forecasting cadence, review governance, RACI matrix), and Quarterly financial review meeting minutes (actual vs budget review, decisions, action items).\n\n💡 **Key points**: Must explicitly include AWS practice-specific metrics (partner-led revenue, certification budgets, competency investments) rather than generic IT financials, and demonstrate the complete cycle from annual budget → quarterly forecast → monthly actuals → variance analysis.\n\n⚠️ **Practical tips**: Include version numbers/approval signatures to prove living documents, meeting minutes are powerful evidence showing process execution, recent evidence (within last quarter) preferred, and specific amounts can be redacted while preserving structure."
+    },
+    {
+      "item_id": "BUS-004",
+      "category": "Business",
+      "title": "Go-To-Market",
+      "summary": "## BUS-004 Go-To-Market Summary\n\n📊 **Sales Enablement & Training**: Sales playbook with MSP prospect identification criteria (50+ EC2 instances, compliance needs), BANT-based qualification scoring ($15K+/month threshold), and seller certification program (34/38 team members certified, 22-hour curriculum).\n\n🎯 **Customer Engagement Tools**: First call deck showcasing MSP capabilities, customer success stories (40% OpEx reduction, 99.99% uptime), and three engagement models (Fully Managed/Co-Managed/Project-Based).\n\n🤝 **AWS Collaboration**: Documented ACE opportunity registration process, bi-weekly PDM syncs, quarterly joint account mapping, with proven results (78% ACE acceptance rate, $12.4M influenced revenue).\n\n📈 **Demand Generation**: Multi-channel approach including AWS Marketplace, co-branded webinars, re:Invent presence, and PMDF utilization ($125K FY2024), with clear MQL→SQL conversion tracking and 48-hour lead follow-up SLA."
+    },
+    {
+      "item_id": "BUSP-001",
+      "category": "Business",
+      "title": "Web Presence",
+      "summary": "## BUSP-001 Web Presence Summary\n\n🌐 **Primary Evidence**: Public AWS MSP landing page URL with AWS Partner badge, differentiated expertise (certifications, industry specializations, proprietary tools), and comprehensive service offerings (24/7 management, FinOps, security/compliance, migration, DevOps)\n\n📸 **Supporting Documentation**: Full-page screenshots (desktop/mobile) with annotations highlighting key elements, visible URL bar, timestamps, and Wayback Machine archive backup\n\n📊 **Verification Matrix**: Excel spreadsheet confirming all linked case studies are publicly accessible (HTTP 200 OK), with industry tags and service highlights cross-referenced\n\n💡 **Key Tips**: Ensure page is publicly accessible without login, use specific differentiation language (not generic descriptions), keep case studies ungated, follow AWS branding guidelines, and maintain content freshness"
+    },
+    {
+      "item_id": "BUSP-002",
+      "category": "Business",
+      "title": "Sales and Marketing Accreditations",
+      "summary": "## BUSP-002 Sales and Marketing Accreditations - Summary\n\n📊 **Core Evidence**: Excel tracker documenting 100% accreditation compliance (18/18 sales, 7/7 marketing) with employee details, certificate IDs, and expiry dates, plus AWS Partner Central dashboard screenshot showing 25 total accredited personnel across 4 business units.\n\n📜 **Certification Proof**: PDF bundle of 25 AWS Skill Builder certificates (Sales Accreditation - Business & Technical) with verification codes and Credly badge URLs for validation.\n\n✍️ **Executive Attestation**: CRO and CMO signed letter confirming all sales/marketing personnel are accredited, including 30-day mandatory onboarding requirement for new hires.\n\n💡 **Key Tips**: Set expiration alerts (2-year validity), ensure Partner Central screenshots show URL bar and timestamp, and document rationale for Business vs Technical accreditation choices per role."
+    },
+    {
+      "item_id": "BUSP-003",
+      "category": "Business",
+      "title": "Customer Case Studies",
+      "summary": "## 📋 BUSP-003 Customer Case Studies - Summary\n\n🎯 **Required Evidence**: 2 public + 2 private case studies (total 4), none previously used in audits\n\n📄 **Public Case Studies**: AWS blog posts or YouTube testimonials with verifiable URLs (e.g., healthcare HIPAA compliance transformation, manufacturing IoT scaling success)\n\n🔒 **Private Case Studies**: Confidential customer engagements with signed authorization forms and customer contact for verification (e.g., financial services, e-commerce)\n\n📊 **Key Requirements**: Must emphasize **ongoing managed services** (24/7 monitoring, SLAs, operations) not just projects; include 3+ quantifiable outcomes per case study; maintain tracking matrix showing audit history and verification status\n\n💡 **Pro Tip**: Start developing new case studies 6-9 months before audit, verify public URLs quarterly, and demonstrate industry diversity across verticals"
+    },
+    {
+      "item_id": "GOV-001",
+      "category": "Governance",
+      "title": "Risk and Mitigation Plans",
+      "summary": "## GOV-001 Risk and Mitigation Plans - Summary\n\n📊 **Risk Register** documents 47 risks across 8 categories with specific AWS practice risks (customer concentration 62%, SA talent shortage, 340% growth scaling challenges) using a quantified 5x5 scoring matrix.\n\n🎯 **Mitigation Plans** include concrete action plans with budgets ($425K for customer diversification, $890K for talent acquisition), timelines, owners, and measurable success metrics.\n\n📋 **Governance Framework** defines a 6-stage risk lifecycle (Identification → Assessment → Mitigation → Implementation → Monitoring → Reporting) with RACI matrix and risk appetite statements.\n\n✅ **Active Monitoring Evidence** includes quarterly Risk Committee meeting minutes showing actual decisions, KRI dashboard reviews, risk closures, and action item tracking.\n\n🔍 **Third-Party Validation** via Deloitte annual assessment validates framework maturity and provides independent risk posture rating with improvement recommendations."
+    },
+    {
+      "item_id": "GOV-002",
+      "category": "Governance",
+      "title": "Customer Satisfaction",
+      "summary": "## 📋 GOV-002 Customer Satisfaction - Virtual Evidence Summary\n\n🎯 **Survey Platform Demo**: Show 3 survey types (post-incident, QBR, project completion) with automated triggers from ticketing system and actual customer responses linked to original tickets.\n\n📊 **CSAT Dashboard**: Display real-time metrics including overall score, response rate, NPS, 6-month trends, and breakdown by service type/customer segment with drill-down capability.\n\n🔄 **Closed-Loop Process**: Demonstrate complete concern resolution workflow - from automatic alerts for scores ≤3, through 24-hour SLA outreach, root cause investigation, corrective action, to follow-up verification with improved scores.\n\n📁 **Key Evidence**: Feedback Action Tracker showing specific issues resolved, anonymized 6-12 months historical data, and process documentation proving this is separate from AWS Partner Central CSAT."
+    },
+    {
+      "item_id": "GOV-003",
+      "category": "Governance",
+      "title": "Data Ownership and Customer Offboarding",
+      "summary": "## 📋 Summary: GOV-003 Data Ownership and Customer Offboarding\n\n🔐 **Master Agreement Addendum** clearly defines customer data ownership (S3, RDS, logs, IaC, etc.) vs. partner-retained assets (proprietary tools only), with detailed 45-day offboarding timeline including IAM cleanup, credential transfer, and account migration milestones.\n\n📝 **Offboarding Runbook & Checklist** provides 6-phase execution process (Initiation → Final Verification) with specific tasks, IAM entity inventory template, and credential transfer log for systematic customer disengagement.\n\n📜 **Data Ownership Certificate Template** serves as formal acknowledgment document listing all AWS accounts, data categories under customer ownership, and verification checklist for credential/data transfer completion with sign-off sections.\n\n✅ **Key Evidence Types**: Contractual agreement with legal sign-off, operational runbook/checklist (Excel), and formal certificate template - demonstrating both policy commitment and executable procedures for data ownership and offboarding."
+    },
+    {
+      "item_id": "GOV-004",
+      "category": "Governance",
+      "title": "Operational Readiness",
+      "summary": "## 📋 GOV-004 Operational Readiness Summary\n\n🎯 **Checklist-based go-live validation system** covering 4 domains: Personnel (18 items), Tooling (24 items), Process (21 items), and Documentation (15 items) - requiring **minimum 92% score** for approval.\n\n📊 **Structured gate process** with T-14, T-7, T-2 day checkpoints, multi-stakeholder sign-off (6 approvers including customer), and 14-day post-go-live hypercare period.\n\n✅ **Key evidence types**: Readiness checklist workbook, SOP document with RACI matrix, completed customer ORR records showing gap remediation, and tooling validation reports with test screenshots.\n\n⚠️ **Critical requirements**: Customer-specific customization, actual validation test evidence (not just checkmarks), personnel competency verification beyond assignment, and clear SLA alignment mapping."
+    },
+    {
+      "item_id": "GOV-005",
+      "category": "Governance",
+      "title": "Shared Responsibility Model",
+      "summary": "## GOV-005 Shared Responsibility Model - Summary\n\n📋 **Customer Onboarding Security Guide** documenting AWS shared responsibility model with 47 security/operational domains and clear MSP-Customer ownership delineation\n\n📊 **Comprehensive RACI Matrix** (Excel) covering 5 areas: Infrastructure Security, IAM, Data Protection, Operations, Compliance - with specific AWS service-level responsibility assignments\n\n✍️ **Customer Acknowledgment Form** with checkbox attestations for 14 security commitments, operational expectations, and dual-signature requirements\n\n📁 **Executed Customer Package Sample** (Meridian Healthcare) demonstrating actual implementation including signed forms, customized HIPAA RACI, and onboarding meeting notes\n\n💡 **Key Point**: Templates alone are insufficient - must show actual signed customer acknowledgments and service-specific RACI customization (Lambda vs EC2 vs RDS responsibility differences)"
+    },
+    {
+      "item_id": "GOV-006",
+      "category": "Governance",
+      "title": "Sustainability Best Practices",
+      "summary": "## GOV-006 Sustainability Best Practices - Summary\n\n🌱 **Framework & Policy**: Executive-approved sustainability policy covering region selection by carbon intensity, Graviton adoption requirements, right-sizing targets (70%+ CPU utilization), and serverless-first evaluation criteria.\n\n📊 **Case Studies Portfolio**: 4 documented customer improvements including Graviton migration (52% energy reduction), S3 Intelligent-Tiering (41% carbon reduction), region migration to renewable energy regions, and serverless transformation.\n\n📈 **Carbon Footprint Tracking**: Quarterly reports using AWS Customer Carbon Footprint Tool showing 38.3% YoY reduction (847→523 MTCO2e), with KPI tracking for Graviton adoption (58%), EC2 utilization (54%), and Spot usage (41%).\n\n🔄 **Process Integration**: Mandatory sustainability assessments at 3 engagement stages (design, QBR, annual WAR), with 23 certified architects and standardized recommendation templates.\n\n📋 **Improvement Tracker**: Spreadsheet documenting 47 improvements across 28 customers with before/after states, carbon impact metrics, and evidence links to Jira tickets and architecture diagrams."
+    },
+    {
+      "item_id": "GOVP-001",
+      "category": "Governance",
+      "title": "Supplier Management",
+      "summary": "## 📋 GOVP-001 Supplier Management - Evidence Summary\n\n🔹 **Core Evidence Package**: Supplier Selection SOP (tiered classification: Critical/Important/Standard), Approved Supplier Register with certification tracking (SOC2/ISO 27001), and individual supplier security assessment packages (SIG questionnaires, audit reports, DPAs)\n\n🔹 **Key Differentiator**: Include **rejection decision records** (e.g., vendor failed due to SOC2 exceptions) to demonstrate the evaluation process has actual enforcement teeth\n\n🔹 **Critical Success Factors**: Maintain certification expiry tracking with 90-day alerts, collect bridge letters for SOC2 coverage gaps, and ensure SOP naming conventions/scoring criteria match actual assessment records\n\n🔹 **Practical Tip**: Use risk-based tiering (Tier 1 requires SOC2+ISO 27001, Tier 2/3 lighter requirements) to show mature vendor risk management without over-engineering for low-risk suppliers"
+    },
+    {
+      "item_id": "GOVP-002",
+      "category": "Governance",
+      "title": "Operations Improvement",
+      "summary": "## GOVP-002 Operations Improvement - Virtual Evidence Summary\n\n📋 **Continuous Improvement Framework Policy** - Documents the RADAR methodology (Review→Analyze→Define→Assign→Report) and weighted prioritization matrix (Business Impact 40%, Effort 25%, Risk 20%, Customer Value 15%) with OEC quarterly review governance structure\n\n📊 **Quarterly Review Meeting Minutes** - Records actual improvement opportunity identification (e.g., $127K RI savings, Lambda timeout patterns across 6 accounts, deprecated instance families) with 34 backlog items scored and prioritized\n\n📈 **Improvement Dashboard & Outcomes** - Tracks initiative pipeline funnel with quantified results (YTD: 47 opportunities identified → 22 completed, $892K savings, 34% MTTR reduction, 67% reduction in manual intervention)\n\n🔍 **Monthly Metrics Review Template** - Shows trend analysis across domains (MTTR: 47→38 min, Security Hub: 82→91) with systematic opportunity flagging linked to customer feedback themes\n\n💡 **Key Tip**: Maintain closed-loop tracking from identification to measured outcomes, quantify all improvements with specific metrics, and document deprioritization decisions to demonstrate governance maturity."
+    },
+    {
+      "item_id": "GOVP-003",
+      "category": "Governance",
+      "title": "Sustainability Commitment",
+      "summary": "## 📋 GOVP-003 Sustainability Commitment - Summary\n\n🎯 **Core Evidence**: CEO-signed sustainability policy with net-zero 2030 target + Board resolution allocating $450K annually for sustainability initiatives\n\n📊 **Key Documents**: (1) Corporate Sustainability Policy with 4 strategic pillars, (2) CTO's technical sustainability vision (Graviton 70% adoption, carbon footprint reviews), (3) Board Resolution establishing 5-year strategic commitment, (4) CFO's multi-year investment memo ($450K total)\n\n⚡ **Critical Success Factors**: Actual CxO signatures required, must show AWS-specific alignment (Carbon Footprint Tool, Sustainability Pillar, Graviton), governance structure evidence (ESG Committee, Board reporting), and multi-year timeframe (3-5 years minimum)\n\n💡 **Tip**: Combine external-facing commitments with internal communications, and maintain version history to demonstrate living policy documents"
+    },
+    {
+      "item_id": "OPS-001",
+      "category": "Operations",
+      "title": "Service Level Management",
+      "summary": "## OPS-001 Service Level Management - Summary\n\n📋 **SLA Documentation**: Tiered incident response SLAs (P1: 15min response/4hr resolution → P4: 4hr/72hr), AWS infrastructure availability targets (99.95% EC2/RDS, 99.9% EKS/ECS), and change request turnaround times with service credit methodology.\n\n📊 **Performance Reports**: Quarterly Excel reports showing SLA compliance metrics (e.g., 98.7% overall), incident response by priority, availability tracking, breach analysis with root causes and corrective actions.\n\n🤝 **Review Process & Evidence**: Documented governance framework (monthly/quarterly/annual reviews), QBR meeting minutes with customer attendees, feedback, and action items demonstrating systematic customer engagement.\n\n📈 **Dashboard Evidence**: ServiceNow screenshots showing real-time SLA tracking with compliance visualizations, trend analysis, and at-risk account alerts - proving automated (not manual) SLA monitoring.\n\n💡 **Key Tip**: Ensure AWS-specific metrics, customer acknowledgment of reports, and proactive breach documentation with RCA to demonstrate mature service management."
+    },
+    {
+      "item_id": "OPS-002",
+      "category": "Operations",
+      "title": "AWS Support Plan for Partner owned Management and Member Account",
+      "summary": "## OPS-002 Summary: AWS Support Plan for Partner owned Management and Member Account\n\n📊 **Evidence Package**: Excel inventory tracking 7 AWS Organizations (163 accounts total) with support plan levels, 47-page console screenshot package showing Support Center dashboards with timestamps, and automated JSON audit output via AWS Support API confirming 100% compliance for 89 production accounts.\n\n🔐 **Support Distribution**: Production workloads covered by Enterprise (23), Business (51), or Partner-Led Support/PLS (15 accounts), with PLS enrollment certificates from AWS Partner Network for 3 organizations.\n\n📋 **Governance Framework**: Formal policy document defining production/non-production classification criteria, quarterly audit procedures, empty exception register, and new account onboarding checklist requiring support plan verification.\n\n💡 **Key Tips**: Automate validation via Lambda/Config rules, use mandatory `Environment=Production` tags, integrate support plan checks into account vending process, and maintain evidence freshness within 90 days for assessors."
+    },
+    {
+      "item_id": "OPS-003",
+      "category": "Operations",
+      "title": "AWS Support Plan for Customer owned Member Account",
+      "summary": "## OPS-003 Summary: AWS Support Plan for Customer-Owned Member Accounts\n\n📊 **Customer Account Support Matrix** tracking all managed accounts with support plan status, AWS spend, workload classification, and upgrade recommendations (Excel format with dashboard showing compliance rates).\n\n📧 **Premium Support Communication Records** including value proposition templates, comparison tables (Basic/Business/Enterprise), and logged customer outreach emails with follow-up meeting notes.\n\n⚠️ **Support Gap Analysis Report** identifying production accounts without adequate support, individual risk assessments, escalation workflows, and 30-60-90 day outreach cadence documentation.\n\n📑 **Customer-Specific Upgrade Proposals** with architecture diagrams, incident history analysis, cost-benefit calculations, and case studies demonstrating MTTR improvements.\n\n💡 **Key Tip**: Document customer decisions when they decline upgrades, maintain monthly-updated registries, and ensure clear 30-60-90 day follow-up cadence with tracked touchpoints to demonstrate ongoing advisory obligation."
+    },
+    {
+      "item_id": "OPS-004",
+      "category": "Operations",
+      "title": "Service Desk Operations",
+      "summary": "## OPS-004 Service Desk Operations - Summary\n\n📋 **Key Evidence**: Customer agreements (MSA/SLA/SOW) explicitly documenting **24x7x365 service desk availability** with multi-channel contact methods (phone, email, portal, chat/Slack)\n\n🔹 **Essential Elements**: Specific contact information (actual phone numbers/URLs), response time SLAs by severity level (P1: 15min ~ P4: next business day), and clear after-hours support model (staffed vs. on-call)\n\n✅ **Critical Requirements**: Customer signature/acknowledgment confirming understanding of service desk terms, escalation matrix with named contacts, and holiday coverage procedures\n\n💡 **Tip**: Prepare 2-3 different customer agreement examples with executed signatures to demonstrate consistent service desk commitments across your customer base"
+    },
+    {
+      "item_id": "OPS-005",
+      "category": "Operations",
+      "title": "Implement a Comprehensive ITSM platform",
+      "summary": "## 📋 OPS-005 Virtual Evidence Summary\n\n🎫 **ITSM Platform Comprehensive Demo** - Demonstrates ITIL-aligned service management through ServiceNow/Jira SM/Freshservice integrated with AWS (EventBridge, CloudWatch, Systems Manager, Lambda).\n\n📊 **Key Evidence Requirements**: 30+ days of historical tickets (15+ incidents, 5+ problem records, 10+ change requests, 20+ service requests), CMDB with 50+ AWS resources, and 10+ automated runbooks.\n\n🔄 **Core Demo Modules** (90-120 min): Incident/Problem Management (auto-creation via CloudWatch alarms), Change Management (standard/normal/emergency workflows with CAB), Service Request fulfillment via AWS Service Catalog, and real-time reporting dashboards.\n\n⚡ **Key Metrics to Present**: MTTR 2.4 hours, MTTA 8 minutes, 97.3% change success rate, 99.1% SLA compliance, and 40% reduction in manual ticket handling through automation."
+    },
+    {
+      "item_id": "OPS-006",
+      "category": "Operations",
+      "title": "Release Management",
+      "summary": "## OPS-006 Release Management - Virtual Evidence Summary\n\n📋 **Core Evidence Package**: End-to-end release lifecycle documentation including version control (GitHub Enterprise with branch protection), environment progression (DEV→QA→UAT→Staging→Prod), testing matrix (>85% coverage, security scans), and CAB approval workflows via JIRA Service Management.\n\n🚀 **Execution Evidence**: Complete release package (v4.7.2) with PR approvals, test reports (1,247 tests, 89.3% coverage), security scan results, CAB approval chain, and AWS CodePipeline/ArgoCD deployment logs showing successful production deployment.\n\n🏗️ **IaC Repository Structure**: Declarative infrastructure using AWS CDK (TypeScript) and Kubernetes manifests with Kustomize overlays, demonstrating environment parity and drift detection via AWS Config.\n\n📊 **DORA Metrics & Runbooks**: Q3 metrics tracking (12 releases, 4.2-day lead time, 8.3% failure rate, 23-min MTTR) plus detailed runbooks with automated/manual rollback procedures and canary deployment strategies."
+    },
+    {
+      "item_id": "OPS-007",
+      "category": "Operations",
+      "title": "Configuration Management",
+      "summary": "## 📋 OPS-007 Configuration Management Summary\n\n🎯 **60-minute live demonstration** showcasing configuration management system tracking 5 key elements: resources added/removed/updated, change timestamps, deployment status, executor identity, and approval workflow.\n\n🔧 **Core tools demonstrated**: AWS Config (resource timeline), CloudTrail (identity tracking with MFA/IP/session details), Systems Manager Change Manager (approval workflows), and ServiceNow CMDB integration.\n\n📊 **Evidence includes**: Configuration change comparisons (before/after), multi-stage approval workflow visualization (Request→Technical Review→Customer Approval→Scheduled→Executed→Verified), and complete change ticket records with closure information.\n\n✅ **Key tracking capabilities**: JSON-formatted configuration snapshots, CloudTrail event logs showing exact executor identity and role, ServiceNow integration with affected CIs, and status tracking including rollback examples."
+    },
+    {
+      "item_id": "OPS-008",
+      "category": "Operations",
+      "title": "Patch Management",
+      "summary": "## 📋 Summary\n\n🔧 **AWS Systems Manager Patch Manager** 기반의 자동화된 패치 관리 데모로, Windows/Linux 크로스 플랫폼 EC2 플릿(8-12대)에 대한 패치 자동화 시연입니다.\n\n📊 **핵심 증거 요소**: ① 커스텀 패치 베이스라인(보안/중요 패치 자동 승인 규칙) ② 환경별 유지보수 윈도우(Dev/Staging/Prod 일정) ③ 실시간 규정 준수 대시보드(94.2% 준수율 시각화) ④ 애플리케이션/서드파티 패치용 커스텀 SSM 문서\n\n⚙️ **자동화 흐름**: Patch Manager → Maintenance Windows → EC2 Fleet → EventBridge/SNS 알림 → 고객 포털 대시보드로 연결되는 End-to-End 파이프라인 구성"
+    },
+    {
+      "item_id": "OPS-009",
+      "category": "Operations",
+      "title": "Customer Deployment Pipelines",
+      "summary": "## OPS-009: Customer Deployment Pipelines - Summary\n\n📋 **Demonstration Guide** for showcasing automated deployment and rollback capabilities to AWS MSP auditors (60-minute session)\n\n🔧 **Core Demo Components**: AWS CodePipeline (3+ stages), CodeBuild, CodeDeploy (Blue/Green), with 3-tier sample application on ECS Fargate - demonstrates code commit triggering full automated deployment with manual approval gates permitted\n\n🔄 **Key Evidence Points**: Live deployment flow (code commit → build → test → approval → deploy), automated rollback on health check failures via CloudWatch alarms, and deployment history showing 47+ successful deployments over 90 days\n\n✅ **Success Criteria**: No manual SSH/console deployment, automatic rollback without human intervention, consistent deployment logs, and customer visibility into deployment status"
+    },
+    {
+      "item_id": "OPS-010",
+      "category": "Operations",
+      "title": "Event Management and Dynamic Monitoring",
+      "summary": "## Summary\n\n📊 **OPS-010 Event Management and Dynamic Monitoring** requires a **75-90 minute live demonstration** covering four core areas: metrics collection (custom metrics, metric math, KPI dashboards), log management (CloudWatch Logs Insights, S3 export for compliance), alert thresholds (composite alarms, anomaly detection, escalation workflows), and tag-based resource organization.\n\n🎯 **Key preparation includes**: Multi-region AWS environment with 3-tier sample application, 20+ active CloudWatch alarms, pre-configured dashboards with 15+ widgets, SNS/Slack/PagerDuty integration, and mandatory tagging schema (Customer, Environment, CostCenter, DataClassification, Compliance).\n\n🔧 **Critical demonstration elements**: Live alarm trigger showing real-time Slack notification, CloudWatch Logs Insights queries for error analysis, tag-based resource groups filtering by customer, and Config rules enforcing tag compliance with auto-remediation."
+    },
+    {
+      "item_id": "OPS-011",
+      "category": "Operations",
+      "title": "Operational Runbooks",
+      "summary": "## OPS-011 Operational Runbooks Summary\n\n📋 **Infrastructure Runbooks**: Step-by-step EC2 High CPU response procedures with CLI commands, root cause analysis scenarios (runaway process/load spike/security incident), and escalation paths (L1→L2→On-Call→SDM)\n\n🔐 **Security Runbooks**: GuardDuty/WAF alert response playbooks including containment actions (disable access keys, attach deny-all policy), evidence preservation commands, and customer notification templates\n\n🏢 **Customer-Specific Runbooks**: Tailored workload runbooks (e.g., Aurora failover, ElastiCache alerts) with architecture context, customer contact info, and SLA targets for individual clients\n\n📊 **Runbook Management System**: Centralized registry tracking 139 runbooks across 6 categories, with execution history, quarterly review cycles, and version control through Confluence/ServiceNow"
+    },
+    {
+      "item_id": "OPS-012",
+      "category": "Operations",
+      "title": "Anomaly Detection",
+      "summary": "## 📋 OPS-012: Anomaly Detection Summary\n\n🎯 **Core Requirement**: Demonstrate ML/statistical-based anomaly detection implementation that reduces false positives and alert fatigue while maintaining incident detection accuracy.\n\n📊 **Key Evidence Components**: CloudWatch Anomaly Detection on 10+ metrics, DevOps Guru integration, custom SageMaker ML pipeline (if applicable), and before/after alert volume comparison showing measurable reduction (target: 50%+ false positive reduction).\n\n🔧 **Critical Demo Elements**: Live console walkthrough of anomaly bands, model training configuration with seasonality handling, real customer incident examples caught by anomaly detection, and alerting workflow integration (SNS → PagerDuty/OpsGenie).\n\n✅ **Success Metrics to Present**: Quantified alert reduction (e.g., 2,847→612 monthly alerts), false positive rate improvement, MTTA reduction, incident catch rate (100%), and customer testimonial validating operational improvements."
+    },
+    {
+      "item_id": "OPS-013",
+      "category": "Operations",
+      "title": "Predictive Monitoring and AIOps",
+      "summary": "## 📋 OPS-013 Summary\n\n🤖 **Predictive Monitoring and AIOps** demonstration showcasing ML-based incident prediction capabilities using Amazon DevOps Guru, CloudWatch Anomaly Detection, and custom SageMaker models.\n\n📊 **Key Evidence Components**: Real customer case study (FastRetail E-commerce), 90-minute live demo with ML model deep-dive, prediction accuracy reports (6 months), and Terraform infrastructure code for AIOps setup.\n\n🎯 **Core Demonstration**: Proving 15-30 minute advance incident prediction capability, proactive auto-remediation workflows, and ensemble prediction engine integrating multiple ML sources.\n\n💰 **Business Impact Metrics**: Reduction from 12 incidents/month to near-zero customer impact, MTTD improvement from 8 minutes to predictive prevention, and ROI analysis documentation included."
+    },
+    {
+      "item_id": "OPS-014",
+      "category": "Operations",
+      "title": "Knowledge Management",
+      "summary": "## 📋 OPS-014: Knowledge Management Summary\n\n🎯 **60-75 minute demonstration** showcasing MSP knowledge management system using platforms like Confluence, ServiceNow Knowledge, or Notion with integrated analytics and ticketing systems.\n\n📚 **Two-pillar structure**: Internal Operations Knowledge Base (AWS runbooks, incident SOPs, change management) AND Customer Workload Spaces (architecture docs, customer-specific procedures, compliance requirements) for each managed customer.\n\n🔍 **Key demonstration elements**: Search capability across 2,800+ articles, customer space creation from templates, knowledge linking between internal/customer-specific content, and governance showing 94% up-to-date content with quarterly review cycles.\n\n✅ **Success criteria**: Comprehensive coverage of both internal and customer knowledge, effective search returning relevant results, evidence of regular updates/active usage, clear access controls, and integration with operational tools (ticketing, monitoring)."
+    },
+    {
+      "item_id": "OPS-015",
+      "category": "Operations",
+      "title": "Disaster Recovery",
+      "summary": "## OPS-015 Disaster Recovery - Virtual Evidence Summary\n\n📊 **RTO/RPO Requirements Matrix** documenting customer workload classification by tier (Tier-1 Critical/Tier-2 Important) with specific RTO/RPO targets, AWS services used, and backup methods for each workload.\n\n🔄 **AWS Service Backup & Recovery Test Reports** (minimum 2 services required) - includes RDS and DynamoDB examples with detailed evidence: backup job history screenshots, PITR configuration, recovery test timelines with precise timestamps, and data integrity validation queries proving actual RTO/RPO achieved vs. targets.\n\n📈 **Quarterly DR Test Summary Dashboard** showing aggregated test results across all services (pass rates, RTO/RPO performance trends, improvement actions) with executive-level reporting.\n\n⚙️ **AWS Backup Configuration Export** (JSON format) documenting backup vaults, plans, rules (continuous backup, cross-region copy), lifecycle policies, and resource assignments as technical proof of DR infrastructure.\n\n💡 **Key Requirements**: Evidence must demonstrate predefined RTO/RPO targets, actual achieved metrics, PASS/FAIL status, precise timestamps throughout recovery process, and data integrity validation for at least two distinct AWS services."
+    },
+    {
+      "item_id": "OPS-016",
+      "category": "Operations",
+      "title": "Cloud Financial Management",
+      "summary": "## 📋 OPS-016 Summary\n\n🎯 **Cloud Financial Management** demonstration covering end-to-end FinOps capabilities across three core areas: **TCO Analysis** (on-premises vs. AWS cost comparison with 3-year savings calculation), **Cost Monitoring & Governance** (real-time dashboards, tagging compliance, budget alerts, anomaly detection), and **Reseller Billing** (rate card management).\n\n📊 **Key evidence requirements**: TCO Calculator platform with sample migration data, AWS Cost Management Console with 90+ days of billing history, Cost Explorer dashboards, tag compliance reports, and budget alert configurations demonstrating threshold-based notifications.\n\n👥 **75-minute demonstration** led by FinOps Practice Lead and Billing Operations Manager, showcasing the complete FinOps lifecycle (Inform → Optimize → Operate) with live customer scenarios and quantified savings recommendations."
+    },
+    {
+      "item_id": "OPS-017",
+      "category": "Operations",
+      "title": "Migrations",
+      "summary": "## 📋 OPS-017 Migration Evidence Summary\n\n🎯 **Core Evidence**: Comprehensive migration documentation covering the complete lifecycle - from **7Rs portfolio assessment** (847 apps classified) to **cutover execution logs** with detailed governance frameworks, RACI matrices, and communication plans.\n\n🏗️ **Key Deliverables**: Landing Zone architecture (Control Tower multi-account), Migration runbooks (T-72hr to T+24hr timelines), Operations documentation (CloudWatch dashboards, alerting configs), and Security/Compliance packages (SOC2, PCI-DSS, FDA 21 CFR Part 11 mapping).\n\n📊 **Two Customer Patterns**: **Replatforming** example (Oracle→Aurora PostgreSQL with DMS/SCT evidence, MVP testing results) and **Refactoring** example (monolith→microservices with EKS, distributed tracing, SLO definitions).\n\n🎓 **People & Process**: Skills gap analysis, training curricula (AWS certifications tracking), embedded mentorship programs, and detailed RACI matrices covering 45+ migration activities with clear MSP/Customer responsibility boundaries."
+    },
+    {
+      "item_id": "OPS-018",
+      "category": "Operations",
+      "title": "Artificial Intelligence",
+      "summary": "## OPS-018: Artificial Intelligence - Summary\n\n🤖 **Internal GenAI Operations**: SOW for Amazon Bedrock-powered ticket automation with Claude (incident summarization, auto-response, runbook suggestions) targeting 40% L1 handling time reduction\n\n📊 **Customer Project Delivery**: Sprint plans and deliverables for GenAI implementations (retail product catalog generator, financial document processor) with detailed metrics (94% accuracy, $2.30 vs $18.50/doc cost savings)\n\n🏢 **GenAI CoE Framework**: 3-tier service model (AI-Assisted Operations → Customer Enablement → Managed AI Services) with 12 ML-certified engineers and responsible AI governance\n\n📈 **Quantified ROI**: Internal adoption metrics showing $287K annual savings vs $42K costs - Amazon Q (890 hrs saved), IaC generator (65% time reduction), automated PIR summarization\n\n💡 **Key Tip**: Demonstrate \"eating your own cooking\" with both internal use AND customer delivery, emphasizing AWS-native services (Bedrock, Amazon Q) and responsible AI governance"
+    },
+    {
+      "item_id": "OPSP-001",
+      "category": "Operations",
+      "title": "Incident Management",
+      "summary": "## 📋 OPSP-001 Incident Management Summary\n\n🔹 **Core Documentation**: Incident Management Framework document covering full lifecycle (identification → closure) with 4-tier priority SLA matrix (P1: 15min response/4hr resolution ~ P4: 8hr/72hr)\n\n🔹 **Playbook Collections**: 47 IT playbooks (EC2, RDS, Lambda, EKS issues) + 28 Security playbooks (GuardDuty findings, S3 exposure, account compromise) with specific AWS CLI commands and service references\n\n🔹 **Customer Communication**: Escalation matrix by time elapsed/priority level, notification templates (P1-INIT, SEC-INIT, etc.), and multi-channel approach (PagerDuty, StatusPage.io, direct phone)\n\n🔹 **Process Evidence**: ServiceNow screenshots demonstrating CloudWatch integration, automated ticket creation, mandatory AWS fields (Account ID, Region, Service), and monthly metrics dashboard (MTTR, resolution rates, CSAT)\n\n💡 **Key Point**: Must clearly separate IT vs Security incident handling with AWS-native tool integration (CloudWatch, GuardDuty, CloudTrail, Config) throughout documentation"
+    },
+    {
+      "item_id": "OPSP-002",
+      "category": "Operations",
+      "title": "Problem Management",
+      "summary": "## Summary\n\n📋 **OPSP-002 Problem Management** evidence demonstrates a comprehensive post-incident analysis and corrective action process for an e-commerce platform outage.\n\n🔍 **Key evidence includes**: (1) Detailed RCA report using 5-Whys methodology identifying root cause (missing database index causing slow queries), (2) Corrective Action Plan tracker with 10 action items covering immediate fixes, process improvements, and long-term preventive measures, (3) Customer communication package documenting stakeholder notifications.\n\n✅ **Notable elements**: Clear incident timeline, impact assessment (47-min outage, ~12,400 affected users), technical analysis with before/after query performance, and KPI tracking to verify recurrence prevention (query time reduced from 4.2s to 0.012s)."
+    },
+    {
+      "item_id": "OPSP-003",
+      "category": "Operations",
+      "title": "Deployment Risk Management",
+      "summary": "## OPSP-003: Deployment Risk Management - Summary\n\n📋 **SOP Document** defines deployment strategy selection matrix (Blue/Green, Canary, Rolling) based on change criticality, with specific rollback thresholds (>5% error rate triggers automatic rollback) and AWS CodeDeploy/Route 53 weighted routing procedures.\n\n🏢 **Customer Implementation Runbook** provides 3 real examples: FinServe (ECS Blue/Green), MedTech (Lambda Canary 10%), RetailMax (EKS+App Mesh), including actual deployment logs and rollback incident records.\n\n📊 **Risk Assessment Checklist** covers 15-point pre-deployment scoring, environment parity verification, rollback readiness certification, and multi-stakeholder approval workflow with completed examples.\n\n🔧 **Pipeline Architecture** demonstrates CodePipeline with automated approval gates, CloudWatch alarm-based auto-rollback integration, and 90-day metrics (247 deployments, 99.2% success rate).\n\n💡 **Key Point**: Must demonstrate multiple deployment strategies with actual evidence, automated rollback capabilities, and quantified risk reduction metrics (MTTR, failure rates)."
+    },
+    {
+      "item_id": "OPSP-004",
+      "category": "Operations",
+      "title": "Cloud Financial Management",
+      "summary": "## OPSP-004 Cloud Financial Management - Virtual Evidence Summary\n\n📊 **Monthly Cost Reports & QBR Materials**: Detailed cost breakdowns by service, optimization opportunities with specific savings amounts (e.g., $18,200/month from rightsizing, RI recommendations), and customer sign-off documentation demonstrating regular review cadence.\n\n🚨 **Cost Anomaly Investigation Reports**: Evidence of proactive anomaly detection, root cause analysis (e.g., 340% Kinesis spike), immediate remediation actions, and preventive recommendations with customer acknowledgment.\n\n💰 **Savings Plan/RI Recommendation Analysis**: Comprehensive commitment recommendations with break-even analysis, risk assessment scenarios, and CFO-ready summaries showing multiple options with flexibility/savings trade-offs.\n\n📧 **Customer Correspondence with Tracking**: Email threads showing recommendation delivery, customer acknowledgment, Q&A follow-up, and confirmation of implemented savings - proving documented delivery and engagement.\n\n💡 **Key Success Factors**: Quantify all savings ($, %), show regular cadence across multiple customers, demonstrate customer acknowledgment, and cover multiple optimization levers (rightsizing, commitments, storage tiering, scheduling)."
+    },
+    {
+      "item_id": "OPSP-005",
+      "category": "Operations",
+      "title": "Service Continuity",
+      "summary": "## OPSP-005 Service Continuity - Virtual Evidence Summary\n\n📋 **BCP Document** with risk assessment (23 scenarios), tiered critical functions (RTO 1hr~24hr), backup NOC facility details, and recovery runbooks for 12 scenarios\n\n🧪 **Annual BCP Test Report** documenting full-scale NOC failover exercise (March 2024) with 34 participants, achieving key RTOs (backup NOC activated in 1hr 47min), and tracking corrective actions for identified gaps\n\n📁 **Evidence Artifact Package** including failover timeline logs, screenshots, customer notification samples, participant attendance, and corrective action tracker\n\n🔧 **AWS MSP Integration Guide** covering multi-region tool redundancy matrix (Datadog, ServiceNow, Terraform), cross-account backup strategies, and capacity planning during BCP activation\n\n🏆 **ISO 22301 Certification** (optional) with scope explicitly covering AWS MSP practice and recent surveillance audit confirming zero non-conformities"
+    },
+    {
+      "item_id": "PEO-001",
+      "category": "People",
+      "title": "Personnel Onboarding",
+      "summary": "## PEO-001 Personnel Onboarding - Virtual Evidence Summary\n\n📋 **Onboarding Checklist** (completed form) documenting AWS console access provisioning, MFA setup, team channel assignments, SLA training, and security briefings with manager/IT/HR sign-offs\n\n📚 **90-Day Training Plan** (spreadsheet) showing phased progression from AWS fundamentals → monitoring/incident response → hands-on customer operations → certification achievement with completion tracking\n\n📊 **Quarterly Completion Record** (batch report) consolidating multiple new hires' onboarding status including checklist completion dates, training milestones, certifications obtained, and manager approvals in tabular format\n\n📖 **Process Document** (v2.3) defining the formal onboarding workflow with role-specific appendices, RACI matrix, and checkpoint requirements at Day 30/90 milestones\n\n💡 **Key Point**: Evidence must explicitly reference \"AWS MSP practice\" context, show recent execution (not just documentation), and demonstrate role-specific tailoring with AWS-specific elements like IAM provisioning and certification pathways"
+    },
+    {
+      "item_id": "PEO-002",
+      "category": "People",
+      "title": "Cloud Center of Excellence (CCOE)",
+      "summary": "## 📋 PEO-002: Cloud Center of Excellence (CCOE) Summary\n\n📌 **CCOE Charter Document** - Defines mission, vision, and strategic objectives (85% certification coverage, 100% IaC standardization, 40% incident resolution improvement) across 5 core domains: Cloud Adoption, Training, Governance, Strategy, and Operations/Automation.\n\n🏗️ **Organizational Structure** - Establishes clear hierarchy with Executive Sponsors (CTO, VP), Steering Committee, CCOE Director, and 5 Domain Leads (Adoption, Training, Governance, Strategy, Operations) with 16+ dedicated FTEs.\n\n⚙️ **Governance & Engagement Model** - Includes decision authority matrix, escalation paths (4 levels with SLAs), and multi-channel engagement (Slack, JIRA, Office Hours) with defined service catalog and delivery timeframes.\n\n📊 **Success Metrics** - KPIs covering adoption (90% template usage), training (85% certification), governance (98% security compliance), and operations (95% IaC coverage, 80% runbook automation)."
+    },
+    {
+      "item_id": "PEO-003",
+      "category": "People",
+      "title": "Personnel Offboarding",
+      "summary": "## PEO-003 Personnel Offboarding Summary\n\n📋 **Offboarding Checklist** documenting complete access revocation (AD, IAM, VPN, SSO) for both internal systems and customer AWS environments within defined SLAs (voluntary: 4hrs, involuntary: immediate, contractor: 2hrs).\n\n🔐 **Quarterly Audit Report** tracking all terminations with verification status, time-to-revoke metrics, and CloudTrail evidence confirming zero unauthorized access attempts post-termination.\n\n📜 **SOC 2 Type II certification** (CC6.2, CC6.3 controls) covering MSP practice personnel offboarding can serve as alternative compliance evidence - ensure scope statement explicitly includes AWS MSP operations.\n\n💡 **Key Tips**: Timestamp all revocations for CloudTrail correlation, maintain customer-specific access removal documentation, track hardware token returns (YubiKeys), and cross-reference with onboarding records (PEO-002) for consistency."
+    },
+    {
+      "item_id": "PEOP-001",
+      "category": "People",
+      "title": "Personnel Skills",
+      "summary": "## PEOP-001 Personnel Skills - Virtual Evidence Summary\n\n📚 **5 key documents** demonstrating systematic AWS skill development: ① Annual strategy document (certification targets by role, $2,400/employee budget, 40 hours/quarter learning time), ② 12-month learning log (47 events, 892 hours, 12 new certifications in spreadsheet format), ③ Certification portfolio (32 active certs across 18 members with Credly verification links), ④ Internal knowledge sharing records (Cloud Champions tech talks, wiki contributions, Slack metrics), ⑤ Training investment receipts ($67,423 total - conferences, vouchers, subscriptions).\n\n💡 **Key tips**: Verify all dates fall within 12-month lookback period, diversify learning types (formal/informal), include actual dollar amounts, ensure certification validity via Credly links, and document progression paths for junior staff."
+    },
+    {
+      "item_id": "PLAT-001",
+      "category": "Platform",
+      "title": "Account Management",
+      "summary": "## PLAT-001 Account Management - Virtual Evidence Summary\n\n📋 **Core Evidence Package**: Customer AWS Account Isolation Policy (dedicated account per customer, AWS Organizations with customer-specific OUs, SCPs preventing cross-account access) + Account Provisioning SOP (Terraform-based Account Factory, 14-point isolation validation checklist)\n\n🔄 **Operational Procedures**: New account provisioning via ServiceNow workflow with automated baseline deployment, plus existing account takeover runbook covering security audits, credential rotation, and 30-day post-migration monitoring\n\n📊 **Compliance Verification**: Quarterly automated audit reports via AWS Config custom rules showing 100% compliance across all managed accounts, with documented exception register for any multi-tenant SaaS offerings (including compensating controls)\n\n💡 **Key Success Factors**: Consistent account naming conventions (`msp-{customer}-{env}-{region}`), automated evidence collection via Config conformance packs, and secure credential handoff documentation (e.g., 1Password with expiring links)"
+    },
+    {
+      "item_id": "PLAT-002",
+      "category": "Platform",
+      "title": "Solution Capabilities",
+      "summary": "## 📋 PLAT-002 Virtual Evidence Summary\n\n🏥 **Healthcare Data Analytics Platform** (MedixHealth) showcasing comprehensive AWS solution design for migrating from legacy Hadoop to cloud-native architecture processing 50TB daily patient records.\n\n📐 **Key Architecture Components**: Multi-AZ/Multi-Region design using EKS, Aurora PostgreSQL, ElastiCache Redis, S3 Data Lake (Raw/Curated/Analytics zones), and AWS Glue Data Catalog with proper partitioning strategies.\n\n🔒 **Critical Requirements Met**: HIPAA compliance with PHI encryption (SSE-KMS), 99.99% uptime SLA, 15-min RPO/1-hr RTO for DR, and auto-scaling to 3x capacity for seasonal peaks.\n\n📊 **Evidence Format**: Detailed design document with requirements traceability matrix, current/future state analysis, and comprehensive architecture diagrams - ideal template for demonstrating solution design capabilities."
+    },
+    {
+      "item_id": "PLAT-003",
+      "category": "Platform",
+      "title": "Non-Functional Requirement",
+      "summary": "## 📋 PLAT-003 Non-Functional Requirements - Evidence Summary\n\n🎯 **Core Evidence**: Detailed Design Documents (DDD) or Technical Design Documents (TDD) containing dedicated NFR sections with **quantifiable metrics** for performance (latency, throughput), capacity (compute/storage projections), availability (uptime %, RTO/RPO), and formal SLA frameworks with credit schedules.\n\n📊 **Required Elements**: Monitoring architecture (CloudWatch dashboards, APM tools, alerting thresholds, on-call escalation) + Testing/verification approach (load testing methodology, chaos engineering, DR drills, performance baselines with documented sign-off).\n\n✅ **Key Success Factors**: NFR traceability matrix linking requirements → AWS services → test cases; customer approval signatures visible; documents within 18-month window; two distinct industry customers demonstrating breadth.\n\n⚠️ **Avoid**: Generic templates without customer-specific values, vague terms instead of measurable targets, design-only documents lacking validation evidence, missing SLA definitions."
+    },
+    {
+      "item_id": "PLAT-004",
+      "category": "Platform",
+      "title": "Well-Architected",
+      "summary": "## 📋 PLAT-004 (Well-Architected) Virtual Evidence Summary\n\n🔹 **Detailed Design Document**: Comprehensive design document aligned with AWS Well-Architected Framework 6 pillars, including IaC implementation (CDK), Multi-AZ architecture, security design (IAM, encryption, GuardDuty), DR strategy (RPO 1min/RTO 15min), and cost optimization strategy\n\n🔹 **WAFR Report**: AWS Well-Architected Tool export report documenting risk assessment by pillar, evidence for each question response, identified issues and remediation plans with owners/deadlines\n\n🔹 **Key Evidence Elements**: Customer-specific workload reviews, risk summary tables, compliance validation (PCI-DSS, HIPAA), and concrete improvement action plans"
+    },
+    {
+      "item_id": "PLAT-005",
+      "category": "Platform",
+      "title": "AWS Service Expertise",
+      "summary": "## 📝 PLAT-005 Summary: AWS Service Expertise\n\n🎯 **Core Requirement**: Demonstrate expertise in **17+ unique AWS services** (excluding common ones like EC2, VPC, S3, RDS) across **2 customer workloads** with 4+ services each, OR hold **3+ AWS Competencies/Service Deliveries**.\n\n📂 **Evidence Structure**: Two detailed architecture documents (Fintech fraud detection using Kinesis/Lambda/SageMaker/DynamoDB; AgriTech IoT platform using IoT Core/Greengrass/Timestream/QuickSight) plus a consolidated portfolio with service matrix and customer authorization letters.\n\n💡 **Key Success Factors**: Include quantifiable business outcomes (e.g., \"45s→180ms latency\"), use official AWS architecture diagrams showing service integration, obtain written customer consent, and ensure each service has clear business justification—not just checkbox implementations."
+    },
+    {
+      "item_id": "PLATP-001",
+      "category": "Platform",
+      "title": "Expert Design Review",
+      "summary": "## PLATP-001 Expert Design Review - Virtual Evidence Summary\n\n📋 **Policy Document** defining mandatory design reviews by AWS-certified professionals with certification matrix by project complexity (Associate → Professional → Specialty based on workload type)\n\n👥 **Certified Reviewer Registry** maintaining active reviewer list with certification numbers, expiry dates, and quarterly verification audits via AWS Certification Portal\n\n📝 **Project Review Records** demonstrating actual customer reviews (e.g., HIPAA healthcare project) with architecture findings, certified reviewer verification screenshots, and approval signatures\n\n🔄 **Workflow Evidence** via Jira/Confluence screenshots showing complete review process from submission through certification check to final approval\n\n💡 **Key Tip**: Ensure each review includes explicit certification numbers, verification dates proving validity at review time, and immutable audit trails spanning 12+ months"
+    },
+    {
+      "item_id": "SEC-001",
+      "category": "Security",
+      "title": "Security Policies and Procedures",
+      "summary": "## SEC-001: Security Policies and Procedures - Summary\n\n📋 **Core Evidence Structure**: Third-party certifications (ISO 27001, SOC 2 Type II) + Internal policy documentation + Management approval records + Technical controls matrix\n\n🔐 **Key Certification Requirements**: ISO 27001 scope must explicitly cover MSP practice; SOC 2 Type II requires bridge letter if report is >6 months old; unqualified auditor opinion with no exceptions is ideal\n\n📝 **Policy Documentation Essentials**: Comprehensive security policy manual covering access control, incident response (15-min SLA for critical), data classification (4-tier), and vulnerability management (24-hour critical remediation SLA) - must show executive approval and annual review\n\n⚙️ **Technical Evidence**: Controls matrix mapping AWS security services (Security Groups, IAM, CloudTrail, GuardDuty) to compliance frameworks (ISO 27001 Annex A, SOC 2 TSC, Well-Architected)\n\n💡 **Critical Tips**: All policies must be reviewed within 12 months; management approval evidence (meeting minutes with digital signatures) is specifically required; smaller partners without certifications can substitute with penetration tests + comprehensive internal documentation"
+    },
+    {
+      "item_id": "SEC-002",
+      "category": "Security",
+      "title": "Security Awareness Training and testing",
+      "summary": "## SEC-002 Summary: Security Awareness Training and Testing\n\n📚 **5 types of evidence required**: Annual training completion report (Excel with 100% completion rate), individual training certificates bundle (PDF with 47 certificates from Amazon Learn Security/KnowBe4/SANS), LMS audit trail export (CSV with timestamps and scores), Security Awareness Training Policy (annual schedule and approved platforms), and Phishing Simulation Test Results (quarterly campaigns showing improvement trends).\n\n🎯 **Key verification points**: All MSP Practice employees (47) must complete training, certificates need verification URLs/QR codes, and phishing simulation results should show remedial training for those who clicked.\n\n💡 **Practical tips**: Use Amazon Learn Security (learnsecurity.amazon.com) for AWS ecosystem alignment, ensure training falls within 12-month validity window, and clearly filter MSP Practice employee records separately from other business units."
+    },
+    {
+      "item_id": "SEC-003",
+      "category": "Security",
+      "title": "AWS Account Configuration",
+      "summary": "## SEC-003 AWS Account Configuration Summary\n\n📊 **Security Hub Dashboard** showing 94% AWS Security Best Practices compliance and 91% CIS Benchmark compliance across 47 managed accounts, with Control Tower guardrails (23 preventive, 18 detective) enforced organization-wide.\n\n🚨 **Critical/High Findings Tracker** documenting 3 critical findings with specific remediation plans, compensating controls (e.g., IP restriction SCPs, security group lockdowns), and customer-signed risk acceptance forms.\n\n📋 **Appendix A Compliance Matrix** mapping each requirement to implementation method (Terraform modules, SCPs, Config rules) with 96-100% compliance rates and documented exceptions with business justifications.\n\n⚙️ **Config Conformance Pack Results** showing 34 rules evaluating 1,542 compliant resources, 23 non-compliant (all tracked), with 6-month improvement trend (87%→94%) and auto-remediation via SSM.\n\n📝 **Exception Register** with formal documentation including business justification, specific compensating controls (WAF rules, CloudFront OAC migration), risk owner signatures, and scheduled review dates."
+    },
+    {
+      "item_id": "SEC-004",
+      "category": "Security",
+      "title": "Identity and Access Management",
+      "summary": "## 📋 SEC-004 Virtual Evidence Summary\n\n🔐 **Live demonstration proving centralized IdP (Okta/Azure AD/AWS IAM Identity Center) manages all access to customer AWS accounts and data systems** - assessors observe actual authentication flows, not just documentation.\n\n🎯 **Key demo components**: (1) IdP dashboard showing centralized user management with enforced MFA, (2) Live SSO authentication to 2-3 customer AWS accounts with role-based access differences, (3) CLI/programmatic access via SSO (no long-term keys), (4) Non-AWS customer data systems (ServiceNow, Datadog) using same IdP.\n\n📊 **Critical evidence points**: CloudTrail logs showing \"AssumeRoleWithSAML\" events with corporate email identities, no local IAM user credentials, MFA challenge completion during demo, and audit trail correlation between IdP and AWS logs.\n\n⏱️ **45-60 minute session** including architecture overview, live authentication across multiple systems, role-based access denial demonstration, and Q&A covering offboarding, break-glass procedures, and root account security."
+    },
+    {
+      "item_id": "SEC-005",
+      "category": "Security",
+      "title": "Policy Management",
+      "summary": "## SEC-005: Policy Management - Summary\n\n📋 **Core Evidence**: Quarterly IAM Access Analyzer review reports (Q1 & Q3 2024) demonstrating continuous permission evaluation across 47-62 managed customer accounts, with documented findings on external access, unused permissions, and remediation tracking.\n\n🔐 **Baseline Documentation**: Comprehensive IAM inventory spreadsheet covering 1,247 users, 389 roles, 156 groups with group membership matrix, role trust policy analysis, and privileged access quarterly reviews.\n\n📝 **Process & Automation**: Permission Evaluation SOP (v3.2) defining quarterly review workflows with severity-based SLAs, plus automation evidence showing EventBridge/Security Hub integration, CloudWatch dashboards tracking MTTR (4.2 days avg), and JIRA ticket integration for 47 completed remediations.\n\n💡 **Key Tip**: Ensure 2-3 distinct review cycles with outcome metrics (permissions removed, policies modified) and cross-reference to ticketing systems to prove remediation completion."
+    },
+    {
+      "item_id": "SEC-006",
+      "category": "Security",
+      "title": "Role-Based Access",
+      "summary": "## 📋 SEC-006: Role-Based Access - Summary\n\n🔐 **Live demonstration of RBAC implementation** showing temporary credential usage via IAM Identity Center (SSO) with 5 functional roles (L1 Support, L2 Operations, Security Analyst, FinOps, Automation) across multi-account AWS Organizations structure.\n\n🎯 **Key evidence includes**: Live role assumption demo with STS temporary credentials (4-hour sessions), permission denied errors proving least privilege, IAM policy conditions with resource tags, and credential reports confirming no human IAM users exist.\n\n🤖 **Machine identity coverage**: Lambda/automation roles with scoped trust policies, service-specific permissions, and documented exceptions (if any) with compensating controls like IP restrictions and 90-day rotation.\n\n📊 **Audit proof via CloudTrail**: Athena queries demonstrating 100% AssumedRole usage (no IAMUser type), plus IAM Access Analyzer for ongoing permission reviews and unused permission detection."
+    },
+    {
+      "item_id": "SEC-007",
+      "category": "Security",
+      "title": "Multi-Factor Authentication",
+      "summary": "## 📋 SEC-007 Summary: Multi-Factor Authentication\n\n🔐 **Core Demonstration**: Live demo showing IdP (Okta/Azure AD/AWS IAM Identity Center) MFA policy configuration and real-time authentication flow - must show both successful MFA access AND blocked access attempt when MFA is not completed.\n\n🎯 **Key Evidence Types**: IdP policy screenshots showing mandatory MFA settings, live authentication walkthrough with MFA challenge, audit logs with MFA indicators (timestamp, user, mfa_used: true, factor type), and blocked access attempt logs.\n\n⚠️ **Critical Success Factors**: MFA must be \"required\" not \"optional\", no bypass paths allowed, phishing-resistant factors preferred (Okta Verify/YubiKey/FIDO2 over SMS), and 100% user coverage including emergency/break-glass access.\n\n💡 **Preparation Essentials**: Test accounts with different MFA states, pre-cleared browser cache for fresh auth flow, backup hardware token ready, and pre-recorded video as fallback evidence."
+    },
+    {
+      "item_id": "SEC-008",
+      "category": "Security",
+      "title": "Vulnerability Management",
+      "summary": "## 📋 SEC-008: Vulnerability Management - Summary\n\n🔍 **Scanning Demo**: Demonstrate Amazon Inspector v2 continuous scanning across EC2 (847+ instances), ECR container images, and Lambda functions with live console navigation and real CVE findings display\n\n📊 **Dashboard & Reporting**: Show Security Hub aggregation with custom dashboards displaying total findings by severity, SLA compliance rates (target 94.7%+), MTTR metrics, and automated customer report generation\n\n⚡ **Key Scenarios**: Prepare zero-day response simulation (30-min customer notification), PCI DSS compliance audit support, and new customer onboarding workflow demonstrations\n\n✅ **Success Criteria**: Achieve >95% scanning coverage, demonstrate risk-based prioritization (CVSS × Environment × Exposure factors), show integrated remediation workflows with ticket auto-creation, and prove multi-account centralized management"
+    },
+    {
+      "item_id": "SEC-009",
+      "category": "Security",
+      "title": "Security Event Logging",
+      "summary": "## SEC-009 Security Event Logging - Summary\n\n📋 **Requirements Agreement** documenting customer-specific log types (CloudTrail, VPC Flow Logs, GuardDuty, WAF, RDS Audit) with retention periods (90 days~7 years) mapped to compliance requirements (PCI-DSS, SOX) and CISO sign-off.\n\n🏗️ **Architecture Implementation Evidence** showing centralized logging flow (CloudWatch → Kinesis → S3 → Athena), Terraform IaC configurations, and daily log completeness validation via Lambda.\n\n⏰ **Retention Controls** including S3 Lifecycle policies with tiered storage transitions, Object Lock for deletion protection, and AWS Config rule compliance verification.\n\n🚨 **Operational Monitoring** with CloudWatch dashboards tracking ingestion rates/latency, SNS alerts for logging failures or policy changes, and quarterly log integrity hash validation reports."
+    },
+    {
+      "item_id": "SEC-010",
+      "category": "Security",
+      "title": "SaaS Tooling Account Access",
+      "summary": "## SEC-010 Summary: SaaS Tooling Account Access\n\n📋 **SaaS Tools Inventory** documenting 6 third-party/internal tools (Datadog, CloudHealth, Prisma Cloud, Turbonomic, NexusOps, Spot.io) with Cross-Account IAM Role access and External ID requirements for each customer account.\n\n🔐 **IAM Trust Policy Examples** showing actual JSON configurations with `sts:ExternalId` conditions for each SaaS tool, including vendor-provided and internally-generated External ID formats (e.g., `CUST-XXXX-TOOL-{UUID}`).\n\n📊 **Security Standard & Compliance Report** demonstrating 100% compliance (847/847 integrations) with mandatory External ID requirements, verified through automated AWS Config Rules and Lambda-based compliance checking.\n\n✅ **Key Evidence**: Prohibits IAM Users/Access Keys, requires minimum 16-character non-guessable External IDs, includes audit logs of recent verification results across multiple customers."
+    },
+    {
+      "item_id": "SECP-001",
+      "category": "Security",
+      "title": "Access Key Exposure Detection",
+      "summary": "## 📋 SECP-001 Summary: Access Key Exposure Detection\n\n🔐 **Automated Detection System**: EventBridge rule monitors AWS Health `AWS_RISK_CREDENTIALS_EXPOSED` events, triggering Lambda function to auto-create P1 ServiceNow tickets with 15-minute SLA response requirement.\n\n⚡ **4-Phase Response Procedure**: Immediate containment (key deactivation within 15 min) → Impact assessment (90-day CloudTrail analysis) → Remediation (key deletion, new credential generation) → Customer notification (within 4 hours).\n\n🏗️ **Infrastructure as Code**: CloudFormation template (v3.1.2) deployed via StackSets across 847 managed accounts, integrating SNS alerts, Lambda-ServiceNow API, and CloudWatch failure monitoring.\n\n📝 **Execution Evidence**: Sample incident SEC-INC-2024-1847 demonstrates full compliance - auto-ticket creation, 5-minute acknowledgment (within SLA), documented CloudTrail analysis, and complete remediation with audit trail."
+    },
+    {
+      "item_id": "SECP-002",
+      "category": "Security",
+      "title": "Public Resources",
+      "summary": "## SECP-002 Public Resources - Virtual Evidence Summary\n\n📋 **SOP document** covering prevention controls for 7 resource types (S3, RDS, EC2, Security Groups, EBS/RDS snapshots, AMIs) with prohibited configurations matrix and exception workflow requiring Security Architect approval with 90-day expiration.\n\n🔧 **Automated detection architecture** utilizing AWS Config (14 custom rules), Security Hub, Prowler nightly scans, and custom Lambda \"ExposureGuard\" for real-time EventBridge triggers with PagerDuty escalation integration.\n\n📊 **Monthly audit report** demonstrating operational metrics (847 accounts scanned, 31 exposures detected, 28 auto-remediated within SLA) with trend analysis showing 67% reduction in manual interventions.\n\n🛡️ **Preventive SCPs and Permission Boundaries** (JSON specifications) blocking public RDS snapshots, public AMIs, and S3 public access with deployment evidence and pre-deployment test results.\n\n💡 **Key tip**: Layer preventive (SCPs), detective (Config Rules), and corrective (auto-remediation) controls together, and create a traceability matrix mapping all 7 resource types to their specific controls."
+    }
+  ]
+}

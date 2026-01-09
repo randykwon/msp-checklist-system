@@ -88,7 +88,7 @@ export default function RegisterPage() {
   // 언어 관련 텍스트 (mounted 후에만 사용)
   const texts = {
     title: mounted ? (language === 'ko' ? '회원가입' : 'Create Account') : '회원가입',
-    subtitle: mounted ? (language === 'ko' ? 'AWS MSP 자체 평가 헬퍼에 가입하세요' : 'Join AWS MSP Self-Assessment Helper') : '',
+    subtitle: mounted ? (language === 'ko' ? 'AWS MSP 자체 평가 어드바이저에 가입하세요' : 'Join AWS MSP Self-Assessment Advisor') : '',
     name: mounted ? (language === 'ko' ? '이름' : 'Name') : '이름',
     namePlaceholder: mounted ? (language === 'ko' ? '이름을 입력하세요' : 'Enter your name') : '',
     email: mounted ? (language === 'ko' ? '이메일' : 'Email') : '이메일',

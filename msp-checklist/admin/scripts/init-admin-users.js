@@ -28,7 +28,7 @@ async function createAdminUsers() {
           name: '시스템 관리자',
           role: 'superadmin',
           status: 'active',
-          organization: 'MSP 헬퍼'
+          organization: 'MSP 어드바이저'
         },
         {
           email: 'operator@msp.com',
@@ -36,7 +36,7 @@ async function createAdminUsers() {
           name: '운영자',
           role: 'operator',
           status: 'active',
-          organization: 'MSP 헬퍼'
+          organization: 'MSP 어드바이저'
         },
         {
           email: 'user@msp.com',

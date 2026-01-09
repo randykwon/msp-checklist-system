@@ -1,0 +1,45 @@
+{
+  "name": "@msp/shared",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./llm": {
+      "import": "./dist/llm-service.js",
+      "require": "./dist/llm-service.js",
+      "types": "./dist/llm-service.d.ts"
+    },
+    "./db": {
+      "import": "./dist/db-service.js",
+      "require": "./dist/db-service.js",
+      "types": "./dist/db-service.d.ts"
+    },
+    "./cache": {
+      "import": "./dist/cache-service.js",
+      "require": "./dist/cache-service.js",
+      "types": "./dist/cache-service.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.4.3",
+    "@aws-sdk/client-bedrock-runtime": "^3.0.0",
+    "@aws-sdk/client-bedrock": "^3.0.0",
+    "openai": "^4.0.0",
+    "@google/generative-ai": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0"
+  }
+}

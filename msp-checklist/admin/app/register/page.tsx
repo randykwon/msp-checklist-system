@@ -149,7 +149,7 @@ export default function RegisterPage() {
             margin: '8px 0 0',
             fontSize: '14px',
             color: 'rgba(255,255,255,0.9)'
-          }}>MSP 헬퍼 관리자 계정 생성</p>
+          }}>MSP 어드바이저 관리자 계정 생성</p>
         </div>
 
         {/* 회원가입 폼 카드 */}
@@ -559,7 +559,7 @@ export default function RegisterPage() {
           fontSize: '13px',
           color: 'rgba(255,255,255,0.8)'
         }}>
-          © 2024 MSP 헬퍼. All rights reserved.
+          © 2024 MSP 어드바이저. All rights reserved.
         </p>
       </div>
 
