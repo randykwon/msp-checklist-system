@@ -108,10 +108,27 @@ install_system_packages() {
     
     if [ "$PKG_MANAGER" = "yum" ]; then
         sudo yum update -y
-        sudo yum install -y git curl wget tar gzip gcc-c++ make python3
+        # curl은 Amazon Linux 2023에서 curl-minimal로 이미 설치되어 있음
+        # curl 패키지 설치 시 충돌 발생하므로 제외
+        sudo yum install -y git wget tar gzip gcc-c++ make python3 || {
+            log_warn "일부 패키지 설치 실패, 개별 설치 시도..."
+            sudo yum install -y git || true
+            sudo yum install -y wget || true
+            sudo yum install -y tar gzip || true
+            sudo yum install -y gcc-c++ make || true
+            sudo yum install -y python3 || true
+        }
     else
         sudo apt-get update
         sudo apt-get install -y git curl wget tar gzip build-essential python3
+    fi
+    
+    # curl 확인 (curl-minimal도 curl 명령어 제공)
+    if command -v curl &> /dev/null; then
+        log_success "curl 사용 가능: $(curl --version | head -1)"
+    else
+        log_error "curl을 찾을 수 없습니다."
+        exit 1
     fi
     
     log_success "시스템 패키지 설치 완료"
