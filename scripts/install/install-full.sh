@@ -325,8 +325,8 @@ EOF
 setup_pm2() {
     log_step "PM2 서비스 설정 중..."
     
-    # PM2 ecosystem 파일 생성
-    cat > ${INSTALL_DIR}/ecosystem.config.js << EOF
+    # PM2 ecosystem 파일 생성 (.cjs 확장자로 CommonJS 형식 사용)
+    cat > ${INSTALL_DIR}/ecosystem.config.cjs << EOF
 module.exports = {
   apps: [
     {
@@ -372,7 +372,7 @@ EOF
     
     # PM2로 서비스 시작
     cd ${INSTALL_DIR}
-    pm2 start ecosystem.config.js
+    pm2 start ecosystem.config.cjs
     
     # PM2 시작 스크립트 저장 (재부팅 시 자동 시작)
     pm2 save
@@ -411,7 +411,7 @@ SCRIPT
     cat > ${INSTALL_DIR}/start.sh << 'SCRIPT'
 #!/bin/bash
 cd /opt/msp-checklist-system
-pm2 start ecosystem.config.js
+pm2 start ecosystem.config.cjs
 pm2 status
 SCRIPT
     
