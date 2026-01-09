@@ -1,161 +1,142 @@
-# MSP Checklist System
+# AWS MSP 자체 평가 어드바이저
 
-AWS MSP 파트너 프로그램 검증을 위한 체크리스트 관리 시스템입니다.
+AWS MSP 파트너 프로그램 검증을 위한 자체 평가 및 조언 시스템입니다.
 
 ## 🚀 빠른 시작
 
-### 1. 자동 설치 (권장)
-
+### EC2 원라인 설치
 ```bash
-# Amazon Linux 2023
-sudo ./scripts/install/install-full.sh
-
-# Ubuntu
-sudo ./scripts/install/install-full.sh
+curl -fsSL https://raw.githubusercontent.com/randykwon/msp-checklist-system/main/scripts/install/install-full.sh | bash
 ```
 
-### 2. 수동 설치
-
+### 로컬 개발 환경
 ```bash
-# 의존성 설치
-cd msp-checklist && npm install --legacy-peer-deps
-cd admin && npm install --legacy-peer-deps
+# 1. 저장소 클론
+git clone https://github.com/randykwon/msp-checklist-system.git
+cd msp-checklist-system
 
-# 빌드
-cd .. && npm run build
-cd admin && npm run build
+# 2. 필수 소프트웨어 설치
+./scripts/install/install-prerequisites.sh
+
+# 3. 환경 변수 설정
+./scripts/install/setup-env.sh
+
+# 4. 전체 빌드
+./scripts/install/build-all.sh
+
+# 5. 서버 시작
+./scripts/server-all.sh start
 ```
 
 ## 📁 프로젝트 구조
 
 ```
-├── msp-checklist/          # 메인 애플리케이션
-│   ├── admin/              # 관리자 애플리케이션
-│   ├── app/                # Next.js App Router
-│   ├── components/         # React 컴포넌트
-│   └── lib/                # 유틸리티 함수
-├── scripts/                # 관리 스크립트
-│   ├── install/            # 설치 스크립트
-│   ├── manage/             # 서버 관리 스크립트
-│   ├── deploy/             # 배포 스크립트
-│   ├── nginx/              # Nginx 설정 스크립트
-│   └── utils/              # 유틸리티 스크립트
-├── nginx-samples/          # Nginx 설정 샘플
-└── docs/                   # 문서
+msp-checklist-system/
+├── msp-checklist/              # 메인 앱 (Next.js, 포트 3010)
+│   ├── app/                    # App Router 페이지
+│   ├── components/             # React 컴포넌트
+│   ├── lib/                    # 유틸리티 함수
+│   ├── packages/
+│   │   └── shared/             # @msp/shared 공유 패키지
+│   │       ├── src/
+│   │       │   ├── llm-service.ts    # LLM 통합 서비스
+│   │       │   ├── db-service.ts     # DB 서비스
+│   │       │   └── cache-service.ts  # 캐시 서비스
+│   │       └── dist/           # 빌드 결과
+│   └── admin/                  # Admin 앱 (Next.js, 포트 3011)
+│       ├── app/                # Admin 페이지
+│       └── components/         # Admin 컴포넌트
+├── scripts/
+│   ├── install/                # 설치/빌드 스크립트
+│   ├── server-*.sh             # 서버 관리 스크립트
+│   └── ...
+├── docs/                       # 문서
+├── nginx-samples/              # Nginx 설정 샘플
+└── logs/                       # 로그 파일
 ```
 
 ## 🔧 서버 관리
 
 ```bash
-# 서버 시작
-./scripts/manage/start-servers.sh
+# 전체 서버 관리
+./scripts/server-all.sh start      # 시작
+./scripts/server-all.sh stop       # 중지
+./scripts/server-all.sh restart    # 재시작
+./scripts/server-all.sh status     # 상태 확인
 
-# 서버 중지
-./scripts/manage/stop-servers.sh
-
-# 서버 재시작
-./scripts/manage/restart-servers.sh
-
-# 상태 확인
-./scripts/manage/server-status.sh
-
-# 자동 시작 설정 (systemd)
-sudo ./scripts/manage/setup-autostart.sh
+# 개별 서버 관리
+./scripts/server-main.sh start     # 메인 앱만
+./scripts/server-admin.sh start    # Admin 앱만
 ```
 
-## 🌐 Nginx 설정
+## 🏗 빌드
 
 ```bash
-# Nginx 설치
-sudo ./scripts/nginx/install-nginx.sh
+# 전체 빌드 (Shared → Main → Admin)
+./scripts/install/build-all.sh
 
-# Node.js 연동 설정
-sudo ./scripts/nginx/setup-nginx-node.sh
+# 클린 빌드 (node_modules 삭제 후)
+./scripts/install/build-all.sh --clean
 
-# SSL 인증서 설정
-sudo ./scripts/nginx/setup-nginx-ssl.sh -d example.com -e admin@example.com
+# 개별 빌드
+./scripts/install/build-shared.sh   # Shared 패키지만
+./scripts/install/build-main.sh     # 메인 앱만
+./scripts/install/build-admin.sh    # Admin 앱만
+./scripts/install/build-admin.sh --with-shared  # Admin + Shared
 ```
 
-## 📦 배포
+## 🌐 접속 URL
 
-```bash
-# GitHub에서 변경사항 가져오기
-./scripts/deploy/pull-changes.sh
+| 서비스 | 포트 | URL | 설명 |
+|--------|------|-----|------|
+| 메인 앱 | 3010 | http://localhost:3010 | 사용자용 평가 화면 |
+| Admin 앱 | 3011 | http://localhost:3011 | 관리자용 대시보드 |
 
-# 전체 배포 업데이트 (pull + build + restart)
-./scripts/deploy/deploy-update.sh
+## ⚙️ 환경 변수 설정
+
+### 메인 앱 (`msp-checklist/.env.local`)
+```env
+# LLM Provider (openai, gemini, claude, bedrock)
+DEFAULT_LLM_PROVIDER=bedrock
+
+# AWS Bedrock
+AWS_REGION=ap-northeast-2
+AWS_ACCESS_KEY_ID=your-key
+AWS_SECRET_ACCESS_KEY=your-secret
+BEDROCK_MODEL=anthropic.claude-3-5-sonnet-20241022-v2:0
+
+# OpenAI (선택)
+OPENAI_API_KEY=your-openai-key
+
+# Gemini (선택)
+GEMINI_API_KEY=your-gemini-key
 ```
 
-## 🧪 테스트
-
-```bash
-# 전체 기능 테스트 (Bash)
-./scripts/test/run-all-tests.sh
-
-# 빠른 테스트 (LLM API 제외)
-./scripts/test/run-all-tests.sh --quick
-
-# HTML 리포트 생성
-./scripts/test/run-all-tests.sh --report
-
-# Node.js API 테스트
-node scripts/test/api-tests.js
-
-# JSON 출력
-node scripts/test/api-tests.js --json
-
-# 주기적 테스트 설정 (매일 오전 6시)
-./scripts/test/setup-scheduled-tests.sh --daily
-
-# 매시간 테스트
-./scripts/test/setup-scheduled-tests.sh --hourly
-
-# 테스트 스케줄 비활성화
-./scripts/test/setup-scheduled-tests.sh --disable
+### Admin 앱 (`msp-checklist/admin/.env.local`)
+```env
+MAIN_APP_URL=http://localhost:3010
+NEXT_PUBLIC_MAIN_APP_URL=http://localhost:3010
+JWT_SECRET=your-jwt-secret
+ADMIN_DEFAULT_PASSWORD=admin123
 ```
-
-## 🔑 사용자 관리
-
-```bash
-# 관리자 계정 생성
-node scripts/utils/create-admin.cjs
-
-# 일반 사용자 생성
-node scripts/utils/create-user.cjs
-
-# 운영자 계정 생성
-node scripts/utils/create-operator.cjs
-
-# 최고 관리자로 업그레이드
-node scripts/utils/upgrade-to-superadmin.cjs
-```
-
-## 🌍 접속 URL
-
-| 서비스 | 포트 | URL |
-|--------|------|-----|
-| 메인 앱 | 3010 | http://localhost:3010 |
-| Admin 앱 | 3011 | http://localhost:3011 |
-| Nginx (HTTP) | 80 | http://서버IP/ |
-| Nginx (HTTPS) | 443 | https://도메인/ |
-
-Nginx 설정 후:
-- 메인 앱: `http://서버IP/` 또는 `https://도메인/`
-- Admin 앱: `http://서버IP/admin` 또는 `https://도메인/admin`
 
 ## 📚 문서
 
-- [설치 가이드](docs/INSTALLATION.md)
-- [Nginx 설정 가이드](docs/NGINX_SETUP.md)
-- [배포 가이드](docs/DEPLOYMENT.md)
-- [문제 해결](docs/TROUBLESHOOTING.md)
+| 문서 | 설명 |
+|------|------|
+| [설치 가이드](scripts/install/README.md) | 상세 설치 방법 |
+| [시스템 요구사항](docs/SYSTEM_REQUIREMENTS.md) | 하드웨어/소프트웨어 요구사항 |
+| [Nginx 설정](docs/NGINX_SETUP.md) | 리버스 프록시 설정 |
+| [배포 가이드](docs/DEPLOYMENT.md) | 프로덕션 배포 |
+| [문제 해결](docs/TROUBLESHOOTING.md) | 일반적인 문제 해결 |
 
 ## 🛠 기술 스택
 
 - **Frontend**: Next.js 14, React 18, TypeScript
-- **Backend**: Next.js API Routes, SQLite
-- **AI**: AWS Bedrock (Claude), OpenAI GPT-4
-- **Server**: Nginx, PM2/systemd
+- **Backend**: Next.js API Routes, SQLite (better-sqlite3)
+- **AI/LLM**: AWS Bedrock (Claude), OpenAI, Google Gemini, Anthropic
+- **Server**: PM2, Nginx
+- **Package**: npm workspaces, @msp/shared
 
 ## 📄 라이선스
 
