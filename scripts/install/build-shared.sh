@@ -23,9 +23,43 @@ SHARED_DIR="$PROJECT_ROOT/msp-checklist/packages/shared"
 
 echo -e "${BLUE}[INFO]${NC} Shared 패키지 빌드 중..."
 
-# nvm 로드
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+# nvm 로드 및 Node.js 20 확인
+load_nvm() {
+    # sudo로 실행 시 원래 사용자 확인
+    if [ -n "$SUDO_USER" ]; then
+        REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    else
+        REAL_HOME="$HOME"
+    fi
+    
+    # 여러 위치에서 nvm 찾기
+    if [ -s "$REAL_HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$REAL_HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/home/ec2-user/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/home/ec2-user/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/root/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/root/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    fi
+    
+    if command -v nvm &> /dev/null; then
+        nvm use 20 &> /dev/null || nvm use default &> /dev/null || true
+        NODE_MAJOR=$(node -v | cut -d'.' -f1 | tr -d 'v')
+        if [ "$NODE_MAJOR" -lt 20 ]; then
+            echo -e "${BLUE}[INFO]${NC} Node.js 20 설치 중..."
+            nvm install 20
+            nvm use 20
+        fi
+    fi
+    echo -e "${BLUE}[INFO]${NC} Node.js 버전: $(node -v)"
+}
+
+load_nvm
 
 cd "$SHARED_DIR"
 

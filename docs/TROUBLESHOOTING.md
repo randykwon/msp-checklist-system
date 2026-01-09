@@ -55,6 +55,48 @@ source ~/.zshrc   # zsh
 nvm --version
 ```
 
+### sudo로 스크립트 실행 시 Node.js 버전 문제
+
+**증상:**
+```
+npm warn EBADENGINE Unsupported engine {
+npm warn EBADENGINE   required: { node: '20.x || 22.x' },
+npm warn EBADENGINE   current: { node: 'v18.20.8' }
+```
+
+**원인:** sudo로 실행하면 root 사용자의 환경을 사용하여 ec2-user의 nvm을 찾지 못함
+
+**해결 방법 1: sudo 없이 실행 (권장)**
+```bash
+# 프로젝트 디렉토리 권한 변경
+sudo chown -R $(whoami):$(whoami) /opt/msp-checklist-system
+
+# sudo 없이 빌드
+./scripts/install/build-all.sh
+```
+
+**해결 방법 2: 현재 사용자로 Node.js 20 설치 확인**
+```bash
+# nvm으로 Node.js 20 설치
+nvm install 20
+nvm use 20
+nvm alias default 20
+
+# 확인
+node -v  # v20.x.x
+```
+
+**해결 방법 3: 시스템 전역 Node.js 20 설치**
+```bash
+# Amazon Linux 2023
+sudo dnf module enable nodejs:20 -y
+sudo dnf install nodejs -y
+
+# Ubuntu
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt-get install -y nodejs
+```
+
 ### 권한 오류
 
 **증상:**

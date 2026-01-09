@@ -73,12 +73,47 @@ print_header() {
 
 # nvm 로드
 load_nvm() {
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    # sudo로 실행 시 원래 사용자 확인
+    if [ -n "$SUDO_USER" ]; then
+        REAL_USER="$SUDO_USER"
+        REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    else
+        REAL_USER="$USER"
+        REAL_HOME="$HOME"
+    fi
+    
+    # 여러 위치에서 nvm 찾기
+    if [ -s "$REAL_HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$REAL_HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/home/ec2-user/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/home/ec2-user/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/root/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/root/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    fi
     
     if command -v nvm &> /dev/null; then
-        nvm use default &> /dev/null || true
+        # Node.js 20 사용
+        nvm use 20 &> /dev/null || nvm use default &> /dev/null || true
         log_info "Node.js 버전: $(node -v)"
+        
+        # 버전 확인
+        NODE_MAJOR=$(node -v | cut -d'.' -f1 | tr -d 'v')
+        if [ "$NODE_MAJOR" -lt 20 ]; then
+            log_warn "Node.js 20.x 이상이 필요합니다. 현재: $(node -v)"
+            log_info "Node.js 20 설치 중..."
+            nvm install 20
+            nvm use 20
+            log_success "Node.js $(node -v) 설치 완료"
+        fi
+    else
+        log_warn "nvm을 찾을 수 없습니다. 시스템 Node.js 사용: $(node -v 2>/dev/null || echo 'not found')"
+        log_warn "sudo 없이 스크립트를 실행하거나, 먼저 install-prerequisites.sh를 실행하세요."
     fi
 }
 

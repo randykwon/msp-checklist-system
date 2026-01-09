@@ -11,6 +11,37 @@ PORT=3011
 # 로그 디렉토리 생성
 mkdir -p "$PROJECT_ROOT/logs"
 
+# nvm 로드 및 Node.js 20 확인
+load_nvm() {
+    # sudo로 실행 시 원래 사용자 확인
+    if [ -n "$SUDO_USER" ]; then
+        REAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+    else
+        REAL_HOME="$HOME"
+    fi
+    
+    # 여러 위치에서 nvm 찾기
+    if [ -s "$REAL_HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$REAL_HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "$HOME/.nvm/nvm.sh" ]; then
+        export NVM_DIR="$HOME/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/home/ec2-user/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/home/ec2-user/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    elif [ -s "/root/.nvm/nvm.sh" ]; then
+        export NVM_DIR="/root/.nvm"
+        \. "$NVM_DIR/nvm.sh"
+    fi
+    
+    if command -v nvm &> /dev/null; then
+        nvm use 20 &> /dev/null || nvm use default &> /dev/null || true
+    fi
+}
+
+load_nvm
+
 start() {
     if [ -f "$PID_FILE" ]; then
         PID=$(cat "$PID_FILE")
