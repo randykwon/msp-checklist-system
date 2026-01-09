@@ -226,6 +226,14 @@ build_project() {
     
     cd ${INSTALL_DIR}
     
+    # 이전 빌드 캐시 삭제 (권한 문제 방지)
+    log_info "이전 빌드 캐시 삭제 중..."
+    sudo rm -rf ${INSTALL_DIR}/msp-checklist/.next 2>/dev/null || true
+    sudo rm -rf ${INSTALL_DIR}/msp-checklist/admin/.next 2>/dev/null || true
+    
+    # 디렉토리 소유권 확인 및 수정
+    sudo chown -R $(whoami):$(whoami) ${INSTALL_DIR}
+    
     # 1. Shared 패키지 빌드
     log_info "1/3 Shared 패키지 빌드 중..."
     cd ${INSTALL_DIR}/msp-checklist/packages/shared
