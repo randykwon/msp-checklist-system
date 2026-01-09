@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createLLMService, LLMMessage, LLMConfig, getOrCreateInferenceProfile } from '@/lib/llm-service';
+import { createLLMService, LLMMessage, LLMConfig, getOrCreateInferenceProfile, getDefaultLLMConfig } from '@/lib/llm-service';
 import { prerequisitesData } from '@/data/assessment-data';
 import { technicalValidationData } from '@/data/technical-validation-data';
 import Database from 'better-sqlite3';
@@ -35,12 +35,14 @@ export async function POST(request: NextRequest) {
           llmConfig.autoCreateInferenceProfile) {
         try {
           console.log('[QA Generate] Auto-finding inference profile for:', llmConfig.model);
-          const inferenceProfileArn = await getOrCreateInferenceProfile(
-            llmConfig.model,
-            llmConfig.awsRegion || 'ap-northeast-2',
-            llmConfig.awsAccessKeyId,
-            llmConfig.awsSecretAccessKey
-          );
+          const tempConfig: LLMConfig = {
+            provider: 'bedrock',
+            model: llmConfig.model,
+            awsRegion: llmConfig.awsRegion || 'ap-northeast-2',
+            awsAccessKeyId: llmConfig.awsAccessKeyId,
+            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+          };
+          const inferenceProfileArn = await getOrCreateInferenceProfile(tempConfig, llmConfig.model);
           llmConfig.inferenceProfileArn = inferenceProfileArn;
           console.log('[QA Generate] Found inference profile:', inferenceProfileArn);
         } catch (error: any) {

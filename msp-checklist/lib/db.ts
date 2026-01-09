@@ -225,7 +225,9 @@ export function initializeDatabase() {
   const userCount = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
   if (userCount.count === 0) {
     const testPassword = bcrypt.hashSync('test1234', 10);
-    db.prepare('INSERT INTO users (email, password, name, role, status, organization) VALUES (?, ?, ?, ?, ?, ?)').run(
+    // Use INSERT OR IGNORE to prevent duplicate key errors
+    const insertStmt = db.prepare('INSERT OR IGNORE INTO users (email, password, name, role, status, organization) VALUES (?, ?, ?, ?, ?, ?)');
+    const result = insertStmt.run(
       'test@example.com',
       testPassword,
       '테스트 사용자',
@@ -233,7 +235,9 @@ export function initializeDatabase() {
       'active',
       '테스트 조직'
     );
-    console.log('[DB] Default test user created: test@example.com / test1234');
+    if (result.changes > 0) {
+      console.log('[DB] Default test user created: test@example.com / test1234');
+    }
   }
 
   // Add columns to existing table if they don't exist

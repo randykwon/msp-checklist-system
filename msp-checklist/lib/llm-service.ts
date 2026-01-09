@@ -626,3 +626,85 @@ export function validateLLMConfig(config: LLMConfig): { valid: boolean; error?: 
 
   return { valid: true };
 }
+
+
+// LLM 서비스 클래스
+export class LLMService {
+  private config: LLMConfig;
+
+  constructor(config?: LLMConfig) {
+    this.config = config || getDefaultLLMConfig();
+  }
+
+  getProviderName(): string {
+    return `${this.config.provider}/${this.config.model}`;
+  }
+
+  async generateText(
+    messages: LLMMessage[],
+    options?: { temperature?: number; maxTokens?: number }
+  ): Promise<LLMResponse> {
+    const systemMessage = messages.find(m => m.role === 'system');
+    const userMessage = messages.find(m => m.role === 'user');
+    
+    const systemPrompt = systemMessage?.content || '';
+    const prompt = userMessage?.content || '';
+
+    const configWithOptions: LLMConfig = {
+      ...this.config,
+      temperature: options?.temperature ?? this.config.temperature,
+      maxTokens: options?.maxTokens ?? this.config.maxTokens,
+    };
+
+    return callLLM(prompt, systemPrompt, configWithOptions);
+  }
+
+  async generateVision(
+    messages: LLMVisionMessage[],
+    options?: { temperature?: number; maxTokens?: number }
+  ): Promise<LLMResponse> {
+    // Vision은 현재 텍스트만 추출하여 처리
+    const systemMessage = messages.find(m => m.role === 'system');
+    const userMessage = messages.find(m => m.role === 'user');
+    
+    const systemPrompt = systemMessage?.content
+      .filter(c => c.type === 'text')
+      .map(c => (c as any).text)
+      .join('\n') || '';
+    
+    const prompt = userMessage?.content
+      .filter(c => c.type === 'text')
+      .map(c => (c as any).text)
+      .join('\n') || '';
+
+    const configWithOptions: LLMConfig = {
+      ...this.config,
+      temperature: options?.temperature ?? this.config.temperature,
+      maxTokens: options?.maxTokens ?? this.config.maxTokens,
+    };
+
+    return callLLM(prompt, systemPrompt, configWithOptions);
+  }
+}
+
+// LLM 메시지 인터페이스
+export interface LLMMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: string;
+}
+
+// Vision 메시지 인터페이스
+export interface LLMVisionMessage {
+  role: 'system' | 'user' | 'assistant';
+  content: Array<
+    | { type: 'text'; text: string }
+    | { type: 'image_url'; image_url: { url: string } }
+  >;
+}
+
+/**
+ * LLM 서비스 인스턴스 생성
+ */
+export function createLLMService(config?: LLMConfig): LLMService {
+  return new LLMService(config);
+}
