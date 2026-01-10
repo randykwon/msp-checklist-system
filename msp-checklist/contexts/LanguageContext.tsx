@@ -52,7 +52,7 @@ const translations = {
 
     // Assessment page
     'assessment.title': 'AWS MSP Self-Assessment Helper System',
-    'assessment.subtitle': 'Track your progress through the AWS MSP Partner Program validation requirements',
+    'assessment.subtitle': 'The information provided by this service is for reference only and may not be accurate.',
     'assessment.prerequisites': 'Prerequisites (15 items)',
     'assessment.technical': 'Technical Validation (46 items)',
     'assessment.exportProgress': '📥 Export Progress',
@@ -241,7 +241,7 @@ const translations = {
 
     // Assessment page
     'assessment.title': 'AWS MSP 자체 평가 어드바이저',
-    'assessment.subtitle': 'AWS MSP 파트너 프로그램 검증 요구사항 진행상황 추적',
+    'assessment.subtitle': '이 서비스에서 제공하는 정보는 참고용이며 정확하지 않을 수 있습니다.',
     'assessment.prerequisites': '사전 요구사항 (15개 항목)',
     'assessment.technical': '기술 검증 (46개 항목)',
     'assessment.exportProgress': '📥 진행상황 내보내기',

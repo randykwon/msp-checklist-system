@@ -1,116 +1,102 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
-import { getSystemSetting } from '@/lib/db';
 import fs from 'fs';
 import path from 'path';
 
-// DB에서 설정 읽기 (없으면 환경변수, 기본값 순)
-function getStoragePath(): string {
-  const dbPath = getSystemSetting('evidenceStoragePath');
-  if (dbPath && typeof dbPath === 'string' && dbPath.trim()) return dbPath;
-  return process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
-}
-
-function getS3Bucket(): string {
-  const dbBucket = getSystemSetting('evidenceS3Bucket');
-  if (dbBucket && typeof dbBucket === 'string' && dbBucket.trim()) return dbBucket;
-  return process.env.EVIDENCE_S3_BUCKET || '';
-}
-
-function getS3Prefix(): string {
-  const dbPrefix = getSystemSetting('evidenceS3Prefix');
-  if (dbPrefix && typeof dbPrefix === 'string' && dbPrefix.trim()) return dbPrefix;
-  return process.env.EVIDENCE_S3_PREFIX || 'evidence/';
-}
-
-function countFilesInDir(dir: string): { count: number; size: number } {
-  let count = 0;
-  let size = 0;
-  
-  if (!fs.existsSync(dir)) {
-    return { count, size };
+// 증빙 파일 저장 경로
+function getEvidenceBasePath(): string {
+  if (process.env.EVIDENCE_STORAGE_PATH) {
+    return process.env.EVIDENCE_STORAGE_PATH;
   }
   
-  const walkDir = (d: string) => {
-    try {
-      const items = fs.readdirSync(d);
-      for (const item of items) {
-        const fullPath = path.join(d, item);
-        const stat = fs.statSync(fullPath);
-        
-        if (stat.isDirectory()) {
-          walkDir(fullPath);
-        } else if (!item.endsWith('.meta.json')) {
-          count++;
-          size += stat.size;
-        }
-      }
-    } catch (e) {
-      console.error('Error walking directory:', d, e);
-    }
-  };
+  const ec2Path = '/opt/msp-checklist-system/evidence-files';
   
-  walkDir(dir);
-  return { count, size };
+  try {
+    if (fs.existsSync('/opt/msp-checklist-system') || process.env.NODE_ENV === 'production') {
+      return ec2Path;
+    }
+  } catch {
+    // 접근 권한이 없으면 로컬 경로 사용
+  }
+  
+  return path.join(process.cwd(), '..', 'evidence-files');
+}
+
+function formatSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('admin_auth_token')?.value;
+    // 인증 확인
+    const cookieStore = await cookies();
+    const token = cookieStore.get('admin_auth_token')?.value;
     
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
     const user = verifyToken(token);
-    if (!user || !['admin', 'superadmin'].includes(user.role)) {
-      return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
+    if (!user || (user.role !== 'admin' && user.role !== 'super_admin')) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const storagePath = getStoragePath();
-    const s3Bucket = getS3Bucket();
-    const s3Prefix = getS3Prefix();
-    
-    const pendingDir = path.join(storagePath, 'pending');
-    const uploadedDir = path.join(storagePath, 'uploaded');
+    let pendingCount = 0, pendingSize = 0;
+    let uploadedCount = 0, uploadedSize = 0;
 
-    const pending = countFilesInDir(pendingDir);
-    const uploaded = countFilesInDir(uploadedDir);
-    
+    const baseDir = getEvidenceBasePath();
+    const pendingDir = path.join(baseDir, 'pending');
+    const uploadedDir = path.join(baseDir, 'uploaded');
+
+    const countDir = (dir: string, isUploaded: boolean) => {
+      if (!fs.existsSync(dir)) return;
+      
+      const walkDir = (d: string) => {
+        const items = fs.readdirSync(d);
+        for (const item of items) {
+          const fullPath = path.join(d, item);
+          const stat = fs.statSync(fullPath);
+          
+          if (stat.isDirectory()) {
+            walkDir(fullPath);
+          } else if (!item.endsWith('.meta.json')) {
+            if (isUploaded) {
+              uploadedCount++;
+              uploadedSize += stat.size;
+            } else {
+              pendingCount++;
+              pendingSize += stat.size;
+            }
+          }
+        }
+      };
+      
+      walkDir(dir);
+    };
+
+    countDir(pendingDir, false);
+    countDir(uploadedDir, true);
+
     return NextResponse.json({
-      storagePath,
-      s3Bucket: s3Bucket || '',
-      s3Prefix: s3Prefix || '',
       pending: {
-        count: pending.count,
-        size: pending.size,
-        sizeFormatted: formatBytes(pending.size)
+        count: pendingCount,
+        size: pendingSize,
+        sizeFormatted: formatSize(pendingSize)
       },
       uploaded: {
-        count: uploaded.count,
-        size: uploaded.size,
-        sizeFormatted: formatBytes(uploaded.size)
-      },
-      total: {
-        count: pending.count + uploaded.count,
-        size: pending.size + uploaded.size,
-        sizeFormatted: formatBytes(pending.size + uploaded.size)
+        count: uploadedCount,
+        size: uploadedSize,
+        sizeFormatted: formatSize(uploadedSize)
       }
     });
-
-  } catch (error: any) {
+  } catch (error) {
     console.error('Error getting evidence stats:', error);
-    return NextResponse.json(
-      { error: 'Failed to get stats', details: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      pending: { count: 0, size: 0, sizeFormatted: '0 B' },
+      uploaded: { count: 0, size: 0, sizeFormatted: '0 B' }
+    });
   }
-}
-
-function formatBytes(bytes: number): string {
-  if (bytes === 0) return '0 Bytes';
-  const k = 1024;
-  const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
-  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }

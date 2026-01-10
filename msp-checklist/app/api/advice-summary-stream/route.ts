@@ -250,7 +250,7 @@ ${item.advice}`;
         cacheDb.close();
 
         // 파일로 저장
-        const summaryDir = path.join(process.cwd(), 'cache', 'item-summaries');
+        const summaryDir = path.join(process.cwd(), 'cache', 'advice-summaries');
         if (!fs.existsSync(summaryDir)) {
           fs.mkdirSync(summaryDir, { recursive: true });
         }

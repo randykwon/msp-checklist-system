@@ -31,7 +31,26 @@ function getSettingFromDB(key: string): string | null {
 function getStoragePath(): string {
   const dbPath = getSettingFromDB('evidenceStoragePath');
   if (dbPath && dbPath.trim()) return dbPath;
-  return process.env.EVIDENCE_STORAGE_PATH || '/opt/msp-checklist-system/evidence-files';
+  
+  // 환경변수 확인
+  if (process.env.EVIDENCE_STORAGE_PATH) {
+    return process.env.EVIDENCE_STORAGE_PATH;
+  }
+  
+  // 로컬 개발 환경인지 확인 (EC2 경로가 존재하지 않으면 로컬로 판단)
+  const ec2Path = '/opt/msp-checklist-system/evidence-files';
+  const localPath = path.join(process.cwd(), 'evidence-files');
+  
+  // EC2 경로의 상위 디렉토리가 존재하는지 확인
+  try {
+    if (fs.existsSync('/opt/msp-checklist-system') || process.env.NODE_ENV === 'production') {
+      return ec2Path;
+    }
+  } catch {
+    // 접근 권한이 없으면 로컬 경로 사용
+  }
+  
+  return localPath;
 }
 
 function getS3Bucket(): string {
@@ -85,7 +104,7 @@ export interface EvidenceFileInfo {
 /**
  * 저장 디렉토리 초기화
  */
-export function initStorageDirectories(): void {
+export function initStorageDirectories(): boolean {
   try {
     const baseDir = getEvidenceBasePath();
     const pendingDir = getPendingPath();
@@ -101,8 +120,27 @@ export function initStorageDirectories(): void {
       fs.mkdirSync(uploadedDir, { recursive: true });
     }
     console.log('Evidence storage directories initialized:', baseDir);
+    return true;
   } catch (error) {
     console.error('Failed to initialize storage directories:', error);
+    // 로컬 폴백 시도
+    try {
+      const fallbackDir = path.join(process.cwd(), 'evidence-files');
+      if (!fs.existsSync(fallbackDir)) {
+        fs.mkdirSync(fallbackDir, { recursive: true });
+      }
+      if (!fs.existsSync(path.join(fallbackDir, 'pending'))) {
+        fs.mkdirSync(path.join(fallbackDir, 'pending'), { recursive: true });
+      }
+      if (!fs.existsSync(path.join(fallbackDir, 'uploaded'))) {
+        fs.mkdirSync(path.join(fallbackDir, 'uploaded'), { recursive: true });
+      }
+      console.log('Evidence storage fallback to local:', fallbackDir);
+      return true;
+    } catch (fallbackError) {
+      console.error('Failed to initialize fallback storage:', fallbackError);
+      return false;
+    }
   }
 }
 
@@ -119,7 +157,11 @@ export function saveEvidenceFile(
   base64Data: string
 ): EvidenceFileInfo | null {
   try {
-    initStorageDirectories();
+    const initialized = initStorageDirectories();
+    if (!initialized) {
+      console.error('Failed to initialize storage directories');
+      return null;
+    }
     
     const pendingDir = getPendingPath();
     

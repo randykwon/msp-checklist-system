@@ -50,14 +50,20 @@ class VirtualEvidenceGenerator {
     const {
       includeAdvice = false,
       forceRegenerate = false,
+      languages: requestedLanguages,
       includeKorean = true,
       includeEnglish = true,
     } = options;
 
     // 언어 옵션에 따라 languages 배열 생성
-    const languages: ('ko' | 'en')[] = [];
-    if (includeKorean) languages.push('ko');
-    if (includeEnglish) languages.push('en');
+    // options.languages가 명시적으로 전달되면 그것을 사용, 아니면 includeKorean/includeEnglish 사용
+    let languages: ('ko' | 'en')[] = [];
+    if (requestedLanguages && requestedLanguages.length > 0) {
+      languages = requestedLanguages;
+    } else {
+      if (includeKorean) languages.push('ko');
+      if (includeEnglish) languages.push('en');
+    }
     
     if (languages.length === 0) {
       throw new Error('최소 하나의 언어를 선택해야 합니다.');

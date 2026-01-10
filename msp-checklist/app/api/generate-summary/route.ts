@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get('type'); // 'advice' or 'virtual_evidence'
     const filename = searchParams.get('filename'); // 특정 파일 내용 조회
     
-    const summaryDir = path.join(process.cwd(), 'cache', 'summaries');
+    const summaryDir = path.join(process.cwd(), 'cache', 'advice-summaries');
     
     // 디렉토리가 없으면 빈 목록 반환
     if (!fs.existsSync(summaryDir)) {
@@ -294,7 +294,7 @@ ${contentForSummary}
     const response = await callLLM(userPrompt, systemPrompt, finalLLMConfig);
 
     // 요약 결과 저장 (선택적)
-    const summaryDir = path.join(process.cwd(), 'cache', 'summaries');
+    const summaryDir = path.join(process.cwd(), 'cache', 'advice-summaries');
     if (!fs.existsSync(summaryDir)) {
       fs.mkdirSync(summaryDir, { recursive: true });
     }

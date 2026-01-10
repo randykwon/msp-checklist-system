@@ -329,6 +329,42 @@ generate_advice_cache() {
     log_progress "LLM을 사용하여 61개 항목의 조언을 생성합니다. (약 10-30분 소요)"
     echo ""
     
+    # 진행 중인 작업이 있는지 확인
+    local current_progress=$(check_progress "advice")
+    local current_status=$(echo "$current_progress" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+    if [ "$current_status" = "running" ]; then
+        log_warn "이미 조언 캐시 생성이 진행 중입니다. 완료를 기다립니다..."
+        # 진행 중인 작업 완료 대기
+        while true; do
+            sleep 3
+            current_progress=$(check_progress "advice")
+            current_status=$(echo "$current_progress" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+            local completed=$(echo "$current_progress" | grep -o '"completedItems":[0-9]*' | cut -d':' -f2)
+            local total=$(echo "$current_progress" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+            local current_item=$(echo "$current_progress" | grep -o '"currentItem":"[^"]*"' | cut -d'"' -f4)
+            
+            if [ "$current_status" != "running" ]; then
+                break
+            fi
+            
+            local progress=0
+            [ -n "$total" ] && [ "$total" != "0" ] && progress=$((completed * 100 / total))
+            local filled=$((progress * 40 / 100))
+            local empty=$((40 - filled))
+            printf "\r  ${CYAN}[생성 중]${NC} ["
+            printf "%${filled}s" | tr ' ' '█'
+            printf "%${empty}s" | tr ' ' '░'
+            printf "] %3d%% (%s/%s) %s" $progress "${completed:-0}" "${total:-0}" "${current_item:-}"
+        done
+        echo ""
+        
+        # 완료된 결과 표시
+        local version=$(echo "$current_progress" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        log_success "조언 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
+        echo "    버전: $version"
+        return 0
+    fi
+    
     # JSON 요청 본문 생성
     local llm_config=$(build_llm_config)
     local force_opt=""
@@ -350,22 +386,26 @@ generate_advice_cache() {
     
     local curl_pid=$!
     
-    # 진행 상황 표시 (예상 진행률)
-    local elapsed=0
-    local estimated_total=600  # 예상 10분
+    # 진행 상황 폴링으로 표시
+    sleep 2  # API가 시작될 때까지 잠시 대기
     while kill -0 $curl_pid 2>/dev/null; do
-        elapsed=$(($(date +%s) - task_start))
-        local progress=$((elapsed * 100 / estimated_total))
-        [ $progress -gt 99 ] && progress=99
+        local progress_data=$(check_progress "advice")
+        local status=$(echo "$progress_data" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+        local completed=$(echo "$progress_data" | grep -o '"completedItems":[0-9]*' | cut -d':' -f2)
+        local total=$(echo "$progress_data" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local current_item=$(echo "$progress_data" | grep -o '"currentItem":"[^"]*"' | cut -d'"' -f4)
+        
+        local progress=0
+        [ -n "$total" ] && [ "$total" != "0" ] && progress=$((completed * 100 / total))
         
         local filled=$((progress * 40 / 100))
         local empty=$((40 - filled))
         printf "\r  ${CYAN}[생성 중]${NC} ["
         printf "%${filled}s" | tr ' ' '█'
         printf "%${empty}s" | tr ' ' '░'
-        printf "] %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        printf "] %3d%% (%s/%s) %s    " $progress "${completed:-0}" "${total:-0}" "${current_item:-}"
         
-        sleep 2
+        sleep 3
     done
     
     wait $curl_pid
@@ -401,12 +441,57 @@ generate_advice_cache() {
     fi
 }
 
+# 진행 상황 확인 함수
+check_progress() {
+    local type=$1  # 'advice' or 'virtual-evidence'
+    local response=$(curl -s -X POST "$MAIN_HOST/api/generation-progress" \
+        -H "Content-Type: application/json" \
+        -d "{\"type\": \"$type\"}" 2>/dev/null)
+    echo "$response"
+}
+
 # 가상증빙 캐시 생성 (메인 앱으로 직접 요청)
 generate_evidence_cache() {
     local task_start=$(date +%s)
     log_step "가상증빙 캐시 생성 중..."
     log_progress "LLM을 사용하여 61개 항목의 가상증빙을 생성합니다. (약 10-30분 소요)"
     echo ""
+    
+    # 진행 중인 작업이 있는지 확인
+    local current_progress=$(check_progress "virtual-evidence")
+    local current_status=$(echo "$current_progress" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+    if [ "$current_status" = "running" ]; then
+        log_warn "이미 가상증빙 캐시 생성이 진행 중입니다. 완료를 기다립니다..."
+        # 진행 중인 작업 완료 대기
+        while true; do
+            sleep 3
+            current_progress=$(check_progress "virtual-evidence")
+            current_status=$(echo "$current_progress" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+            local completed=$(echo "$current_progress" | grep -o '"completedItems":[0-9]*' | cut -d':' -f2)
+            local total=$(echo "$current_progress" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+            local current_item=$(echo "$current_progress" | grep -o '"currentItem":"[^"]*"' | cut -d'"' -f4)
+            
+            if [ "$current_status" != "running" ]; then
+                break
+            fi
+            
+            local progress=0
+            [ -n "$total" ] && [ "$total" != "0" ] && progress=$((completed * 100 / total))
+            local filled=$((progress * 40 / 100))
+            local empty=$((40 - filled))
+            printf "\r  ${CYAN}[생성 중]${NC} ["
+            printf "%${filled}s" | tr ' ' '█'
+            printf "%${empty}s" | tr ' ' '░'
+            printf "] %3d%% (%s/%s) %s" $progress "${completed:-0}" "${total:-0}" "${current_item:-}"
+        done
+        echo ""
+        
+        # 완료된 결과 표시
+        local version=$(echo "$current_progress" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        log_success "가상증빙 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
+        echo "    버전: $version"
+        return 0
+    fi
     
     # JSON 요청 본문 생성
     local llm_config=$(build_llm_config)
@@ -429,22 +514,26 @@ generate_evidence_cache() {
     
     local curl_pid=$!
     
-    # 진행 상황 표시
-    local elapsed=0
-    local estimated_total=600
+    # 진행 상황 폴링으로 표시
+    sleep 2  # API가 시작될 때까지 잠시 대기
     while kill -0 $curl_pid 2>/dev/null; do
-        elapsed=$(($(date +%s) - task_start))
-        local progress=$((elapsed * 100 / estimated_total))
-        [ $progress -gt 99 ] && progress=99
+        local progress_data=$(check_progress "virtual-evidence")
+        local status=$(echo "$progress_data" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+        local completed=$(echo "$progress_data" | grep -o '"completedItems":[0-9]*' | cut -d':' -f2)
+        local total=$(echo "$progress_data" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local current_item=$(echo "$progress_data" | grep -o '"currentItem":"[^"]*"' | cut -d'"' -f4)
+        
+        local progress=0
+        [ -n "$total" ] && [ "$total" != "0" ] && progress=$((completed * 100 / total))
         
         local filled=$((progress * 40 / 100))
         local empty=$((40 - filled))
         printf "\r  ${CYAN}[생성 중]${NC} ["
         printf "%${filled}s" | tr ' ' '█'
         printf "%${empty}s" | tr ' ' '░'
-        printf "] %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        printf "] %3d%% (%s/%s) %s    " $progress "${completed:-0}" "${total:-0}" "${current_item:-}"
         
-        sleep 2
+        sleep 3
     done
     
     wait $curl_pid

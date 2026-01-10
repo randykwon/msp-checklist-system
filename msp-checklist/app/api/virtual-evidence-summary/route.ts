@@ -336,7 +336,7 @@ ${item.virtual_evidence}`;
     cacheDb.close();
 
     // 결과를 파일로도 저장
-    const summaryDir = path.join(process.cwd(), 'cache', 've-summaries');
+    const summaryDir = path.join(process.cwd(), 'cache', 'virtual-evidence-summaries');
     if (!fs.existsSync(summaryDir)) {
       fs.mkdirSync(summaryDir, { recursive: true });
     }

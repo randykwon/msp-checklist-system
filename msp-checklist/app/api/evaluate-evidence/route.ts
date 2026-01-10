@@ -10,6 +10,7 @@ export async function POST(request: NextRequest) {
       description, 
       evidenceRequired, 
       advice,
+      virtualEvidence,
       files, 
       language = 'en' 
     } = body;
@@ -79,72 +80,133 @@ export async function POST(request: NextRequest) {
       ).join('');
     }
 
-    // 평가 프롬프트 생성
+    // 가상증빙예제 섹션 (있는 경우에만)
+    const virtualEvidenceSection = virtualEvidence ? 
+      (language === 'ko' ? 
+        `\n\n**🔍 참고용 가상증빙예제** (이 수준의 증빙이 기대됩니다):\n${virtualEvidence}` :
+        `\n\n**🔍 Reference Virtual Evidence Example** (This level of evidence is expected):\n${virtualEvidence}`) : '';
+
+    // 조언 섹션 (있는 경우에만)
+    const adviceSection = advice ? 
+      (language === 'ko' ? 
+        `\n\n**💡 전문가 조언** (이 조언을 기준으로 평가하세요):\n${advice}` :
+        `\n\n**💡 Expert Advice** (Evaluate based on this advice):\n${advice}`) : '';
+
+    // 평가 프롬프트 생성 (더 엄격한 버전)
     const evaluationPrompt = language === 'ko' ? 
-      `다음 AWS MSP 요구사항에 대한 증빙 자료를 평가해주세요:
+      `당신은 AWS MSP 프로그램의 **엄격한** 심사관입니다. 제출된 증빙 자료를 아래 기준에 따라 **객관적이고 엄격하게** 평가해주세요.
 
-**평가 항목**: ${title}
-**설명**: ${description}
-**증빙 요구사항**: ${evidenceRequired}
-**조언**: ${advice}
+## 평가 대상 항목
+- **항목 ID**: ${itemId}
+- **항목명**: ${title}
+- **설명**: ${description}
+- **증빙 요구사항**: ${evidenceRequired}
+${adviceSection}
+${virtualEvidenceSection}
 
-**제출된 증빙 자료**:
+## 제출된 증빙 자료
 - 이미지 파일: ${imageFiles.length}개
 - PDF 문서: ${pdfFiles.length}개${pdfTexts}
 
-**평가 기준**:
-1. 문서 완성도 (0-100점): 필요한 정보가 모두 포함되어 있는가?
-2. 품질 및 명확성 (0-100점): 내용이 명확하고 이해하기 쉬운가?
-3. 요구사항 충족도 (0-100점): 명시된 요구사항을 얼마나 잘 충족하는가?
+## 엄격한 평가 기준 (각 항목 0-100점)
 
-**응답 형식**:
-🎯 **종합 평가**: [전체적인 평가 요약]
+### 1. 요구사항 충족도 (가장 중요)
+- 증빙 요구사항에 명시된 모든 항목이 포함되어 있는가?
+- 가상증빙예제에서 제시한 수준의 상세함을 갖추고 있는가?
+- 누락된 필수 요소가 있으면 **대폭 감점** (각 누락 항목당 -15점)
+
+### 2. 문서 완성도
+- 전문가 조언에서 권장한 내용이 반영되어 있는가?
+- 구체적인 수치, 날짜, 담당자 정보가 포함되어 있는가?
+- 스크린샷이나 문서가 실제 운영 환경의 것인가?
+- 모호하거나 일반적인 내용만 있으면 **감점**
+
+### 3. 품질 및 신뢰성
+- 문서의 진위성과 신뢰성이 확인되는가?
+- 이미지가 선명하고 내용이 읽을 수 있는가?
+- 날짜와 버전 정보가 최신인가?
+
+## 평가 시 주의사항
+⚠️ **엄격하게 평가하세요**:
+- 80점 이상: 요구사항을 완벽히 충족하고 가상증빙예제 수준 이상
+- 60-79점: 대부분 충족하나 일부 보완 필요
+- 40-59점: 기본 요구사항만 충족, 상당한 보완 필요
+- 40점 미만: 요구사항 미충족, 재제출 필요
+
+## 응답 형식
+🎯 **종합 평가**: [합격/조건부 합격/보완 필요/재제출 필요] - [한 줄 요약]
 
 📊 **세부 평가**:
-• 문서 완성도: [점수]점 - [평가 내용]
-• 품질 및 명확성: [점수]점 - [평가 내용]  
-• 요구사항 충족도: [점수]점 - [평가 내용]
+• 요구사항 충족도: [점수]점 - [구체적인 평가 내용과 근거]
+• 문서 완성도: [점수]점 - [구체적인 평가 내용과 근거]
+• 품질 및 신뢰성: [점수]점 - [구체적인 평가 내용과 근거]
+
+❌ **부족한 점** (있는 경우):
+• [누락되거나 부족한 구체적인 항목들]
 
 💡 **개선 제안**:
-• [구체적인 개선 방안들]
+• [구체적이고 실행 가능한 개선 방안]
 
-✅ **결론**: [최종 결론 및 권장사항]
+✅ **결론**: [최종 판정과 다음 단계 권장사항]` :
 
-종합 점수는 세 기준의 평균으로 계산하고, 객관적이고 건설적인 피드백을 제공해주세요.` :
-      `Please evaluate the evidence documents for the following AWS MSP requirement:
+      `You are a **strict** auditor for the AWS MSP program. Evaluate the submitted evidence **objectively and rigorously** based on the criteria below.
 
-**Assessment Item**: ${title}
-**Description**: ${description}
-**Evidence Required**: ${evidenceRequired}
-**Advice**: ${advice}
+## Assessment Item
+- **Item ID**: ${itemId}
+- **Title**: ${title}
+- **Description**: ${description}
+- **Evidence Required**: ${evidenceRequired}
+${adviceSection}
+${virtualEvidenceSection}
 
-**Submitted Evidence**:
+## Submitted Evidence
 - Image files: ${imageFiles.length}
 - PDF documents: ${pdfFiles.length}${pdfTexts}
 
-**Evaluation Criteria**:
-1. Document Completeness (0-100 points): Are all necessary information included?
-2. Quality & Clarity (0-100 points): Is the content clear and easy to understand?
-3. Requirement Fulfillment (0-100 points): How well does it meet the specified requirements?
+## Strict Evaluation Criteria (0-100 points each)
 
-**Response Format**:
-🎯 **Overall Assessment**: [Overall evaluation summary]
+### 1. Requirement Fulfillment (Most Important)
+- Are all items specified in the evidence requirements included?
+- Does it meet the level of detail shown in the virtual evidence example?
+- **Significant deduction** for missing required elements (-15 points per missing item)
+
+### 2. Document Completeness
+- Are the recommendations from expert advice reflected?
+- Are specific numbers, dates, and responsible parties included?
+- Are screenshots/documents from actual production environment?
+- **Deduct points** for vague or generic content
+
+### 3. Quality & Reliability
+- Can the authenticity and reliability of documents be verified?
+- Are images clear and readable?
+- Are dates and version information current?
+
+## Evaluation Guidelines
+⚠️ **Be strict**:
+- 80+ points: Fully meets requirements, exceeds virtual evidence example level
+- 60-79 points: Mostly meets requirements, some improvements needed
+- 40-59 points: Only basic requirements met, significant improvements needed
+- Below 40: Requirements not met, resubmission required
+
+## Response Format
+🎯 **Overall Assessment**: [Pass/Conditional Pass/Needs Improvement/Resubmit Required] - [One-line summary]
 
 📊 **Detailed Evaluation**:
-• Document Completeness: [score] points - [evaluation content]
-• Quality & Clarity: [score] points - [evaluation content]
-• Requirement Fulfillment: [score] points - [evaluation content]
+• Requirement Fulfillment: [score] points - [Specific evaluation with evidence]
+• Document Completeness: [score] points - [Specific evaluation with evidence]
+• Quality & Reliability: [score] points - [Specific evaluation with evidence]
+
+❌ **Deficiencies** (if any):
+• [Specific missing or insufficient items]
 
 💡 **Improvement Suggestions**:
-• [Specific improvement recommendations]
+• [Specific and actionable improvement recommendations]
 
-✅ **Conclusion**: [Final conclusion and recommendations]
-
-Calculate the overall score as the average of the three criteria and provide objective, constructive feedback.`;
+✅ **Conclusion**: [Final verdict and recommended next steps]`;
 
     const systemMessage = language === 'ko' ? 
-      "당신은 AWS MSP(Managed Service Provider) 프로그램의 전문 평가자입니다. 제출된 증빙 자료를 객관적이고 건설적으로 평가하여 파트너가 요구사항을 더 잘 충족할 수 있도록 도움을 제공합니다." :
-      "You are an expert evaluator for the AWS MSP (Managed Service Provider) program. You objectively and constructively evaluate submitted evidence documents to help partners better meet the requirements.";
+      "당신은 AWS MSP(Managed Service Provider) 프로그램의 엄격한 심사관입니다. 제출된 증빙 자료가 AWS의 높은 기준을 충족하는지 객관적이고 비판적으로 평가합니다. 관대한 평가는 파트너에게 도움이 되지 않습니다. 부족한 점을 명확히 지적하여 실제 심사에서 통과할 수 있도록 도와주세요." :
+      "You are a strict auditor for the AWS MSP (Managed Service Provider) program. You objectively and critically evaluate whether submitted evidence meets AWS's high standards. Lenient evaluation does not help partners. Clearly point out deficiencies to help them pass the actual audit.";
 
     // 메시지 구성
     const messages: LLMVisionMessage[] = [

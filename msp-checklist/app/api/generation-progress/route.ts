@@ -3,6 +3,18 @@ import { getProgress, addProgressListener } from '@/lib/generation-progress';
 
 export const dynamic = 'force-dynamic';
 
+// 간단한 JSON 응답 (폴링용)
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const type = body.type as 'advice' | 'virtual-evidence' || 'virtual-evidence';
+    const progress = getProgress(type);
+    return Response.json(progress);
+  } catch {
+    return Response.json({ error: 'Invalid request' }, { status: 400 });
+  }
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const type = searchParams.get('type') as 'advice' | 'virtual-evidence' || 'virtual-evidence';

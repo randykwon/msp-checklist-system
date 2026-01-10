@@ -608,16 +608,58 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
       return;
     }
 
-    if (!adviceContent) {
-      alert(itemLanguage === 'ko' ? 
-        '평가를 위해 먼저 조언을 생성해주세요.' :
-        'Please generate advice first for evaluation.'
-      );
-      return;
-    }
-
     setIsEvaluating(true);
     setEvaluationError('');
+
+    // 조언이 없으면 자동으로 가져오기
+    let currentAdvice = adviceContent;
+    if (!currentAdvice) {
+      try {
+        // 먼저 캐시에서 확인
+        const cachedAdvice = getAdvice(item.id, itemLanguage);
+        if (cachedAdvice) {
+          currentAdvice = cachedAdvice;
+          setAdviceContent(cachedAdvice);
+        } else {
+          // DB 캐시에서 확인
+          const cacheResponse = await fetch(`/api/advice/cache?itemId=${item.id}&language=${itemLanguage}`);
+          if (cacheResponse.ok) {
+            const cacheData = await cacheResponse.json();
+            if (cacheData.advice) {
+              currentAdvice = cacheData.advice;
+              setAdviceContent(cacheData.advice);
+              setAdvice(item.id, cacheData.advice, itemLanguage);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch cached advice:', error);
+      }
+    }
+
+    // 가상증빙예제도 자동으로 가져오기
+    let currentVirtualEvidence = virtualEvidenceContent;
+    if (!currentVirtualEvidence) {
+      try {
+        const cachedVE = getVirtualEvidence(item.id, itemLanguage);
+        if (cachedVE) {
+          currentVirtualEvidence = cachedVE;
+        } else {
+          // DB 캐시에서 확인
+          const veResponse = await fetch(`/api/virtual-evidence-cache?action=evidence&itemId=${item.id}&language=${itemLanguage}`);
+          if (veResponse.ok) {
+            const veData = await veResponse.json();
+            if (veData.evidence && veData.evidence.virtualEvidence) {
+              currentVirtualEvidence = veData.evidence.virtualEvidence;
+              setVirtualEvidenceContent(currentVirtualEvidence);
+              setVirtualEvidence(item.id, currentVirtualEvidence, itemLanguage);
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch cached virtual evidence:', error);
+      }
+    }
 
     try {
       const response = await fetch('/api/evaluate-evidence', {
@@ -630,7 +672,8 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           title: itemLanguage === 'ko' && item.titleKo ? item.titleKo : item.title,
           description: itemLanguage === 'ko' && item.descriptionKo ? item.descriptionKo : item.description,
           evidenceRequired: itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired,
-          advice: adviceContent,
+          advice: currentAdvice || '',
+          virtualEvidence: currentVirtualEvidence || '',
           files: evidenceFiles,
           language: itemLanguage,
         }),
@@ -1754,13 +1797,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             {/* Evaluation Section */}
             {evidenceFiles.length > 0 && (
               <div className="mt-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h6 className="text-sm font-semibold text-gray-700">
-                    🤖 AI {t('assessmentItem.evidenceUpload')}
-                  </h6>
+                <div className="flex items-center justify-end mb-3">
                   <button
                     onClick={handleEvaluateEvidence}
-                    disabled={isEvaluating || !adviceContent}
+                    disabled={isEvaluating}
                     className="px-4 py-2 text-sm font-medium text-white bg-green-600 hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed rounded-lg transition-colors"
                   >
                     {isEvaluating ? 
@@ -1818,11 +1858,69 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     </div>
 
                     {/* Feedback */}
-                    <div className="text-sm text-gray-700 whitespace-pre-line bg-white p-3 rounded border">
-                      {itemLanguage === 'ko' && item.evaluation.feedbackKo ? 
+                    <div className="text-sm text-gray-700 bg-white p-4 rounded border space-y-3">
+                      {(itemLanguage === 'ko' && item.evaluation.feedbackKo ? 
                         item.evaluation.feedbackKo : 
                         item.evaluation.feedback
-                      }
+                      ).split('\n').map((line, idx) => {
+                        // 빈 줄 처리
+                        if (!line.trim()) return <div key={idx} className="h-2" />;
+                        
+                        // 이모지 헤더 (🎯, 📊, 💡, ✅ 등)
+                        if (/^[🎯📊💡✅⚠️❌🔍📌]\s*\*\*/.test(line)) {
+                          const text = line.replace(/\*\*/g, '');
+                          return (
+                            <div key={idx} className="font-bold text-base text-gray-900 mt-3 first:mt-0 border-b border-gray-200 pb-2">
+                              {text}
+                            </div>
+                          );
+                        }
+                        
+                        // 불릿 포인트 (• 또는 -)
+                        if (/^[•\-]\s/.test(line.trim())) {
+                          const text = line.trim().replace(/^[•\-]\s*/, '').replace(/\*\*/g, '');
+                          // 점수가 포함된 라인 (예: 문서 완성도: 70점)
+                          const scoreMatch = text.match(/^(.+?):\s*(\d+)점\s*[-–]\s*(.+)$/);
+                          if (scoreMatch) {
+                            const [, label, score, desc] = scoreMatch;
+                            const scoreNum = parseInt(score);
+                            const scoreColor = scoreNum >= 80 ? 'text-green-600' : scoreNum >= 60 ? 'text-yellow-600' : 'text-red-600';
+                            return (
+                              <div key={idx} className="flex items-start gap-2 pl-4">
+                                <span className="text-gray-400">•</span>
+                                <div className="flex-1">
+                                  <span className="font-semibold text-gray-800">{label}:</span>
+                                  <span className={`font-bold ml-1 ${scoreColor}`}>{score}점</span>
+                                  <span className="text-gray-600 ml-1">- {desc}</span>
+                                </div>
+                              </div>
+                            );
+                          }
+                          return (
+                            <div key={idx} className="flex items-start gap-2 pl-4">
+                              <span className="text-gray-400">•</span>
+                              <span className="flex-1">{text}</span>
+                            </div>
+                          );
+                        }
+                        
+                        // **굵은 텍스트** 처리
+                        if (line.includes('**')) {
+                          const parts = line.split(/\*\*(.+?)\*\*/g);
+                          return (
+                            <div key={idx}>
+                              {parts.map((part, i) => 
+                                i % 2 === 1 ? 
+                                  <span key={i} className="font-semibold text-gray-900">{part}</span> : 
+                                  <span key={i}>{part}</span>
+                              )}
+                            </div>
+                          );
+                        }
+                        
+                        // 일반 텍스트
+                        return <div key={idx}>{line}</div>;
+                      })}
                     </div>
                   </div>
                 )}
