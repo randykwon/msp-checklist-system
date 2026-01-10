@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
+import fs from 'fs';
 import { 
   setDBConfig,
+  getDBConfig,
   getActiveCacheVersion,
   getVirtualEvidenceItems,
   getVirtualEvidenceSummaryVersions,
@@ -14,9 +16,32 @@ import {
   getOrCreateInferenceProfile
 } from '@msp/shared';
 
-// DB 경로 설정 (Admin에서 Main의 DB에 접근)
-const mainAppPath = path.join(process.cwd(), '..');
-setDBConfig({ basePath: mainAppPath });
+// DB 경로 설정 함수 - Admin에서 Main의 DB에 접근
+function ensureDBConfig() {
+  const cwd = process.cwd();
+  
+  if (cwd.endsWith('/admin') || cwd.endsWith('\\admin')) {
+    const mainAppPath = path.join(cwd, '..');
+    setDBConfig({ basePath: mainAppPath });
+    console.log('[VE Summary] Running from admin dir, using parent path:', mainAppPath);
+  } else {
+    const dbPath = path.join(cwd, 'msp-assessment.db');
+    if (fs.existsSync(dbPath)) {
+      setDBConfig({ basePath: cwd });
+      console.log('[VE Summary] DB found in cwd:', cwd);
+    } else {
+      const mspPath = path.join(cwd, 'msp-checklist');
+      if (fs.existsSync(path.join(mspPath, 'msp-assessment.db'))) {
+        setDBConfig({ basePath: mspPath });
+        console.log('[VE Summary] Using msp-checklist path:', mspPath);
+      } else {
+        console.error('[VE Summary] Could not find DB files! cwd:', cwd);
+      }
+    }
+  }
+  
+  console.log('[VE Summary] Final DB Config:', getDBConfig());
+}
 
 const INFERENCE_PROFILE_REQUIRED_MODELS = [
   'anthropic.claude-opus-4-5-20251101-v1:0',
@@ -61,12 +86,16 @@ export async function GET(request: NextRequest) {
 // POST: 모든 항목의 요약 생성
 export async function POST(request: NextRequest) {
   try {
+    // 매 요청마다 DB 경로 설정 확인
+    ensureDBConfig();
+    
     const { llmConfig: inputLlmConfig, sourceVersion, language = 'ko' } = await request.json();
 
     // 활성 버전 확인
     let veVersion = sourceVersion;
     if (!veVersion) {
       veVersion = getActiveCacheVersion('virtualEvidence');
+      console.log('[VE Summary] Active version from DB:', veVersion);
     }
 
     if (!veVersion) {
@@ -78,6 +107,7 @@ export async function POST(request: NextRequest) {
 
     // 가상증빙예제 데이터 조회
     const veItems = getVirtualEvidenceItems(veVersion, language as 'ko' | 'en');
+    console.log(`[VE Summary] Found ${veItems.length} items for version ${veVersion} (${language})`);
 
     if (veItems.length === 0) {
       return NextResponse.json(

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import path from 'path';
+import fs from 'fs';
 import { 
   setDBConfig,
+  getDBConfig,
   getActiveCacheVersion,
   getAdviceItems,
   getAdviceSummaryVersions,
@@ -14,9 +16,37 @@ import {
   getOrCreateInferenceProfile
 } from '@msp/shared';
 
-// DB 경로 설정 (Admin에서 Main의 DB에 접근)
-const mainAppPath = path.join(process.cwd(), '..');
-setDBConfig({ basePath: mainAppPath });
+// DB 경로 설정 함수 - Admin에서 Main의 DB에 접근
+function ensureDBConfig() {
+  // 현재 작업 디렉토리 확인
+  const cwd = process.cwd();
+  
+  // Admin 앱 디렉토리인지 확인 (admin 폴더 안에서 실행 중인 경우)
+  if (cwd.endsWith('/admin') || cwd.endsWith('\\admin')) {
+    const mainAppPath = path.join(cwd, '..');
+    setDBConfig({ basePath: mainAppPath });
+    console.log('[Advice Summary] Running from admin dir, using parent path:', mainAppPath);
+  } else {
+    // msp-checklist 루트에서 실행 중인 경우
+    // DB 파일이 현재 디렉토리에 있는지 확인
+    const dbPath = path.join(cwd, 'msp-assessment.db');
+    if (fs.existsSync(dbPath)) {
+      setDBConfig({ basePath: cwd });
+      console.log('[Advice Summary] DB found in cwd:', cwd);
+    } else {
+      // msp-checklist 디렉토리 찾기
+      const mspPath = path.join(cwd, 'msp-checklist');
+      if (fs.existsSync(path.join(mspPath, 'msp-assessment.db'))) {
+        setDBConfig({ basePath: mspPath });
+        console.log('[Advice Summary] Using msp-checklist path:', mspPath);
+      } else {
+        console.error('[Advice Summary] Could not find DB files! cwd:', cwd);
+      }
+    }
+  }
+  
+  console.log('[Advice Summary] Final DB Config:', getDBConfig());
+}
 
 const INFERENCE_PROFILE_REQUIRED_MODELS = [
   'anthropic.claude-opus-4-5-20251101-v1:0',
@@ -61,12 +91,16 @@ export async function GET(request: NextRequest) {
 // POST: 모든 항목의 요약 생성
 export async function POST(request: NextRequest) {
   try {
+    // 매 요청마다 DB 경로 설정 확인
+    ensureDBConfig();
+    
     const { llmConfig: inputLlmConfig, sourceVersion, language = 'ko' } = await request.json();
 
     // 활성 버전 확인
     let adviceVersion = sourceVersion;
     if (!adviceVersion) {
       adviceVersion = getActiveCacheVersion('advice');
+      console.log('[Advice Summary] Active version from DB:', adviceVersion);
     }
 
     if (!adviceVersion) {
@@ -78,6 +112,7 @@ export async function POST(request: NextRequest) {
 
     // 조언 데이터 조회
     const adviceItems = getAdviceItems(adviceVersion, language as 'ko' | 'en');
+    console.log(`[Advice Summary] Found ${adviceItems.length} advice items for version ${adviceVersion} (${language})`);
 
     if (adviceItems.length === 0) {
       return NextResponse.json(
@@ -85,8 +120,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
-    console.log(`[Advice Summary] Found ${adviceItems.length} advice items for version ${adviceVersion} (${language})`);
 
     // LLM 설정 처리
     let finalLLMConfig: LLMConfig;
