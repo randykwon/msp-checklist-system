@@ -414,7 +414,7 @@ generate_evidence_summary() {
 if [ "$GENERATE_ADVICE" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  ${BOLD}1. 조언 캐시 생성${NC}"
+    echo -e "  ${BOLD}1. 조언 캐시 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     generate_advice_cache || true
 fi
@@ -422,7 +422,7 @@ fi
 if [ "$GENERATE_EVIDENCE" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  ${BOLD}2. 가상증빙 캐시 생성${NC}"
+    echo -e "  ${BOLD}2. 가상증빙 캐시 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     generate_evidence_cache || true
 fi
@@ -431,7 +431,7 @@ fi
 if [ "$GENERATE_ADVICE_SUMMARY" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  ${BOLD}3. 조언 요약 생성${NC}"
+    echo -e "  ${BOLD}3. 조언 요약 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
@@ -444,7 +444,7 @@ fi
 if [ "$GENERATE_EVIDENCE_SUMMARY" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  ${BOLD}4. 가상증빙 요약 생성${NC}"
+    echo -e "  ${BOLD}4. 가상증빙 요약 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
