@@ -311,7 +311,12 @@ elapsed_time() {
 # LLM 설정 JSON 생성
 build_llm_config() {
     if [ -n "$LLM_PROVIDER" ] && [ -n "$LLM_MODEL" ]; then
-        echo "\"llmConfig\": {\"provider\": \"$LLM_PROVIDER\", \"model\": \"$LLM_MODEL\"}"
+        # Claude 4.5 모델은 autoCreateInferenceProfile 옵션 추가
+        if [[ "$LLM_MODEL" == *"claude-opus-4-5"* ]] || [[ "$LLM_MODEL" == *"claude-sonnet-4-5"* ]] || [[ "$LLM_MODEL" == *"claude-haiku-4-5"* ]]; then
+            echo "\"llmConfig\": {\"provider\": \"$LLM_PROVIDER\", \"model\": \"$LLM_MODEL\", \"autoCreateInferenceProfile\": true}"
+        else
+            echo "\"llmConfig\": {\"provider\": \"$LLM_PROVIDER\", \"model\": \"$LLM_MODEL\"}"
+        fi
     else
         echo ""
     fi
