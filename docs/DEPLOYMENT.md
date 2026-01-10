@@ -155,7 +155,23 @@ pm2 restart all
 
 ## Nginx 설정
 
-### Nginx 설치
+### 자동 설정 스크립트 (권장)
+
+```bash
+# 기본 설정 (mychecker.com)
+./scripts/nginx/setup-nginx.sh
+
+# 도메인 지정
+./scripts/nginx/setup-nginx.sh --domain your-domain.com
+
+# SSL 인증서 포함
+./scripts/nginx/setup-nginx.sh --domain your-domain.com --ssl
+
+# 설정 제거
+./scripts/nginx/setup-nginx.sh --uninstall
+```
+
+### 수동 설치
 
 ```bash
 # Amazon Linux
@@ -165,7 +181,7 @@ sudo yum install -y nginx
 sudo apt-get install -y nginx
 ```
 
-### 기본 설정 (`/etc/nginx/conf.d/msp-advisor.conf`)
+### 기본 설정 (`/etc/nginx/conf.d/msp-checklist.conf`)
 
 ```nginx
 # 메인 앱
