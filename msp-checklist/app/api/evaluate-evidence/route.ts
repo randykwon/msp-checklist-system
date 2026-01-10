@@ -1,8 +1,89 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
 import { createLLMService, LLMVisionMessage } from '@/lib/llm-service';
+import Database from 'better-sqlite3';
+import path from 'path';
+import fs from 'fs';
+
+// 평가 결과 저장 함수
+function saveEvaluationToDb(
+  userId: number,
+  itemId: string,
+  assessmentType: string,
+  score: number,
+  feedback: string,
+  llmProvider: string,
+  llmModel: string,
+  fileCount: number,
+  totalFileSize: number
+) {
+  try {
+    const dbPath = path.join(process.cwd(), 'msp-assessment.db');
+    if (!fs.existsSync(dbPath)) return;
+    
+    const db = new Database(dbPath);
+    
+    // 테이블 생성
+    db.exec(`
+      CREATE TABLE IF NOT EXISTS evidence_evaluations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        item_id TEXT NOT NULL,
+        assessment_type TEXT DEFAULT 'unknown',
+        score INTEGER NOT NULL,
+        feedback TEXT NOT NULL,
+        llm_provider TEXT,
+        llm_model TEXT,
+        file_count INTEGER DEFAULT 1,
+        total_file_size INTEGER DEFAULT 0,
+        evaluated_at TEXT NOT NULL,
+        created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, item_id)
+      )
+    `);
+    
+    // 평가 결과 저장 (기존 결과 업데이트)
+    const stmt = db.prepare(`
+      INSERT OR REPLACE INTO evidence_evaluations 
+      (user_id, item_id, assessment_type, score, feedback, llm_provider, llm_model, file_count, total_file_size, evaluated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    
+    stmt.run(
+      userId,
+      itemId,
+      assessmentType,
+      score,
+      feedback,
+      llmProvider,
+      llmModel,
+      fileCount,
+      totalFileSize,
+      new Date().toISOString()
+    );
+    
+    db.close();
+    console.log(`Evaluation saved for user ${userId}, item ${itemId}`);
+  } catch (error) {
+    console.error('Failed to save evaluation to DB:', error);
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // 사용자 인증 확인
+    const cookieStore = await cookies();
+    const token = cookieStore.get('msp_auth_token')?.value;
+    let currentUserId = 0;
+    
+    if (token) {
+      const user = verifyToken(token);
+      if (user) {
+        currentUserId = user.id;
+      }
+    }
+
     const body = await request.json();
     const { 
       itemId, 
@@ -12,8 +93,13 @@ export async function POST(request: NextRequest) {
       advice,
       virtualEvidence,
       files, 
-      language = 'en' 
+      language = 'en',
+      assessmentType = 'unknown'
     } = body;
+
+    // 파일 통계 계산
+    const fileCount = files?.length || 0;
+    const totalFileSize = files?.reduce((sum: number, f: any) => sum + (f.fileSize || 0), 0) || 0;
 
     // LLM 서비스 초기화
     const llmService = createLLMService();
@@ -260,6 +346,21 @@ ${virtualEvidenceSection}
         commentKo: '요구사항 충족도 평가 결과입니다.'
       }
     ];
+
+    // 평가 결과를 DB에 저장
+    if (currentUserId > 0) {
+      saveEvaluationToDb(
+        currentUserId,
+        itemId,
+        assessmentType,
+        averageScore,
+        evaluationText,
+        llmService.getProviderName(),
+        llmService.getModelName?.() || 'unknown',
+        fileCount,
+        totalFileSize
+      );
+    }
 
     return NextResponse.json({
       evaluation: {
