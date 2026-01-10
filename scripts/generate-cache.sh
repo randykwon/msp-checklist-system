@@ -13,20 +13,15 @@
 #   --evidence-summary 가상증빙 요약만 생성
 #   --lang ko          한국어만 (기본값: ko,en 둘 다)
 #   --lang en          영어만
+#   --model            LLM 모델 선택 메뉴 표시
+#   --force            기존 캐시 무시하고 강제 재생성
 #   --host URL         Admin 서버 URL (기본값: http://localhost:3011)
 #   --main-host URL    메인 서버 URL (기본값: http://localhost:3010)
 #
 # 예시:
-#   ./scripts/generate-cache.sh --all
-#   ./scripts/generate-cache.sh --advice
-#   ./scripts/generate-cache.sh --advice-summary --lang ko
-#   ./scripts/generate-cache.sh --evidence --evidence-summary
-#   ./scripts/generate-cache.sh --host http://your-server:3011
-#
-# 참고:
-#   - 캐시 생성은 메인 앱(3010)으로 직접 요청
-#   - 요약 생성은 Admin 앱(3011)으로 요청
-#   - 캐시 생성 후 요약 생성 순서로 진행
+#   ./scripts/generate-cache.sh --all --model
+#   ./scripts/generate-cache.sh --advice --force
+#   ./scripts/generate-cache.sh --evidence --model
 #===============================================================================
 
 set -e
@@ -50,6 +45,12 @@ GENERATE_EVIDENCE=false
 GENERATE_ADVICE_SUMMARY=false
 GENERATE_EVIDENCE_SUMMARY=false
 GENERATE_ALL=true
+SELECT_MODEL=false
+FORCE_REGENERATE=false
+
+# LLM 설정 (선택된 모델)
+LLM_PROVIDER=""
+LLM_MODEL=""
 
 # 로그 함수
 log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
@@ -59,35 +60,121 @@ log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 log_step() { echo -e "${CYAN}[STEP]${NC} $1"; }
 log_progress() { echo -e "${MAGENTA}[진행]${NC} $1"; }
 
-# 스피너 함수
-spinner() {
-    local pid=$1
-    local delay=0.2
-    local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
-    local msg="${2:-처리 중...}"
-    
-    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
-        local temp=${spinstr#?}
-        printf "\r${CYAN}[%c]${NC} %s" "$spinstr" "$msg"
-        local spinstr=$temp${spinstr%"$temp"}
-        sleep $delay
-    done
-    printf "\r"
-}
+# LLM 모델 목록
+declare -a BEDROCK_MODELS=(
+    "anthropic.claude-3-5-sonnet-20241022-v2:0|Claude 3.5 Sonnet v2 (추천)"
+    "anthropic.claude-3-5-haiku-20241022-v1:0|Claude 3.5 Haiku (빠름)"
+    "anthropic.claude-3-haiku-20240307-v1:0|Claude 3 Haiku (저렴)"
+    "anthropic.claude-3-sonnet-20240229-v1:0|Claude 3 Sonnet"
+    "anthropic.claude-3-opus-20240229-v1:0|Claude 3 Opus (고품질)"
+    "anthropic.claude-opus-4-5-20251101-v1:0|Claude Opus 4.5 (최신)"
+    "anthropic.claude-sonnet-4-5-20250929-v1:0|Claude Sonnet 4.5 (최신)"
+)
 
-# 진행 바 함수
-progress_bar() {
-    local current=$1
-    local total=$2
-    local width=40
-    local percent=$((current * 100 / total))
-    local filled=$((current * width / total))
-    local empty=$((width - filled))
+declare -a OPENAI_MODELS=(
+    "gpt-4o|GPT-4o (추천)"
+    "gpt-4o-mini|GPT-4o Mini (빠름)"
+    "gpt-4-turbo|GPT-4 Turbo"
+    "gpt-4|GPT-4"
+)
+
+declare -a GEMINI_MODELS=(
+    "gemini-1.5-pro|Gemini 1.5 Pro (추천)"
+    "gemini-1.5-flash|Gemini 1.5 Flash (빠름)"
+    "gemini-pro|Gemini Pro"
+)
+
+# LLM 모델 선택 메뉴
+select_llm_model() {
+    echo ""
+    echo "╔═══════════════════════════════════════════════════════════════╗"
+    echo "║                    LLM 모델 선택                              ║"
+    echo "╚═══════════════════════════════════════════════════════════════╝"
+    echo ""
+    echo "  Provider를 선택하세요:"
+    echo ""
+    echo "    1) AWS Bedrock (Claude)"
+    echo "    2) OpenAI (GPT)"
+    echo "    3) Google (Gemini)"
+    echo "    4) 기본값 사용 (.env.local 설정)"
+    echo ""
+    read -p "  선택 [1-4]: " provider_choice
     
-    printf "\r  ["
-    printf "%${filled}s" | tr ' ' '█'
-    printf "%${empty}s" | tr ' ' '░'
-    printf "] %3d%% (%d/%d)" $percent $current $total
+    case $provider_choice in
+        1)
+            LLM_PROVIDER="bedrock"
+            echo ""
+            echo "  Bedrock 모델을 선택하세요:"
+            echo ""
+            local i=1
+            for model_info in "${BEDROCK_MODELS[@]}"; do
+                local model_id="${model_info%%|*}"
+                local model_name="${model_info##*|}"
+                echo "    $i) $model_name"
+                ((i++))
+            done
+            echo ""
+            read -p "  선택 [1-${#BEDROCK_MODELS[@]}]: " model_choice
+            
+            if [[ $model_choice -ge 1 && $model_choice -le ${#BEDROCK_MODELS[@]} ]]; then
+                local selected="${BEDROCK_MODELS[$((model_choice-1))]}"
+                LLM_MODEL="${selected%%|*}"
+                log_success "선택된 모델: Bedrock - ${selected##*|}"
+            else
+                log_warn "잘못된 선택. 기본값 사용."
+            fi
+            ;;
+        2)
+            LLM_PROVIDER="openai"
+            echo ""
+            echo "  OpenAI 모델을 선택하세요:"
+            echo ""
+            local i=1
+            for model_info in "${OPENAI_MODELS[@]}"; do
+                local model_id="${model_info%%|*}"
+                local model_name="${model_info##*|}"
+                echo "    $i) $model_name"
+                ((i++))
+            done
+            echo ""
+            read -p "  선택 [1-${#OPENAI_MODELS[@]}]: " model_choice
+            
+            if [[ $model_choice -ge 1 && $model_choice -le ${#OPENAI_MODELS[@]} ]]; then
+                local selected="${OPENAI_MODELS[$((model_choice-1))]}"
+                LLM_MODEL="${selected%%|*}"
+                log_success "선택된 모델: OpenAI - ${selected##*|}"
+            else
+                log_warn "잘못된 선택. 기본값 사용."
+            fi
+            ;;
+        3)
+            LLM_PROVIDER="gemini"
+            echo ""
+            echo "  Gemini 모델을 선택하세요:"
+            echo ""
+            local i=1
+            for model_info in "${GEMINI_MODELS[@]}"; do
+                local model_id="${model_info%%|*}"
+                local model_name="${model_info##*|}"
+                echo "    $i) $model_name"
+                ((i++))
+            done
+            echo ""
+            read -p "  선택 [1-${#GEMINI_MODELS[@]}]: " model_choice
+            
+            if [[ $model_choice -ge 1 && $model_choice -le ${#GEMINI_MODELS[@]} ]]; then
+                local selected="${GEMINI_MODELS[$((model_choice-1))]}"
+                LLM_MODEL="${selected%%|*}"
+                log_success "선택된 모델: Gemini - ${selected##*|}"
+            else
+                log_warn "잘못된 선택. 기본값 사용."
+            fi
+            ;;
+        4|*)
+            log_info "기본값 사용 (.env.local 설정)"
+            ;;
+    esac
+    echo ""
 }
 
 # 옵션 파싱
@@ -121,6 +208,14 @@ while [[ $# -gt 0 ]]; do
             LANGUAGES="$2"
             shift 2
             ;;
+        --model)
+            SELECT_MODEL=true
+            shift
+            ;;
+        --force)
+            FORCE_REGENERATE=true
+            shift
+            ;;
         --host)
             ADMIN_HOST="$2"
             shift 2
@@ -130,7 +225,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -h|--help)
-            head -32 "$0" | tail -30
+            head -28 "$0" | tail -26
             exit 0
             ;;
         *)
@@ -156,10 +251,19 @@ echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
 echo "║       MSP 어드바이저 - 캐시 및 요약 일괄 생성                 ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
+
+# 모델 선택 메뉴 표시
+if [ "$SELECT_MODEL" = true ]; then
+    select_llm_model
+fi
+
 echo ""
 echo "  메인 서버:  $MAIN_HOST"
 echo "  Admin 서버: $ADMIN_HOST"
 echo "  언어: $LANGUAGES"
+[ -n "$LLM_PROVIDER" ] && echo "  LLM Provider: $LLM_PROVIDER"
+[ -n "$LLM_MODEL" ] && echo "  LLM Model: $LLM_MODEL"
+[ "$FORCE_REGENERATE" = true ] && echo "  강제 재생성: 예"
 echo "  생성 항목:"
 [ "$GENERATE_ADVICE" = true ] && echo "    - 조언 캐시"
 [ "$GENERATE_EVIDENCE" = true ] && echo "    - 가상증빙 캐시"
@@ -204,6 +308,15 @@ elapsed_time() {
     fi
 }
 
+# LLM 설정 JSON 생성
+build_llm_config() {
+    if [ -n "$LLM_PROVIDER" ] && [ -n "$LLM_MODEL" ]; then
+        echo "\"llmConfig\": {\"provider\": \"$LLM_PROVIDER\", \"model\": \"$LLM_MODEL\"}"
+    else
+        echo ""
+    fi
+}
+
 # 조언 캐시 생성 (메인 앱으로 직접 요청)
 generate_advice_cache() {
     local task_start=$(date +%s)
@@ -211,11 +324,23 @@ generate_advice_cache() {
     log_progress "LLM을 사용하여 61개 항목의 조언을 생성합니다. (약 10-30분 소요)"
     echo ""
     
+    # JSON 요청 본문 생성
+    local llm_config=$(build_llm_config)
+    local force_opt=""
+    [ "$FORCE_REGENERATE" = true ] && force_opt=", \"forceRegenerate\": true"
+    
+    local request_body
+    if [ -n "$llm_config" ]; then
+        request_body="{\"action\": \"generate\", \"options\": {\"languages\": [\"ko\", \"en\"]$force_opt}, $llm_config}"
+    else
+        request_body="{\"action\": \"generate\", \"options\": {\"languages\": [\"ko\", \"en\"]$force_opt}}"
+    fi
+    
     # 백그라운드에서 API 호출
     response_file=$(mktemp)
     curl -s -X POST "$MAIN_HOST/api/advice-cache" \
         -H "Content-Type: application/json" \
-        -d '{"action": "generate", "options": {"languages": ["ko", "en"]}}' \
+        -d "$request_body" \
         --max-time 3600 > "$response_file" 2>&1 &
     
     local curl_pid=$!
@@ -267,11 +392,23 @@ generate_evidence_cache() {
     log_progress "LLM을 사용하여 61개 항목의 가상증빙을 생성합니다. (약 10-30분 소요)"
     echo ""
     
+    # JSON 요청 본문 생성
+    local llm_config=$(build_llm_config)
+    local force_opt=""
+    [ "$FORCE_REGENERATE" = true ] && force_opt=", \"forceRegenerate\": true"
+    
+    local request_body
+    if [ -n "$llm_config" ]; then
+        request_body="{\"action\": \"generate\", \"options\": {\"languages\": [\"ko\", \"en\"]$force_opt}, $llm_config}"
+    else
+        request_body="{\"action\": \"generate\", \"options\": {\"languages\": [\"ko\", \"en\"]$force_opt}}"
+    fi
+    
     # 백그라운드에서 API 호출
     response_file=$(mktemp)
     curl -s -X POST "$MAIN_HOST/api/virtual-evidence-cache" \
         -H "Content-Type: application/json" \
-        -d '{"action": "generate", "options": {"languages": ["ko", "en"]}}' \
+        -d "$request_body" \
         --max-time 3600 > "$response_file" 2>&1 &
     
     local curl_pid=$!
@@ -322,11 +459,20 @@ generate_advice_summary() {
     local task_start=$(date +%s)
     log_info "  조언 요약 생성 중 (${lang})..."
     
+    # JSON 요청 본문 생성
+    local llm_config=$(build_llm_config)
+    local request_body
+    if [ -n "$llm_config" ]; then
+        request_body="{\"language\": \"$lang\", $llm_config}"
+    else
+        request_body="{\"language\": \"$lang\"}"
+    fi
+    
     # 백그라운드에서 API 호출
     response_file=$(mktemp)
     curl -s -X POST "$ADMIN_HOST/api/advice-summary" \
         -H "Content-Type: application/json" \
-        -d "{\"language\": \"$lang\"}" \
+        -d "$request_body" \
         --max-time 1800 > "$response_file" 2>&1 &
     
     local curl_pid=$!
@@ -369,11 +515,20 @@ generate_evidence_summary() {
     local task_start=$(date +%s)
     log_info "  가상증빙 요약 생성 중 (${lang})..."
     
+    # JSON 요청 본문 생성
+    local llm_config=$(build_llm_config)
+    local request_body
+    if [ -n "$llm_config" ]; then
+        request_body="{\"language\": \"$lang\", $llm_config}"
+    else
+        request_body="{\"language\": \"$lang\"}"
+    fi
+    
     # 백그라운드에서 API 호출
     response_file=$(mktemp)
     curl -s -X POST "$ADMIN_HOST/api/virtual-evidence-summary" \
         -H "Content-Type: application/json" \
-        -d "{\"language\": \"$lang\"}" \
+        -d "$request_body" \
         --max-time 1800 > "$response_file" 2>&1 &
     
     local curl_pid=$!
