@@ -296,6 +296,57 @@ curl -s http://localhost:3011 | head -1
 
 ---
 
+## 삭제 (Uninstall)
+
+### 완전 삭제
+
+```bash
+# 대화형 모드 (확인 후 삭제)
+/opt/msp-checklist-system/scripts/install/uninstall.sh
+
+# 강제 삭제 (확인 없이)
+/opt/msp-checklist-system/scripts/install/uninstall.sh --force
+
+# DB 백업 후 삭제
+/opt/msp-checklist-system/scripts/install/uninstall.sh --keep-db
+```
+
+### 삭제되는 항목
+| 항목 | 설명 |
+|------|------|
+| PM2 프로세스 | msp-main, msp-admin |
+| 설치 디렉토리 | /opt/msp-checklist-system |
+| PM2 startup | 시스템 시작 시 자동 실행 설정 |
+| 로그 파일 | /opt/msp-checklist-system/logs/ |
+
+### 백업 옵션 (`--keep-db`)
+```bash
+# 백업 위치: ~/msp-backup-YYYYMMDD_HHMMSS/
+/opt/msp-checklist-system/scripts/install/uninstall.sh --keep-db
+```
+
+백업되는 파일:
+- `msp-assessment.db` - 사용자 데이터, 평가 기록
+- `advice-cache.db` - 조언 캐시
+- `virtual-evidence-cache.db` - 가상증빙 캐시
+- `.env.local` - 환경 설정 (API 키 포함)
+- `evidence-files/` - 업로드된 증빙 파일
+
+### 추가 정리 (선택)
+```bash
+# nvm 삭제
+rm -rf ~/.nvm
+
+# PM2 전역 삭제
+npm uninstall -g pm2
+
+# Swap 파일 삭제 (설치 시 생성된 경우)
+sudo swapoff /swapfile
+sudo rm -f /swapfile
+```
+
+---
+
 ## 백업 및 복구
 
 ### 데이터베이스 백업

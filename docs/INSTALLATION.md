@@ -256,6 +256,36 @@ ADMIN_DEFAULT_PASSWORD=admin123
 
 ---
 
+## 삭제 (Uninstall)
+
+### 완전 삭제
+```bash
+# 대화형 모드 (확인 후 삭제)
+/opt/msp-checklist-system/scripts/install/uninstall.sh
+
+# 강제 삭제 (확인 없이)
+/opt/msp-checklist-system/scripts/install/uninstall.sh --force
+
+# DB 백업 후 삭제
+/opt/msp-checklist-system/scripts/install/uninstall.sh --keep-db
+```
+
+### 삭제 항목
+- PM2 프로세스 (msp-main, msp-admin)
+- 설치 디렉토리 (`/opt/msp-checklist-system`)
+- PM2 시작 설정 (startup)
+- 로그 파일
+
+### 백업 옵션 (`--keep-db`)
+`--keep-db` 옵션 사용 시 다음 파일이 `~/msp-backup-날짜/`에 백업됩니다:
+- `msp-assessment.db` (사용자 데이터)
+- `advice-cache.db` (조언 캐시)
+- `virtual-evidence-cache.db` (가상증빙 캐시)
+- `.env.local` (환경 설정)
+- `evidence-files/` (증빙 파일)
+
+---
+
 ## 문제 해결
 
 ### Node.js 버전 문제
