@@ -6,18 +6,21 @@
 #   ./scripts/generate-cache.sh [옵션]
 #
 # 옵션:
-#   --all           모든 캐시 및 요약 생성 (기본값)
-#   --advice        조언 캐시만 생성
-#   --evidence      가상증빙 캐시만 생성
-#   --summary       요약만 생성
-#   --lang ko       한국어만 (기본값: ko,en 둘 다)
-#   --lang en       영어만
-#   --host URL      Admin 서버 URL (기본값: http://localhost:3011)
-#   --main-host URL 메인 서버 URL (기본값: http://localhost:3010)
+#   --all              모든 캐시 및 요약 생성 (기본값)
+#   --advice           조언 캐시만 생성
+#   --evidence         가상증빙 캐시만 생성
+#   --advice-summary   조언 요약만 생성
+#   --evidence-summary 가상증빙 요약만 생성
+#   --lang ko          한국어만 (기본값: ko,en 둘 다)
+#   --lang en          영어만
+#   --host URL         Admin 서버 URL (기본값: http://localhost:3011)
+#   --main-host URL    메인 서버 URL (기본값: http://localhost:3010)
 #
 # 예시:
 #   ./scripts/generate-cache.sh --all
-#   ./scripts/generate-cache.sh --advice --lang ko
+#   ./scripts/generate-cache.sh --advice
+#   ./scripts/generate-cache.sh --advice-summary --lang ko
+#   ./scripts/generate-cache.sh --evidence --evidence-summary
 #   ./scripts/generate-cache.sh --host http://your-server:3011
 #
 # 참고:
@@ -42,7 +45,8 @@ MAIN_HOST="${MAIN_HOST:-http://localhost:3010}"
 LANGUAGES="ko,en"
 GENERATE_ADVICE=false
 GENERATE_EVIDENCE=false
-GENERATE_SUMMARY=false
+GENERATE_ADVICE_SUMMARY=false
+GENERATE_EVIDENCE_SUMMARY=false
 GENERATE_ALL=true
 
 # 로그 함수
@@ -69,8 +73,13 @@ while [[ $# -gt 0 ]]; do
             GENERATE_ALL=false
             shift
             ;;
-        --summary)
-            GENERATE_SUMMARY=true
+        --advice-summary)
+            GENERATE_ADVICE_SUMMARY=true
+            GENERATE_ALL=false
+            shift
+            ;;
+        --evidence-summary)
+            GENERATE_EVIDENCE_SUMMARY=true
             GENERATE_ALL=false
             shift
             ;;
@@ -87,7 +96,7 @@ while [[ $# -gt 0 ]]; do
             shift 2
             ;;
         -h|--help)
-            head -30 "$0" | tail -28
+            head -32 "$0" | tail -30
             exit 0
             ;;
         *)
@@ -102,7 +111,8 @@ done
 if [ "$GENERATE_ALL" = true ]; then
     GENERATE_ADVICE=true
     GENERATE_EVIDENCE=true
-    GENERATE_SUMMARY=true
+    GENERATE_ADVICE_SUMMARY=true
+    GENERATE_EVIDENCE_SUMMARY=true
 fi
 
 echo ""
@@ -116,7 +126,8 @@ echo "  언어: $LANGUAGES"
 echo "  생성 항목:"
 [ "$GENERATE_ADVICE" = true ] && echo "    - 조언 캐시"
 [ "$GENERATE_EVIDENCE" = true ] && echo "    - 가상증빙 캐시"
-[ "$GENERATE_SUMMARY" = true ] && echo "    - 요약 (조언 + 가상증빙)"
+[ "$GENERATE_ADVICE_SUMMARY" = true ] && echo "    - 조언 요약"
+[ "$GENERATE_EVIDENCE_SUMMARY" = true ] && echo "    - 가상증빙 요약"
 echo ""
 
 # 서버 연결 확인
@@ -132,7 +143,7 @@ fi
 log_success "메인 서버 연결 확인 (HTTP $MAIN_STATUS)"
 
 # Admin 서버 확인 (요약 생성 시에만 필요)
-if [ "$GENERATE_SUMMARY" = true ]; then
+if [ "$GENERATE_ADVICE_SUMMARY" = true ] || [ "$GENERATE_EVIDENCE_SUMMARY" = true ]; then
     ADMIN_STATUS=$(curl -s -o /dev/null -w '%{http_code}' "$ADMIN_HOST" 2>/dev/null || echo "000")
     if [ "$ADMIN_STATUS" = "000" ]; then
         log_error "Admin 서버에 연결할 수 없습니다: $ADMIN_HOST"
@@ -240,18 +251,30 @@ if [ "$GENERATE_EVIDENCE" = true ]; then
 fi
 
 # 요약 생성 (언어별로 실행)
-if [ "$GENERATE_SUMMARY" = true ]; then
+if [ "$GENERATE_ADVICE_SUMMARY" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  3. 요약 생성"
+    echo "  3. 조언 요약 생성"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
     for lang in "${LANG_ARRAY[@]}"; do
         lang=$(echo "$lang" | xargs)  # trim whitespace
-        
-        log_step "요약 생성 중 (${lang})..."
+        log_step "조언 요약 생성 중 (${lang})..."
         generate_advice_summary "$lang" || true
+    done
+fi
+
+if [ "$GENERATE_EVIDENCE_SUMMARY" = true ]; then
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo "  4. 가상증빙 요약 생성"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    
+    IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
+    for lang in "${LANG_ARRAY[@]}"; do
+        lang=$(echo "$lang" | xargs)  # trim whitespace
+        log_step "가상증빙 요약 생성 중 (${lang})..."
         generate_evidence_summary "$lang" || true
     done
 fi
