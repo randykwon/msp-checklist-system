@@ -67,8 +67,8 @@ declare -a BEDROCK_MODELS=(
     "anthropic.claude-3-haiku-20240307-v1:0|Claude 3 Haiku (저렴)"
     "anthropic.claude-3-sonnet-20240229-v1:0|Claude 3 Sonnet"
     "anthropic.claude-3-opus-20240229-v1:0|Claude 3 Opus (고품질)"
-    "anthropic.claude-opus-4-5-20251101-v1:0|Claude Opus 4.5 (최신)"
-    "anthropic.claude-sonnet-4-5-20250929-v1:0|Claude Sonnet 4.5 (최신)"
+    "anthropic.claude-opus-4-5-20251101-v1:0|Claude Opus 4.5 (⚠️ Inference Profile 필요)"
+    "anthropic.claude-sonnet-4-5-20250929-v1:0|Claude Sonnet 4.5 (⚠️ Inference Profile 필요)"
 )
 
 declare -a OPENAI_MODELS=(
@@ -377,7 +377,18 @@ generate_advice_cache() {
         
         log_success "조언 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
         echo "    버전: $version"
-        echo "    총 항목: ${total}개 (한국어: ${ko_count}개, 영어: ${en_count}개)"
+        echo "    총 항목: ${total}개 (한국어: ${ko_count:-0}개, 영어: ${en_count:-0}개)"
+        
+        # 생성된 항목이 0개면 경고
+        if [ "${ko_count:-0}" = "0" ] && [ "${en_count:-0}" = "0" ]; then
+            log_warn "생성된 항목이 없습니다. LLM 설정을 확인하세요."
+            log_info "Claude 4.5 모델은 Inference Profile이 필요합니다."
+        fi
+    elif echo "$response" | grep -q '"error"'; then
+        local error_msg=$(echo "$response" | grep -o '"error":"[^"]*"' | cut -d'"' -f4)
+        log_error "조언 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
+        log_warn "오류: $error_msg"
+        return 1
     else
         log_error "조언 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
         log_warn "응답: $response"
@@ -445,7 +456,18 @@ generate_evidence_cache() {
         
         log_success "가상증빙 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
         echo "    버전: $version"
-        echo "    총 항목: ${total}개 (한국어: ${ko_count}개, 영어: ${en_count}개)"
+        echo "    총 항목: ${total}개 (한국어: ${ko_count:-0}개, 영어: ${en_count:-0}개)"
+        
+        # 생성된 항목이 0개면 경고
+        if [ "${ko_count:-0}" = "0" ] && [ "${en_count:-0}" = "0" ]; then
+            log_warn "생성된 항목이 없습니다. LLM 설정을 확인하세요."
+            log_info "Claude 4.5 모델은 Inference Profile이 필요합니다."
+        fi
+    elif echo "$response" | grep -q '"error"'; then
+        local error_msg=$(echo "$response" | grep -o '"error":"[^"]*"' | cut -d'"' -f4)
+        log_error "가상증빙 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
+        log_warn "오류: $error_msg"
+        return 1
     else
         log_error "가상증빙 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
         log_warn "응답: $response"
