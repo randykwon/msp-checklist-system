@@ -37,7 +37,9 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
+MAGENTA='\033[0;35m'
 NC='\033[0m'
+BOLD='\033[1m'
 
 # 기본 설정
 ADMIN_HOST="${ADMIN_HOST:-http://localhost:3011}"
@@ -55,6 +57,38 @@ log_success() { echo -e "${GREEN}[✓]${NC} $1"; }
 log_warn() { echo -e "${YELLOW}[WARN]${NC} $1"; }
 log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 log_step() { echo -e "${CYAN}[STEP]${NC} $1"; }
+log_progress() { echo -e "${MAGENTA}[진행]${NC} $1"; }
+
+# 스피너 함수
+spinner() {
+    local pid=$1
+    local delay=0.2
+    local spinstr='⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏'
+    local msg="${2:-처리 중...}"
+    
+    while [ "$(ps a | awk '{print $1}' | grep $pid)" ]; do
+        local temp=${spinstr#?}
+        printf "\r${CYAN}[%c]${NC} %s" "$spinstr" "$msg"
+        local spinstr=$temp${spinstr%"$temp"}
+        sleep $delay
+    done
+    printf "\r"
+}
+
+# 진행 바 함수
+progress_bar() {
+    local current=$1
+    local total=$2
+    local width=40
+    local percent=$((current * 100 / total))
+    local filled=$((current * width / total))
+    local empty=$((width - filled))
+    
+    printf "\r  ["
+    printf "%${filled}s" | tr ' ' '█'
+    printf "%${empty}s" | tr ' ' '░'
+    printf "] %3d%% (%d/%d)" $percent $current $total
+}
 
 # 옵션 파싱
 while [[ $# -gt 0 ]]; do
@@ -115,6 +149,9 @@ if [ "$GENERATE_ALL" = true ]; then
     GENERATE_EVIDENCE_SUMMARY=true
 fi
 
+# 시작 시간 기록
+START_TIME=$(date +%s)
+
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
 echo "║       MSP 어드바이저 - 캐시 및 요약 일괄 생성                 ║"
@@ -153,21 +190,71 @@ if [ "$GENERATE_ADVICE_SUMMARY" = true ] || [ "$GENERATE_EVIDENCE_SUMMARY" = tru
     log_success "Admin 서버 연결 확인 (HTTP $ADMIN_STATUS)"
 fi
 
+# 경과 시간 계산 함수
+elapsed_time() {
+    local start=$1
+    local end=$(date +%s)
+    local diff=$((end - start))
+    local min=$((diff / 60))
+    local sec=$((diff % 60))
+    if [ $min -gt 0 ]; then
+        echo "${min}분 ${sec}초"
+    else
+        echo "${sec}초"
+    fi
+}
+
 # 조언 캐시 생성 (메인 앱으로 직접 요청)
 generate_advice_cache() {
-    log_step "조언 캐시 생성 중... (시간이 오래 걸릴 수 있습니다)"
+    local task_start=$(date +%s)
+    log_step "조언 캐시 생성 중..."
+    log_progress "LLM을 사용하여 61개 항목의 조언을 생성합니다. (약 10-30분 소요)"
+    echo ""
     
-    response=$(curl -s -X POST "$MAIN_HOST/api/advice-cache" \
+    # 백그라운드에서 API 호출
+    response_file=$(mktemp)
+    curl -s -X POST "$MAIN_HOST/api/advice-cache" \
         -H "Content-Type: application/json" \
         -d '{"action": "generate", "options": {"languages": ["ko", "en"]}}' \
-        --max-time 1800)
+        --max-time 3600 > "$response_file" 2>&1 &
+    
+    local curl_pid=$!
+    
+    # 진행 상황 표시 (예상 진행률)
+    local elapsed=0
+    local estimated_total=600  # 예상 10분
+    while kill -0 $curl_pid 2>/dev/null; do
+        elapsed=$(($(date +%s) - task_start))
+        local progress=$((elapsed * 100 / estimated_total))
+        [ $progress -gt 99 ] && progress=99
+        
+        local filled=$((progress * 40 / 100))
+        local empty=$((40 - filled))
+        printf "\r  ${CYAN}[생성 중]${NC} ["
+        printf "%${filled}s" | tr ' ' '█'
+        printf "%${empty}s" | tr ' ' '░'
+        printf "] %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        
+        sleep 2
+    done
+    
+    wait $curl_pid
+    local response=$(cat "$response_file")
+    rm -f "$response_file"
+    
+    echo ""
     
     if echo "$response" | grep -q '"success":true'; then
-        version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-        total=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
-        log_success "조언 캐시 생성 완료 (버전: $version, 항목: $total개)"
+        local version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        local total=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local ko_count=$(echo "$response" | grep -o '"koAdvice":[0-9]*' | cut -d':' -f2)
+        local en_count=$(echo "$response" | grep -o '"enAdvice":[0-9]*' | cut -d':' -f2)
+        
+        log_success "조언 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
+        echo "    버전: $version"
+        echo "    총 항목: ${total}개 (한국어: ${ko_count}개, 영어: ${en_count}개)"
     else
-        log_error "조언 캐시 생성 실패"
+        log_error "조언 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
         log_warn "응답: $response"
         return 1
     fi
@@ -175,19 +262,55 @@ generate_advice_cache() {
 
 # 가상증빙 캐시 생성 (메인 앱으로 직접 요청)
 generate_evidence_cache() {
-    log_step "가상증빙 캐시 생성 중... (시간이 오래 걸릴 수 있습니다)"
+    local task_start=$(date +%s)
+    log_step "가상증빙 캐시 생성 중..."
+    log_progress "LLM을 사용하여 61개 항목의 가상증빙을 생성합니다. (약 10-30분 소요)"
+    echo ""
     
-    response=$(curl -s -X POST "$MAIN_HOST/api/virtual-evidence-cache" \
+    # 백그라운드에서 API 호출
+    response_file=$(mktemp)
+    curl -s -X POST "$MAIN_HOST/api/virtual-evidence-cache" \
         -H "Content-Type: application/json" \
         -d '{"action": "generate", "options": {"languages": ["ko", "en"]}}' \
-        --max-time 1800)
+        --max-time 3600 > "$response_file" 2>&1 &
+    
+    local curl_pid=$!
+    
+    # 진행 상황 표시
+    local elapsed=0
+    local estimated_total=600
+    while kill -0 $curl_pid 2>/dev/null; do
+        elapsed=$(($(date +%s) - task_start))
+        local progress=$((elapsed * 100 / estimated_total))
+        [ $progress -gt 99 ] && progress=99
+        
+        local filled=$((progress * 40 / 100))
+        local empty=$((40 - filled))
+        printf "\r  ${CYAN}[생성 중]${NC} ["
+        printf "%${filled}s" | tr ' ' '█'
+        printf "%${empty}s" | tr ' ' '░'
+        printf "] %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        
+        sleep 2
+    done
+    
+    wait $curl_pid
+    local response=$(cat "$response_file")
+    rm -f "$response_file"
+    
+    echo ""
     
     if echo "$response" | grep -q '"success":true'; then
-        version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-        total=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
-        log_success "가상증빙 캐시 생성 완료 (버전: $version, 항목: $total개)"
+        local version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        local total=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local ko_count=$(echo "$response" | grep -o '"koEvidence":[0-9]*' | cut -d':' -f2)
+        local en_count=$(echo "$response" | grep -o '"enEvidence":[0-9]*' | cut -d':' -f2)
+        
+        log_success "가상증빙 캐시 생성 완료! (소요시간: $(elapsed_time $task_start))"
+        echo "    버전: $version"
+        echo "    총 항목: ${total}개 (한국어: ${ko_count}개, 영어: ${en_count}개)"
     else
-        log_error "가상증빙 캐시 생성 실패"
+        log_error "가상증빙 캐시 생성 실패 (소요시간: $(elapsed_time $task_start))"
         log_warn "응답: $response"
         return 1
     fi
@@ -196,19 +319,46 @@ generate_evidence_cache() {
 # 조언 요약 생성 (Admin 앱으로 요청)
 generate_advice_summary() {
     local lang=$1
+    local task_start=$(date +%s)
     log_info "  조언 요약 생성 중 (${lang})..."
     
-    response=$(curl -s -X POST "$ADMIN_HOST/api/advice-summary" \
+    # 백그라운드에서 API 호출
+    response_file=$(mktemp)
+    curl -s -X POST "$ADMIN_HOST/api/advice-summary" \
         -H "Content-Type: application/json" \
         -d "{\"language\": \"$lang\"}" \
-        --max-time 600)
+        --max-time 1800 > "$response_file" 2>&1 &
+    
+    local curl_pid=$!
+    
+    # 진행 상황 표시
+    local estimated_total=300  # 예상 5분
+    while kill -0 $curl_pid 2>/dev/null; do
+        local elapsed=$(($(date +%s) - task_start))
+        local progress=$((elapsed * 100 / estimated_total))
+        [ $progress -gt 99 ] && progress=99
+        
+        printf "\r    ${MAGENTA}⏳${NC} 요약 생성 중... %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        sleep 1
+    done
+    
+    wait $curl_pid
+    local response=$(cat "$response_file")
+    rm -f "$response_file"
+    
+    printf "\r%60s\r" " "  # 줄 지우기
     
     if echo "$response" | grep -q '"success":true'; then
-        version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-        success_count=$(echo "$response" | grep -o '"successCount":[0-9]*' | cut -d':' -f2)
-        log_success "  조언 요약 생성 완료 (버전: $version, 성공: ${success_count}개)"
+        local version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        local success_count=$(echo "$response" | grep -o '"successCount":[0-9]*' | cut -d':' -f2)
+        local total_items=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local error_count=$(echo "$response" | grep -o '"errorCount":[0-9]*' | cut -d':' -f2)
+        
+        log_success "  조언 요약 완료 (${lang}): ${success_count}/${total_items}개 성공 ($(elapsed_time $task_start))"
+        [ "$error_count" != "0" ] && [ -n "$error_count" ] && log_warn "    실패: ${error_count}개"
     else
-        log_warn "  조언 요약 생성 오류: $response"
+        log_error "  조언 요약 생성 실패 (${lang})"
+        log_warn "    응답: $response"
         return 1
     fi
 }
@@ -216,19 +366,46 @@ generate_advice_summary() {
 # 가상증빙 요약 생성 (Admin 앱으로 요청)
 generate_evidence_summary() {
     local lang=$1
+    local task_start=$(date +%s)
     log_info "  가상증빙 요약 생성 중 (${lang})..."
     
-    response=$(curl -s -X POST "$ADMIN_HOST/api/virtual-evidence-summary" \
+    # 백그라운드에서 API 호출
+    response_file=$(mktemp)
+    curl -s -X POST "$ADMIN_HOST/api/virtual-evidence-summary" \
         -H "Content-Type: application/json" \
         -d "{\"language\": \"$lang\"}" \
-        --max-time 600)
+        --max-time 1800 > "$response_file" 2>&1 &
+    
+    local curl_pid=$!
+    
+    # 진행 상황 표시
+    local estimated_total=300
+    while kill -0 $curl_pid 2>/dev/null; do
+        local elapsed=$(($(date +%s) - task_start))
+        local progress=$((elapsed * 100 / estimated_total))
+        [ $progress -gt 99 ] && progress=99
+        
+        printf "\r    ${MAGENTA}⏳${NC} 요약 생성 중... %3d%% (경과: %s)" $progress "$(elapsed_time $task_start)"
+        sleep 1
+    done
+    
+    wait $curl_pid
+    local response=$(cat "$response_file")
+    rm -f "$response_file"
+    
+    printf "\r%60s\r" " "  # 줄 지우기
     
     if echo "$response" | grep -q '"success":true'; then
-        version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
-        success_count=$(echo "$response" | grep -o '"successCount":[0-9]*' | cut -d':' -f2)
-        log_success "  가상증빙 요약 생성 완료 (버전: $version, 성공: ${success_count}개)"
+        local version=$(echo "$response" | grep -o '"version":"[^"]*"' | cut -d'"' -f4)
+        local success_count=$(echo "$response" | grep -o '"successCount":[0-9]*' | cut -d':' -f2)
+        local total_items=$(echo "$response" | grep -o '"totalItems":[0-9]*' | cut -d':' -f2)
+        local error_count=$(echo "$response" | grep -o '"errorCount":[0-9]*' | cut -d':' -f2)
+        
+        log_success "  가상증빙 요약 완료 (${lang}): ${success_count}/${total_items}개 성공 ($(elapsed_time $task_start))"
+        [ "$error_count" != "0" ] && [ -n "$error_count" ] && log_warn "    실패: ${error_count}개"
     else
-        log_warn "  가상증빙 요약 생성 오류: $response"
+        log_error "  가상증빙 요약 생성 실패 (${lang})"
+        log_warn "    응답: $response"
         return 1
     fi
 }
@@ -237,7 +414,7 @@ generate_evidence_summary() {
 if [ "$GENERATE_ADVICE" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  1. 조언 캐시 생성"
+    echo "  ${BOLD}1. 조언 캐시 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     generate_advice_cache || true
 fi
@@ -245,7 +422,7 @@ fi
 if [ "$GENERATE_EVIDENCE" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  2. 가상증빙 캐시 생성"
+    echo "  ${BOLD}2. 가상증빙 캐시 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     generate_evidence_cache || true
 fi
@@ -254,13 +431,12 @@ fi
 if [ "$GENERATE_ADVICE_SUMMARY" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  3. 조언 요약 생성"
+    echo "  ${BOLD}3. 조언 요약 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
     for lang in "${LANG_ARRAY[@]}"; do
         lang=$(echo "$lang" | xargs)  # trim whitespace
-        log_step "조언 요약 생성 중 (${lang})..."
         generate_advice_summary "$lang" || true
     done
 fi
@@ -268,26 +444,33 @@ fi
 if [ "$GENERATE_EVIDENCE_SUMMARY" = true ]; then
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "  4. 가상증빙 요약 생성"
+    echo "  ${BOLD}4. 가상증빙 요약 생성${NC}"
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     
     IFS=',' read -ra LANG_ARRAY <<< "$LANGUAGES"
     for lang in "${LANG_ARRAY[@]}"; do
         lang=$(echo "$lang" | xargs)  # trim whitespace
-        log_step "가상증빙 요약 생성 중 (${lang})..."
         generate_evidence_summary "$lang" || true
     done
 fi
+
+# 총 소요 시간 계산
+END_TIME=$(date +%s)
+TOTAL_TIME=$((END_TIME - START_TIME))
+TOTAL_MIN=$((TOTAL_TIME / 60))
+TOTAL_SEC=$((TOTAL_TIME % 60))
 
 echo ""
 echo "╔═══════════════════════════════════════════════════════════════╗"
 echo -e "║  ${GREEN}캐시 및 요약 생성 완료!${NC}                                     ║"
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
-echo "  캐시 상태 확인:"
+echo "  ⏱️  총 소요 시간: ${TOTAL_MIN}분 ${TOTAL_SEC}초"
+echo ""
+echo "  📊 캐시 상태 확인:"
 echo "    Admin 캐시 페이지: $ADMIN_HOST/cache"
 echo "    Admin 가상증빙 페이지: $ADMIN_HOST/virtual-evidence"
 echo ""
-echo "  캐시 버전 활성화:"
+echo "  ⚠️  캐시 버전 활성화:"
 echo "    Admin 페이지에서 생성된 버전을 '활성화'해야 사용자에게 적용됩니다."
 echo ""
