@@ -393,9 +393,9 @@ Avoid generic content that would be the same for other items.`;
       console.log('⏭️ Skipping English advice generation');
     }
 
-    // 파일로 내보내기
-    const exportPath = this.cacheService.exportCacheToFile(version);
-    console.log(`💾 Cache exported to: ${exportPath}`);
+    // 파일로 내보내기 (DB + JSON 파일 둘 다 저장)
+    this.cacheService.finalizeVersion(version);
+    console.log(`💾 Cache saved to DB and JSON file`);
 
     console.log('✅ Advice generation completed!');
 

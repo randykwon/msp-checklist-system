@@ -248,6 +248,54 @@ export class AdviceCacheService {
     );
   }
 
+  // 캐시를 JSON 파일로 저장 (버전별)
+  saveToJsonFile(version: string): string | null {
+    if (typeof window !== 'undefined' || !fs) {
+      console.log('[AdviceCacheService] JSON file save skipped - not server environment');
+      return null;
+    }
+
+    try {
+      const koAdvice = this.getCachedAdviceByVersion(version, 'ko');
+      const enAdvice = this.getCachedAdviceByVersion(version, 'en');
+
+      if (koAdvice.length === 0 && enAdvice.length === 0) {
+        console.log('[AdviceCacheService] No data to save for version:', version);
+        return null;
+      }
+
+      const cacheData = {
+        version,
+        exportedAt: new Date().toISOString(),
+        totalItems: Math.max(koAdvice.length, enAdvice.length),
+        koAdvice,
+        enAdvice
+      };
+
+      // cache/advice 디렉토리 생성
+      const adviceCacheDir = path.join(this.cacheDir, 'advice');
+      if (!fs.existsSync(adviceCacheDir)) {
+        fs.mkdirSync(adviceCacheDir, { recursive: true });
+      }
+
+      const fileName = `advice_cache_${version}.json`;
+      const filePath = path.join(adviceCacheDir, fileName);
+      
+      fs.writeFileSync(filePath, JSON.stringify(cacheData, null, 2), 'utf-8');
+      console.log(`[AdviceCacheService] JSON file saved: ${filePath}`);
+      
+      return filePath;
+    } catch (error) {
+      console.error('[AdviceCacheService] Failed to save JSON file:', error);
+      return null;
+    }
+  }
+
+  // 버전 완료 후 JSON 파일 자동 저장
+  finalizeVersion(version: string): void {
+    this.saveToJsonFile(version);
+  }
+
   // 모든 캐시 버전 조회
   getCacheVersions(): CacheVersion[] {
     if (!this.db) return [];

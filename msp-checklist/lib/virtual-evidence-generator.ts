@@ -221,6 +221,10 @@ class VirtualEvidenceGenerator {
       console.warn(`⚠️ Some items were skipped due to errors. Expected: ${expectedTotal}, Actual: ${actualTotal}`);
     }
     
+    // DB + JSON 파일 둘 다 저장
+    this.cacheService.finalizeVersion(version);
+    console.log(`💾 Cache saved to DB and JSON file`);
+    
     return results;
   }
 

@@ -179,6 +179,54 @@ export class VirtualEvidenceCacheService {
     );
   }
 
+  // 캐시를 JSON 파일로 저장 (버전별)
+  saveToJsonFile(version: string): string | null {
+    if (typeof window !== 'undefined' || !fs) {
+      console.log('[VirtualEvidenceCacheService] JSON file save skipped - not server environment');
+      return null;
+    }
+
+    try {
+      const koEvidence = this.getCachedVirtualEvidenceByVersion(version, 'ko');
+      const enEvidence = this.getCachedVirtualEvidenceByVersion(version, 'en');
+
+      if (koEvidence.length === 0 && enEvidence.length === 0) {
+        console.log('[VirtualEvidenceCacheService] No data to save for version:', version);
+        return null;
+      }
+
+      const cacheData = {
+        version,
+        exportedAt: new Date().toISOString(),
+        totalItems: Math.max(koEvidence.length, enEvidence.length),
+        koEvidence,
+        enEvidence
+      };
+
+      // cache/virtual-evidence 디렉토리 생성
+      const veCacheDir = path.join(this.cacheDir, 'virtual-evidence');
+      if (!fs.existsSync(veCacheDir)) {
+        fs.mkdirSync(veCacheDir, { recursive: true });
+      }
+
+      const fileName = `virtual_evidence_cache_${version}.json`;
+      const filePath = path.join(veCacheDir, fileName);
+      
+      fs.writeFileSync(filePath, JSON.stringify(cacheData, null, 2), 'utf-8');
+      console.log(`[VirtualEvidenceCacheService] JSON file saved: ${filePath}`);
+      
+      return filePath;
+    } catch (error) {
+      console.error('[VirtualEvidenceCacheService] Failed to save JSON file:', error);
+      return null;
+    }
+  }
+
+  // 버전 완료 후 JSON 파일 자동 저장
+  finalizeVersion(version: string): void {
+    this.saveToJsonFile(version);
+  }
+
   // 모든 캐시 버전 조회
   getCacheVersions(): VirtualEvidenceVersion[] {
     if (!this.db) return [];
