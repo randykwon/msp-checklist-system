@@ -46,17 +46,38 @@ echo "║          MSP 어드바이저 - 관리자 계정 생성                
 echo "╚═══════════════════════════════════════════════════════════════╝"
 echo ""
 
-# Node.js 확인
+# Node.js 확인 및 nvm 로드
+load_nvm() {
+    # 여러 가능한 nvm 경로 시도
+    local NVM_PATHS=(
+        "$HOME/.nvm"
+        "/home/ec2-user/.nvm"
+        "/home/ubuntu/.nvm"
+        "/root/.nvm"
+    )
+    
+    for NVM_PATH in "${NVM_PATHS[@]}"; do
+        if [ -s "$NVM_PATH/nvm.sh" ]; then
+            export NVM_DIR="$NVM_PATH"
+            \. "$NVM_PATH/nvm.sh"
+            return 0
+        fi
+    done
+    return 1
+}
+
 if ! command -v node &> /dev/null; then
-    # nvm 로드 시도
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    load_nvm
     
     if ! command -v node &> /dev/null; then
         log_error "Node.js가 설치되어 있지 않습니다."
+        log_info "nvm을 찾을 수 없습니다. sudo 없이 실행하거나 ec2-user로 실행해주세요:"
+        log_info "  sudo -u ec2-user $0 $@"
         exit 1
     fi
 fi
+
+log_info "Node.js: $(node -v)"
 
 log_info "관리자 계정 생성 중..."
 log_info "  이메일: ${EMAIL}"
