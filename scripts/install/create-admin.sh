@@ -62,7 +62,9 @@ log_info "관리자 계정 생성 중..."
 log_info "  이메일: ${EMAIL}"
 log_info "  이름: ${NAME}"
 
-# Node.js 스크립트로 관리자 생성
+# Node.js 스크립트로 관리자 생성 (msp-checklist 디렉토리에서 실행)
+cd "${INSTALL_DIR}/msp-checklist"
+
 node << NODEJS_SCRIPT
 const Database = require('better-sqlite3');
 const bcrypt = require('bcryptjs');
