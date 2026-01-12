@@ -44,6 +44,17 @@ export default function SystemPage() {
   const [showImportAllModal, setShowImportAllModal] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
   const [isImportingAll, setIsImportingAll] = useState(false);
+  
+  // 캐시 폴더에서 로드 관련 state
+  const [showLoadFromFolderModal, setShowLoadFromFolderModal] = useState(false);
+  const [isLoadingFromFolder, setIsLoadingFromFolder] = useState(false);
+  const [folderCacheFiles, setFolderCacheFiles] = useState<{
+    advice: Array<{filename: string; size: number; createdAt: string; provider?: string; model?: string}>;
+    virtualEvidence: Array<{filename: string; size: number; createdAt: string; provider?: string; model?: string}>;
+  }>({ advice: [], virtualEvidence: [] });
+  const [selectedFolderFiles, setSelectedFolderFiles] = useState<{advice: string; virtualEvidence: string}>({ advice: '', virtualEvidence: '' });
+  const [loadingFolderFiles, setLoadingFolderFiles] = useState(false);
+  
   const [cacheVersions, setCacheVersions] = useState<{
     advice: Array<{ version: string; createdAt: string }>;
     virtualEvidence: Array<{ version: string; createdAt: string }>;
@@ -370,6 +381,98 @@ export default function SystemPage() {
     }
   };
 
+  // 캐시 폴더에서 파일 목록 로드
+  const loadFolderCacheFiles = async () => {
+    try {
+      setLoadingFolderFiles(true);
+      
+      // 조언 캐시 파일 목록
+      const adviceResponse = await fetch('/api/cache-files?action=list&type=advice');
+      const adviceData = adviceResponse.ok ? await adviceResponse.json() : { files: [] };
+      
+      // 가상 증빙 캐시 파일 목록
+      const veResponse = await fetch('/api/cache-files?action=list&type=virtual-evidence');
+      const veData = veResponse.ok ? await veResponse.json() : { files: [] };
+      
+      setFolderCacheFiles({
+        advice: adviceData.files || [],
+        virtualEvidence: veData.files || [],
+      });
+    } catch (error) {
+      console.error('Failed to load folder cache files:', error);
+      alert('캐시 폴더 파일 목록을 불러오는데 실패했습니다.');
+    } finally {
+      setLoadingFolderFiles(false);
+    }
+  };
+
+  // 캐시 폴더에서 로드 모달 열기
+  const openLoadFromFolderModal = async () => {
+    setSelectedFolderFiles({ advice: '', virtualEvidence: '' });
+    setShowLoadFromFolderModal(true);
+    await loadFolderCacheFiles();
+  };
+
+  // 캐시 폴더에서 선택한 파일 로드
+  const handleLoadFromFolder = async () => {
+    if (!selectedFolderFiles.advice && !selectedFolderFiles.virtualEvidence) {
+      alert('최소 하나의 파일을 선택해주세요.');
+      return;
+    }
+    
+    try {
+      setIsLoadingFromFolder(true);
+      const results: string[] = [];
+      
+      // 조언 캐시 로드
+      if (selectedFolderFiles.advice) {
+        const readResponse = await fetch(`/api/cache-files?action=read&type=advice&filename=${encodeURIComponent(selectedFolderFiles.advice)}`);
+        if (readResponse.ok) {
+          const { data: cacheData } = await readResponse.json();
+          const importResponse = await fetch('/api/advice-cache', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'import', cacheData }),
+          });
+          if (importResponse.ok) {
+            const result = await importResponse.json();
+            results.push(`조언 캐시: ${result.totalItems}개 항목 로드 완료`);
+          } else {
+            results.push('조언 캐시: 로드 실패');
+          }
+        }
+      }
+      
+      // 가상 증빙 캐시 로드
+      if (selectedFolderFiles.virtualEvidence) {
+        const readResponse = await fetch(`/api/cache-files?action=read&type=virtual-evidence&filename=${encodeURIComponent(selectedFolderFiles.virtualEvidence)}`);
+        if (readResponse.ok) {
+          const { data: cacheData } = await readResponse.json();
+          const importResponse = await fetch('/api/virtual-evidence-cache', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ action: 'import', cacheData }),
+          });
+          if (importResponse.ok) {
+            const result = await importResponse.json();
+            results.push(`가상증빙 캐시: ${result.totalItems}개 항목 로드 완료`);
+          } else {
+            results.push('가상증빙 캐시: 로드 실패');
+          }
+        }
+      }
+      
+      alert(`캐시 폴더에서 로드 완료!\n\n${results.join('\n')}`);
+      setShowLoadFromFolderModal(false);
+      fetchSystemInfo();
+    } catch (error: any) {
+      console.error('Failed to load from folder:', error);
+      alert(`캐시 로드 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsLoadingFromFolder(false);
+    }
+  };
+
   if (!isHydrated || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
@@ -587,10 +690,33 @@ export default function SystemPage() {
                   <span style={{ fontSize: 18 }}>📥</span>
                   <span>통합 가져오기</span>
                 </button>
+                <button
+                  onClick={openLoadFromFolderModal}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                    border: 'none',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(245, 158, 11, 0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>📁</span>
+                  <span>캐시 폴더에서 로드</span>
+                </button>
               </div>
               
               <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 16, padding: '0 4px' }}>
-                💡 조언 캐시와 가상증빙예제 캐시를 한번에 백업하거나 복원할 수 있습니다.
+                💡 조언 캐시와 가상증빙예제 캐시를 한번에 백업하거나 복원할 수 있습니다. 캐시 폴더에서 직접 로드도 가능합니다.
               </p>
               
               <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
@@ -1150,6 +1276,181 @@ export default function SystemPage() {
                 }}
               >
                 {isImportingAll ? '가져오는 중...' : '📥 가져오기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 캐시 폴더에서 로드 모달 */}
+      {showLoadFromFolderModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+        }}>
+          <div style={{
+            width: '90%',
+            maxWidth: 700,
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}>
+            <h2 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#1C1E21' }}>
+              📁 캐시 폴더에서 로드
+            </h2>
+            
+            <p style={{ fontSize: 14, color: '#65676B', marginBottom: 20 }}>
+              <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>cache/</code> 폴더에 저장된 캐시 파일을 선택하여 DB에 로드합니다.
+            </p>
+            
+            {loadingFolderFiles ? (
+              <div style={{ textAlign: 'center', padding: 40 }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
+                <p style={{ color: '#65676B' }}>파일 목록 로드 중...</p>
+              </div>
+            ) : (
+              <>
+                {/* 조언 캐시 파일 선택 */}
+                <div style={{ marginBottom: 24 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>
+                    💡 조언 캐시 ({folderCacheFiles.advice.length}개 파일)
+                  </h3>
+                  {folderCacheFiles.advice.length === 0 ? (
+                    <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 8, textAlign: 'center', color: '#6B7280' }}>
+                      캐시 폴더에 파일이 없습니다.
+                    </div>
+                  ) : (
+                    <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                      {folderCacheFiles.advice.map((file, index) => (
+                        <div
+                          key={file.filename}
+                          onClick={() => setSelectedFolderFiles(prev => ({ ...prev, advice: prev.advice === file.filename ? '' : file.filename }))}
+                          style={{
+                            padding: '10px 14px',
+                            borderBottom: index < folderCacheFiles.advice.length - 1 ? '1px solid #E5E7EB' : 'none',
+                            background: selectedFolderFiles.advice === file.filename ? '#EEF2FF' : 'white',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontWeight: 500, fontSize: 13, color: '#1F2937' }}>
+                                {selectedFolderFiles.advice === file.filename && '✓ '}{file.filename}
+                              </div>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                                {file.provider && `🤖 ${file.provider} `}
+                                {file.model && `📦 ${file.model} `}
+                                📅 {new Date(file.createdAt).toLocaleString('ko-KR')}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#9CA3AF' }}>
+                              {(file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                
+                {/* 가상 증빙 캐시 파일 선택 */}
+                <div style={{ marginBottom: 24 }}>
+                  <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>
+                    📋 가상증빙 캐시 ({folderCacheFiles.virtualEvidence.length}개 파일)
+                  </h3>
+                  {folderCacheFiles.virtualEvidence.length === 0 ? (
+                    <div style={{ padding: 16, background: '#F9FAFB', borderRadius: 8, textAlign: 'center', color: '#6B7280' }}>
+                      캐시 폴더에 파일이 없습니다.
+                    </div>
+                  ) : (
+                    <div style={{ maxHeight: 200, overflowY: 'auto', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                      {folderCacheFiles.virtualEvidence.map((file, index) => (
+                        <div
+                          key={file.filename}
+                          onClick={() => setSelectedFolderFiles(prev => ({ ...prev, virtualEvidence: prev.virtualEvidence === file.filename ? '' : file.filename }))}
+                          style={{
+                            padding: '10px 14px',
+                            borderBottom: index < folderCacheFiles.virtualEvidence.length - 1 ? '1px solid #E5E7EB' : 'none',
+                            background: selectedFolderFiles.virtualEvidence === file.filename ? '#FEF3C7' : 'white',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontWeight: 500, fontSize: 13, color: '#1F2937' }}>
+                                {selectedFolderFiles.virtualEvidence === file.filename && '✓ '}{file.filename}
+                              </div>
+                              <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+                                {file.provider && `🤖 ${file.provider} `}
+                                {file.model && `📦 ${file.model} `}
+                                📅 {new Date(file.createdAt).toLocaleString('ko-KR')}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 11, color: '#9CA3AF' }}>
+                              {(file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+            
+            <div style={{
+              padding: 12,
+              background: '#ECFDF5',
+              borderRadius: 8,
+              marginBottom: 20,
+              border: '1px solid #A7F3D0',
+            }}>
+              <p style={{ fontSize: 13, color: '#065F46', margin: 0 }}>
+                💡 선택한 파일의 캐시 데이터가 DB에 새 버전으로 추가됩니다.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowLoadFromFolderModal(false)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#65676B',
+                  background: '#E4E6EB',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleLoadFromFolder}
+                disabled={isLoadingFromFolder || (!selectedFolderFiles.advice && !selectedFolderFiles.virtualEvidence)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white',
+                  background: isLoadingFromFolder || (!selectedFolderFiles.advice && !selectedFolderFiles.virtualEvidence)
+                    ? '#BCC0C4'
+                    : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: isLoadingFromFolder || (!selectedFolderFiles.advice && !selectedFolderFiles.virtualEvidence) ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isLoadingFromFolder ? '로드 중...' : '📁 선택한 파일 로드'}
               </button>
             </div>
           </div>
