@@ -227,34 +227,26 @@ export default function SystemPage() {
   // 캐시 버전 목록 로드
   const loadCacheVersions = async () => {
     try {
-      const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3010';
+      // admin API를 통해 캐시 버전 목록 가져오기
+      const response = await fetch('/api/cache-versions');
+      if (!response.ok) {
+        console.error('Failed to load cache versions:', response.status);
+        return;
+      }
       
-      // 조언 캐시 버전
-      const adviceRes = await fetch(`${mainAppUrl}/api/advice-cache?action=versions`);
-      const adviceData = adviceRes.ok ? await adviceRes.json() : { versions: [] };
-      
-      // 가상증빙 캐시 버전
-      const veRes = await fetch(`${mainAppUrl}/api/virtual-evidence-cache?action=versions`);
-      const veData = veRes.ok ? await veRes.json() : { versions: [] };
-      
-      // 활성 버전
-      const activeRes = await fetch('/api/cache-version');
-      const activeData = activeRes.ok ? await activeRes.json() : { activeVersions: {} };
-      
-      const activeAdvice = activeData.activeVersions?.advice || null;
-      const activeVE = activeData.activeVersions?.virtualEvidence || null;
+      const data = await response.json();
       
       setCacheVersions({
-        advice: adviceData.versions || [],
-        virtualEvidence: veData.versions || [],
-        activeAdvice,
-        activeVirtualEvidence: activeVE,
+        advice: data.advice || [],
+        virtualEvidence: data.virtualEvidence || [],
+        activeAdvice: data.activeAdvice,
+        activeVirtualEvidence: data.activeVirtualEvidence,
       });
       
       // 활성 버전을 기본 선택값으로 설정 (없으면 첫 번째 버전)
       setSelectedExportVersions({
-        advice: activeAdvice || (adviceData.versions?.[0]?.version || ''),
-        virtualEvidence: activeVE || (veData.versions?.[0]?.version || ''),
+        advice: data.activeAdvice || (data.advice?.[0]?.version || ''),
+        virtualEvidence: data.activeVirtualEvidence || (data.virtualEvidence?.[0]?.version || ''),
       });
     } catch (error) {
       console.error('Failed to load cache versions:', error);

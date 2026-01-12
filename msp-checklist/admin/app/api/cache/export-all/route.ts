@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth';
+import fs from 'fs';
+import path from 'path';
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,6 +32,7 @@ export async function GET(request: NextRequest) {
       virtualEvidenceCache?: any;
       adviceSummary?: any;
       virtualEvidenceSummary?: any;
+      savedToFile?: string;
     } = {
       exportedAt: new Date().toISOString(),
       exportedBy: user.email,
@@ -56,8 +59,10 @@ export async function GET(request: NextRequest) {
         );
         if (adviceSummaryVersionsResponse.ok) {
           const versionsData = await adviceSummaryVersionsResponse.json();
-          // 해당 캐시 버전으로 시작하는 요약 버전 찾기
-          const matchingSummaryVersion = versionsData.versions?.find((v: string) => v.startsWith(adviceVersion));
+          // 해당 캐시 버전을 포함하는 요약 버전 찾기 (summary_{캐시버전}_... 형식)
+          const matchingSummaryVersion = versionsData.versions?.find((v: string) => 
+            v.includes(adviceVersion) || v.includes(`summary_${adviceVersion}`)
+          );
           if (matchingSummaryVersion) {
             // 한국어와 영어 요약 모두 내보내기
             const summaries: any = { version: matchingSummaryVersion, ko: [], en: [] };
@@ -103,7 +108,10 @@ export async function GET(request: NextRequest) {
         );
         if (veSummaryVersionsResponse.ok) {
           const versionsData = await veSummaryVersionsResponse.json();
-          const matchingSummaryVersion = versionsData.versions?.find((v: string) => v.startsWith(virtualEvidenceVersion));
+          // 해당 캐시 버전을 포함하는 요약 버전 찾기 (ve_summary_{캐시버전}_... 형식)
+          const matchingSummaryVersion = versionsData.versions?.find((v: string) => 
+            v.includes(virtualEvidenceVersion) || v.includes(`ve_summary_${virtualEvidenceVersion}`)
+          );
           if (matchingSummaryVersion) {
             const summaries: any = { version: matchingSummaryVersion, ko: [], en: [] };
             
@@ -128,6 +136,32 @@ export async function GET(request: NextRequest) {
       } catch (error) {
         console.error('Failed to export virtual evidence cache:', error);
       }
+    }
+
+    // cache 디렉토리에 JSON 파일 저장
+    try {
+      const cwd = process.cwd();
+      // admin 디렉토리에서 실행 중이면 상위 디렉토리의 cache 폴더 사용
+      const basePath = cwd.endsWith('/admin') || cwd.endsWith('\\admin') 
+        ? path.join(cwd, '..') 
+        : cwd;
+      const cacheDir = path.join(basePath, 'cache');
+      
+      // cache 디렉토리가 없으면 생성
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+      const filename = `msp_cache_backup_${timestamp}.json`;
+      const filePath = path.join(cacheDir, filename);
+      
+      fs.writeFileSync(filePath, JSON.stringify(exportData, null, 2), 'utf-8');
+      console.log(`[Export All] Saved backup to: ${filePath}`);
+      
+      exportData.savedToFile = filename;
+    } catch (fileError) {
+      console.error('Failed to save backup file:', fileError);
     }
 
     return NextResponse.json({
