@@ -32,11 +32,49 @@ echo -e "${NC}"
 # 로그 디렉토리 먼저 생성
 mkdir -p "$PROJECT_DIR/logs"
 
+# 포트를 사용하는 프로세스 강제 종료 함수
+force_kill_port() {
+    local port=$1
+    local pids=""
+    
+    if command -v lsof &> /dev/null; then
+        pids=$(lsof -ti :$port 2>/dev/null || true)
+    fi
+    
+    if [ -n "$pids" ]; then
+        log_warn "포트 $port 사용 중인 프로세스 발견: $pids - 강제 종료"
+        for pid in $pids; do
+            kill -9 $pid 2>/dev/null || true
+        done
+        sleep 1
+    fi
+}
+
 # 기존 프로세스 종료
 log_info "기존 프로세스 종료 중..."
 pkill -f "next.*$MAIN_PORT" 2>/dev/null || true
 pkill -f "next.*$ADMIN_PORT" 2>/dev/null || true
 sleep 2
+
+# 포트가 아직 사용 중이면 강제 종료
+force_kill_port $MAIN_PORT
+force_kill_port $ADMIN_PORT
+
+# 포트 사용 가능 여부 최종 확인
+MAIN_CHECK=$(lsof -ti :$MAIN_PORT 2>/dev/null || true)
+ADMIN_CHECK=$(lsof -ti :$ADMIN_PORT 2>/dev/null || true)
+
+if [ -n "$MAIN_CHECK" ]; then
+    log_error "포트 $MAIN_PORT가 여전히 사용 중입니다 (PID: $MAIN_CHECK)"
+    log_error "수동으로 종료하세요: kill -9 $MAIN_CHECK"
+    exit 1
+fi
+
+if [ -n "$ADMIN_CHECK" ]; then
+    log_error "포트 $ADMIN_PORT가 여전히 사용 중입니다 (PID: $ADMIN_CHECK)"
+    log_error "수동으로 종료하세요: kill -9 $ADMIN_CHECK"
+    exit 1
+fi
 
 # NVM 로드 (설치되어 있는 경우)
 export NVM_DIR="$HOME/.nvm"

@@ -55,6 +55,13 @@ export default function SystemPage() {
   const [selectedFolderFiles, setSelectedFolderFiles] = useState<{advice: string; virtualEvidence: string}>({ advice: '', virtualEvidence: '' });
   const [loadingFolderFiles, setLoadingFolderFiles] = useState(false);
   
+  // 통합 백업 파일에서 로드 관련 state
+  const [showLoadBackupModal, setShowLoadBackupModal] = useState(false);
+  const [isLoadingBackup, setIsLoadingBackup] = useState(false);
+  const [backupFiles, setBackupFiles] = useState<Array<{filename: string; size: number; createdAt: string; exportedAt?: string; exportedBy?: string}>>([]);
+  const [selectedBackupFile, setSelectedBackupFile] = useState('');
+  const [loadingBackupFiles, setLoadingBackupFiles] = useState(false);
+  
   const [cacheVersions, setCacheVersions] = useState<{
     advice: Array<{ version: string; createdAt: string }>;
     virtualEvidence: Array<{ version: string; createdAt: string }>;
@@ -473,6 +480,95 @@ export default function SystemPage() {
     }
   };
 
+  // 통합 백업 파일 목록 로드
+  const loadBackupFiles = async () => {
+    try {
+      setLoadingBackupFiles(true);
+      const response = await fetch('/api/cache-files?action=list&type=backup');
+      if (response.ok) {
+        const data = await response.json();
+        setBackupFiles(data.files || []);
+      } else {
+        setBackupFiles([]);
+      }
+    } catch (error) {
+      console.error('Failed to load backup files:', error);
+      setBackupFiles([]);
+    } finally {
+      setLoadingBackupFiles(false);
+    }
+  };
+
+  // 통합 백업 파일에서 로드 모달 열기
+  const openLoadBackupModal = async () => {
+    setSelectedBackupFile('');
+    setShowLoadBackupModal(true);
+    await loadBackupFiles();
+  };
+
+  // 통합 백업 파일에서 로드 실행
+  const handleLoadFromBackup = async () => {
+    if (!selectedBackupFile) {
+      alert('백업 파일을 선택해주세요.');
+      return;
+    }
+    
+    try {
+      setIsLoadingBackup(true);
+      
+      // 백업 파일 읽기
+      const readResponse = await fetch(`/api/cache-files?action=read&type=backup&filename=${encodeURIComponent(selectedBackupFile)}`);
+      if (!readResponse.ok) {
+        const error = await readResponse.json();
+        throw new Error(error.error || '백업 파일 읽기 실패');
+      }
+      
+      const { data: backupData } = await readResponse.json();
+      
+      // import-all API 호출
+      const importResponse = await fetch('/api/cache/import-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adviceCache: backupData.adviceCache,
+          virtualEvidenceCache: backupData.virtualEvidenceCache,
+          adviceSummary: backupData.adviceSummary,
+          virtualEvidenceSummary: backupData.virtualEvidenceSummary,
+        }),
+      });
+      
+      if (importResponse.ok) {
+        const result = await importResponse.json();
+        
+        let message = '통합 백업 파일에서 로드 완료!\n\n';
+        if (result.results.adviceCache) {
+          message += `✅ ${result.results.adviceCache.message}\n`;
+        }
+        if (result.results.virtualEvidenceCache) {
+          message += `✅ ${result.results.virtualEvidenceCache.message}\n`;
+        }
+        if (result.results.adviceSummary) {
+          message += `✅ ${result.results.adviceSummary.message}\n`;
+        }
+        if (result.results.virtualEvidenceSummary) {
+          message += `✅ ${result.results.virtualEvidenceSummary.message}\n`;
+        }
+        
+        alert(message);
+        setShowLoadBackupModal(false);
+        fetchSystemInfo();
+      } else {
+        const error = await importResponse.json();
+        throw new Error(error.error || '가져오기 실패');
+      }
+    } catch (error: any) {
+      console.error('Failed to load from backup:', error);
+      alert(`통합 백업 로드 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsLoadingBackup(false);
+    }
+  };
+
   if (!isHydrated || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
@@ -643,11 +739,13 @@ export default function SystemPage() {
                 background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
                 borderRadius: 12,
                 border: '1px solid #C7D2FE',
+                flexWrap: 'wrap',
               }}>
                 <button
                   onClick={openExportAllModal}
                   style={{
-                    flex: 1,
+                    flex: '1 1 auto',
+                    minWidth: 140,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -670,7 +768,8 @@ export default function SystemPage() {
                 <button
                   onClick={openImportAllModal}
                   style={{
-                    flex: 1,
+                    flex: '1 1 auto',
+                    minWidth: 140,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -691,9 +790,34 @@ export default function SystemPage() {
                   <span>통합 가져오기</span>
                 </button>
                 <button
+                  onClick={openLoadBackupModal}
+                  style={{
+                    flex: '1 1 auto',
+                    minWidth: 180,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+                    border: 'none',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(236, 72, 153, 0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>📦</span>
+                  <span>통합 백업에서 로드</span>
+                </button>
+                <button
                   onClick={openLoadFromFolderModal}
                   style={{
-                    flex: 1,
+                    flex: '1 1 auto',
+                    minWidth: 160,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -716,7 +840,7 @@ export default function SystemPage() {
               </div>
               
               <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 16, padding: '0 4px' }}>
-                💡 조언 캐시와 가상증빙예제 캐시를 한번에 백업하거나 복원할 수 있습니다. 캐시 폴더에서 직접 로드도 가능합니다.
+                💡 조언 캐시와 가상증빙예제 캐시를 한번에 백업하거나 복원할 수 있습니다. 통합 백업 파일(4종 캐시 포함)을 cache 폴더에서 직접 로드하거나, 개별 캐시 파일을 선택하여 로드할 수 있습니다.
               </p>
               
               <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
@@ -1308,7 +1432,7 @@ export default function SystemPage() {
             </h2>
             
             <p style={{ fontSize: 14, color: '#65676B', marginBottom: 20 }}>
-              <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>cache/</code> 폴더에 저장된 캐시 파일을 선택하여 DB에 로드합니다.
+              <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>cache/</code> 폴더에 저장된 개별 캐시 파일을 선택하여 DB에 로드합니다.
             </p>
             
             {loadingFolderFiles ? (
@@ -1451,6 +1575,143 @@ export default function SystemPage() {
                 }}
               >
                 {isLoadingFromFolder ? '로드 중...' : '📁 선택한 파일 로드'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 통합 백업 파일에서 로드 모달 */}
+      {showLoadBackupModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 50,
+        }}>
+          <div style={{
+            width: '90%',
+            maxWidth: 700,
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.2)',
+            maxHeight: '80vh',
+            overflowY: 'auto',
+          }}>
+            <h2 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#1C1E21' }}>
+              📦 통합 백업 파일에서 로드
+            </h2>
+            
+            <p style={{ fontSize: 14, color: '#65676B', marginBottom: 20 }}>
+              <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>cache/</code> 폴더에 저장된 통합 백업 파일(msp_cache_backup_*.json)을 선택하여 4종 캐시를 한번에 로드합니다.
+            </p>
+            
+            {loadingBackupFiles ? (
+              <div style={{ textAlign: 'center', padding: 40 }}>
+                <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
+                <p style={{ color: '#65676B' }}>백업 파일 목록 로드 중...</p>
+              </div>
+            ) : backupFiles.length === 0 ? (
+              <div style={{ padding: 24, background: '#F9FAFB', borderRadius: 8, textAlign: 'center', color: '#6B7280' }}>
+                <div style={{ fontSize: 48, marginBottom: 12 }}>📭</div>
+                <p>cache 폴더에 통합 백업 파일이 없습니다.</p>
+                <p style={{ fontSize: 12, marginTop: 8 }}>통합 내보내기를 통해 백업 파일을 생성하세요.</p>
+              </div>
+            ) : (
+              <div style={{ marginBottom: 24 }}>
+                <h3 style={{ fontSize: 16, fontWeight: 600, color: '#1C1E21', marginBottom: 12 }}>
+                  📦 통합 백업 파일 ({backupFiles.length}개)
+                </h3>
+                <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #E5E7EB', borderRadius: 8 }}>
+                  {backupFiles.map((file, index) => (
+                    <div
+                      key={file.filename}
+                      onClick={() => setSelectedBackupFile(selectedBackupFile === file.filename ? '' : file.filename)}
+                      style={{
+                        padding: '14px 16px',
+                        borderBottom: index < backupFiles.length - 1 ? '1px solid #E5E7EB' : 'none',
+                        background: selectedBackupFile === file.filename ? '#FCE7F3' : 'white',
+                        cursor: 'pointer',
+                        transition: 'background 0.2s',
+                      }}
+                    >
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600, fontSize: 14, color: '#1F2937', marginBottom: 4 }}>
+                            {selectedBackupFile === file.filename && '✓ '}{file.filename}
+                          </div>
+                          <div style={{ fontSize: 12, color: '#6B7280' }}>
+                            {file.exportedAt && (
+                              <span style={{ marginRight: 12 }}>
+                                📅 내보낸 시간: {new Date(file.exportedAt).toLocaleString('ko-KR')}
+                              </span>
+                            )}
+                            {file.exportedBy && (
+                              <span>
+                                👤 {file.exportedBy}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: 12, color: '#9CA3AF', marginLeft: 12 }}>
+                          {(file.size / 1024 / 1024).toFixed(2)} MB
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+            
+            <div style={{
+              padding: 12,
+              background: '#FDF2F8',
+              borderRadius: 8,
+              marginBottom: 20,
+              border: '1px solid #FBCFE8',
+            }}>
+              <p style={{ fontSize: 13, color: '#9D174D', margin: 0 }}>
+                📦 통합 백업 파일에는 조언 캐시, 가상증빙 캐시, 조언 요약, 가상증빙 요약 4종이 포함되어 있습니다.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowLoadBackupModal(false)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#65676B',
+                  background: '#E4E6EB',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleLoadFromBackup}
+                disabled={isLoadingBackup || !selectedBackupFile}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white',
+                  background: isLoadingBackup || !selectedBackupFile
+                    ? '#BCC0C4'
+                    : 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: isLoadingBackup || !selectedBackupFile ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isLoadingBackup ? '로드 중...' : '📦 통합 백업 로드'}
               </button>
             </div>
           </div>

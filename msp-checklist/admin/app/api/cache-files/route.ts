@@ -16,6 +16,15 @@ interface CacheFileInfo {
   model?: string;
 }
 
+interface BackupFileInfo {
+  filename: string;
+  filepath: string;
+  size: number;
+  createdAt: string;
+  exportedAt?: string;
+  exportedBy?: string;
+}
+
 // 파일명에서 provider와 model 추출
 function parseFilename(filename: string): { provider?: string; model?: string; date?: string } {
   // advice_cache_20260106_185847_bedrock_anthropic-claude-3-5-sonnet-20.json
@@ -63,15 +72,59 @@ function getCacheFiles(dir: string): CacheFileInfo[] {
   return files;
 }
 
+// 통합 백업 파일 목록 가져오기 (cache/ 루트의 msp_cache_backup_*.json)
+function getBackupFiles(): BackupFileInfo[] {
+  if (!fs.existsSync(CACHE_BASE_DIR)) {
+    return [];
+  }
+  
+  const files = fs.readdirSync(CACHE_BASE_DIR)
+    .filter(f => f.startsWith('msp_cache_backup_') && f.endsWith('.json'))
+    .map(filename => {
+      const filepath = path.join(CACHE_BASE_DIR, filename);
+      const stats = fs.statSync(filepath);
+      
+      // 파일 내용에서 exportedAt, exportedBy 추출
+      let exportedAt: string | undefined;
+      let exportedBy: string | undefined;
+      try {
+        const content = fs.readFileSync(filepath, 'utf-8');
+        const data = JSON.parse(content);
+        exportedAt = data.exportedAt;
+        exportedBy = data.exportedBy;
+      } catch (e) {
+        // 파싱 실패 시 무시
+      }
+      
+      return {
+        filename,
+        filepath,
+        size: stats.size,
+        createdAt: stats.mtime.toISOString(),
+        exportedAt,
+        exportedBy,
+      };
+    })
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  
+  return files;
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type'); // 'advice' | 'virtual-evidence'
+    const type = searchParams.get('type'); // 'advice' | 'virtual-evidence' | 'backup'
     const action = searchParams.get('action'); // 'list' | 'read'
     const filename = searchParams.get('filename');
     
     if (action === 'list') {
       // 파일 목록 반환
+      if (type === 'backup') {
+        // 통합 백업 파일 목록
+        const files = getBackupFiles();
+        return NextResponse.json({ success: true, files });
+      }
+      
       let files: CacheFileInfo[] = [];
       
       if (type === 'advice') {
@@ -89,9 +142,35 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: true, files });
     }
     
-    if (action === 'read' && filename && type) {
+    if (action === 'read' && filename) {
       // 특정 파일 읽기
-      const dir = type === 'advice' ? ADVICE_CACHE_DIR : VIRTUAL_EVIDENCE_CACHE_DIR;
+      let dir: string;
+      
+      if (type === 'backup') {
+        // 통합 백업 파일 읽기
+        dir = CACHE_BASE_DIR;
+        const filepath = path.join(dir, filename);
+        
+        // 보안: 경로 탈출 방지 및 백업 파일 형식 확인
+        if (!filepath.startsWith(CACHE_BASE_DIR) || !filename.startsWith('msp_cache_backup_')) {
+          return NextResponse.json({ error: '잘못된 파일 경로입니다.' }, { status: 400 });
+        }
+        
+        if (!fs.existsSync(filepath)) {
+          return NextResponse.json({ error: '파일을 찾을 수 없습니다.' }, { status: 404 });
+        }
+        
+        const content = fs.readFileSync(filepath, 'utf-8');
+        const data = JSON.parse(content);
+        
+        return NextResponse.json({ success: true, data, filename });
+      }
+      
+      if (!type) {
+        return NextResponse.json({ error: 'type 파라미터가 필요합니다.' }, { status: 400 });
+      }
+      
+      dir = type === 'advice' ? ADVICE_CACHE_DIR : VIRTUAL_EVIDENCE_CACHE_DIR;
       const filepath = path.join(dir, filename);
       
       // 보안: 경로 탈출 방지
