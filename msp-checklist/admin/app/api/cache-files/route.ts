@@ -6,6 +6,8 @@ import path from 'path';
 const CACHE_BASE_DIR = path.join(process.cwd(), '..', 'cache');
 const ADVICE_CACHE_DIR = path.join(CACHE_BASE_DIR, 'advice');
 const VIRTUAL_EVIDENCE_CACHE_DIR = path.join(CACHE_BASE_DIR, 'virtual-evidence');
+const ADVICE_SUMMARY_DIR = path.join(CACHE_BASE_DIR, 'advice-summaries');
+const VIRTUAL_EVIDENCE_SUMMARY_DIR = path.join(CACHE_BASE_DIR, 'virtual-evidence-summaries');
 
 interface CacheFileInfo {
   filename: string;
@@ -43,6 +45,21 @@ function parseFilename(filename: string): { provider?: string; model?: string; d
     return { date: oldMatch[1] };
   }
   return {};
+}
+
+// 요약 파일명에서 정보 추출
+function parseSummaryFilename(filename: string): { version?: string; language?: string; provider?: string } {
+  // summary_20260107_102612_bedrock_anthropic-claude-opus-4-5-2025_ko_20260109032732_bedrock.json
+  // ve_summary_20260107_013413_bedrock_anthropic.claude-opus-4-5-20251101-v1-0_ko_20260108141923_bedrock.json
+  const koMatch = filename.match(/_ko_/);
+  const enMatch = filename.match(/_en_/);
+  const language = koMatch ? 'ko' : enMatch ? 'en' : undefined;
+  
+  // provider 추출 (마지막 _bedrock.json 등)
+  const providerMatch = filename.match(/_(\w+)\.json$/);
+  const provider = providerMatch ? providerMatch[1] : undefined;
+  
+  return { language, provider };
 }
 
 // 디렉토리의 캐시 파일 목록 가져오기
@@ -113,7 +130,7 @@ function getBackupFiles(): BackupFileInfo[] {
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const type = searchParams.get('type'); // 'advice' | 'virtual-evidence' | 'backup'
+    const type = searchParams.get('type'); // 'advice' | 'virtual-evidence' | 'backup' | 'advice-summary' | 'virtual-evidence-summary'
     const action = searchParams.get('action'); // 'list' | 'read'
     const filename = searchParams.get('filename');
     
@@ -122,6 +139,24 @@ export async function GET(request: NextRequest) {
       if (type === 'backup') {
         // 통합 백업 파일 목록
         const files = getBackupFiles();
+        return NextResponse.json({ success: true, files });
+      }
+      
+      if (type === 'advice-summary') {
+        // 조언 요약 파일 목록
+        const files = getCacheFiles(ADVICE_SUMMARY_DIR).map(f => ({
+          ...f,
+          ...parseSummaryFilename(f.filename),
+        }));
+        return NextResponse.json({ success: true, files });
+      }
+      
+      if (type === 'virtual-evidence-summary') {
+        // 가상증빙 요약 파일 목록
+        const files = getCacheFiles(VIRTUAL_EVIDENCE_SUMMARY_DIR).map(f => ({
+          ...f,
+          ...parseSummaryFilename(f.filename),
+        }));
         return NextResponse.json({ success: true, files });
       }
       
@@ -153,6 +188,44 @@ export async function GET(request: NextRequest) {
         
         // 보안: 경로 탈출 방지 및 백업 파일 형식 확인
         if (!filepath.startsWith(CACHE_BASE_DIR) || !filename.startsWith('msp_cache_backup_')) {
+          return NextResponse.json({ error: '잘못된 파일 경로입니다.' }, { status: 400 });
+        }
+        
+        if (!fs.existsSync(filepath)) {
+          return NextResponse.json({ error: '파일을 찾을 수 없습니다.' }, { status: 404 });
+        }
+        
+        const content = fs.readFileSync(filepath, 'utf-8');
+        const data = JSON.parse(content);
+        
+        return NextResponse.json({ success: true, data, filename });
+      }
+      
+      if (type === 'advice-summary') {
+        // 조언 요약 파일 읽기
+        dir = ADVICE_SUMMARY_DIR;
+        const filepath = path.join(dir, filename);
+        
+        if (!filepath.startsWith(dir)) {
+          return NextResponse.json({ error: '잘못된 파일 경로입니다.' }, { status: 400 });
+        }
+        
+        if (!fs.existsSync(filepath)) {
+          return NextResponse.json({ error: '파일을 찾을 수 없습니다.' }, { status: 404 });
+        }
+        
+        const content = fs.readFileSync(filepath, 'utf-8');
+        const data = JSON.parse(content);
+        
+        return NextResponse.json({ success: true, data, filename });
+      }
+      
+      if (type === 'virtual-evidence-summary') {
+        // 가상증빙 요약 파일 읽기
+        dir = VIRTUAL_EVIDENCE_SUMMARY_DIR;
+        const filepath = path.join(dir, filename);
+        
+        if (!filepath.startsWith(dir)) {
           return NextResponse.json({ error: '잘못된 파일 경로입니다.' }, { status: 400 });
         }
         

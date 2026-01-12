@@ -293,3 +293,89 @@ export async function DELETE(request: NextRequest) {
     );
   }
 }
+
+// PUT: 요약 데이터 가져오기 (cache 파일에서)
+export async function PUT(request: NextRequest) {
+  try {
+    ensureDBConfig();
+    
+    const { action, summaryData } = await request.json();
+    
+    if (action !== 'import') {
+      return NextResponse.json({ error: 'Invalid action. Use: import' }, { status: 400 });
+    }
+    
+    if (!summaryData) {
+      return NextResponse.json({ error: 'summaryData is required' }, { status: 400 });
+    }
+    
+    // summaryData 구조 확인
+    // { version: string, summaries: Array<{item_id, category, title, summary, language}> }
+    // 또는 { version: string, ko: [...], en: [...] }
+    
+    let importedCount = 0;
+    const version = summaryData.version;
+    
+    if (!version) {
+      return NextResponse.json({ error: 'version is required in summaryData' }, { status: 400 });
+    }
+    
+    // 형식 1: summaries 배열
+    if (summaryData.summaries && Array.isArray(summaryData.summaries)) {
+      for (const item of summaryData.summaries) {
+        const saved = saveAdviceSummary(
+          version,
+          item.item_id,
+          item.category,
+          item.title,
+          item.summary,
+          item.language || 'ko'
+        );
+        if (saved) importedCount++;
+      }
+    }
+    
+    // 형식 2: ko/en 분리
+    if (summaryData.ko && Array.isArray(summaryData.ko)) {
+      for (const item of summaryData.ko) {
+        const saved = saveAdviceSummary(
+          version,
+          item.item_id,
+          item.category,
+          item.title,
+          item.summary,
+          'ko'
+        );
+        if (saved) importedCount++;
+      }
+    }
+    
+    if (summaryData.en && Array.isArray(summaryData.en)) {
+      for (const item of summaryData.en) {
+        const saved = saveAdviceSummary(
+          version,
+          item.item_id,
+          item.category,
+          item.title,
+          item.summary,
+          'en'
+        );
+        if (saved) importedCount++;
+      }
+    }
+    
+    return NextResponse.json({
+      success: true,
+      version,
+      importedCount,
+      message: `${importedCount}개 요약 항목을 가져왔습니다.`
+    });
+    
+  } catch (error: any) {
+    console.error('Error importing advice summaries:', error);
+    return NextResponse.json(
+      { error: 'Failed to import summaries', details: error.message },
+      { status: 500 }
+    );
+  }
+}

@@ -204,6 +204,13 @@ export default function VirtualEvidencePage() {
     english: false,
   });
   const [summaryViewLanguage, setSummaryViewLanguage] = useState<'ko' | 'en'>('ko');
+  
+  // 요약 파일에서 가져오기 관련 state
+  const [showSummaryImportModal, setShowSummaryImportModal] = useState(false);
+  const [summaryFiles, setSummaryFiles] = useState<Array<{filename: string; size: number; createdAt: string; language?: string; provider?: string}>>([]);
+  const [isLoadingSummaryFiles, setIsLoadingSummaryFiles] = useState(false);
+  const [selectedSummaryFile, setSelectedSummaryFile] = useState('');
+  const [isImportingSummary, setIsImportingSummary] = useState(false);
 
   // 활성 요약 버전 state
   const [activeSummaryVersions, setActiveSummaryVersions] = useState<{
@@ -747,6 +754,77 @@ export default function VirtualEvidencePage() {
     } catch (error) {
       console.error('Failed to delete summary version:', error);
       showMessage('요약 버전 삭제 중 오류가 발생했습니다.', 'error');
+    }
+  };
+
+  // 요약 파일 목록 로드 (cache 디렉토리에서)
+  const loadSummaryFiles = async () => {
+    try {
+      setIsLoadingSummaryFiles(true);
+      const response = await fetch('/api/cache-files?action=list&type=virtual-evidence-summary');
+      if (response.ok) {
+        const data = await response.json();
+        setSummaryFiles(data.files || []);
+      } else {
+        setSummaryFiles([]);
+      }
+    } catch (error) {
+      console.error('Failed to load summary files:', error);
+      setSummaryFiles([]);
+    } finally {
+      setIsLoadingSummaryFiles(false);
+    }
+  };
+
+  // 요약 파일 가져오기 모달 열기
+  const openSummaryImportModal = async () => {
+    setSelectedSummaryFile('');
+    setShowSummaryImportModal(true);
+    await loadSummaryFiles();
+  };
+
+  // 요약 파일에서 DB로 가져오기
+  const handleImportSummaryFromFile = async () => {
+    if (!selectedSummaryFile) {
+      showMessage('가져올 파일을 선택해주세요.', 'error');
+      return;
+    }
+    
+    try {
+      setIsImportingSummary(true);
+      
+      // 파일 읽기
+      const readResponse = await fetch(`/api/cache-files?action=read&type=virtual-evidence-summary&filename=${encodeURIComponent(selectedSummaryFile)}`);
+      if (!readResponse.ok) {
+        throw new Error('파일 읽기 실패');
+      }
+      
+      const { data: summaryData } = await readResponse.json();
+      
+      // 요약 데이터 import API 호출
+      const importResponse = await fetch('/api/virtual-evidence-summary', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'import',
+          summaryData,
+        }),
+      });
+      
+      if (importResponse.ok) {
+        const result = await importResponse.json();
+        showMessage(`요약 가져오기 완료: ${result.importedCount || 0}개 항목`, 'success');
+        setShowSummaryImportModal(false);
+        await loadItemSummaryVersions();
+      } else {
+        const error = await importResponse.json();
+        throw new Error(error.error || '가져오기 실패');
+      }
+    } catch (error: any) {
+      console.error('Failed to import summary:', error);
+      showMessage(`요약 가져오기 실패: ${error.message}`, 'error');
+    } finally {
+      setIsImportingSummary(false);
     }
   };
 
@@ -2753,6 +2831,17 @@ export default function VirtualEvidencePage() {
                 </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                {/* cache 디렉토리에서 가져오기 버튼 */}
+                <button
+                  onClick={openSummaryImportModal}
+                  style={{
+                    padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
+                    background: 'rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', gap: 4
+                  }}
+                >
+                  📁 cache에서 가져오기
+                </button>
                 {/* 언어 선택 탭 */}
                 <div style={{ display: 'flex', background: 'rgba(255,255,255,0.2)', borderRadius: 8, padding: 2 }}>
                   <button
@@ -2975,6 +3064,133 @@ export default function VirtualEvidencePage() {
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 요약 파일 가져오기 모달 */}
+      {showSummaryImportModal && (
+        <div 
+          style={{ 
+            position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', 
+            display: 'flex', alignItems: 'center', justifyContent: 'center', 
+            zIndex: 110, padding: 20 
+          }}
+          onClick={() => setShowSummaryImportModal(false)}
+        >
+          <div 
+            style={{ 
+              background: 'white', borderRadius: 16, width: '100%', maxWidth: 600,
+              maxHeight: '80vh', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+            }}
+            onClick={e => e.stopPropagation()}
+          >
+            <div style={{ 
+              padding: '20px 24px', 
+              background: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)', 
+              color: 'white',
+              display: 'flex', alignItems: 'center', justifyContent: 'space-between'
+            }}>
+              <div>
+                <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700 }}>📁 cache 디렉토리에서 요약 가져오기</h2>
+                <p style={{ margin: '4px 0 0', fontSize: 12, opacity: 0.9 }}>
+                  cache/virtual-evidence-summaries/ 폴더의 파일을 선택하세요
+                </p>
+              </div>
+              <button 
+                onClick={() => setShowSummaryImportModal(false)}
+                style={{ 
+                  width: 32, height: 32, background: 'rgba(255,255,255,0.2)', 
+                  border: 'none', borderRadius: 8, cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  color: 'white', fontSize: 18
+                }}
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div style={{ padding: 20, maxHeight: 'calc(80vh - 160px)', overflowY: 'auto' }}>
+              {isLoadingSummaryFiles ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <div style={{ width: 40, height: 40, border: '4px solid #E5E7EB', borderTopColor: '#F59E0B', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto' }} />
+                  <p style={{ marginTop: 16, color: '#6B7280' }}>파일 목록 로드 중...</p>
+                </div>
+              ) : summaryFiles.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: 40, color: '#6B7280' }}>
+                  <div style={{ fontSize: 48, marginBottom: 16 }}>📭</div>
+                  <p>cache/virtual-evidence-summaries/ 폴더에 파일이 없습니다.</p>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  {summaryFiles.map((file, idx) => {
+                    const isSelected = selectedSummaryFile === file.filename;
+                    const langLabel = file.language === 'ko' ? '🇰🇷 한국어' : file.language === 'en' ? '🌐 영어' : '📄';
+                    
+                    return (
+                      <div 
+                        key={idx}
+                        onClick={() => setSelectedSummaryFile(isSelected ? '' : file.filename)}
+                        style={{
+                          padding: 14, borderRadius: 10, cursor: 'pointer',
+                          background: isSelected ? '#FEF3C7' : 'white',
+                          border: `2px solid ${isSelected ? '#F59E0B' : '#E5E7EB'}`,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                              {isSelected && <span style={{ color: '#F59E0B', fontWeight: 700 }}>✓</span>}
+                              <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>
+                                {langLabel}
+                              </span>
+                              {file.provider && (
+                                <span style={{ fontSize: 10, padding: '2px 6px', background: '#E5E7EB', borderRadius: 4, color: '#6B7280' }}>
+                                  {file.provider}
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: 11, color: '#6B7280', wordBreak: 'break-all' }}>
+                              {file.filename}
+                            </div>
+                            <div style={{ fontSize: 10, color: '#9CA3AF', marginTop: 4 }}>
+                              📅 {new Date(file.createdAt).toLocaleString('ko-KR')} · {(file.size / 1024).toFixed(1)} KB
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+            
+            <div style={{ padding: '16px 20px', borderTop: '1px solid #E5E7EB', display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+              <button
+                onClick={() => setShowSummaryImportModal(false)}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  color: '#6B7280', background: '#F3F4F6',
+                  border: 'none', borderRadius: 8, cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleImportSummaryFromFile}
+                disabled={!selectedSummaryFile || isImportingSummary}
+                style={{
+                  padding: '10px 20px', fontSize: 14, fontWeight: 600,
+                  color: 'white',
+                  background: !selectedSummaryFile || isImportingSummary ? '#D1D5DB' : 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+                  border: 'none', borderRadius: 8,
+                  cursor: !selectedSummaryFile || isImportingSummary ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isImportingSummary ? '가져오는 중...' : '📥 DB에 가져오기'}
+              </button>
             </div>
           </div>
         </div>
