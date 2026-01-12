@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
+import ReactMarkdown from 'react-markdown';
 
 interface QAItem {
   id: number;
@@ -49,7 +50,14 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
         const url = `/api/qa?itemId=${encodeURIComponent(itemId)}&assessmentType=${assessmentType}`;
         console.log('[QASection] Loading questions:', { itemId, assessmentType, url });
         
-        const response = await fetch(url, { signal: abortController.signal });
+        const response = await fetch(url, { 
+          signal: abortController.signal,
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
         
         if (!isMounted) return;
         
@@ -124,7 +132,13 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
       setError(''); // 로딩 시작 시 에러 클리어
       const url = `/api/qa?itemId=${encodeURIComponent(itemId)}&assessmentType=${assessmentType}`;
       console.log('[QASection] Loading questions:', { itemId, assessmentType, url });
-      const response = await fetch(url);
+      const response = await fetch(url, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
       
       if (response.ok) {
         const data = await response.json();
@@ -544,8 +558,8 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
                     <span className="text-sm text-gray-700 font-medium">{qa.answerUserName}</span>
                     <span className="text-xs text-gray-500">{qa.answerCreatedAt && formatDate(qa.answerCreatedAt)}</span>
                   </div>
-                  <div className="text-sm text-gray-800 bg-green-50 p-3 rounded-lg whitespace-pre-line" style={{ lineHeight: 1.8 }}>
-                    {qa.answer}
+                  <div className="text-sm text-gray-800 bg-green-50 p-3 rounded-lg prose prose-sm max-w-none prose-headings:text-green-800 prose-strong:text-green-900 prose-ul:my-2 prose-li:my-0.5">
+                    <ReactMarkdown>{qa.answer}</ReactMarkdown>
                   </div>
                 </div>
               ) : (
