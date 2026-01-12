@@ -164,6 +164,12 @@ export default function VirtualEvidencePage() {
   const [detailVersion, setDetailVersion] = useState<CacheVersion | null>(null);
   const [detailStats, setDetailStats] = useState<CacheStats | null>(null);
   
+  // 파일에서 로드 관련 state
+  const [importTab, setImportTab] = useState<'file' | 'directory'>('file');
+  const [cacheFiles, setCacheFiles] = useState<Array<{filename: string; size: number; createdAt: string; provider?: string; model?: string}>>([]);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [selectedCacheFile, setSelectedCacheFile] = useState<string>('');
+  
   // LLM 설정 관련 state
   const [showLLMConfigModal, setShowLLMConfigModal] = useState(false);
   const [showApiKey, setShowApiKey] = useState(false);
@@ -901,6 +907,71 @@ export default function VirtualEvidencePage() {
       setIsImporting(false);
       // 파일 입력 초기화
       event.target.value = '';
+    }
+  };
+
+  // cache 디렉토리에서 파일 목록 로드
+  const loadCacheFilesFromDirectory = async () => {
+    try {
+      setIsLoadingFiles(true);
+      const response = await fetch('/api/cache-files?action=list&type=virtual-evidence');
+      if (response.ok) {
+        const data = await response.json();
+        setCacheFiles(data.files || []);
+      } else {
+        showMessage('캐시 파일 목록을 불러오는데 실패했습니다.', 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load cache files:', error);
+      showMessage('캐시 파일 목록 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  };
+
+  // cache 디렉토리에서 선택한 파일 로드
+  const loadCacheFromFile = async (filename: string) => {
+    try {
+      setIsImporting(true);
+      showMessage(`파일에서 캐시를 로드하는 중... (${filename})`, 'info');
+      
+      // 파일 내용 읽기
+      const readResponse = await fetch(`/api/cache-files?action=read&type=virtual-evidence&filename=${encodeURIComponent(filename)}`);
+      if (!readResponse.ok) {
+        const error = await readResponse.json();
+        showMessage(`파일 읽기 실패: ${error.error}`, 'error');
+        return;
+      }
+      
+      const { data: cacheData } = await readResponse.json();
+      
+      // 데이터 유효성 검사
+      if (!cacheData.version || (!cacheData.koEvidence && !cacheData.enEvidence)) {
+        showMessage('유효하지 않은 캐시 파일 형식입니다.', 'error');
+        return;
+      }
+      
+      // DB에 import
+      const response = await fetch('/api/virtual-evidence-cache', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'import', cacheData }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        showMessage(`캐시 로드 완료! 버전: ${result.version}, ${result.totalItems}개 항목`, 'success');
+        setShowImportModal(false);
+        await loadCacheData();
+      } else {
+        const error = await response.json();
+        showMessage(`로드 실패: ${error.error}`, 'error');
+      }
+    } catch (error) {
+      console.error('Failed to load cache from file:', error);
+      showMessage('캐시 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -2175,7 +2246,7 @@ export default function VirtualEvidencePage() {
               zIndex: 50
             }}>
               <div style={{
-                width: '90%', maxWidth: 500, borderRadius: 16,
+                width: '90%', maxWidth: 600, borderRadius: 16,
                 boxShadow: '0 8px 32px rgba(0,0,0,0.2)', background: 'white'
               }}>
                 <div style={{
@@ -2196,36 +2267,131 @@ export default function VirtualEvidencePage() {
                   </button>
                 </div>
                 <div style={{ padding: 24 }}>
-                  <div style={{ marginBottom: 20 }}>
-                    <p style={{ margin: '0 0 16px', fontSize: 14, color: '#65676B', lineHeight: 1.6 }}>
-                      이전에 내보낸 가상증빙예제 캐시 JSON 파일을 선택하여 가져올 수 있습니다.
-                      동일한 버전이 이미 존재하는 경우 덮어쓰기됩니다.
-                    </p>
-                    <div style={{
-                      padding: 24, borderRadius: 12, border: '2px dashed #8B5CF6',
-                      background: '#EDE9FE', textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: 48, marginBottom: 12 }}>📁</div>
-                      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5B21B6' }}>
-                        JSON 파일을 선택하세요
-                      </p>
-                      <label style={{
-                        display: 'inline-block', padding: '12px 24px', fontSize: 14, fontWeight: 600,
-                        color: 'white', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
-                        borderRadius: 10, cursor: isImporting ? 'not-allowed' : 'pointer',
-                        opacity: isImporting ? 0.7 : 1
-                      }}>
-                        {isImporting ? '⏳ 가져오는 중...' : '📂 파일 선택'}
-                        <input
-                          type="file"
-                          accept=".json"
-                          onChange={handleImportCache}
-                          disabled={isImporting}
-                          style={{ display: 'none' }}
-                        />
-                      </label>
-                    </div>
+                  {/* 탭 선택 */}
+                  <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+                    <button
+                      onClick={() => setImportTab('file')}
+                      style={{
+                        flex: 1, padding: '12px 16px', fontSize: 14, fontWeight: 600,
+                        color: importTab === 'file' ? 'white' : '#8B5CF6',
+                        background: importTab === 'file' ? 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' : '#EDE9FE',
+                        border: 'none', borderRadius: 10, cursor: 'pointer'
+                      }}
+                    >
+                      📂 파일 업로드
+                    </button>
+                    <button
+                      onClick={() => { setImportTab('directory'); loadCacheFilesFromDirectory(); }}
+                      style={{
+                        flex: 1, padding: '12px 16px', fontSize: 14, fontWeight: 600,
+                        color: importTab === 'directory' ? 'white' : '#8B5CF6',
+                        background: importTab === 'directory' ? 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)' : '#EDE9FE',
+                        border: 'none', borderRadius: 10, cursor: 'pointer'
+                      }}
+                    >
+                      📁 캐시 폴더에서 로드
+                    </button>
                   </div>
+
+                  {/* 파일 업로드 탭 */}
+                  {importTab === 'file' && (
+                    <div style={{ marginBottom: 20 }}>
+                      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#65676B', lineHeight: 1.6 }}>
+                        이전에 내보낸 가상증빙예제 캐시 JSON 파일을 선택하여 가져올 수 있습니다.
+                      </p>
+                      <div style={{
+                        padding: 24, borderRadius: 12, border: '2px dashed #8B5CF6',
+                        background: '#EDE9FE', textAlign: 'center'
+                      }}>
+                        <div style={{ fontSize: 48, marginBottom: 12 }}>📁</div>
+                        <p style={{ margin: '0 0 16px', fontSize: 14, color: '#5B21B6' }}>
+                          JSON 파일을 선택하세요
+                        </p>
+                        <label style={{
+                          display: 'inline-block', padding: '12px 24px', fontSize: 14, fontWeight: 600,
+                          color: 'white', background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                          borderRadius: 10, cursor: isImporting ? 'not-allowed' : 'pointer',
+                          opacity: isImporting ? 0.7 : 1
+                        }}>
+                          {isImporting ? '⏳ 가져오는 중...' : '📂 파일 선택'}
+                          <input
+                            type="file"
+                            accept=".json"
+                            onChange={handleImportCache}
+                            disabled={isImporting}
+                            style={{ display: 'none' }}
+                          />
+                        </label>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* 캐시 폴더에서 로드 탭 */}
+                  {importTab === 'directory' && (
+                    <div style={{ marginBottom: 20 }}>
+                      <p style={{ margin: '0 0 16px', fontSize: 14, color: '#65676B', lineHeight: 1.6 }}>
+                        <code style={{ background: '#F3F4F6', padding: '2px 6px', borderRadius: 4 }}>cache/virtual-evidence/</code> 폴더에 저장된 캐시 파일을 선택하여 DB에 로드합니다.
+                      </p>
+                      {isLoadingFiles ? (
+                        <div style={{ textAlign: 'center', padding: 40 }}>
+                          <div style={{ fontSize: 32, marginBottom: 12 }}>⏳</div>
+                          <p style={{ color: '#65676B' }}>파일 목록 로드 중...</p>
+                        </div>
+                      ) : cacheFiles.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: 40, background: '#F9FAFB', borderRadius: 12 }}>
+                          <div style={{ fontSize: 32, marginBottom: 12 }}>📭</div>
+                          <p style={{ color: '#65676B' }}>캐시 폴더에 파일이 없습니다.</p>
+                        </div>
+                      ) : (
+                        <div style={{ maxHeight: 300, overflowY: 'auto', border: '1px solid #E5E7EB', borderRadius: 12 }}>
+                          {cacheFiles.map((file, index) => (
+                            <div
+                              key={file.filename}
+                              onClick={() => setSelectedCacheFile(file.filename)}
+                              style={{
+                                padding: '12px 16px',
+                                borderBottom: index < cacheFiles.length - 1 ? '1px solid #E5E7EB' : 'none',
+                                background: selectedCacheFile === file.filename ? '#EDE9FE' : 'white',
+                                cursor: 'pointer',
+                                transition: 'background 0.2s'
+                              }}
+                            >
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                  <div style={{ fontWeight: 600, fontSize: 14, color: '#1F2937', marginBottom: 4 }}>
+                                    {selectedCacheFile === file.filename && '✓ '}{file.filename}
+                                  </div>
+                                  <div style={{ fontSize: 12, color: '#6B7280' }}>
+                                    {file.provider && <span style={{ marginRight: 8 }}>🤖 {file.provider}</span>}
+                                    {file.model && <span style={{ marginRight: 8 }}>📦 {file.model}</span>}
+                                    <span>📅 {new Date(file.createdAt).toLocaleString('ko-KR')}</span>
+                                  </div>
+                                </div>
+                                <div style={{ fontSize: 12, color: '#9CA3AF' }}>
+                                  {(file.size / 1024).toFixed(1)} KB
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {cacheFiles.length > 0 && (
+                        <button
+                          onClick={() => selectedCacheFile && loadCacheFromFile(selectedCacheFile)}
+                          disabled={!selectedCacheFile || isImporting}
+                          style={{
+                            width: '100%', marginTop: 16, padding: '14px 24px', fontSize: 14, fontWeight: 600,
+                            color: 'white',
+                            background: !selectedCacheFile || isImporting ? '#D1D5DB' : 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+                            border: 'none', borderRadius: 10, cursor: !selectedCacheFile || isImporting ? 'not-allowed' : 'pointer'
+                          }}
+                        >
+                          {isImporting ? '⏳ 로드 중...' : '📥 선택한 파일 로드'}
+                        </button>
+                      )}
+                    </div>
+                  )}
+
                   <div style={{ padding: 16, borderRadius: 12, background: '#FEF3C7', border: '1px solid #F59E0B' }}>
                     <p style={{ margin: 0, fontSize: 13, color: '#92400E' }}>
                       ⚠️ 주의: 가져온 캐시는 기존 데이터와 병합됩니다. 동일한 버전의 항목은 덮어쓰기됩니다.
