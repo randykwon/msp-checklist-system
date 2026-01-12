@@ -38,6 +38,28 @@ export default function SystemPage() {
   const [storagePathInput, setStoragePathInput] = useState('');
   const [s3BucketInput, setS3BucketInput] = useState('');
   const [s3PrefixInput, setS3PrefixInput] = useState('');
+  
+  // 통합 캐시 내보내기/가져오기 관련 state
+  const [showExportAllModal, setShowExportAllModal] = useState(false);
+  const [showImportAllModal, setShowImportAllModal] = useState(false);
+  const [isExportingAll, setIsExportingAll] = useState(false);
+  const [isImportingAll, setIsImportingAll] = useState(false);
+  const [cacheVersions, setCacheVersions] = useState<{
+    advice: Array<{ version: string; createdAt: string }>;
+    virtualEvidence: Array<{ version: string; createdAt: string }>;
+    activeAdvice: string | null;
+    activeVirtualEvidence: string | null;
+  }>({
+    advice: [],
+    virtualEvidence: [],
+    activeAdvice: null,
+    activeVirtualEvidence: null,
+  });
+  const [selectedExportVersions, setSelectedExportVersions] = useState<{
+    advice: string;
+    virtualEvidence: string;
+  }>({ advice: '', virtualEvidence: '' });
+  const [importFile, setImportFile] = useState<File | null>(null);
 
   useEffect(() => {
     setIsHydrated(true);
@@ -202,6 +224,160 @@ export default function SystemPage() {
     }
   };
 
+  // 캐시 버전 목록 로드
+  const loadCacheVersions = async () => {
+    try {
+      const mainAppUrl = process.env.NEXT_PUBLIC_MAIN_APP_URL || 'http://localhost:3010';
+      
+      // 조언 캐시 버전
+      const adviceRes = await fetch(`${mainAppUrl}/api/advice-cache?action=versions`);
+      const adviceData = adviceRes.ok ? await adviceRes.json() : { versions: [] };
+      
+      // 가상증빙 캐시 버전
+      const veRes = await fetch(`${mainAppUrl}/api/virtual-evidence-cache?action=versions`);
+      const veData = veRes.ok ? await veRes.json() : { versions: [] };
+      
+      // 활성 버전
+      const activeRes = await fetch('/api/cache-version');
+      const activeData = activeRes.ok ? await activeRes.json() : { activeVersions: {} };
+      
+      const activeAdvice = activeData.activeVersions?.advice || null;
+      const activeVE = activeData.activeVersions?.virtualEvidence || null;
+      
+      setCacheVersions({
+        advice: adviceData.versions || [],
+        virtualEvidence: veData.versions || [],
+        activeAdvice,
+        activeVirtualEvidence: activeVE,
+      });
+      
+      // 활성 버전을 기본 선택값으로 설정 (없으면 첫 번째 버전)
+      setSelectedExportVersions({
+        advice: activeAdvice || (adviceData.versions?.[0]?.version || ''),
+        virtualEvidence: activeVE || (veData.versions?.[0]?.version || ''),
+      });
+    } catch (error) {
+      console.error('Failed to load cache versions:', error);
+    }
+  };
+
+  // 통합 내보내기 모달 열기
+  const openExportAllModal = async () => {
+    await loadCacheVersions();
+    setShowExportAllModal(true);
+  };
+
+  // 통합 내보내기 실행
+  const handleExportAll = async () => {
+    if (!selectedExportVersions.advice && !selectedExportVersions.virtualEvidence) {
+      alert('최소 하나의 캐시 버전을 선택해주세요.');
+      return;
+    }
+    
+    try {
+      setIsExportingAll(true);
+      
+      const params = new URLSearchParams();
+      if (selectedExportVersions.advice) {
+        params.append('adviceVersion', selectedExportVersions.advice);
+      }
+      if (selectedExportVersions.virtualEvidence) {
+        params.append('virtualEvidenceVersion', selectedExportVersions.virtualEvidence);
+      }
+      
+      const response = await fetch(`/api/cache/export-all?${params.toString()}`);
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        // JSON 파일로 다운로드
+        const blob = new Blob([JSON.stringify(result.data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        a.download = `msp_cache_backup_${timestamp}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        alert('캐시 데이터를 성공적으로 내보냈습니다.');
+        setShowExportAllModal(false);
+      } else {
+        const error = await response.json();
+        alert(`내보내기 실패: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Failed to export all caches:', error);
+      alert('캐시 내보내기 중 오류가 발생했습니다.');
+    } finally {
+      setIsExportingAll(false);
+    }
+  };
+
+  // 통합 가져오기 모달 열기
+  const openImportAllModal = () => {
+    setImportFile(null);
+    setShowImportAllModal(true);
+  };
+
+  // 통합 가져오기 실행
+  const handleImportAll = async () => {
+    if (!importFile) {
+      alert('가져올 파일을 선택해주세요.');
+      return;
+    }
+    
+    try {
+      setIsImportingAll(true);
+      
+      const fileContent = await importFile.text();
+      const importData = JSON.parse(fileContent);
+      
+      const response = await fetch('/api/cache/import-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          adviceCache: importData.adviceCache,
+          virtualEvidenceCache: importData.virtualEvidenceCache,
+          adviceSummary: importData.adviceSummary,
+          virtualEvidenceSummary: importData.virtualEvidenceSummary,
+        }),
+      });
+      
+      if (response.ok) {
+        const result = await response.json();
+        
+        let message = '캐시 가져오기 완료!\n\n';
+        if (result.results.adviceCache) {
+          message += `조언 캐시: ${result.results.adviceCache.message}\n`;
+        }
+        if (result.results.virtualEvidenceCache) {
+          message += `가상증빙예제 캐시: ${result.results.virtualEvidenceCache.message}\n`;
+        }
+        if (result.results.adviceSummary) {
+          message += `조언 요약: ${result.results.adviceSummary.message}\n`;
+        }
+        if (result.results.virtualEvidenceSummary) {
+          message += `가상증빙 요약: ${result.results.virtualEvidenceSummary.message}\n`;
+        }
+        
+        alert(message);
+        setShowImportAllModal(false);
+        fetchSystemInfo();
+      } else {
+        const error = await response.json();
+        alert(`가져오기 실패: ${error.error}`);
+      }
+    } catch (error: any) {
+      console.error('Failed to import all caches:', error);
+      alert(`캐시 가져오기 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsImportingAll(false);
+    }
+  };
+
   if (!isHydrated || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#F0F2F5' }}>
@@ -361,31 +537,99 @@ export default function SystemPage() {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">캐시 관리</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">📦 캐시 관리</h3>
             <div className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900">조언 캐시</h4>
-                  <p className="text-sm text-gray-500">AI 생성 조언 캐시 데이터</p>
+              {/* 통합 내보내기/가져오기 버튼 */}
+              <div style={{
+                display: 'flex',
+                gap: 12,
+                marginBottom: 20,
+                padding: 16,
+                background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)',
+                borderRadius: 12,
+                border: '1px solid #C7D2FE',
+              }}>
+                <button
+                  onClick={openExportAllModal}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                    border: 'none',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>📤</span>
+                  <span>통합 내보내기</span>
+                </button>
+                <button
+                  onClick={openImportAllModal}
+                  style={{
+                    flex: 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                    padding: '14px 20px',
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: 'white',
+                    background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                    border: 'none',
+                    borderRadius: 10,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)',
+                    transition: 'all 0.2s',
+                  }}
+                >
+                  <span style={{ fontSize: 18 }}>📥</span>
+                  <span>통합 가져오기</span>
+                </button>
+              </div>
+              
+              <p style={{ fontSize: 13, color: '#6B7280', marginBottom: 16, padding: '0 4px' }}>
+                💡 조언 캐시와 가상증빙예제 캐시를 한번에 백업하거나 복원할 수 있습니다.
+              </p>
+              
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-purple-300 hover:bg-purple-50 transition-all">
+                <div className="flex items-center gap-3">
+                  <span style={{ fontSize: 24 }}>💡</span>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900">조언 캐시</h4>
+                    <p className="text-sm text-gray-500">AI 생성 조언 캐시 데이터</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => handleClearCache('advice')}
-                  className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                  className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200"
                 >
-                  캐시 삭제
+                  🗑️ 캐시 삭제
                 </button>
               </div>
 
-              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
-                <div>
-                  <h4 className="text-sm font-medium text-gray-900">가상증빙 캐시</h4>
-                  <p className="text-sm text-gray-500">AI 생성 가상증빙 예제 캐시</p>
+              <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:border-amber-300 hover:bg-amber-50 transition-all">
+                <div className="flex items-center gap-3">
+                  <span style={{ fontSize: 24 }}>📋</span>
+                  <div>
+                    <h4 className="text-sm font-medium text-gray-900">가상증빙 캐시</h4>
+                    <p className="text-sm text-gray-500">AI 생성 가상증빙 예제 캐시</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => handleClearCache('virtual-evidence')}
-                  className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200"
+                  className="px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 border border-red-200"
                 >
-                  캐시 삭제
+                  🗑️ 캐시 삭제
                 </button>
               </div>
             </div>
@@ -690,6 +934,235 @@ export default function SystemPage() {
           </div>
         </div>
       </div>
+
+      {/* 통합 내보내기 모달 */}
+      {showExportAllModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            width: '90%',
+            maxWidth: 500,
+            maxHeight: '80vh',
+            overflow: 'auto',
+          }}>
+            <h2 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#1C1E21' }}>
+              📤 캐시 통합 내보내기
+            </h2>
+            
+            <p style={{ fontSize: 14, color: '#65676B', marginBottom: 20 }}>
+              조언 캐시와 가상증빙예제 캐시를 하나의 파일로 내보냅니다.
+            </p>
+            
+            {/* 조언 캐시 버전 선택 */}
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                💡 조언 캐시 버전
+              </label>
+              <select
+                value={selectedExportVersions.advice}
+                onChange={(e) => setSelectedExportVersions(prev => ({ ...prev, advice: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: 14,
+                  border: '1px solid #E4E6EB',
+                  borderRadius: 8,
+                  background: 'white',
+                }}
+              >
+                <option value="">선택 안함</option>
+                {cacheVersions.advice.map((v) => (
+                  <option key={v.version} value={v.version}>
+                    {v.version} {v.version === cacheVersions.activeAdvice ? '(활성)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {/* 가상증빙예제 캐시 버전 선택 */}
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                📋 가상증빙예제 캐시 버전
+              </label>
+              <select
+                value={selectedExportVersions.virtualEvidence}
+                onChange={(e) => setSelectedExportVersions(prev => ({ ...prev, virtualEvidence: e.target.value }))}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: 14,
+                  border: '1px solid #E4E6EB',
+                  borderRadius: 8,
+                  background: 'white',
+                }}
+              >
+                <option value="">선택 안함</option>
+                {cacheVersions.virtualEvidence.map((v) => (
+                  <option key={v.version} value={v.version}>
+                    {v.version} {v.version === cacheVersions.activeVirtualEvidence ? '(활성)' : ''}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowExportAllModal(false)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#65676B',
+                  background: '#E4E6EB',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleExportAll}
+                disabled={isExportingAll || (!selectedExportVersions.advice && !selectedExportVersions.virtualEvidence)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white',
+                  background: isExportingAll || (!selectedExportVersions.advice && !selectedExportVersions.virtualEvidence)
+                    ? '#BCC0C4'
+                    : 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: isExportingAll || (!selectedExportVersions.advice && !selectedExportVersions.virtualEvidence)
+                    ? 'not-allowed'
+                    : 'pointer',
+                }}
+              >
+                {isExportingAll ? '내보내는 중...' : '📤 내보내기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 통합 가져오기 모달 */}
+      {showImportAllModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: 16,
+            padding: 24,
+            width: '90%',
+            maxWidth: 500,
+          }}>
+            <h2 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#1C1E21' }}>
+              📥 캐시 통합 가져오기
+            </h2>
+            
+            <p style={{ fontSize: 14, color: '#65676B', marginBottom: 20 }}>
+              이전에 내보낸 캐시 백업 파일을 선택하여 가져옵니다.
+            </p>
+            
+            {/* 파일 선택 */}
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#1C1E21', marginBottom: 8 }}>
+                📁 백업 파일 선택
+              </label>
+              <input
+                type="file"
+                accept=".json"
+                onChange={(e) => setImportFile(e.target.files?.[0] || null)}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  fontSize: 14,
+                  border: '2px dashed #E4E6EB',
+                  borderRadius: 8,
+                  background: '#F7F8FA',
+                }}
+              />
+              {importFile && (
+                <p style={{ fontSize: 13, color: '#42B883', marginTop: 8 }}>
+                  ✅ 선택된 파일: {importFile.name}
+                </p>
+              )}
+            </div>
+            
+            <div style={{
+              padding: 12,
+              background: '#FEF3C7',
+              borderRadius: 8,
+              marginBottom: 20,
+              border: '1px solid #F59E0B',
+            }}>
+              <p style={{ fontSize: 13, color: '#92400E', margin: 0 }}>
+                ⚠️ 가져오기를 실행하면 새로운 버전으로 캐시가 추가됩니다. 기존 캐시는 유지됩니다.
+              </p>
+            </div>
+            
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end' }}>
+              <button
+                onClick={() => setShowImportAllModal(false)}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: '#65676B',
+                  background: '#E4E6EB',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: 'pointer',
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleImportAll}
+                disabled={isImportingAll || !importFile}
+                style={{
+                  padding: '10px 20px',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: 'white',
+                  background: isImportingAll || !importFile
+                    ? '#BCC0C4'
+                    : 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                  border: 'none',
+                  borderRadius: 8,
+                  cursor: isImportingAll || !importFile ? 'not-allowed' : 'pointer',
+                }}
+              >
+                {isImportingAll ? '가져오는 중...' : '📥 가져오기'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminLayout>
   );
 }
