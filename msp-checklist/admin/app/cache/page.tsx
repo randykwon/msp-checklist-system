@@ -2600,7 +2600,7 @@ export default function CachePage() {
                               <div style={{ padding: 12, borderRadius: 10, background: '#E7F3FF', border: '1px solid #90CAF9' }}>
                                 <div style={{ fontSize: 12, fontWeight: 600, color: '#1877F2', marginBottom: 6 }}>💡 조언</div>
                                 <div 
-                                  style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}
+                                  style={{ fontSize: 14, color: '#1e293b', lineHeight: 1.6 }}
                                   dangerouslySetInnerHTML={createMarkdownHtml(item.advice)}
                                 />
                               </div>
@@ -3058,11 +3058,11 @@ export default function CachePage() {
                             {item.category}
                           </span>
                         </div>
-                        <div style={{ fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                        <div style={{ fontWeight: 600, color: 'inherit', marginBottom: 8 }}>
                           {item.title}
                         </div>
                         <div 
-                          style={{ fontSize: 14, color: '#4B5563', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
+                          style={{ fontSize: 14, color: 'inherit', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}
                           dangerouslySetInnerHTML={createMarkdownHtml(item.summary)}
                         />
                       </div>

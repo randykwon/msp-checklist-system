@@ -1303,7 +1303,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#92400E' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#78350f' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
                   </div>
@@ -1334,7 +1334,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#1B5E20' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#14532d' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
                     />
                   </div>
@@ -1481,7 +1481,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         </span>
                       </div>
                       <div 
-                        style={{ fontSize: 13, color: '#92400E', lineHeight: 1.6 }}
+                        style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}
                         dangerouslySetInnerHTML={createMarkdownHtml(veSummaryContent)}
                       />
                     </div>

@@ -2590,7 +2590,7 @@ export default function VirtualEvidencePage() {
                                 </button>
                               </div>
                             ) : (
-                              <div style={{ fontSize: 14, color: '#1C1E21', lineHeight: 1.6 }}>
+                              <div style={{ fontSize: 14, color: 'inherit', lineHeight: 1.6 }}>
                                 <div 
                                   style={{ maxHeight: 200, overflow: 'hidden' }}
                                   dangerouslySetInnerHTML={createMarkdownHtml(item.virtualEvidence.substring(0, 500) + '...')}
@@ -3030,11 +3030,11 @@ export default function VirtualEvidencePage() {
                             {summary.category}
                           </span>
                         </div>
-                        <div style={{ fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                        <div style={{ fontWeight: 600, color: 'inherit', marginBottom: 8 }}>
                           {summary.title}
                         </div>
                         <div 
-                          style={{ fontSize: 14, color: '#6B7280', lineHeight: 1.6 }}
+                          style={{ fontSize: 14, color: 'inherit', lineHeight: 1.6 }}
                           dangerouslySetInnerHTML={createMarkdownHtml(summary.summary)}
                         />
                       </div>
