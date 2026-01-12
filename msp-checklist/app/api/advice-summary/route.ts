@@ -323,8 +323,9 @@ ${item.advice}`;
         successCount++;
         console.log(`[Advice Summary] ✅ ${item.item_id} completed (${successCount}/${adviceItems.length})`);
         
-        // Rate limiting - 잠시 대기
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Rate limiting - OpenAI는 TPM 제한이 있으므로 더 긴 대기 시간 필요
+        const delayMs = finalLLMConfig.provider === 'openai' ? 2000 : 500;
+        await new Promise(resolve => setTimeout(resolve, delayMs));
         
       } catch (error: any) {
         errorCount++;

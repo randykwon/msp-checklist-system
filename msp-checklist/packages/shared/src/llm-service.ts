@@ -353,16 +353,81 @@ async function callBedrock(prompt: string, systemPrompt: string, config: LLMConf
   return parseResponse(responseBody);
 }
 
+// Rate Limit 재시도 설정
+const RATE_LIMIT_RETRY_CONFIG = {
+  maxRetries: 3,
+  baseDelayMs: 3000, // 기본 대기 시간 3초
+  maxDelayMs: 30000, // 최대 대기 시간 30초
+};
+
+// Rate Limit 오류인지 확인
+function isRateLimitError(error: any): boolean {
+  const message = error?.message || '';
+  return message.includes('Rate limit') || 
+         message.includes('rate_limit') ||
+         message.includes('429') ||
+         message.includes('TPM') ||
+         message.includes('RPM') ||
+         message.includes('tokens per min') ||
+         message.includes('requests per min');
+}
+
+// 오류 메시지에서 대기 시간 추출 (예: "Please try again in 2.124s")
+function extractRetryDelay(error: any): number | null {
+  const message = error?.message || '';
+  const match = message.match(/try again in (\d+\.?\d*)s/i);
+  if (match) {
+    return Math.ceil(parseFloat(match[1]) * 1000) + 500; // 추출된 시간 + 0.5초 여유
+  }
+  return null;
+}
+
+// 지연 함수
+function delay(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export async function callLLM(prompt: string, systemPrompt: string, config: LLMConfig): Promise<LLMResponse> {
   console.log(`[LLM] Calling ${config.provider} with model ${config.model}`);
   
-  switch (config.provider) {
-    case 'openai': return await callOpenAI(prompt, systemPrompt, config);
-    case 'gemini': return await callGemini(prompt, systemPrompt, config);
-    case 'claude': return await callClaude(prompt, systemPrompt, config);
-    case 'bedrock': return await callBedrock(prompt, systemPrompt, config);
-    default: throw new Error(`Unsupported LLM provider: ${config.provider}`);
+  let lastError: any;
+  
+  for (let attempt = 0; attempt <= RATE_LIMIT_RETRY_CONFIG.maxRetries; attempt++) {
+    try {
+      switch (config.provider) {
+        case 'openai': return await callOpenAI(prompt, systemPrompt, config);
+        case 'gemini': return await callGemini(prompt, systemPrompt, config);
+        case 'claude': return await callClaude(prompt, systemPrompt, config);
+        case 'bedrock': return await callBedrock(prompt, systemPrompt, config);
+        default: throw new Error(`Unsupported LLM provider: ${config.provider}`);
+      }
+    } catch (error: any) {
+      lastError = error;
+      
+      // Rate Limit 오류인 경우 재시도
+      if (isRateLimitError(error) && attempt < RATE_LIMIT_RETRY_CONFIG.maxRetries) {
+        // 오류 메시지에서 대기 시간 추출 또는 지수 백오프 사용
+        let delayMs = extractRetryDelay(error);
+        if (!delayMs) {
+          // 지수 백오프: 3초, 6초, 12초...
+          delayMs = Math.min(
+            RATE_LIMIT_RETRY_CONFIG.baseDelayMs * Math.pow(2, attempt),
+            RATE_LIMIT_RETRY_CONFIG.maxDelayMs
+          );
+        }
+        
+        console.log(`[LLM] Rate limit hit, retrying in ${delayMs}ms (attempt ${attempt + 1}/${RATE_LIMIT_RETRY_CONFIG.maxRetries})`);
+        await delay(delayMs);
+        continue;
+      }
+      
+      // Rate Limit이 아닌 오류이거나 재시도 횟수 초과
+      throw error;
+    }
   }
+  
+  // 모든 재시도 실패
+  throw lastError;
 }
 
 export function getDefaultLLMConfig(): LLMConfig {
