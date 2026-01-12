@@ -67,6 +67,24 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
+# NVM 환경 로드 (EC2에서 npm 사용을 위해 필요)
+load_nvm() {
+    export NVM_DIR="$HOME/.nvm"
+    if [ -s "$NVM_DIR/nvm.sh" ]; then
+        source "$NVM_DIR/nvm.sh"
+        log_info "NVM 환경 로드됨 (Node $(node -v))"
+    elif [ -s "/usr/local/nvm/nvm.sh" ]; then
+        source "/usr/local/nvm/nvm.sh"
+        log_info "NVM 환경 로드됨 (Node $(node -v))"
+    else
+        # nvm이 없으면 시스템 node 사용 시도
+        if ! command -v node &> /dev/null; then
+            log_error "Node.js를 찾을 수 없습니다. NVM 또는 Node.js를 설치해주세요."
+            exit 1
+        fi
+    fi
+}
+
 # 배너 출력
 show_banner() {
     echo -e "${CYAN}"
@@ -431,6 +449,7 @@ trap 'error_handler $LINENO' ERR
 # 메인 실행
 main() {
     show_banner
+    load_nvm
     detect_project_dir
     pull_changes
     stop_services
