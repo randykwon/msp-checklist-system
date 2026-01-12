@@ -172,8 +172,16 @@ async function callOpenAI(prompt: string, systemPrompt: string, config: LLMConfi
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(`OpenAI API Error: ${error.error?.message || response.statusText}`);
+    let errorMessage = response.statusText;
+    try {
+      const errorBody = await response.text();
+      console.error('[OpenAI API] Error response:', errorBody);
+      const error = JSON.parse(errorBody);
+      errorMessage = error.error?.message || error.message || errorBody;
+    } catch (e) {
+      // JSON 파싱 실패 시 원본 텍스트 사용
+    }
+    throw new Error(`OpenAI API Error: ${errorMessage}`);
   }
 
   const data = await response.json() as any;
@@ -202,8 +210,16 @@ async function callGemini(prompt: string, systemPrompt: string, config: LLMConfi
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(`Gemini API Error: ${error.error?.message || response.statusText}`);
+    let errorMessage = response.statusText;
+    try {
+      const errorBody = await response.text();
+      console.error('[Gemini API] Error response:', errorBody);
+      const error = JSON.parse(errorBody);
+      errorMessage = error.error?.message || error.message || errorBody;
+    } catch (e) {
+      // JSON 파싱 실패 시 원본 텍스트 사용
+    }
+    throw new Error(`Gemini API Error: ${errorMessage}`);
   }
 
   const data = await response.json() as any;
@@ -234,8 +250,17 @@ async function callClaude(prompt: string, systemPrompt: string, config: LLMConfi
   });
 
   if (!response.ok) {
-    const error = await response.json() as any;
-    throw new Error(`Claude API Error: ${error.error?.message || response.statusText}`);
+    let errorMessage = response.statusText;
+    try {
+      const errorBody = await response.text();
+      console.error('[Claude API] Error response:', errorBody);
+      const error = JSON.parse(errorBody);
+      // Anthropic API 오류 구조: { type: "error", error: { type: "...", message: "..." } }
+      errorMessage = error.error?.message || error.message || errorBody;
+    } catch (e) {
+      // JSON 파싱 실패 시 원본 텍스트 사용
+    }
+    throw new Error(`Claude API Error: ${errorMessage}`);
   }
 
   const data = await response.json() as any;
