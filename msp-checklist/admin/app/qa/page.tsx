@@ -124,7 +124,7 @@ export default function QAPage() {
   const [filteredQuestions, setFilteredQuestions] = useState<QAItem[]>([]);
   const [questionsLoading, setQuestionsLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'unanswered' | 'answered'>('unanswered');
-  const [typeFilter, setTypeFilter] = useState<'all' | 'prerequisite' | 'technical'>('all');
+  const [typeFilter, setTypeFilter] = useState<'all' | 'prerequisites' | 'technical'>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState<'date' | 'status' | 'type'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
@@ -272,7 +272,7 @@ export default function QAPage() {
       answered: questions.filter(q => q.answer).length,
       unanswered: questions.filter(q => !q.answer).length,
       byType: {
-        prerequisite: questions.filter(q => q.assessmentType === 'prerequisite').length,
+        prerequisite: questions.filter(q => q.assessmentType === 'prerequisites').length,
         technical: questions.filter(q => q.assessmentType === 'technical').length,
       }
     };
@@ -624,7 +624,7 @@ export default function QAPage() {
                     style={{ width: '100%', padding: '10px 14px', fontSize: 14, border: '2px solid #E4E6EB', borderRadius: 10, boxSizing: 'border-box' }}
                   >
                     <option value="all">전체</option>
-                    <option value="prerequisite">사전요구사항</option>
+                    <option value="prerequisites">사전요구사항</option>
                     <option value="technical">기술검증</option>
                   </select>
                 </div>
@@ -727,7 +727,7 @@ export default function QAPage() {
                                 {qa.itemId}
                               </span>
                               <span style={{ padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600, background: 'rgba(255,255,255,0.25)' }}>
-                                {qa.assessmentType === 'prerequisite' ? '사전요구사항' : '기술검증'}
+                                {qa.assessmentType === 'prerequisites' ? '사전요구사항' : '기술검증'}
                               </span>
                               <span style={{
                                 padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
