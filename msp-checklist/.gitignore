@@ -33,11 +33,11 @@ advice-cache.db
 virtual-evidence-cache.db
 msp-assessment.db
 
-# JSON cache files (may contain example secrets)
-/cache/advice/*.json
-/cache/virtual-evidence/*.json
-/cache/advice-summaries/*.json
-/cache/virtual-evidence-summaries/*.json
+# JSON cache files - keep backup files but exclude individual cache files
+# /cache/advice/*.json
+# /cache/virtual-evidence/*.json
+# /cache/advice-summaries/*.json
+# /cache/virtual-evidence-summaries/*.json
 
 # misc
 .DS_Store

@@ -14,7 +14,11 @@
     "cache": "node scripts/generate-advice-cache-node.js",
     "cache:generate": "npm run cache generate",
     "cache:list": "npm run cache list",
-    "cache:stats": "npm run cache stats"
+    "cache:stats": "npm run cache stats",
+    "test": "node scripts/full-functional-test.js",
+    "test:verbose": "node scripts/full-functional-test.js --verbose",
+    "test:main": "node scripts/full-functional-test.js --main-only",
+    "test:admin": "node scripts/full-functional-test.js --admin-only"
   },
   "dependencies": {
     "@aws-sdk/client-bedrock": "^3.962.0",

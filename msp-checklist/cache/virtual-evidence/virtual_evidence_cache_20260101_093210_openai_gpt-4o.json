@@ -1,0 +1,985 @@
+{
+  "version": "20260101_093210_openai_gpt-4o",
+  "exportedAt": "2026-01-10T13:07:48.079Z",
+  "totalItems": 61,
+  "koCount": 61,
+  "enCount": 61,
+  "items": [
+    {
+      "itemId": "BUS-001",
+      "category": "Business",
+      "title": "Company Overview",
+      "virtualEvidence": "📋 **BUS-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Company Overview**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUS-001_Business_Company_Overview_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Company Overview requirement compliance\n- Approved by: CTO, Date: 2024-9-14\n\n🔹 **Document 2: BUS-001 Implementation Evidence**\n- Filename: BUS-001_Implementation_Evidence_2026.xlsx\n- Content: Company Overview\nMandatory\n\nAWS Partner has a comp... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-6\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUS-001_Business_Validation_052693.png\n- Content: Company Overview related system screens and configuration evidence\n- Validated: 2024-12-16\n\n💡 **BUS-001 Practical Note**: Prepare specific evidence materials for this particular item (Company Overview).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:12.693Z"
+    },
+    {
+      "itemId": "BUS-001",
+      "category": "Business",
+      "title": "회사 개요",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 회사 개요 프레젠테이션**\n- 파일명: AWS_MSP_회사개요_프레젠테이션_2023.pptx\n- 내용: \n  - **회사 역사**: 2010년 설립, 창립 이후 13년간 IT 인프라 관리 전문 기업으로 성장. 2015년 AWS MSP 파트너 자격 취득.\n  - **사무실 위치**: 서울 본사, 부산 R&D 센터, 미국 샌프란시스코 지사.\n  - **직원 수**: 총 250명, 이 중 100명이 AWS MSP 지원 및 운영 담당.\n  - **고객 프로필**: 약 150개의 고객사를 보유, 주로 금융, 의료, 제조업 분야에 집중. 고객의 60%는 국내, 40%는 해외 고객.\n  - **서비스 차별화 요소**: 자동화된 DevOps 프로세스를 통해 클라우드 자산의 효율적 관리, 24/7 AWS 지원 서비스 제공.\n  - **AWS 관계 개요/세부사항**: AWS Advanced Consulting Partner, 월 평균 AWS 청구 약 50만 달러.\n- 작성자/승인자: 비즈니스 개발 책임자 김민수, 날짜: 2023년 10월 15일\n\n🔹 **문서 2: AWS 서비스 차별화 상세 설명서**\n- 파일명: AWS_서비스_차별화_설명서_2023.pdf\n- 내용: \n  - AWS 환경에서의 자동화된 모니터링 및 관리 도구 설명.\n  - DevOps를 활용하여 고객 맞춤형 CI/CD 파이프라인 구축 사례.\n  - 기존 온프레미스 대비 AWS 환경 운영의 효율성과 비용 절감 효과 분석.\n- 작성자/승인자: 클라우드 솔루션 아키텍트 이수현, 날짜: 2023년 10월 20일\n\n🔹 **문서 3: 고객 성공 사례 요약 보고서**\n- 파일명: 고객_성공_사례_요약_2023.pdf\n- 내용: \n  - **사례 1**: 대형 금융기관의 AWS 전환 프로젝트 성공 사례. 주요 성과로는 운영 비용 30% 절감 및 서비스 가용성 99.9% 달성.\n  - **사례 2**: 글로벌 제조업체의 클라우드 네이티브 애플리케이션 마이그레이션 성공 사례.\n  - 성공 요인 분석 및 향후 개선점 제시.\n- 작성자/승인자: 고객 성공 팀장 박지영, 날짜: 2023년 10월 25일\n\n💡 **실무 팁**: 프레젠테이션 준비 시, 각 슬라이드에 시간 할당을 명확히 하여 20분 내에 모든 주요 내용을 전달할 수 있도록 리허설을 진행하세요. 또한, 고객의 특정 요구에 맞춘 사례나 데이터를 활용하여 청중의 관심을 끌도록 하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:53.342Z"
+    },
+    {
+      "itemId": "BUS-002",
+      "category": "Business",
+      "title": "MSP Practice Growth",
+      "virtualEvidence": "📋 **BUS-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **MSP Practice Growth**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUS-002_Business_MSP_Practice_Growth_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for MSP Practice Growth requirement compliance\n- Approved by: CTO, Date: 2024-7-17\n\n🔹 **Document 2: BUS-002 Implementation Evidence**\n- Filename: BUS-002_Implementation_Evidence_2026.xlsx\n- Content: MSP Practice Growth\nMandatory\n\nAWS Partner is acti... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-24\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUS-002_Business_Validation_052909.png\n- Content: MSP Practice Growth related system screens and configuration evidence\n- Validated: 2024-12-23\n\n💡 **BUS-002 Practical Note**: Prepare specific evidence materials for this particular item (MSP Practice Growth).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:12.909Z"
+    },
+    {
+      "itemId": "BUS-002",
+      "category": "Business",
+      "title": "MSP 실무 성장",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 신규 고객 계약서**\n- 파일명: 신규_고객_계약서_ABC_Corp_20230901.pdf\n- 내용: ABC Corp와의 신규 계약으로, AWS 클라우드 환경으로의 애플리케이션 마이그레이션과 지속적인 관리 서비스를 포함. 계약 기간 24개월이며, 주요 목표는 애플리케이션의 클라우드 네이티브 전환과 비용 최적화.\n- 작성자/승인자: 영업 담당자 김철수, CTO 박영희, 날짜: 2023년 9월 1일\n\n🔹 **문서 2: 애플리케이션 리팩토링 프로젝트 계약서**\n- 파일명: 리팩토링_계약서_XYZ_Ltd_20230815.pdf\n- 내용: XYZ Ltd와의 계약으로, 기존 온프레미스 애플리케이션을 AWS Lambda를 활용하여 서버리스 아키텍처로 리팩토링하는 프로젝트. 계약서에 따라 12개월 동안의 관리 서비스 포함.\n- 작성자/승인자: 프로젝트 매니저 이수진, CTO 박영희, 날짜: 2023년 8월 15일\n\n🔹 **문서 3: 기존 고객 서비스 확장 부록**\n- 파일명: 서비스확장_부록_DEF_Inc_20230720.pdf\n- 내용: DEF Inc와의 부록 계약으로, 기존 관리 서비스에 AWS DevOps 및 CICD 파이프라인 구축 추가. 서비스 범위 확장을 통해 고객의 개발 주기 단축을 목표.\n- 작성자/승인자: 고객 성공 매니저 최민수, CTO 박영희, 날짜: 2023년 7월 20일\n\n🔹 **문서 4: 신규 고객 온보딩 계약**\n- 파일명: 온보딩_계약_GHI_Ltd_20230610.pdf\n- 내용: GHI Ltd와의 신규 온보딩 계약으로 AWS 클라우드로의 전체 인프라 이전 및 관리 서비스 제공. 고객 요구에 따른 맞춤형 보안 솔루션 포함.\n- 작성자/승인자: 영업 담당자 김철수, CTO 박영희, 날짜: 2023년 6월 10일\n\n💡 **실무 팁**: 이러한 문서들은 고객과의 모든 주요 상호작용 및 성장 기회를 명확하게 기록해야 합니다. 각 계약서 및 부록은 고객의 비즈니스 목표와 MSP의 관리 서비스가 어떻게 그 목표를 지원하는지를 구체적으로 명시해야 하며, 내부 승인 절차를 포함하여 모든 관련자의 서명이 필요합니다. 또한, 각 계약의 성과와 개선 사항을 주기적으로 리뷰하여 고객 만족도를 높이고, 장기적인 파트너십을 강화하는 데 집중하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:59.193Z"
+    },
+    {
+      "itemId": "BUS-003",
+      "category": "Business",
+      "title": "Financial Planning and Reporting",
+      "virtualEvidence": "📋 **BUS-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Financial Planning and Reporting**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUS-003_Business_Financial_Planning_and_Reporting_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Financial Planning and Reporting requirement compliance\n- Approved by: CTO, Date: 2024-11-21\n\n🔹 **Document 2: BUS-003 Implementation Evidence**\n- Filename: BUS-003_Implementation_Evidence_2026.xlsx\n- Content: Financial Planning and Reporting\nMandatory\n\nAWS Pa... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-28\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUS-003_Business_Validation_053099.png\n- Content: Financial Planning and Reporting related system screens and configuration evidence\n- Validated: 2024-12-9\n\n💡 **BUS-003 Practical Note**: Prepare specific evidence materials for this particular item (Financial Planning and Reporting).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:13.099Z"
+    },
+    {
+      "itemId": "BUS-003",
+      "category": "Business",
+      "title": "재무 계획 및 보고",
+      "virtualEvidence": "📋 **BUS-003 가상증빙예제-참고용 (더미 데이터)**\n\n**재무 계획 및 보고** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Business 특화 문서**\n- 파일명: BUS-003_Business_재무_계획_및_보고_v2.1.pdf\n- 내용: 재무 계획 및 보고 요구사항 충족을 위한 사업 계획서, 재무 보고서, 고객 계약서\n- 승인자: CTO, 승인일: 2024-10-15\n\n🔹 **문서 2: BUS-003 구현 증빙**\n- 파일명: BUS-003_Implementation_Evidence_2026.xlsx\n- 내용: Financial Planning and Reporting\nMandatory\n\nAWS Pa... 관련 구현 결과 및 메트릭\n- 담당자: Business 팀장, 작성일: 2024-12-5\n\n🔹 **문서 3: Business 검증 자료**\n- 파일명: BUS-003_Business_Validation_039765.png\n- 내용: 재무 계획 및 보고 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-9\n\n💡 **BUS-003 실무 팁**: 이 특정 항목(재무 계획 및 보고)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:59.765Z"
+    },
+    {
+      "itemId": "BUS-004",
+      "category": "Business",
+      "title": "Go-To-Market",
+      "virtualEvidence": "📋 **BUS-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Go-To-Market**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUS-004_Business_Go-To-Market_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Go-To-Market requirement compliance\n- Approved by: CTO, Date: 2024-5-26\n\n🔹 **Document 2: BUS-004 Implementation Evidence**\n- Filename: BUS-004_Implementation_Evidence_2026.xlsx\n- Content: Go-To-Market\nMandatory\n\nAWS Partner must have proc... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-19\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUS-004_Business_Validation_053291.png\n- Content: Go-To-Market related system screens and configuration evidence\n- Validated: 2024-12-6\n\n💡 **BUS-004 Practical Note**: Prepare specific evidence materials for this particular item (Go-To-Market).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:13.291Z"
+    },
+    {
+      "itemId": "BUS-004",
+      "category": "Business",
+      "title": "시장 진출 전략",
+      "virtualEvidence": "📋 **BUS-004 가상증빙예제-참고용 (더미 데이터)**\n\n**시장 진출 전략** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Business 특화 문서**\n- 파일명: BUS-004_Business_시장_진출_전략_v2.1.pdf\n- 내용: 시장 진출 전략 요구사항 충족을 위한 사업 계획서, 재무 보고서, 고객 계약서\n- 승인자: CTO, 승인일: 2024-7-27\n\n🔹 **문서 2: BUS-004 구현 증빙**\n- 파일명: BUS-004_Implementation_Evidence_2026.xlsx\n- 내용: Go-To-Market\nMandatory\n\nAWS Partner must have proc... 관련 구현 결과 및 메트릭\n- 담당자: Business 팀장, 작성일: 2024-12-28\n\n🔹 **문서 3: Business 검증 자료**\n- 파일명: BUS-004_Business_Validation_040284.png\n- 내용: 시장 진출 전략 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-7\n\n💡 **BUS-004 실무 팁**: 이 특정 항목(시장 진출 전략)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:00.284Z"
+    },
+    {
+      "itemId": "BUSP-001",
+      "category": "Business",
+      "title": "Web Presence",
+      "virtualEvidence": "📋 **BUSP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Web Presence**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUSP-001_Business_Web_Presence_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Web Presence requirement compliance\n- Approved by: CTO, Date: 2024-3-22\n\n🔹 **Document 2: BUSP-001 Implementation Evidence**\n- Filename: BUSP-001_Implementation_Evidence_2026.xlsx\n- Content: Web Presence\nMandatory\n\nAWS Partner has a public l... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-15\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUSP-001_Business_Validation_049506.png\n- Content: Web Presence related system screens and configuration evidence\n- Validated: 2024-12-25\n\n💡 **BUSP-001 Practical Note**: Prepare specific evidence materials for this particular item (Web Presence).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:09.506Z"
+    },
+    {
+      "itemId": "BUSP-001",
+      "category": "Business",
+      "title": "웹 사이트 존재",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 웹사이트 스크린샷**\n- 파일명: AWS_MSP_Landing_Page_Screenshot.png\n- 내용: AWS 관리 서비스 실무를 소개하는 랜딩 페이지의 전체 화면 캡처 이미지입니다. 페이지에는 회사의 AWS 관리 서비스 전문성과 접근 방식을 설명하는 섹션이 포함되어 있으며, 과거의 성공 사례와 고객 추천서가 링크되어 있습니다.\n- 작성자/승인자: 웹 디자이너 김민수, 날짜: 2023년 10월 12일\n\n🔹 **문서 2: 랜딩 페이지 URL 문서**\n- 파일명: AWS_MSP_Landing_Page_URL_Document.pdf\n- 내용: AWS MSP 실무 랜딩 페이지에 대한 공개 URL을 제공하는 문서입니다. 문서에는 URL 링크가 명확하게 표시되어 있으며, 페이지의 주요 내용에 대한 간략한 설명과 고객이 페이지를 찾을 수 있도록 돕는 키워드 정보가 포함되어 있습니다.\n- 작성자/승인자: 마케팅 담당자 이수진, 날짜: 2023년 10월 13일\n\n🔹 **문서 3: 웹사이트 콘텐츠 설명**\n- 파일명: AWS_MSP_Website_Content_Description.docx\n- 내용: 웹사이트 랜딩 페이지에 포함된 콘텐츠의 세부 설명을 제공하는 문서입니다. 이 문서에는 AWS에서의 워크로드 설계, 구축 및 관리에 대한 회사의 차별화된 전문성에 관한 설명과 함께, 공개 사례 연구에 대한 링크 및 요약이 포함되어 있습니다.\n- 작성자/승인자: 콘텐츠 매니저 정재훈, 날짜: 2023년 10월 14일\n\n💡 **실무 팁**: 랜딩 페이지는 회사의 AWS MSP 능력을 명확히 강조해야 하며, 고객이 쉽게 접근할 수 있는 직관적인 링크와 탐색 구조를 설계해야 합니다. 또한, 지속적으로 콘텐츠를 업데이트하여 최신 성공 사례와 기술 발전을 반영하는 것이 중요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:14.512Z"
+    },
+    {
+      "itemId": "BUSP-002",
+      "category": "Business",
+      "title": "Sales and Marketing Accreditations",
+      "virtualEvidence": "📋 **BUSP-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Sales and Marketing Accreditations**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUSP-002_Business_Sales_and_Marketing_Accreditations_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Sales and Marketing Accreditations requirement compliance\n- Approved by: CTO, Date: 2024-8-7\n\n🔹 **Document 2: BUSP-002 Implementation Evidence**\n- Filename: BUSP-002_Implementation_Evidence_2026.xlsx\n- Content: Sales and Marketing Accreditations\nMandatory\n\nAWS ... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-3\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUSP-002_Business_Validation_049725.png\n- Content: Sales and Marketing Accreditations related system screens and configuration evidence\n- Validated: 2024-12-28\n\n💡 **BUSP-002 Practical Note**: Prepare specific evidence materials for this particular item (Sales and Marketing Accreditations).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:09.725Z"
+    },
+    {
+      "itemId": "BUSP-002",
+      "category": "Business",
+      "title": "영업 및 마케팅 인증",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: PDF 인증 기록**\n- 파일명: AWS_Partner_Sales_Accreditation_Certificates_Q4_2023.pdf\n- 내용: 이 문서는 2023년 4분기에 AWS Partner: Sales Accreditation (Business)를 완료한 영업팀 직원들의 인증서를 포함하고 있습니다. 각 직원의 이름, 인증 획득 날짜, 인증 ID가 명시되어 있으며, 총 15명의 영업팀 직원이 인증을 받았습니다.\n- 작성자/승인자: HR 매니저 김영수, 날짜: 2023년 10월 15일\n\n🔹 **문서 2: 스프레드시트 기록**\n- 파일명: Marketing_Team_AWS_Accreditations_Oct_2023.xlsx\n- 내용: 마케팅 팀의 모든 구성원이 AWS Partner: Accreditation (Technical)을 완료했음을 기록한 스프레드시트입니다. 각 행에는 직원 이름, 각 인증의 완료 날짜, 그리고 각 인증의 고유 식별 번호가 포함되어 있습니다. 총 10명의 마케팅 팀원에 대한 기록이 포함되어 있습니다.\n- 작성자/승인자: 마케팅 부서장 이지현, 날짜: 2023년 10월 20일\n\n🔹 **문서 3: 도구 스크린샷**\n- 파일명: Sales_Team_Accreditation_Screenshot_Oct_2023.png\n- 내용: AWS Partner Portal에서 영업팀의 인증 현황을 보여주는 스크린샷입니다. 각 팀원의 이름 옆에 해당 인증 상태가 표시되어 있으며, '완료'로 표시된 팀원들이 모두 인증을 획득했음을 확인할 수 있습니다. 스크린샷은 포털의 실제 화면을 캡처하여 날짜와 인증 완료 상태를 명확히 보여줍니다.\n- 작성자/승인자: IT 관리자 박민준, 날짜: 2023년 10월 25일\n\n💡 **실무 팁**: 각 팀의 인증 완료 상태를 추적하기 위해 정기적인 검토를 통해 업데이트된 인증 기록을 유지하세요. 또한, AWS Partner Portal의 화면을 정기적으로 캡처하여 인증 상태를 시각적으로 증명할 수 있도록 준비하세요. 이는 감사 시 중요한 증빙 자료가 될 수 있습니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:19.742Z"
+    },
+    {
+      "itemId": "BUSP-003",
+      "category": "Business",
+      "title": "Customer Case Studies",
+      "virtualEvidence": "📋 **BUSP-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Customer Case Studies**:\n\n🔹 **Document 1: Business Specialized Document**\n- Filename: BUSP-003_Business_Customer_Case_Studies_v2.1.pdf\n- Content: Business plans, financial reports, customer contracts for Customer Case Studies requirement compliance\n- Approved by: CTO, Date: 2024-8-4\n\n🔹 **Document 2: BUSP-003 Implementation Evidence**\n- Filename: BUSP-003_Implementation_Evidence_2026.xlsx\n- Content: Customer Case Studies\nMandatory\n\nAWS Partner has ≥... related implementation results and metrics\n- Owner: Business Team Lead, Created: 2024-12-5\n\n🔹 **Document 3: Business Validation Materials**\n- Filename: BUSP-003_Business_Validation_049947.png\n- Content: Customer Case Studies related system screens and configuration evidence\n- Validated: 2024-12-5\n\n💡 **BUSP-003 Practical Note**: Prepare specific evidence materials for this particular item (Customer Case Studies).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:09.947Z"
+    },
+    {
+      "itemId": "BUSP-003",
+      "category": "Business",
+      "title": "고객 사례 연구",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 공식 고객 사례 연구(White Paper)**\n- 파일명: \"RetailCo_CloudTransformation_WhitePaper.pdf\"\n- 내용: 이 백서는 RetailCo가 AWS 관리 서비스를 통해 복잡한 전자상거래 플랫폼을 성공적으로 클라우드로 이전한 사례를 다룹니다. AWS MSP가 제공한 자동화된 모니터링 및 비용 최적화를 통해 운영 효율성을 30% 개선했습니다. 또한, 고객의 요구에 맞춘 확장 가능한 아키텍처 설계를 통해 연휴 시즌 트래픽 급증을 원활히 처리할 수 있었습니다.\n- 작성자/승인자: 클라우드 솔루션 아키텍트, 날짜: 2023년 3월 15일\n\n🔹 **문서 2: 블로그 게시물(공개 자료)**\n- 파일명: \"TechBlog_ScalableSolutionsForEduTech.html\"\n- 내용: 이 블로그 게시물은 EduTechInc가 AWS MSP의 도움을 받아 학습 관리 시스템을 AWS 클라우드로 이전한 경험을 공유합니다. 특히, 서버리스 아키텍처 도입을 통해 유지보수 비용을 40% 절감하고, 사용자 증가에 따라 자동으로 확장할 수 있는 환경을 구축했습니다. AWS Lambda와 RDS를 활용한 사례로, 교육 콘텐츠의 실시간 배포가 가능해졌습니다.\n- 작성자/승인자: 기술 마케팅 매니저, 날짜: 2023년 5월 10일\n\n🔹 **문서 3: 비공개 사례 연구(PDF)**\n- 파일명: \"FinTechCorp_SecurityEnhancement_CaseStudy.pdf\"\n- 내용: 이 비공개 문서는 FinTechCorp의 보안 강화 프로젝트를 다룹니다. AWS MSP는 AWS의 보안 서비스(예: AWS Shield, AWS WAF)를 통합하여 FinTechCorp의 민감한 금융 데이터를 보호했습니다. 이 과정에서 관리 서비스의 지속적인 모니터링과 보안 업데이트를 통해 고객의 신뢰성을 크게 향상시켰습니다.\n- 작성자/승인자: 보안 컨설턴트, 날짜: 2023년 7월 25일\n\n💡 **실무 팁**: 고객 사례 연구를 준비할 때, 고객의 문제점과 이를 해결하기 위해 사용된 AWS 서비스 및 솔루션을 명확히 기술하세요. 고객으로부터 공개 허가를 받는 것을 잊지 말고, 사례 연구가 공개 자료로 적합한지 확인하세요. 비공개 사례 연구는 고객의 민감한 정보를 보호할 수 있도록 세심하게 작성해야 합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:27.121Z"
+    },
+    {
+      "itemId": "GOV-001",
+      "category": "Governance",
+      "title": "Risk and Mitigation Plans",
+      "virtualEvidence": "📋 **GOV-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Risk and Mitigation Plans**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-001_Governance_Risk_and_Mitigation_Plans_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Risk and Mitigation Plans requirement compliance\n- Approved by: CTO, Date: 2024-8-27\n\n🔹 **Document 2: GOV-001 Implementation Evidence**\n- Filename: GOV-001_Implementation_Evidence_2026.xlsx\n- Content: Risk and Mitigation Plans\nMandatory\n\nAreas of busi... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-16\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-001_Governance_Validation_054163.png\n- Content: Risk and Mitigation Plans related system screens and configuration evidence\n- Validated: 2024-12-20\n\n💡 **GOV-001 Practical Note**: Prepare specific evidence materials for this particular item (Risk and Mitigation Plans).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:14.163Z"
+    },
+    {
+      "itemId": "GOV-001",
+      "category": "Governance",
+      "title": "위험 및 완화 계획",
+      "virtualEvidence": "📋 **GOV-001 가상증빙예제-참고용 (더미 데이터)**\n\n**위험 및 완화 계획** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-001_Governance_위험_및_완화_계획_v2.1.pdf\n- 내용: 위험 및 완화 계획 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-8-6\n\n🔹 **문서 2: GOV-001 구현 증빙**\n- 파일명: GOV-001_Implementation_Evidence_2026.xlsx\n- 내용: Risk and Mitigation Plans\nMandatory\n\nAreas of busi... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-26\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-001_Governance_Validation_041103.png\n- 내용: 위험 및 완화 계획 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-19\n\n💡 **GOV-001 실무 팁**: 이 특정 항목(위험 및 완화 계획)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:01.103Z"
+    },
+    {
+      "itemId": "GOV-002",
+      "category": "Governance",
+      "title": "Customer Satisfaction",
+      "virtualEvidence": "📋 **GOV-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Customer Satisfaction**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-002_Governance_Customer_Satisfaction_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Customer Satisfaction requirement compliance\n- Approved by: CTO, Date: 2024-6-5\n\n🔹 **Document 2: GOV-002 Implementation Evidence**\n- Filename: GOV-002_Implementation_Evidence_2026.xlsx\n- Content: Customer Satisfaction\nMandatory\n\nAWS Partner has a... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-26\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-002_Governance_Validation_054407.png\n- Content: Customer Satisfaction related system screens and configuration evidence\n- Validated: 2024-12-25\n\n💡 **GOV-002 Practical Note**: Prepare specific evidence materials for this particular item (Customer Satisfaction).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:14.407Z"
+    },
+    {
+      "itemId": "GOV-002",
+      "category": "Governance",
+      "title": "고객 만족도",
+      "virtualEvidence": "📋 **GOV-002 가상증빙예제-참고용 (더미 데이터)**\n\n**고객 만족도** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-002_Governance_고객_만족도_v2.1.pdf\n- 내용: 고객 만족도 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-3-16\n\n🔹 **문서 2: GOV-002 구현 증빙**\n- 파일명: GOV-002_Implementation_Evidence_2026.xlsx\n- 내용: Customer Satisfaction\nMandatory\n\nAWS Partner has a... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-1\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-002_Governance_Validation_041327.png\n- 내용: 고객 만족도 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-20\n\n💡 **GOV-002 실무 팁**: 이 특정 항목(고객 만족도)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:01.327Z"
+    },
+    {
+      "itemId": "GOV-003",
+      "category": "Governance",
+      "title": "Data Ownership and Customer Offboarding",
+      "virtualEvidence": "📋 **GOV-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Data Ownership and Customer Offboarding**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-003_Governance_Data_Ownership_and_Customer_Offboarding_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Data Ownership and Customer Offboarding requirement compliance\n- Approved by: CTO, Date: 2024-11-18\n\n🔹 **Document 2: GOV-003 Implementation Evidence**\n- Filename: GOV-003_Implementation_Evidence_2026.xlsx\n- Content: Data Ownership and Customer Offboarding\nMandatory\n... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-12\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-003_Governance_Validation_054597.png\n- Content: Data Ownership and Customer Offboarding related system screens and configuration evidence\n- Validated: 2024-12-1\n\n💡 **GOV-003 Practical Note**: Prepare specific evidence materials for this particular item (Data Ownership and Customer Offboarding).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:14.597Z"
+    },
+    {
+      "itemId": "GOV-003",
+      "category": "Governance",
+      "title": "데이터 소유권 및 고객 오프보딩",
+      "virtualEvidence": "📋 **GOV-003 가상증빙예제-참고용 (더미 데이터)**\n\n**데이터 소유권 및 고객 오프보딩** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-003_Governance_데이터_소유권_및_고객_오프보딩_v2.1.pdf\n- 내용: 데이터 소유권 및 고객 오프보딩 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-11-4\n\n🔹 **문서 2: GOV-003 구현 증빙**\n- 파일명: GOV-003_Implementation_Evidence_2026.xlsx\n- 내용: Data Ownership and Customer Offboarding\nMandatory\n... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-8\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-003_Governance_Validation_041646.png\n- 내용: 데이터 소유권 및 고객 오프보딩 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-26\n\n💡 **GOV-003 실무 팁**: 이 특정 항목(데이터 소유권 및 고객 오프보딩)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:01.646Z"
+    },
+    {
+      "itemId": "GOV-004",
+      "category": "Governance",
+      "title": "Operational Readiness",
+      "virtualEvidence": "📋 **GOV-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Operational Readiness**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-004_Governance_Operational_Readiness_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Operational Readiness requirement compliance\n- Approved by: CTO, Date: 2024-12-21\n\n🔹 **Document 2: GOV-004 Implementation Evidence**\n- Filename: GOV-004_Implementation_Evidence_2026.xlsx\n- Content: Operational Readiness\nMandatory\n\nAWS Partner has a... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-22\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-004_Governance_Validation_054814.png\n- Content: Operational Readiness related system screens and configuration evidence\n- Validated: 2024-12-7\n\n💡 **GOV-004 Practical Note**: Prepare specific evidence materials for this particular item (Operational Readiness).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:14.814Z"
+    },
+    {
+      "itemId": "GOV-004",
+      "category": "Governance",
+      "title": "운영 준비성",
+      "virtualEvidence": "📋 **GOV-004 가상증빙예제-참고용 (더미 데이터)**\n\n**운영 준비성** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-004_Governance_운영_준비성_v2.1.pdf\n- 내용: 운영 준비성 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-4-8\n\n🔹 **문서 2: GOV-004 구현 증빙**\n- 파일명: GOV-004_Implementation_Evidence_2026.xlsx\n- 내용: Operational Readiness\nMandatory\n\nAWS Partner has a... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-22\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-004_Governance_Validation_041838.png\n- 내용: 운영 준비성 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-9\n\n💡 **GOV-004 실무 팁**: 이 특정 항목(운영 준비성)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:01.838Z"
+    },
+    {
+      "itemId": "GOV-005",
+      "category": "Governance",
+      "title": "Shared Responsibility Model",
+      "virtualEvidence": "📋 **GOV-005 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Shared Responsibility Model**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-005_Governance_Shared_Responsibility_Model_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Shared Responsibility Model requirement compliance\n- Approved by: CTO, Date: 2024-9-18\n\n🔹 **Document 2: GOV-005 Implementation Evidence**\n- Filename: GOV-005_Implementation_Evidence_2026.xlsx\n- Content: Shared Responsibility Model\nMandatory\n\nAWS Partner... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-7\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-005_Governance_Validation_055009.png\n- Content: Shared Responsibility Model related system screens and configuration evidence\n- Validated: 2024-12-12\n\n💡 **GOV-005 Practical Note**: Prepare specific evidence materials for this particular item (Shared Responsibility Model).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:15.009Z"
+    },
+    {
+      "itemId": "GOV-005",
+      "category": "Governance",
+      "title": "공동 책임 모델",
+      "virtualEvidence": "📋 **GOV-005 가상증빙예제-참고용 (더미 데이터)**\n\n**공동 책임 모델** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-005_Governance_공동_책임_모델_v2.1.pdf\n- 내용: 공동 책임 모델 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-6-11\n\n🔹 **문서 2: GOV-005 구현 증빙**\n- 파일명: GOV-005_Implementation_Evidence_2026.xlsx\n- 내용: Shared Responsibility Model\nMandatory\n\nAWS Partner... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-1\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-005_Governance_Validation_042076.png\n- 내용: 공동 책임 모델 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-19\n\n💡 **GOV-005 실무 팁**: 이 특정 항목(공동 책임 모델)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:02.076Z"
+    },
+    {
+      "itemId": "GOV-006",
+      "category": "Governance",
+      "title": "Sustainability Best Practices",
+      "virtualEvidence": "📋 **GOV-006 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Sustainability Best Practices**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOV-006_Governance_Sustainability_Best_Practices_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Sustainability Best Practices requirement compliance\n- Approved by: CTO, Date: 2024-1-21\n\n🔹 **Document 2: GOV-006 Implementation Evidence**\n- Filename: GOV-006_Implementation_Evidence_2026.xlsx\n- Content: Sustainability Best Practices\nMandatory\n\nAWS Partn... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-25\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOV-006_Governance_Validation_055209.png\n- Content: Sustainability Best Practices related system screens and configuration evidence\n- Validated: 2024-12-27\n\n💡 **GOV-006 Practical Note**: Prepare specific evidence materials for this particular item (Sustainability Best Practices).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:15.209Z"
+    },
+    {
+      "itemId": "GOV-006",
+      "category": "Governance",
+      "title": "지속가능성 모범 사례",
+      "virtualEvidence": "📋 **GOV-006 가상증빙예제-참고용 (더미 데이터)**\n\n**지속가능성 모범 사례** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Governance 특화 문서**\n- 파일명: GOV-006_Governance_지속가능성_모범_사례_v2.1.pdf\n- 내용: 지속가능성 모범 사례 요구사항 충족을 위한 정책 문서, 프로세스 매뉴얼, 감사 보고서\n- 승인자: CTO, 승인일: 2024-2-16\n\n🔹 **문서 2: GOV-006 구현 증빙**\n- 파일명: GOV-006_Implementation_Evidence_2026.xlsx\n- 내용: Sustainability Best Practices\nMandatory\n\nAWS Partn... 관련 구현 결과 및 메트릭\n- 담당자: Governance 팀장, 작성일: 2024-12-2\n\n🔹 **문서 3: Governance 검증 자료**\n- 파일명: GOV-006_Governance_Validation_042302.png\n- 내용: 지속가능성 모범 사례 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-13\n\n💡 **GOV-006 실무 팁**: 이 특정 항목(지속가능성 모범 사례)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:02.302Z"
+    },
+    {
+      "itemId": "GOVP-001",
+      "category": "Governance",
+      "title": "Supplier Management",
+      "virtualEvidence": "📋 **GOVP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Supplier Management**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOVP-001_Governance_Supplier_Management_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Supplier Management requirement compliance\n- Approved by: CTO, Date: 2024-9-15\n\n🔹 **Document 2: GOVP-001 Implementation Evidence**\n- Filename: GOVP-001_Implementation_Evidence_2026.xlsx\n- Content: Supplier Management\nMandatory\n\nAWS Partner has def... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-12\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOVP-001_Governance_Validation_050391.png\n- Content: Supplier Management related system screens and configuration evidence\n- Validated: 2024-12-3\n\n💡 **GOVP-001 Practical Note**: Prepare specific evidence materials for this particular item (Supplier Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:10.391Z"
+    },
+    {
+      "itemId": "GOVP-001",
+      "category": "Governance",
+      "title": "공급업체 관리",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 공급업체 선택 및 평가 표준 운영 절차(SOP)**\n- 파일명: 공급업체_선택_및_평가_SOP_v1.3.pdf\n- 내용: 이 문서는 새로운 공급업체를 선택하고 평가하기 위한 절차를 상세히 설명합니다. 주요 내용은 공급업체 요구사항 수립, 잠재 공급업체 목록 작성, 평가 기준 개발, 공급업체 평가 및 선정, 계약 협상 단계로 구성됩니다. 각 단계마다 책임자와 타임라인이 명시되어 있으며, 평가 기준에는 정보 보안, 재정 안정성, 과거 성과 등이 포함됩니다.\n- 작성자/승인자: 조달팀 리더 김민준, 날짜: 2023년 2월 15일\n\n🔹 **문서 2: 공급업체 정보 보안 인증 목록**\n- 파일명: 공급업체_정보보안_인증_목록.xlsx\n- 내용: 이 스프레드시트는 현재 사용 중인 주요 공급업체의 정보 보안 관련 업계 인증을 기록합니다. 각 공급업체의 이름, 제공 서비스, 보유 인증(예: ISO 27001, SOC2), 인증 만료일, 인증 기관 등이 포함되어 있어 공급업체의 정보 보안 능력을 정기적으로 검토할 수 있습니다.\n- 작성자/승인자: 정보 보안 팀장 이수진, 날짜: 2023년 1월 10일\n\n🔹 **문서 3: 공급업체 관리 프로세스 감사 보고서**\n- 파일명: 공급업체_관리_프로세스_감사_보고서_2023.pdf\n- 내용: 이 보고서는 공급업체 관리 프로세스의 준수 여부를 검토한 내부 감사 결과를 담고 있습니다. 보고서는 SOP 준수 수준, 발견된 문제점, 개선 권고 사항을 포함하며, 공급업체와의 계약이 정보 보안 및 서비스 품질 기준을 충족하는지를 평가했습니다.\n- 작성자/승인자: 내부 감사팀 박지영, 날짜: 2023년 3월 20일\n\n💡 **실무 팁**: 실제 준비 시 공급업체의 정보 보안 인증이 정기적으로 갱신되고 있는지 확인하고, SOP에서 정의한 프로세스가 실제로 효과적으로 작동하는지 주기적으로 검토하여 필요 시 절차를 업데이트해야 합니다. 또한, 모든 관련 문서가 쉽게 접근 가능하도록 중앙 저장소에 보관하는 것이 중요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:41.976Z"
+    },
+    {
+      "itemId": "GOVP-002",
+      "category": "Governance",
+      "title": "Operations Improvement",
+      "virtualEvidence": "📋 **GOVP-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Operations Improvement**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOVP-002_Governance_Operations_Improvement_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Operations Improvement requirement compliance\n- Approved by: CTO, Date: 2024-5-18\n\n🔹 **Document 2: GOVP-002 Implementation Evidence**\n- Filename: GOVP-002_Implementation_Evidence_2026.xlsx\n- Content: Operations Improvement\nMandatory\n\nAWS Partner has ... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-11\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOVP-002_Governance_Validation_050617.png\n- Content: Operations Improvement related system screens and configuration evidence\n- Validated: 2024-12-9\n\n💡 **GOVP-002 Practical Note**: Prepare specific evidence materials for this particular item (Operations Improvement).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:10.617Z"
+    },
+    {
+      "itemId": "GOVP-002",
+      "category": "Governance",
+      "title": "운영 개선",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 운영 개선 거버넌스 프로세스 문서**\n- 파일명: 운영개선_거버넌스프로세스_문서_v1.0.pdf\n- 내용: 이 문서는 AWS 환경에서의 운영 개선을 위한 지속적인 거버넌스 프로세스를 설명합니다. 특히 인시던트 관리, 클라우드 비용 관리, 아키텍처 패턴 최적화, 성능 및 보안 검토의 정기적 평가를 포함하며, 각 프로세스에 대한 개선 기회를 식별하고 우선순위를 정하는 방법론을 다룹니다. 주기는 분기별로 설정되며, 각 운영 영역별로 담당 팀과 책임자를 명시하여 투명성을 높였습니다.\n- 작성자/승인자: 클라우드 운영 관리자, 날짜: 2023년 10월 15일\n\n🔹 **문서 2: 인시던트 관리 개선 보고서**\n- 파일명: 인시던트관리_개선보고서_Q3_2023.pdf\n- 내용: 본 보고서는 지난 3분기 동안 발생한 주요 인시던트를 분석하고, 이를 기반으로 식별된 개선 기회를 제시합니다. 주요 내용으로는 인시던트 응답 시간 단축을 위한 자동화 도구 도입, 반복적 이슈 방지를 위한 아키텍처 변경 제안, 그리고 인시던트 관리 프로세스의 최적화 방안이 포함되어 있습니다. 각 제안의 우선순위는 비즈니스 영향도와 구현 용이성을 기준으로 정해졌습니다.\n- 작성자/승인자: 인시던트 관리 팀 리더, 날짜: 2023년 10월 20일\n\n🔹 **문서 3: 클라우드 비용 최적화 기회 식별 보고서**\n- 파일명: 클라우드비용_최적화기회식별_보고서_2023Q3.pdf\n- 내용: 이 보고서는 AWS 클라우드 비용 구조를 분석하고, 비용 절감의 잠재적 기회를 제시합니다. 주요 내용은 불필요한 리소스 식별 및 중지, Reserved Instances 활용 최적화, 그리고 비용 모니터링을 위한 대시보드 개선을 포함합니다. 보고서는 비용 절감 효과의 예상치와 함께 각 개선 항목의 우선순위를 제안합니다.\n- 작성자/승인자: 클라우드 비용 분석가, 날짜: 2023년 10월 25일\n\n💡 **실무 팁**: 운영 개선 프로세스는 단발성 활동이 아니라 지속적인 프로세스임을 강조하세요. 개선 기회를 식별할 때는 데이터 기반 접근 방식을 활용하여 객관적인 우선순위를 정하고, 변화의 효과를 추적할 수 있는 KPI(Key Performance Indicators)를 설정하세요. 또한, 각 개선 활동의 책임자와 일정에 대한 명확한 정의를 제공하여 실행력을 높이세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:47.738Z"
+    },
+    {
+      "itemId": "GOVP-003",
+      "category": "Governance",
+      "title": "Sustainability Commitment",
+      "virtualEvidence": "📋 **GOVP-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Sustainability Commitment**:\n\n🔹 **Document 1: Governance Specialized Document**\n- Filename: GOVP-003_Governance_Sustainability_Commitment_v2.1.pdf\n- Content: Policy documents, process manuals, audit reports for Sustainability Commitment requirement compliance\n- Approved by: CTO, Date: 2024-12-18\n\n🔹 **Document 2: GOVP-003 Implementation Evidence**\n- Filename: GOVP-003_Implementation_Evidence_2026.xlsx\n- Content: Sustainability Commitment\nMandatory\n\nAWS Partner i... related implementation results and metrics\n- Owner: Governance Team Lead, Created: 2024-12-12\n\n🔹 **Document 3: Governance Validation Materials**\n- Filename: GOVP-003_Governance_Validation_050821.png\n- Content: Sustainability Commitment related system screens and configuration evidence\n- Validated: 2024-12-4\n\n💡 **GOVP-003 Practical Note**: Prepare specific evidence materials for this particular item (Sustainability Commitment).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:10.821Z"
+    },
+    {
+      "itemId": "GOVP-003",
+      "category": "Governance",
+      "title": "지속가능성 약속",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 지속가능성 비전 정책 문서**\n- 파일명: 지속가능성_비전_정책_문서_2023.pdf\n- 내용: 이 문서는 회사의 지속가능성 목표와 전략을 명확히 정의합니다. 또한 AWS 서비스를 활용하여 에너지 효율성을 높이고, 탄소 배출량을 줄이며, 재생 가능 에너지를 더 많이 활용하는 방안을 포함합니다. 구체적으로 2025년까지 전체 운영에서의 탄소 중립을 목표로 하고 있으며, 이를 위한 단계별 계획을 수립했습니다.\n- 작성자/승인자: CEO 이정훈, 날짜: 2023년 1월 15일\n\n🔹 **문서 2: CxO 서신 - 지속가능성 커뮤니케이션**\n- 파일명: CxO_지속가능성_서신_2023.docx\n- 내용: CxO 사무실에서 발행한 내부 커뮤니케이션 서신으로, 모든 직원에게 회사의 지속가능성 목표를 공유하고, 각 부서에서 실천할 수 있는 친환경 활동을 제안합니다. 예를 들어, 클라우드 인프라 운영 시 AWS의 지속가능성 도구를 적극 활용할 것을 권장하며, 데이터 센터의 에너지 소비를 15% 줄이기 위한 구체적 방안을 제시합니다.\n- 작성자/승인자: CFO 김민재, 날짜: 2023년 2월 10일\n\n🔹 **문서 3: 지속가능성 이니셔티브 보고서**\n- 파일명: 지속가능성_이니셔티브_보고서_2023.xlsx\n- 내용: 이 보고서는 현재 진행 중인 지속가능성 관련 프로젝트 목록과 그 성과를 담고 있습니다. 주요 프로젝트로는, AWS 자동화 도구를 사용하여 서버 전력 소비를 최적화한 사례가 포함되어 있으며, 이를 통해 연간 20%의 에너지 절감 효과를 얻은 사례를 공유합니다. 또한, 재활용 프로그램의 도입으로 인한 폐기물 감소 결과도 포함되어 있습니다.\n- 작성자/승인자: CTO 박수진, 날짜: 2023년 3월 5일\n\n💡 **실무 팁**: 지속가능성 약속을 문서화할 때는 각 문서가 구체적이고 실현 가능한 목표를 포함하도록 하세요. 또한, 목표 달성을 위한 책임자와 기한을 명확히 지정하여 진행 상황을 추적할 수 있도록 합니다. CxO 레벨의 서신은 직원들에게 명확한 비전을 전달하고, 그에 대한 참여를 독려하는 데 큰 역할을 합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:55.292Z"
+    },
+    {
+      "itemId": "OPS-001",
+      "category": "Operations",
+      "title": "Service Level Management",
+      "virtualEvidence": "📋 **OPS-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Service Level Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-001_Operations_Service_Level_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Service Level Management requirement compliance\n- Approved by: COO, Date: 2024-10-16\n\n🔹 **Document 2: OPS-001 Implementation Evidence**\n- Filename: OPS-001_Implementation_Evidence_2026.xlsx\n- Content: Service Level Management\nMandatory\n\nAWS Partners d... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-19\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-001_Operations_Validation_058695.png\n- Content: Service Level Management related system screens and configuration evidence\n- Validated: 2024-12-4\n\n💡 **OPS-001 Practical Note**: Prepare specific evidence materials for this particular item (Service Level Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:18.695Z"
+    },
+    {
+      "itemId": "OPS-001",
+      "category": "Operations",
+      "title": "서비스 수준 관리",
+      "virtualEvidence": "📋 **OPS-001 가상증빙예제-참고용 (더미 데이터)**\n\n**서비스 수준 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-001_Operations_서비스_수준_관리_v2.1.pdf\n- 내용: 서비스 수준 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-7-21\n\n🔹 **문서 2: OPS-001 구현 증빙**\n- 파일명: OPS-001_Implementation_Evidence_2026.xlsx\n- 내용: Service Level Management\nMandatory\n\nAWS Partners d... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-11\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-001_Operations_Validation_045647.png\n- 내용: 서비스 수준 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-16\n\n💡 **OPS-001 실무 팁**: 이 특정 항목(서비스 수준 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:05.647Z"
+    },
+    {
+      "itemId": "OPS-002",
+      "category": "Operations",
+      "title": "AWS Support Plan for Partner owned Management and Member Account",
+      "virtualEvidence": "📋 **OPS-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **AWS Support Plan for Partner owned Management and Member Account**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-002_Operations_AWS_Support_Plan_for_Partner_owned_Management_and_Member_Account_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for AWS Support Plan for Partner owned Management and Member Account requirement compliance\n- Approved by: COO, Date: 2024-7-21\n\n🔹 **Document 2: OPS-002 Implementation Evidence**\n- Filename: OPS-002_Implementation_Evidence_2026.xlsx\n- Content: AWS Support Plan for Partner owned Management and ... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-22\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-002_Operations_Validation_058919.png\n- Content: AWS Support Plan for Partner owned Management and Member Account related system screens and configuration evidence\n- Validated: 2024-12-11\n\n💡 **OPS-002 Practical Note**: Prepare specific evidence materials for this particular item (AWS Support Plan for Partner owned Management and Member Account).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:18.919Z"
+    },
+    {
+      "itemId": "OPS-002",
+      "category": "Operations",
+      "title": "파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜",
+      "virtualEvidence": "📋 **OPS-002 가상증빙예제-참고용 (더미 데이터)**\n\n**파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-002_Operations_파트너_소유_관리_및_멤버_계정을_위한_AWS_지원_플랜_v2.1.pdf\n- 내용: 파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-10-1\n\n🔹 **문서 2: OPS-002 구현 증빙**\n- 파일명: OPS-002_Implementation_Evidence_2026.xlsx\n- 내용: AWS Support Plan for Partner owned Management and ... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-8\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-002_Operations_Validation_045846.png\n- 내용: 파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-5\n\n💡 **OPS-002 실무 팁**: 이 특정 항목(파트너 소유 관리 및 멤버 계정을 위한 AWS 지원 플랜)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:05.846Z"
+    },
+    {
+      "itemId": "OPS-003",
+      "category": "Operations",
+      "title": "AWS Support Plan for Customer owned Member Account",
+      "virtualEvidence": "📋 **OPS-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **AWS Support Plan for Customer owned Member Account**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-003_Operations_AWS_Support_Plan_for_Customer_owned_Member_Account_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for AWS Support Plan for Customer owned Member Account requirement compliance\n- Approved by: COO, Date: 2024-4-5\n\n🔹 **Document 2: OPS-003 Implementation Evidence**\n- Filename: OPS-003_Implementation_Evidence_2026.xlsx\n- Content: AWS Support Plan for Customer owned Member Account... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-28\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-003_Operations_Validation_059141.png\n- Content: AWS Support Plan for Customer owned Member Account related system screens and configuration evidence\n- Validated: 2024-12-23\n\n💡 **OPS-003 Practical Note**: Prepare specific evidence materials for this particular item (AWS Support Plan for Customer owned Member Account).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:19.141Z"
+    },
+    {
+      "itemId": "OPS-003",
+      "category": "Operations",
+      "title": "고객 소유 멤버 계정을 위한 AWS 지원 플랜",
+      "virtualEvidence": "📋 **OPS-003 가상증빙예제-참고용 (더미 데이터)**\n\n**고객 소유 멤버 계정을 위한 AWS 지원 플랜** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-003_Operations_고객_소유_멤버_계정을_위한_AWS_지원_플랜_v2.1.pdf\n- 내용: 고객 소유 멤버 계정을 위한 AWS 지원 플랜 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-2-3\n\n🔹 **문서 2: OPS-003 구현 증빙**\n- 파일명: OPS-003_Implementation_Evidence_2026.xlsx\n- 내용: AWS Support Plan for Customer owned Member Account... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-21\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-003_Operations_Validation_046080.png\n- 내용: 고객 소유 멤버 계정을 위한 AWS 지원 플랜 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-24\n\n💡 **OPS-003 실무 팁**: 이 특정 항목(고객 소유 멤버 계정을 위한 AWS 지원 플랜)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:06.080Z"
+    },
+    {
+      "itemId": "OPS-004",
+      "category": "Operations",
+      "title": "Service Desk Operations",
+      "virtualEvidence": "📋 **OPS-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Service Desk Operations**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-004_Operations_Service_Desk_Operations_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Service Desk Operations requirement compliance\n- Approved by: COO, Date: 2024-2-14\n\n🔹 **Document 2: OPS-004 Implementation Evidence**\n- Filename: OPS-004_Implementation_Evidence_2026.xlsx\n- Content: Service Desk Operations\nMandatory\n\nAWS Partner pro... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-1\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-004_Operations_Validation_059330.png\n- Content: Service Desk Operations related system screens and configuration evidence\n- Validated: 2024-12-22\n\n💡 **OPS-004 Practical Note**: Prepare specific evidence materials for this particular item (Service Desk Operations).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:19.330Z"
+    },
+    {
+      "itemId": "OPS-004",
+      "category": "Operations",
+      "title": "서비스 데스크 운영",
+      "virtualEvidence": "📋 **OPS-004 가상증빙예제-참고용 (더미 데이터)**\n\n**서비스 데스크 운영** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-004_Operations_서비스_데스크_운영_v2.1.pdf\n- 내용: 서비스 데스크 운영 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-5-13\n\n🔹 **문서 2: OPS-004 구현 증빙**\n- 파일명: OPS-004_Implementation_Evidence_2026.xlsx\n- 내용: Service Desk Operations\nMandatory\n\nAWS Partner pro... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-9\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-004_Operations_Validation_046268.png\n- 내용: 서비스 데스크 운영 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-11\n\n💡 **OPS-004 실무 팁**: 이 특정 항목(서비스 데스크 운영)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:06.268Z"
+    },
+    {
+      "itemId": "OPS-005",
+      "category": "Operations",
+      "title": "Implement a Comprehensive ITSM platform",
+      "virtualEvidence": "📋 **OPS-005 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Implement a Comprehensive ITSM platform**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-005_Operations_Implement_a_Comprehensive_ITSM_platform_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Implement a Comprehensive ITSM platform requirement compliance\n- Approved by: COO, Date: 2024-8-10\n\n🔹 **Document 2: OPS-005 Implementation Evidence**\n- Filename: OPS-005_Implementation_Evidence_2026.xlsx\n- Content: Implement a Comprehensive ITSM platform\nMandatory\n... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-21\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-005_Operations_Validation_059518.png\n- Content: Implement a Comprehensive ITSM platform related system screens and configuration evidence\n- Validated: 2024-12-13\n\n💡 **OPS-005 Practical Note**: Prepare specific evidence materials for this particular item (Implement a Comprehensive ITSM platform).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:19.518Z"
+    },
+    {
+      "itemId": "OPS-005",
+      "category": "Operations",
+      "title": "포괄적인 ITSM 플랫폼 구현",
+      "virtualEvidence": "📋 **OPS-005 가상증빙예제-참고용 (더미 데이터)**\n\n**포괄적인 ITSM 플랫폼 구현** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-005_Operations_포괄적인_ITSM_플랫폼_구현_v2.1.pdf\n- 내용: 포괄적인 ITSM 플랫폼 구현 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-6-9\n\n🔹 **문서 2: OPS-005 구현 증빙**\n- 파일명: OPS-005_Implementation_Evidence_2026.xlsx\n- 내용: Implement a Comprehensive ITSM platform\nMandatory\n... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-1\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-005_Operations_Validation_046493.png\n- 내용: 포괄적인 ITSM 플랫폼 구현 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-28\n\n💡 **OPS-005 실무 팁**: 이 특정 항목(포괄적인 ITSM 플랫폼 구현)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:06.493Z"
+    },
+    {
+      "itemId": "OPS-006",
+      "category": "Operations",
+      "title": "Release Management",
+      "virtualEvidence": "📋 **OPS-006 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Release Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-006_Operations_Release_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Release Management requirement compliance\n- Approved by: COO, Date: 2024-5-2\n\n🔹 **Document 2: OPS-006 Implementation Evidence**\n- Filename: OPS-006_Implementation_Evidence_2026.xlsx\n- Content: Release Management\nMandatory\n\nAWS MSP partners sho... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-27\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-006_Operations_Validation_059746.png\n- Content: Release Management related system screens and configuration evidence\n- Validated: 2024-12-3\n\n💡 **OPS-006 Practical Note**: Prepare specific evidence materials for this particular item (Release Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:19.746Z"
+    },
+    {
+      "itemId": "OPS-006",
+      "category": "Operations",
+      "title": "릴리스 관리",
+      "virtualEvidence": "📋 **OPS-006 가상증빙예제-참고용 (더미 데이터)**\n\n**릴리스 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-006_Operations_릴리스_관리_v2.1.pdf\n- 내용: 릴리스 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-5-19\n\n🔹 **문서 2: OPS-006 구현 증빙**\n- 파일명: OPS-006_Implementation_Evidence_2026.xlsx\n- 내용: Release Management\nMandatory\n\nAWS MSP partners sho... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-9\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-006_Operations_Validation_046716.png\n- 내용: 릴리스 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-16\n\n💡 **OPS-006 실무 팁**: 이 특정 항목(릴리스 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:06.716Z"
+    },
+    {
+      "itemId": "OPS-007",
+      "category": "Operations",
+      "title": "Configuration Management",
+      "virtualEvidence": "📋 **OPS-007 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Configuration Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-007_Operations_Configuration_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Configuration Management requirement compliance\n- Approved by: COO, Date: 2024-4-18\n\n🔹 **Document 2: OPS-007 Implementation Evidence**\n- Filename: OPS-007_Implementation_Evidence_2026.xlsx\n- Content: Configuration Management\nMandatory\n\nThe AWS Partne... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-19\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-007_Operations_Validation_059981.png\n- Content: Configuration Management related system screens and configuration evidence\n- Validated: 2024-12-6\n\n💡 **OPS-007 Practical Note**: Prepare specific evidence materials for this particular item (Configuration Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:19.981Z"
+    },
+    {
+      "itemId": "OPS-007",
+      "category": "Operations",
+      "title": "구성 관리",
+      "virtualEvidence": "📋 **OPS-007 가상증빙예제-참고용 (더미 데이터)**\n\n**구성 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-007_Operations_구성_관리_v2.1.pdf\n- 내용: 구성 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-12-7\n\n🔹 **문서 2: OPS-007 구현 증빙**\n- 파일명: OPS-007_Implementation_Evidence_2026.xlsx\n- 내용: Configuration Management\nMandatory\n\nThe AWS Partne... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-17\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-007_Operations_Validation_046955.png\n- 내용: 구성 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-21\n\n💡 **OPS-007 실무 팁**: 이 특정 항목(구성 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:06.955Z"
+    },
+    {
+      "itemId": "OPS-008",
+      "category": "Operations",
+      "title": "Patch Management",
+      "virtualEvidence": "📋 **OPS-008 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Patch Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-008_Operations_Patch_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Patch Management requirement compliance\n- Approved by: COO, Date: 2024-8-12\n\n🔹 **Document 2: OPS-008 Implementation Evidence**\n- Filename: OPS-008_Implementation_Evidence_2026.xlsx\n- Content: Patch Management\nMandatory\n\nAWS Partner has automa... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-15\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-008_Operations_Validation_060209.png\n- Content: Patch Management related system screens and configuration evidence\n- Validated: 2024-12-3\n\n💡 **OPS-008 Practical Note**: Prepare specific evidence materials for this particular item (Patch Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:20.209Z"
+    },
+    {
+      "itemId": "OPS-008",
+      "category": "Operations",
+      "title": "패치 관리",
+      "virtualEvidence": "📋 **OPS-008 가상증빙예제-참고용 (더미 데이터)**\n\n**패치 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-008_Operations_패치_관리_v2.1.pdf\n- 내용: 패치 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-9-17\n\n🔹 **문서 2: OPS-008 구현 증빙**\n- 파일명: OPS-008_Implementation_Evidence_2026.xlsx\n- 내용: Patch Management\nMandatory\n\nAWS Partner has automa... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-3\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-008_Operations_Validation_047179.png\n- 내용: 패치 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-1\n\n💡 **OPS-008 실무 팁**: 이 특정 항목(패치 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:07.179Z"
+    },
+    {
+      "itemId": "OPS-009",
+      "category": "Operations",
+      "title": "Customer Deployment Pipelines",
+      "virtualEvidence": "📋 **OPS-009 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Customer Deployment Pipelines**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-009_Operations_Customer_Deployment_Pipelines_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Customer Deployment Pipelines requirement compliance\n- Approved by: COO, Date: 2024-11-7\n\n🔹 **Document 2: OPS-009 Implementation Evidence**\n- Filename: OPS-009_Implementation_Evidence_2026.xlsx\n- Content: Customer Deployment Pipelines\nMandatory\n\nAWS Partn... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-21\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-009_Operations_Validation_060444.png\n- Content: Customer Deployment Pipelines related system screens and configuration evidence\n- Validated: 2024-12-22\n\n💡 **OPS-009 Practical Note**: Prepare specific evidence materials for this particular item (Customer Deployment Pipelines).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:20.444Z"
+    },
+    {
+      "itemId": "OPS-009",
+      "category": "Operations",
+      "title": "고객 배포 파이프라인",
+      "virtualEvidence": "📋 **OPS-009 가상증빙예제-참고용 (더미 데이터)**\n\n**고객 배포 파이프라인** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-009_Operations_고객_배포_파이프라인_v2.1.pdf\n- 내용: 고객 배포 파이프라인 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-9-20\n\n🔹 **문서 2: OPS-009 구현 증빙**\n- 파일명: OPS-009_Implementation_Evidence_2026.xlsx\n- 내용: Customer Deployment Pipelines\nMandatory\n\nAWS Partn... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-10\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-009_Operations_Validation_047373.png\n- 내용: 고객 배포 파이프라인 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-6\n\n💡 **OPS-009 실무 팁**: 이 특정 항목(고객 배포 파이프라인)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:07.373Z"
+    },
+    {
+      "itemId": "OPS-010",
+      "category": "Operations",
+      "title": "Event Management and Dynamic Monitoring",
+      "virtualEvidence": "📋 **OPS-010 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Event Management and Dynamic Monitoring**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-010_Operations_Event_Management_and_Dynamic_Monitoring_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Event Management and Dynamic Monitoring requirement compliance\n- Approved by: COO, Date: 2024-11-2\n\n🔹 **Document 2: OPS-010 Implementation Evidence**\n- Filename: OPS-010_Implementation_Evidence_2026.xlsx\n- Content: Event Management and Dynamic Monitoring\nMandatory\n... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-13\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-010_Operations_Validation_060675.png\n- Content: Event Management and Dynamic Monitoring related system screens and configuration evidence\n- Validated: 2024-12-1\n\n💡 **OPS-010 Practical Note**: Prepare specific evidence materials for this particular item (Event Management and Dynamic Monitoring).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:20.675Z"
+    },
+    {
+      "itemId": "OPS-010",
+      "category": "Operations",
+      "title": "이벤트 관리 및 동적 모니터링",
+      "virtualEvidence": "📋 **OPS-010 가상증빙예제-참고용 (더미 데이터)**\n\n**이벤트 관리 및 동적 모니터링** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-010_Operations_이벤트_관리_및_동적_모니터링_v2.1.pdf\n- 내용: 이벤트 관리 및 동적 모니터링 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-6-1\n\n🔹 **문서 2: OPS-010 구현 증빙**\n- 파일명: OPS-010_Implementation_Evidence_2026.xlsx\n- 내용: Event Management and Dynamic Monitoring\nMandatory\n... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-16\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-010_Operations_Validation_047596.png\n- 내용: 이벤트 관리 및 동적 모니터링 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-14\n\n💡 **OPS-010 실무 팁**: 이 특정 항목(이벤트 관리 및 동적 모니터링)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:07.596Z"
+    },
+    {
+      "itemId": "OPS-011",
+      "category": "Operations",
+      "title": "Operational Runbooks",
+      "virtualEvidence": "📋 **OPS-011 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Operational Runbooks**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-011_Operations_Operational_Runbooks_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Operational Runbooks requirement compliance\n- Approved by: COO, Date: 2024-4-18\n\n🔹 **Document 2: OPS-011 Implementation Evidence**\n- Filename: OPS-011_Implementation_Evidence_2026.xlsx\n- Content: Operational Runbooks\nMandatory\n\nAWS Partner has ru... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-7\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-011_Operations_Validation_060896.png\n- Content: Operational Runbooks related system screens and configuration evidence\n- Validated: 2024-12-25\n\n💡 **OPS-011 Practical Note**: Prepare specific evidence materials for this particular item (Operational Runbooks).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:20.896Z"
+    },
+    {
+      "itemId": "OPS-011",
+      "category": "Operations",
+      "title": "운영 런북",
+      "virtualEvidence": "📋 **OPS-011 가상증빙예제-참고용 (더미 데이터)**\n\n**운영 런북** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-011_Operations_운영_런북_v2.1.pdf\n- 내용: 운영 런북 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-5-8\n\n🔹 **문서 2: OPS-011 구현 증빙**\n- 파일명: OPS-011_Implementation_Evidence_2026.xlsx\n- 내용: Operational Runbooks\nMandatory\n\nAWS Partner has ru... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-10\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-011_Operations_Validation_047819.png\n- 내용: 운영 런북 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-23\n\n💡 **OPS-011 실무 팁**: 이 특정 항목(운영 런북)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:07.819Z"
+    },
+    {
+      "itemId": "OPS-012",
+      "category": "Operations",
+      "title": "Anomaly Detection",
+      "virtualEvidence": "📋 **OPS-012 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Anomaly Detection**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-012_Operations_Anomaly_Detection_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Anomaly Detection requirement compliance\n- Approved by: COO, Date: 2024-3-9\n\n🔹 **Document 2: OPS-012 Implementation Evidence**\n- Filename: OPS-012_Implementation_Evidence_2026.xlsx\n- Content: Anomaly Detection\nMandatory\n\nAWS Partner implement... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-25\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-012_Operations_Validation_061119.png\n- Content: Anomaly Detection related system screens and configuration evidence\n- Validated: 2024-12-22\n\n💡 **OPS-012 Practical Note**: Prepare specific evidence materials for this particular item (Anomaly Detection).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:21.119Z"
+    },
+    {
+      "itemId": "OPS-012",
+      "category": "Operations",
+      "title": "이상 탐지",
+      "virtualEvidence": "📋 **OPS-012 가상증빙예제-참고용 (더미 데이터)**\n\n**이상 탐지** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-012_Operations_이상_탐지_v2.1.pdf\n- 내용: 이상 탐지 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-9-13\n\n🔹 **문서 2: OPS-012 구현 증빙**\n- 파일명: OPS-012_Implementation_Evidence_2026.xlsx\n- 내용: Anomaly Detection\nMandatory\n\nAWS Partner implement... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-15\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-012_Operations_Validation_048011.png\n- 내용: 이상 탐지 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-11\n\n💡 **OPS-012 실무 팁**: 이 특정 항목(이상 탐지)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:08.011Z"
+    },
+    {
+      "itemId": "OPS-013",
+      "category": "Operations",
+      "title": "Predictive Monitoring and AIOps",
+      "virtualEvidence": "📋 **OPS-013 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Predictive Monitoring and AIOps**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-013_Operations_Predictive_Monitoring_and_AIOps_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Predictive Monitoring and AIOps requirement compliance\n- Approved by: COO, Date: 2024-8-13\n\n🔹 **Document 2: OPS-013 Implementation Evidence**\n- Filename: OPS-013_Implementation_Evidence_2026.xlsx\n- Content: Predictive Monitoring and AIOps\nRecommended\n\nAWS P... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-5\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-013_Operations_Validation_061345.png\n- Content: Predictive Monitoring and AIOps related system screens and configuration evidence\n- Validated: 2024-12-24\n\n💡 **OPS-013 Practical Note**: Prepare specific evidence materials for this particular item (Predictive Monitoring and AIOps).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:21.345Z"
+    },
+    {
+      "itemId": "OPS-013",
+      "category": "Operations",
+      "title": "예측 모니터링 및 AIOps",
+      "virtualEvidence": "📋 **OPS-013 가상증빙예제-참고용 (더미 데이터)**\n\n**예측 모니터링 및 AIOps** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-013_Operations_예측_모니터링_및_AIOps_v2.1.pdf\n- 내용: 예측 모니터링 및 AIOps 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-1-6\n\n🔹 **문서 2: OPS-013 구현 증빙**\n- 파일명: OPS-013_Implementation_Evidence_2026.xlsx\n- 내용: Predictive Monitoring and AIOps\nRecommended\n\nAWS P... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-21\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-013_Operations_Validation_048236.png\n- 내용: 예측 모니터링 및 AIOps 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-19\n\n💡 **OPS-013 실무 팁**: 이 특정 항목(예측 모니터링 및 AIOps)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:08.236Z"
+    },
+    {
+      "itemId": "OPS-014",
+      "category": "Operations",
+      "title": "Knowledge Management",
+      "virtualEvidence": "📋 **OPS-014 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Knowledge Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-014_Operations_Knowledge_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Knowledge Management requirement compliance\n- Approved by: COO, Date: 2024-1-9\n\n🔹 **Document 2: OPS-014 Implementation Evidence**\n- Filename: OPS-014_Implementation_Evidence_2026.xlsx\n- Content: Knowledge Management\nMandatory\n\nAWS Partner mainta... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-20\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-014_Operations_Validation_061534.png\n- Content: Knowledge Management related system screens and configuration evidence\n- Validated: 2024-12-18\n\n💡 **OPS-014 Practical Note**: Prepare specific evidence materials for this particular item (Knowledge Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:21.534Z"
+    },
+    {
+      "itemId": "OPS-014",
+      "category": "Operations",
+      "title": "지식 관리",
+      "virtualEvidence": "📋 **OPS-014 가상증빙예제-참고용 (더미 데이터)**\n\n**지식 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-014_Operations_지식_관리_v2.1.pdf\n- 내용: 지식 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-2-18\n\n🔹 **문서 2: OPS-014 구현 증빙**\n- 파일명: OPS-014_Implementation_Evidence_2026.xlsx\n- 내용: Knowledge Management\nMandatory\n\nAWS Partner mainta... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-9\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-014_Operations_Validation_048465.png\n- 내용: 지식 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-21\n\n💡 **OPS-014 실무 팁**: 이 특정 항목(지식 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:08.465Z"
+    },
+    {
+      "itemId": "OPS-015",
+      "category": "Operations",
+      "title": "Disaster Recovery",
+      "virtualEvidence": "📋 **OPS-015 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Disaster Recovery**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-015_Operations_Disaster_Recovery_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Disaster Recovery requirement compliance\n- Approved by: COO, Date: 2024-3-27\n\n🔹 **Document 2: OPS-015 Implementation Evidence**\n- Filename: OPS-015_Implementation_Evidence_2026.xlsx\n- Content: Disaster Recovery\nMandatory\n\nAWS Partner implement... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-20\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-015_Operations_Validation_061763.png\n- Content: Disaster Recovery related system screens and configuration evidence\n- Validated: 2024-12-12\n\n💡 **OPS-015 Practical Note**: Prepare specific evidence materials for this particular item (Disaster Recovery).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:21.763Z"
+    },
+    {
+      "itemId": "OPS-015",
+      "category": "Operations",
+      "title": "재해 복구",
+      "virtualEvidence": "📋 **OPS-015 가상증빙예제-참고용 (더미 데이터)**\n\n**재해 복구** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-015_Operations_재해_복구_v2.1.pdf\n- 내용: 재해 복구 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-9-2\n\n🔹 **문서 2: OPS-015 구현 증빙**\n- 파일명: OPS-015_Implementation_Evidence_2026.xlsx\n- 내용: Disaster Recovery\nMandatory\n\nAWS Partner implement... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-2\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-015_Operations_Validation_048695.png\n- 내용: 재해 복구 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-11\n\n💡 **OPS-015 실무 팁**: 이 특정 항목(재해 복구)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:08.695Z"
+    },
+    {
+      "itemId": "OPS-016",
+      "category": "Operations",
+      "title": "Cloud Financial Management",
+      "virtualEvidence": "📋 **OPS-016 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Cloud Financial Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-016_Operations_Cloud_Financial_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Cloud Financial Management requirement compliance\n- Approved by: COO, Date: 2024-2-12\n\n🔹 **Document 2: OPS-016 Implementation Evidence**\n- Filename: OPS-016_Implementation_Evidence_2026.xlsx\n- Content: Cloud Financial Management\nMandatory\n\nThe AWS Part... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-4\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-016_Operations_Validation_061983.png\n- Content: Cloud Financial Management related system screens and configuration evidence\n- Validated: 2024-12-11\n\n💡 **OPS-016 Practical Note**: Prepare specific evidence materials for this particular item (Cloud Financial Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:21.983Z"
+    },
+    {
+      "itemId": "OPS-016",
+      "category": "Operations",
+      "title": "클라우드 재무 관리",
+      "virtualEvidence": "📋 **OPS-016 가상증빙예제-참고용 (더미 데이터)**\n\n**클라우드 재무 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-016_Operations_클라우드_재무_관리_v2.1.pdf\n- 내용: 클라우드 재무 관리 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-3-11\n\n🔹 **문서 2: OPS-016 구현 증빙**\n- 파일명: OPS-016_Implementation_Evidence_2026.xlsx\n- 내용: Cloud Financial Management\nMandatory\n\nThe AWS Part... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-14\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-016_Operations_Validation_048889.png\n- 내용: 클라우드 재무 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-12\n\n💡 **OPS-016 실무 팁**: 이 특정 항목(클라우드 재무 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:08.889Z"
+    },
+    {
+      "itemId": "OPS-017",
+      "category": "Operations",
+      "title": "Migrations",
+      "virtualEvidence": "📋 **OPS-017 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Migrations**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-017_Operations_Migrations_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Migrations requirement compliance\n- Approved by: COO, Date: 2024-9-12\n\n🔹 **Document 2: OPS-017 Implementation Evidence**\n- Filename: OPS-017_Implementation_Evidence_2026.xlsx\n- Content: Migrations\nMandatory\n\nAWS Partners who currently h... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-23\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-017_Operations_Validation_062176.png\n- Content: Migrations related system screens and configuration evidence\n- Validated: 2024-12-13\n\n💡 **OPS-017 Practical Note**: Prepare specific evidence materials for this particular item (Migrations).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:22.176Z"
+    },
+    {
+      "itemId": "OPS-017",
+      "category": "Operations",
+      "title": "마이그레이션",
+      "virtualEvidence": "📋 **OPS-017 가상증빙예제-참고용 (더미 데이터)**\n\n**마이그레이션** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-017_Operations_마이그레이션_v2.1.pdf\n- 내용: 마이그레이션 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-2-19\n\n🔹 **문서 2: OPS-017 구현 증빙**\n- 파일명: OPS-017_Implementation_Evidence_2026.xlsx\n- 내용: Migrations\nMandatory\n\nAWS Partners who currently h... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-2\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-017_Operations_Validation_049080.png\n- 내용: 마이그레이션 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-3\n\n💡 **OPS-017 실무 팁**: 이 특정 항목(마이그레이션)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:09.080Z"
+    },
+    {
+      "itemId": "OPS-018",
+      "category": "Operations",
+      "title": "Artificial Intelligence",
+      "virtualEvidence": "📋 **OPS-018 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Artificial Intelligence**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPS-018_Operations_Artificial_Intelligence_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Artificial Intelligence requirement compliance\n- Approved by: COO, Date: 2024-9-24\n\n🔹 **Document 2: OPS-018 Implementation Evidence**\n- Filename: OPS-018_Implementation_Evidence_2026.xlsx\n- Content: Artificial Intelligence\nRecommended\n\nManaged servi... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-27\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPS-018_Operations_Validation_062408.png\n- Content: Artificial Intelligence related system screens and configuration evidence\n- Validated: 2024-12-9\n\n💡 **OPS-018 Practical Note**: Prepare specific evidence materials for this particular item (Artificial Intelligence).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:22.408Z"
+    },
+    {
+      "itemId": "OPS-018",
+      "category": "Operations",
+      "title": "인공지능",
+      "virtualEvidence": "📋 **OPS-018 가상증빙예제-참고용 (더미 데이터)**\n\n**인공지능** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Operations 특화 문서**\n- 파일명: OPS-018_Operations_인공지능_v2.1.pdf\n- 내용: 인공지능 요구사항 충족을 위한 운영 매뉴얼, 모니터링 대시보드, SLA 보고서\n- 승인자: COO, 승인일: 2024-10-14\n\n🔹 **문서 2: OPS-018 구현 증빙**\n- 파일명: OPS-018_Implementation_Evidence_2026.xlsx\n- 내용: Artificial Intelligence\nRecommended\n\nManaged servi... 관련 구현 결과 및 메트릭\n- 담당자: Operations 팀장, 작성일: 2024-12-21\n\n🔹 **문서 3: Operations 검증 자료**\n- 파일명: OPS-018_Operations_Validation_049312.png\n- 내용: 인공지능 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-22\n\n💡 **OPS-018 실무 팁**: 이 특정 항목(인공지능)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:09.312Z"
+    },
+    {
+      "itemId": "OPSP-001",
+      "category": "Operations",
+      "title": "Incident Management",
+      "virtualEvidence": "📋 **OPSP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Incident Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPSP-001_Operations_Incident_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Incident Management requirement compliance\n- Approved by: COO, Date: 2024-3-12\n\n🔹 **Document 2: OPSP-001 Implementation Evidence**\n- Filename: OPSP-001_Implementation_Evidence_2026.xlsx\n- Content: Incident Management\nMandatory\n\nAWS Partner has doc... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-22\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPSP-001_Operations_Validation_051632.png\n- Content: Incident Management related system screens and configuration evidence\n- Validated: 2024-12-14\n\n💡 **OPSP-001 Practical Note**: Prepare specific evidence materials for this particular item (Incident Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:11.632Z"
+    },
+    {
+      "itemId": "OPSP-001",
+      "category": "Operations",
+      "title": "인시던트 관리",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 인시던트 식별 및 기록 프로세스 문서**\n- 파일명: Incident_Identification_and_Recording_Process_v1.0.pdf\n- 내용: 이 문서는 IT 및 보안 인시던트를 식별하고 기록하는 프로세스를 상세히 설명합니다. 여기에는 인시던트 발생 시 사용되는 식별 도구와 체크리스트, 로그 기록 프로세스, 각 단계에서 필요한 담당자의 역할과 책임이 포함되어 있습니다. 예를 들어, 인시던트 발생 시 자동 알림 시스템을 통해 이메일과 SMS로 담당자에게 즉각 통보되며, 모든 인시던트는 중앙 관리 시스템에 기록됩니다.\n- 작성자/승인자: 운영팀 리더 김현수, 날짜: 2023-10-01\n\n🔹 **문서 2: 인시던트 분류 및 우선순위 지정 가이드라인**\n- 파일명: Incident_Classification_and_Prioritization_Guidelines_v1.2.pdf\n- 내용: 이 문서에서는 인시던트를 분류하고 우선순위를 지정하는 기준을 제시합니다. 인시던트는 영향 범위와 심각도에 따라 분류되며, 우선순위는 비즈니스 연속성에 미치는 영향을 기준으로 결정됩니다. 예를 들어, 고객 데이터 유출은 높은 우선순위로 지정되며, 각 우선순위에 따른 대응 시간과 조치 사항도 명시되어 있습니다.\n- 작성자/승인자: 보안팀 매니저 이지연, 날짜: 2023-10-02\n\n🔹 **문서 3: 인시던트 대응 및 종료 플레이북**\n- 파일명: Incident_Response_and_Closure_Playbook_v2.0.pdf\n- 내용: 인시던트 대응 및 종료 절차를 구체적으로 설명하는 플레이북입니다. 각 인시던트 유형에 따른 단계별 대응 절차가 포함되어 있으며, 조사와 진단을 위한 도구 사용법, 고객과의 소통 채널 및 방법, 인시던트 해결 후 검토 및 종료 절차가 상세히 기록되어 있습니다. 특히, 고객과의 커뮤니케이션은 정기 브리핑과 종료 보고서 제출로 이루어집니다.\n- 작성자/승인자: 인시던트 대응팀 이사 박준혁, 날짜: 2023-10-03\n\n💡 **실무 팁**: 인시던트 관리 문서를 준비할 때, 각 단계에서 요구되는 역할과 책임을 명확히 정의하고, 모든 절차가 감사(log) 가능하도록 기록 체계를 갖추는 것이 중요합니다. 또한, 정기적인 교육과 모의 훈련을 통해 팀이 인시던트 관리 절차에 익숙해지도록 해야 합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:17.831Z"
+    },
+    {
+      "itemId": "OPSP-002",
+      "category": "Operations",
+      "title": "Problem Management",
+      "virtualEvidence": "📋 **OPSP-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Problem Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPSP-002_Operations_Problem_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Problem Management requirement compliance\n- Approved by: COO, Date: 2024-10-13\n\n🔹 **Document 2: OPSP-002 Implementation Evidence**\n- Filename: OPSP-002_Implementation_Evidence_2026.xlsx\n- Content: Problem Management\nMandatory\n\nAWS Partner performs... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-16\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPSP-002_Operations_Validation_051838.png\n- Content: Problem Management related system screens and configuration evidence\n- Validated: 2024-12-2\n\n💡 **OPSP-002 Practical Note**: Prepare specific evidence materials for this particular item (Problem Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:11.838Z"
+    },
+    {
+      "itemId": "OPSP-002",
+      "category": "Operations",
+      "title": "문제 관리",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 사후 인시던트 분석 보고서**\n- 파일명: Incident_Analysis_Report_ClientXYZ_20231015.docx\n- 내용: 이 보고서는 2023년 10월 10일 발생한 Client XYZ의 AWS 환경에서의 인시던트에 대한 사후 분석을 담고 있습니다. 주요 내용으로는 인시던트 발생 시간, 영향 범위, 기여 원인 분석, 사용된 AWS 서비스(예: EC2, S3), 각 서비스의 상태 변화, 고객 시스템에 미친 구체적인 영향, 그리고 고객에게 제공된 즉각적인 지원 현황을 다루고 있습니다.\n- 작성자/승인자: 인시던트 분석 팀 리더 김영수, 승인자: 운영 팀장 이민호, 날짜: 2023년 10월 15일\n\n🔹 **문서 2: 실행 계획**\n- 파일명: Action_Plan_Incident_Resolution_ClientXYZ_20231015.pdf\n- 내용: 이 문서는 인시던트의 재발을 방지하기 위한 실행 계획을 설명합니다. 핵심 조치는 AWS CloudWatch를 통한 모니터링 강화, Auto Scaling 설정 조정, AWS Lambda를 활용한 자동 알림 시스템 개선, 그리고 정기적인 시스템 취약점 점검 스케줄링 포함입니다. 각 실행 조치에 대한 책임자와 일정이 명시되어 있습니다.\n- 작성자/승인자: 운영 책임자 박진수, 승인자: CTO 김현준, 날짜: 2023년 10월 15일\n\n🔹 **문서 3: 고객 커뮤니케이션 기록**\n- 파일명: Customer_Communication_Log_ClientXYZ_20231015.txt\n- 내용: 고객사와의 커뮤니케이션 기록을 포함합니다. 인시던트 발생 시부터 문제 해결 후까지의 모든 커뮤니케이션의 타임라인, 고객에게 제공된 정보의 상세 내용, 고객의 피드백 및 요구사항이 포함되어 있습니다. 또한, 향후 개선 계획과 고객 교육 제안서가 첨부되어 있습니다.\n- 작성자/승인자: 고객 관리 담당자 최수진, 승인자: 고객 지원 매니저 정우성, 날짜: 2023년 10월 15일\n\n💡 **실무 팁**: 사후 인시던트 분석 보고서를 작성할 때는 기술적 세부사항뿐만 아니라 고객의 비즈니스 측면에서의 영향도 함께 고려해야 합니다. 또한, 실행 계획은 구체적인 일정과 책임자가 명확히 명시되어야 재발 방지를 효과적으로 관리할 수 있습니다. 고객 커뮤니케이션 기록은 상호 신뢰 구축에 중요하며, 투명한 정보 전달과 적극적인 피드백 수렴이 필요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:26.306Z"
+    },
+    {
+      "itemId": "OPSP-003",
+      "category": "Operations",
+      "title": "Deployment Risk Management",
+      "virtualEvidence": "📋 **OPSP-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Deployment Risk Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPSP-003_Operations_Deployment_Risk_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Deployment Risk Management requirement compliance\n- Approved by: COO, Date: 2024-11-5\n\n🔹 **Document 2: OPSP-003 Implementation Evidence**\n- Filename: OPSP-003_Implementation_Evidence_2026.xlsx\n- Content: Deployment Risk Management\nMandatory\n\nAWS Partner ... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-28\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPSP-003_Operations_Validation_052024.png\n- Content: Deployment Risk Management related system screens and configuration evidence\n- Validated: 2024-12-12\n\n💡 **OPSP-003 Practical Note**: Prepare specific evidence materials for this particular item (Deployment Risk Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:12.024Z"
+    },
+    {
+      "itemId": "OPSP-003",
+      "category": "Operations",
+      "title": "배포 위험 관리",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 배포 위험 관리 절차서**\n- 파일명: 배포_위험_관리_절차서_v1.2.docx\n- 내용: 본 문서는 새로운 애플리케이션 기능을 프로덕션 환경에 안전하게 배포하기 위한 단계별 절차를 다룹니다. 주요 내용에는 카나리 배포 전략, 블루/그린 배포 설정, 트래픽 이동 방법, 실패 시 롤백 절차 등이 포함됩니다. 각 절차는 시작 전 체크리스트, 배포 후 검증 절차, 문제 발생 시 대응 방안을 포함하여 상세하게 설명되어 있습니다.\n- 작성자/승인자: DevOps 매니저 김수현, 승인자: CTO 박민우, 날짜: 2023년 3월 15일\n\n🔹 **문서 2: 블루/그린 배포 시나리오**\n- 파일명: 블루그린_배포_시나리오_및_테스트케이스_v1.0.xlsx\n- 내용: 이 스프레드시트는 블루/그린 배포를 위한 시나리오와 각 단계에서의 테스트 케이스를 제공합니다. 블루 환경에서의 초기 테스트, 그린 환경으로 트래픽 이동 전 검증, 트래픽 이동 후 모니터링 및 성능 테스트 절차가 포함되어 있습니다. 각 테스트 케이스는 예상 결과 및 실제 결과를 기록할 수 있는 란을 포함하고 있습니다.\n- 작성자/승인자: QA 팀장 이정훈, 승인자: DevOps 매니저 김수현, 날짜: 2023년 4월 10일\n\n🔹 **문서 3: 배포 실패 시 대응 계획**\n- 파일명: 배포_실패_대응_계획_v2.1.pdf\n- 내용: 이 문서는 프로덕션 환경에서의 배포 실패 상황에 대한 대응 계획을 제공합니다. 주요 항목은 자동화된 롤백 절차, 오류 로그 분석 방법, 원인 분석을 위한 팀 회의 절차, 고객 영향 최소화를 위한 커뮤니케이션 전략 등이 포함되어 있습니다.\n- 작성자/승인자: 운영 팀 리더 조민수, 승인자: 운영 이사 김영호, 날짜: 2023년 5월 22일\n\n💡 **실무 팁**: 실제 준비 시에는 각 배포 방식에 따른 세부 절차와 체크리스트를 명확히 문서화하고, 주기적으로 팀 내 공유 및 교육을 통해 모든 구성원이 절차에 익숙해지도록 하세요. 또한, 배포 후에는 실시간 모니터링을 통해 문제를 조기에 감지하고 대응할 수 있는 체계를 구축하는 것이 중요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:33.305Z"
+    },
+    {
+      "itemId": "OPSP-004",
+      "category": "Operations",
+      "title": "Cloud Financial Management",
+      "virtualEvidence": "📋 **OPSP-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Cloud Financial Management**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPSP-004_Operations_Cloud_Financial_Management_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Cloud Financial Management requirement compliance\n- Approved by: COO, Date: 2024-2-12\n\n🔹 **Document 2: OPSP-004 Implementation Evidence**\n- Filename: OPSP-004_Implementation_Evidence_2026.xlsx\n- Content: Cloud Financial Management\nMandatory\n\nAWS Partner ... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-24\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPSP-004_Operations_Validation_052244.png\n- Content: Cloud Financial Management related system screens and configuration evidence\n- Validated: 2024-12-17\n\n💡 **OPSP-004 Practical Note**: Prepare specific evidence materials for this particular item (Cloud Financial Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:12.244Z"
+    },
+    {
+      "itemId": "OPSP-004",
+      "category": "Operations",
+      "title": "클라우드 재무 관리",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 재무 평가 보고서**\n- 파일명: ABC_Corp_AWS_Cost_Evaluation_Report_Q3_2023.pdf\n- 내용: 이 문서는 ABC Corp의 2023년 3분기 AWS 비용을 상세히 분석한 보고서입니다. 주요 AWS 서비스 사용 내역, 월별 비용 증가 추세, 그리고 비효율적인 자원 활용 사례를 포함하고 있습니다. 또한, 비용 절감을 위한 권장사항으로 예약 인스턴스 구매, 불필요한 EBS 볼륨 삭제, S3 스토리지 클래스 전환 등이 제안되었습니다.\n- 작성자/승인자: 클라우드 재무 분석가, 날짜: 2023년 10월 5일\n\n🔹 **문서 2: 최적화 권장사항 목록**\n- 파일명: Cost_Optimization_Recommendations_ABC_Corp.xlsx\n- 내용: 이 문서는 ABC Corp의 AWS 사용을 최적화하기 위한 구체적인 권장사항 목록을 엑셀 시트로 제공합니다. 각 권장사항에는 예상 비용 절감 효과, 적용 방법, 우선순위가 포함되어 있으며, 예를 들어, 사용하지 않는 EC2 인스턴스 종료, 더 저렴한 리전으로의 서비스 마이그레이션 등이 포함되어 있습니다.\n- 작성자/승인자: 클라우드 솔루션 아키텍트, 날짜: 2023년 10월 6일\n\n🔹 **문서 3: 고객 제안서**\n- 파일명: AWS_Cost_Optimization_Proposal_ABC_Corp_2023.docx\n- 내용: ABC Corp의 AWS 비용 최적화를 위한 제안서로, 회사의 비즈니스 목표에 맞춘 솔루션을 제시합니다. 여기에는 비용 절감을 위한 전략적 계획, 예상 ROI, 그리고 구현 타임라인이 포함되어 있습니다. 제안된 전략 중 하나는 Spot 인스턴스를 활용하여 개발 환경 비용을 절감하는 것입니다.\n- 작성자/승인자: 계정 관리자, 날짜: 2023년 10월 7일\n\n💡 **실무 팁**: 고객의 비즈니스 목표와 IT 환경을 깊이 이해하여 그에 맞는 최적화 권장사항을 제시하는 것이 중요합니다. 제안 내용은 항상 현실적으로 실행 가능하며 명확한 이점을 제공해야 하며, 고객과의 지속적인 소통을 통해 권장사항의 시행 여부를 모니터링하고 피드백을 반영해 나가는 과정이 필요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:40.611Z"
+    },
+    {
+      "itemId": "OPSP-005",
+      "category": "Operations",
+      "title": "Service Continuity",
+      "virtualEvidence": "📋 **OPSP-005 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Service Continuity**:\n\n🔹 **Document 1: Operations Specialized Document**\n- Filename: OPSP-005_Operations_Service_Continuity_v2.1.pdf\n- Content: Operations manuals, monitoring dashboards, SLA reports for Service Continuity requirement compliance\n- Approved by: COO, Date: 2024-7-25\n\n🔹 **Document 2: OPSP-005 Implementation Evidence**\n- Filename: OPSP-005_Implementation_Evidence_2026.xlsx\n- Content: Service Continuity\nMandatory\n\nThe AWS Partner defi... related implementation results and metrics\n- Owner: Operations Team Lead, Created: 2024-12-15\n\n🔹 **Document 3: Operations Validation Materials**\n- Filename: OPSP-005_Operations_Validation_052463.png\n- Content: Service Continuity related system screens and configuration evidence\n- Validated: 2024-12-6\n\n💡 **OPSP-005 Practical Note**: Prepare specific evidence materials for this particular item (Service Continuity).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:12.463Z"
+    },
+    {
+      "itemId": "OPSP-005",
+      "category": "Operations",
+      "title": "서비스 연속성",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 서비스 연속성 계획 문서**\n- 파일명: Service_Continuity_Plan_2023.pdf\n- 내용: 이 문서는 고객 서비스에 영향을 미칠 수 있는 다양한 사건들(예: 자연재해, 시스템 장애, 사이버 공격)에 대한 대응 절차를 상세히 설명합니다. 대체 인프라, 백업 도구 및 추가 용량 활용 계획이 포함되어 있으며, 이를 위한 담당 팀과 역할이 명시되어 있습니다.\n- 작성자/승인자: IT 운영팀 팀장 김민준 / CTO 박현수, 날짜: 2023년 2월 15일\n\n🔹 **문서 2: 비즈니스 연속성 테스트 결과 보고서**\n- 파일명: Business_Continuity_Test_Report_2023-Q1.pdf\n- 내용: 2023년 1분기에 실시된 비즈니스 연속성 테스트의 결과를 요약한 문서입니다. 시나리오 기반 테스트로, 시스템 장애 시의 대응 절차가 적절히 작동했는지를 평가하였으며, 주요 발견 사항과 개선이 필요한 영역을 제시합니다. 테스트는 AWS 기반 인프라의 자동 복구 기능을 점검하는 데 중점을 두었습니다.\n- 작성자/승인자: IT 운영팀 리드 이수정 / COO 김지훈, 날짜: 2023년 3월 5일\n\n🔹 **문서 3: ISO 22301 인증서**\n- 파일명: ISO_22301_Certification_2023.jpg\n- 내용: AWS MSP 실무에 맞춘 ISO 22301 인증서의 사본으로, 비즈니스 연속성 관리 시스템(BCMS)의 국제 표준을 충족하고 있음을 증명합니다. 인증 범위에는 AWS 인프라 운영 및 서비스 관리가 포함되어 있습니다.\n- 작성자/승인자: 인증기관 BSI / 인증기관 담당자, 날짜: 2023년 4월 10일\n\n💡 **실무 팁**: 비즈니스 연속성 계획을 수립할 때는 고객 서비스에 영향을 미칠 수 있는 잠재적 위협을 주기적으로 재평가하고, 변화하는 기술 환경에 맞춰 업데이트하는 것이 중요합니다. 테스트 결과는 항상 문서화하고, 발견된 문제점에 대한 개선 조치를 신속히 실행해야 합니다. 또한, ISO 인증과 같은 국제 표준을 참고하면 신뢰성과 일관된 품질을 유지하는 데 도움이 됩니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:45.398Z"
+    },
+    {
+      "itemId": "PEO-001",
+      "category": "People",
+      "title": "Personnel Onboarding",
+      "virtualEvidence": "📋 **PEO-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Personnel Onboarding**:\n\n🔹 **Document 1: People Specialized Document**\n- Filename: PEO-001_People_Personnel_Onboarding_v2.1.pdf\n- Content: Certifications, training certificates, organizational charts for Personnel Onboarding requirement compliance\n- Approved by: CTO, Date: 2024-11-27\n\n🔹 **Document 2: PEO-001 Implementation Evidence**\n- Filename: PEO-001_Implementation_Evidence_2026.xlsx\n- Content: Personnel Onboarding\nMandatory\n\nAWS Partner has de... related implementation results and metrics\n- Owner: People Team Lead, Created: 2024-12-27\n\n🔹 **Document 3: People Validation Materials**\n- Filename: PEO-001_People_Validation_053526.png\n- Content: Personnel Onboarding related system screens and configuration evidence\n- Validated: 2024-12-21\n\n💡 **PEO-001 Practical Note**: Prepare specific evidence materials for this particular item (Personnel Onboarding).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:13.526Z"
+    },
+    {
+      "itemId": "PEO-001",
+      "category": "People",
+      "title": "인력 온보딩",
+      "virtualEvidence": "📋 **PEO-001 가상증빙예제-참고용 (더미 데이터)**\n\n**인력 온보딩** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: People 특화 문서**\n- 파일명: PEO-001_People_인력_온보딩_v2.1.pdf\n- 내용: 인력 온보딩 요구사항 충족을 위한 인증서, 교육 이수증, 조직도\n- 승인자: CTO, 승인일: 2024-3-25\n\n🔹 **문서 2: PEO-001 구현 증빙**\n- 파일명: PEO-001_Implementation_Evidence_2026.xlsx\n- 내용: Personnel Onboarding\nMandatory\n\nAWS Partner has de... 관련 구현 결과 및 메트릭\n- 담당자: People 팀장, 작성일: 2024-12-25\n\n🔹 **문서 3: People 검증 자료**\n- 파일명: PEO-001_People_Validation_040478.png\n- 내용: 인력 온보딩 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-6\n\n💡 **PEO-001 실무 팁**: 이 특정 항목(인력 온보딩)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:00.478Z"
+    },
+    {
+      "itemId": "PEO-002",
+      "category": "People",
+      "title": "Cloud Center of Excellence (CCOE)",
+      "virtualEvidence": "📋 **PEO-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Cloud Center of Excellence (CCOE)**:\n\n🔹 **Document 1: People Specialized Document**\n- Filename: PEO-002_People_Cloud_Center_of_Excellence_(CCOE)_v2.1.pdf\n- Content: Certifications, training certificates, organizational charts for Cloud Center of Excellence (CCOE) requirement compliance\n- Approved by: CTO, Date: 2024-7-19\n\n🔹 **Document 2: PEO-002 Implementation Evidence**\n- Filename: PEO-002_Implementation_Evidence_2026.xlsx\n- Content: Cloud Center of Excellence (CCOE)\nMandatory\n\nAWS P... related implementation results and metrics\n- Owner: People Team Lead, Created: 2024-12-4\n\n🔹 **Document 3: People Validation Materials**\n- Filename: PEO-002_People_Validation_053757.png\n- Content: Cloud Center of Excellence (CCOE) related system screens and configuration evidence\n- Validated: 2024-12-3\n\n💡 **PEO-002 Practical Note**: Prepare specific evidence materials for this particular item (Cloud Center of Excellence (CCOE)).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:13.757Z"
+    },
+    {
+      "itemId": "PEO-002",
+      "category": "People",
+      "title": "클라우드 우수성 센터 (CCOE)",
+      "virtualEvidence": "📋 **PEO-002 가상증빙예제-참고용 (더미 데이터)**\n\n**클라우드 우수성 센터 (CCOE)** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: People 특화 문서**\n- 파일명: PEO-002_People_클라우드_우수성_센터_(CCOE)_v2.1.pdf\n- 내용: 클라우드 우수성 센터 (CCOE) 요구사항 충족을 위한 인증서, 교육 이수증, 조직도\n- 승인자: CTO, 승인일: 2024-10-3\n\n🔹 **문서 2: PEO-002 구현 증빙**\n- 파일명: PEO-002_Implementation_Evidence_2026.xlsx\n- 내용: Cloud Center of Excellence (CCOE)\nMandatory\n\nAWS P... 관련 구현 결과 및 메트릭\n- 담당자: People 팀장, 작성일: 2024-12-22\n\n🔹 **문서 3: People 검증 자료**\n- 파일명: PEO-002_People_Validation_040718.png\n- 내용: 클라우드 우수성 센터 (CCOE) 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-2\n\n💡 **PEO-002 실무 팁**: 이 특정 항목(클라우드 우수성 센터 (CCOE))에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:00.718Z"
+    },
+    {
+      "itemId": "PEO-003",
+      "category": "People",
+      "title": "Personnel Offboarding",
+      "virtualEvidence": "📋 **PEO-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Personnel Offboarding**:\n\n🔹 **Document 1: People Specialized Document**\n- Filename: PEO-003_People_Personnel_Offboarding_v2.1.pdf\n- Content: Certifications, training certificates, organizational charts for Personnel Offboarding requirement compliance\n- Approved by: CTO, Date: 2024-11-2\n\n🔹 **Document 2: PEO-003 Implementation Evidence**\n- Filename: PEO-003_Implementation_Evidence_2026.xlsx\n- Content: Personnel Offboarding\nMandatory\n\nAWS Partner has d... related implementation results and metrics\n- Owner: People Team Lead, Created: 2024-12-12\n\n🔹 **Document 3: People Validation Materials**\n- Filename: PEO-003_People_Validation_053972.png\n- Content: Personnel Offboarding related system screens and configuration evidence\n- Validated: 2024-12-27\n\n💡 **PEO-003 Practical Note**: Prepare specific evidence materials for this particular item (Personnel Offboarding).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:13.972Z"
+    },
+    {
+      "itemId": "PEO-003",
+      "category": "People",
+      "title": "인력 오프보딩",
+      "virtualEvidence": "📋 **PEO-003 가상증빙예제-참고용 (더미 데이터)**\n\n**인력 오프보딩** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: People 특화 문서**\n- 파일명: PEO-003_People_인력_오프보딩_v2.1.pdf\n- 내용: 인력 오프보딩 요구사항 충족을 위한 인증서, 교육 이수증, 조직도\n- 승인자: CTO, 승인일: 2024-12-5\n\n🔹 **문서 2: PEO-003 구현 증빙**\n- 파일명: PEO-003_Implementation_Evidence_2026.xlsx\n- 내용: Personnel Offboarding\nMandatory\n\nAWS Partner has d... 관련 구현 결과 및 메트릭\n- 담당자: People 팀장, 작성일: 2024-12-26\n\n🔹 **문서 3: People 검증 자료**\n- 파일명: PEO-003_People_Validation_040916.png\n- 내용: 인력 오프보딩 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-5\n\n💡 **PEO-003 실무 팁**: 이 특정 항목(인력 오프보딩)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:00.916Z"
+    },
+    {
+      "itemId": "PEOP-001",
+      "category": "People",
+      "title": "Personnel Skills",
+      "virtualEvidence": "📋 **PEOP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Personnel Skills**:\n\n🔹 **Document 1: People Specialized Document**\n- Filename: PEOP-001_People_Personnel_Skills_v2.1.pdf\n- Content: Certifications, training certificates, organizational charts for Personnel Skills requirement compliance\n- Approved by: CTO, Date: 2024-9-28\n\n🔹 **Document 2: PEOP-001 Implementation Evidence**\n- Filename: PEOP-001_Implementation_Evidence_2026.xlsx\n- Content: Personnel Skills\nMandatory\n\nAWS Partner has a defi... related implementation results and metrics\n- Owner: People Team Lead, Created: 2024-12-24\n\n🔹 **Document 3: People Validation Materials**\n- Filename: PEOP-001_People_Validation_050164.png\n- Content: Personnel Skills related system screens and configuration evidence\n- Validated: 2024-12-22\n\n💡 **PEOP-001 Practical Note**: Prepare specific evidence materials for this particular item (Personnel Skills).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:10.164Z"
+    },
+    {
+      "itemId": "PEOP-001",
+      "category": "People",
+      "title": "인력 기술",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 교육 프로그램 계획서**\n- 파일명: 2023_AWS_Tech_Skills_Training_Plan.pdf\n- 내용: 이 문서는 2023년 한 해 동안 AWS 관리 서비스 운영팀의 기술 향상을 위한 공식 교육 프로그램 계획을 설명합니다. 여기에는 AWS 인증 준비 과정, 클라우드 아키텍처 워크샵, 데이터 분석 세미나 등이 포함되어 있으며 각 교육의 목표와 일정, 참가자 명단이 상세히 기재되어 있습니다.\n- 작성자/승인자: 교육 담당 관리자 김수진, 승인자: CTO 이정민, 날짜: 2023년 1월 10일\n\n🔹 **문서 2: 학습 이벤트 참여 보고서**\n- 파일명: Q2_2023_AWS_Workshop_Participation_Report.xlsx\n- 내용: 이 보고서는 2023년 2분기에 진행된 AWS 워크샵 및 트레이닝 세션에 대한 직원 참여 현황을 기록한 문서입니다. 각 직원이 참석한 이벤트와 습득한 기술, 그리고 피드백이 포함되어 있습니다. 이 보고서는 팀 리더들이 인력의 기술적 발전 상태를 평가하는 데 사용됩니다.\n- 작성자/승인자: 교육 코디네이터 박민정, 승인자: 운영 부서장 최형석, 날짜: 2023년 6월 30일\n\n🔹 **문서 3: 내부 기술 세미나 발표 자료**\n- 파일명: Internal_Tech_Seminar_CloudSecurity.pptx\n- 내용: 이 자료는 사내 기술 세미나에서 발표된 '클라우드 보안 최신 동향 및 대응 전략' 주제의 발표 자료입니다. MSP 운영팀의 보안 전문가가 최신 클라우드 보안 기술과 사례를 공유하며, 이어진 토론 세션을 통해 실무 적용 방안이 논의되었습니다.\n- 작성자/승인자: 보안 전문가 이현우, 승인자: 교육 부서장 김영주, 날짜: 2023년 5월 15일\n\n💡 **실무 팁**: AWS MSP 프로그램의 People 카테고리 평가를 준비할 때, 조직 내 지속적인 학습 문화 촉진을 위한 다양한 교육 및 이벤트 계획과 참여 증빙을 문서화하는 것이 중요합니다. 각 활동의 목표와 결과를 명확히 기재하여 인력의 기술적 성장을 증명하는 자료로 활용하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:32:34.674Z"
+    },
+    {
+      "itemId": "PLAT-001",
+      "category": "Platform",
+      "title": "Account Management",
+      "virtualEvidence": "📋 **PLAT-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Account Management**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLAT-001_Platform_Account_Management_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for Account Management requirement compliance\n- Approved by: CTO, Date: 2024-10-2\n\n🔹 **Document 2: PLAT-001 Implementation Evidence**\n- Filename: PLAT-001_Implementation_Evidence_2026.xlsx\n- Content: Account Management\nMandatory\n\nAWS accounts are not... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-22\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLAT-001_Platform_Validation_055395.png\n- Content: Account Management related system screens and configuration evidence\n- Validated: 2024-12-7\n\n💡 **PLAT-001 Practical Note**: Prepare specific evidence materials for this particular item (Account Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:15.395Z"
+    },
+    {
+      "itemId": "PLAT-001",
+      "category": "Platform",
+      "title": "계정 관리",
+      "virtualEvidence": "📋 **PLAT-001 가상증빙예제-참고용 (더미 데이터)**\n\n**계정 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Platform 특화 문서**\n- 파일명: PLAT-001_Platform_계정_관리_v2.1.pdf\n- 내용: 계정 관리 요구사항 충족을 위한 아키텍처 다이어그램, 기술 문서, 구성 스크립트\n- 승인자: CTO, 승인일: 2024-12-7\n\n🔹 **문서 2: PLAT-001 구현 증빙**\n- 파일명: PLAT-001_Implementation_Evidence_2026.xlsx\n- 내용: Account Management\nMandatory\n\nAWS accounts are not... 관련 구현 결과 및 메트릭\n- 담당자: Platform 팀장, 작성일: 2024-12-26\n\n🔹 **문서 3: Platform 검증 자료**\n- 파일명: PLAT-001_Platform_Validation_042498.png\n- 내용: 계정 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-28\n\n💡 **PLAT-001 실무 팁**: 이 특정 항목(계정 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:02.498Z"
+    },
+    {
+      "itemId": "PLAT-002",
+      "category": "Platform",
+      "title": "Solution Capabilities",
+      "virtualEvidence": "📋 **PLAT-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Solution Capabilities**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLAT-002_Platform_Solution_Capabilities_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for Solution Capabilities requirement compliance\n- Approved by: CTO, Date: 2024-9-1\n\n🔹 **Document 2: PLAT-002 Implementation Evidence**\n- Filename: PLAT-002_Implementation_Evidence_2026.xlsx\n- Content: Solution Capabilities\nMandatory\n\nThe AWS Partner d... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-9\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLAT-002_Platform_Validation_055618.png\n- Content: Solution Capabilities related system screens and configuration evidence\n- Validated: 2024-12-3\n\n💡 **PLAT-002 Practical Note**: Prepare specific evidence materials for this particular item (Solution Capabilities).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:15.618Z"
+    },
+    {
+      "itemId": "PLAT-002",
+      "category": "Platform",
+      "title": "솔루션 역량",
+      "virtualEvidence": "📋 **PLAT-002 가상증빙예제-참고용 (더미 데이터)**\n\n**솔루션 역량** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Platform 특화 문서**\n- 파일명: PLAT-002_Platform_솔루션_역량_v2.1.pdf\n- 내용: 솔루션 역량 요구사항 충족을 위한 아키텍처 다이어그램, 기술 문서, 구성 스크립트\n- 승인자: CTO, 승인일: 2024-3-20\n\n🔹 **문서 2: PLAT-002 구현 증빙**\n- 파일명: PLAT-002_Implementation_Evidence_2026.xlsx\n- 내용: Solution Capabilities\nMandatory\n\nThe AWS Partner d... 관련 구현 결과 및 메트릭\n- 담당자: Platform 팀장, 작성일: 2024-12-8\n\n🔹 **문서 3: Platform 검증 자료**\n- 파일명: PLAT-002_Platform_Validation_042728.png\n- 내용: 솔루션 역량 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-18\n\n💡 **PLAT-002 실무 팁**: 이 특정 항목(솔루션 역량)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:02.728Z"
+    },
+    {
+      "itemId": "PLAT-003",
+      "category": "Platform",
+      "title": "Non-Functional Requirement",
+      "virtualEvidence": "📋 **PLAT-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Non-Functional Requirement**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLAT-003_Platform_Non-Functional_Requirement_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for Non-Functional Requirement requirement compliance\n- Approved by: CTO, Date: 2024-12-24\n\n🔹 **Document 2: PLAT-003 Implementation Evidence**\n- Filename: PLAT-003_Implementation_Evidence_2026.xlsx\n- Content: Non-Functional Requirement\nMandatory\n\nThe AWS Part... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-24\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLAT-003_Platform_Validation_055849.png\n- Content: Non-Functional Requirement related system screens and configuration evidence\n- Validated: 2024-12-13\n\n💡 **PLAT-003 Practical Note**: Prepare specific evidence materials for this particular item (Non-Functional Requirement).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:15.849Z"
+    },
+    {
+      "itemId": "PLAT-003",
+      "category": "Platform",
+      "title": "비기능적 요구사항",
+      "virtualEvidence": "📋 **PLAT-003 가상증빙예제-참고용 (더미 데이터)**\n\n**비기능적 요구사항** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Platform 특화 문서**\n- 파일명: PLAT-003_Platform_비기능적_요구사항_v2.1.pdf\n- 내용: 비기능적 요구사항 요구사항 충족을 위한 아키텍처 다이어그램, 기술 문서, 구성 스크립트\n- 승인자: CTO, 승인일: 2024-9-26\n\n🔹 **문서 2: PLAT-003 구현 증빙**\n- 파일명: PLAT-003_Implementation_Evidence_2026.xlsx\n- 내용: Non-Functional Requirement\nMandatory\n\nThe AWS Part... 관련 구현 결과 및 메트릭\n- 담당자: Platform 팀장, 작성일: 2024-12-21\n\n🔹 **문서 3: Platform 검증 자료**\n- 파일명: PLAT-003_Platform_Validation_042964.png\n- 내용: 비기능적 요구사항 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-4\n\n💡 **PLAT-003 실무 팁**: 이 특정 항목(비기능적 요구사항)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:02.964Z"
+    },
+    {
+      "itemId": "PLAT-004",
+      "category": "Platform",
+      "title": "Well-Architected",
+      "virtualEvidence": "📋 **PLAT-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Well-Architected**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLAT-004_Platform_Well-Architected_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for Well-Architected requirement compliance\n- Approved by: CTO, Date: 2024-10-26\n\n🔹 **Document 2: PLAT-004 Implementation Evidence**\n- Filename: PLAT-004_Implementation_Evidence_2026.xlsx\n- Content: Well-Architected\nMandatory\n\nDetailed design that s... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-26\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLAT-004_Platform_Validation_056069.png\n- Content: Well-Architected related system screens and configuration evidence\n- Validated: 2024-12-5\n\n💡 **PLAT-004 Practical Note**: Prepare specific evidence materials for this particular item (Well-Architected).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:16.069Z"
+    },
+    {
+      "itemId": "PLAT-004",
+      "category": "Platform",
+      "title": "Well-Architected",
+      "virtualEvidence": "📋 **PLAT-004 가상증빙예제-참고용 (더미 데이터)**\n\n**Well-Architected** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Platform 특화 문서**\n- 파일명: PLAT-004_Platform_Well-Architected_v2.1.pdf\n- 내용: Well-Architected 요구사항 충족을 위한 아키텍처 다이어그램, 기술 문서, 구성 스크립트\n- 승인자: CTO, 승인일: 2024-1-2\n\n🔹 **문서 2: PLAT-004 구현 증빙**\n- 파일명: PLAT-004_Implementation_Evidence_2026.xlsx\n- 내용: Well-Architected\nMandatory\n\nDetailed design that s... 관련 구현 결과 및 메트릭\n- 담당자: Platform 팀장, 작성일: 2024-12-10\n\n🔹 **문서 3: Platform 검증 자료**\n- 파일명: PLAT-004_Platform_Validation_043191.png\n- 내용: Well-Architected 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-16\n\n💡 **PLAT-004 실무 팁**: 이 특정 항목(Well-Architected)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:03.191Z"
+    },
+    {
+      "itemId": "PLAT-005",
+      "category": "Platform",
+      "title": "AWS Service Expertise",
+      "virtualEvidence": "📋 **PLAT-005 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **AWS Service Expertise**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLAT-005_Platform_AWS_Service_Expertise_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for AWS Service Expertise requirement compliance\n- Approved by: CTO, Date: 2024-7-27\n\n🔹 **Document 2: PLAT-005 Implementation Evidence**\n- Filename: PLAT-005_Implementation_Evidence_2026.xlsx\n- Content: AWS Service Expertise\nMandatory\n\nAWS Partners who ... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-11\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLAT-005_Platform_Validation_056287.png\n- Content: AWS Service Expertise related system screens and configuration evidence\n- Validated: 2024-12-9\n\n💡 **PLAT-005 Practical Note**: Prepare specific evidence materials for this particular item (AWS Service Expertise).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:16.287Z"
+    },
+    {
+      "itemId": "PLAT-005",
+      "category": "Platform",
+      "title": "AWS 서비스 전문성",
+      "virtualEvidence": "📋 **PLAT-005 가상증빙예제-참고용 (더미 데이터)**\n\n**AWS 서비스 전문성** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Platform 특화 문서**\n- 파일명: PLAT-005_Platform_AWS_서비스_전문성_v2.1.pdf\n- 내용: AWS 서비스 전문성 요구사항 충족을 위한 아키텍처 다이어그램, 기술 문서, 구성 스크립트\n- 승인자: CTO, 승인일: 2024-3-13\n\n🔹 **문서 2: PLAT-005 구현 증빙**\n- 파일명: PLAT-005_Implementation_Evidence_2026.xlsx\n- 내용: AWS Service Expertise\nMandatory\n\nAWS Partners who ... 관련 구현 결과 및 메트릭\n- 담당자: Platform 팀장, 작성일: 2024-12-22\n\n🔹 **문서 3: Platform 검증 자료**\n- 파일명: PLAT-005_Platform_Validation_043430.png\n- 내용: AWS 서비스 전문성 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-27\n\n💡 **PLAT-005 실무 팁**: 이 특정 항목(AWS 서비스 전문성)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:03.430Z"
+    },
+    {
+      "itemId": "PLATP-001",
+      "category": "Platform",
+      "title": "Expert Design Review",
+      "virtualEvidence": "📋 **PLATP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Expert Design Review**:\n\n🔹 **Document 1: Platform Specialized Document**\n- Filename: PLATP-001_Platform_Expert_Design_Review_v2.1.pdf\n- Content: Architecture diagrams, technical docs, configuration scripts for Expert Design Review requirement compliance\n- Approved by: CTO, Date: 2024-5-25\n\n🔹 **Document 2: PLATP-001 Implementation Evidence**\n- Filename: PLATP-001_Implementation_Evidence_2026.xlsx\n- Content: Expert Design Review\nMandatory\n\nThe AWS Partner ha... related implementation results and metrics\n- Owner: Platform Team Lead, Created: 2024-12-4\n\n🔹 **Document 3: Platform Validation Materials**\n- Filename: PLATP-001_Platform_Validation_051017.png\n- Content: Expert Design Review related system screens and configuration evidence\n- Validated: 2024-12-26\n\n💡 **PLATP-001 Practical Note**: Prepare specific evidence materials for this particular item (Expert Design Review).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:11.017Z"
+    },
+    {
+      "itemId": "PLATP-001",
+      "category": "Platform",
+      "title": "전문가 설계 검토",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 설계 검토 정책 문서**\n- 파일명: AWS_설계검토정책_2023_v1.2.pdf\n- 내용: 이 문서는 모든 고객 AWS 프로젝트에 대해 설계 및 구현 단계에서 AWS Solutions Architect – Associate 또는 Professional 인증을 받은 개인이 검토를 수행해야 한다는 정책을 상세히 설명합니다. 또한, 프로젝트의 복잡성에 따라 Professional 또는 Specialty 수준 인증을 받은 개인의 추가 검토가 필요한 경우에 대한 지침도 포함되어 있습니다.\n- 작성자/승인자: IT 정책 담당자 김철수, 날짜: 2023년 3월 15일\n\n🔹 **문서 2: 고객 프로젝트 검토 보고서**\n- 파일명: 고객프로젝트_검토보고서_ProjectX_2023.pdf\n- 내용: Project X의 AWS 설계 검토 결과를 담고 있으며, 프로젝트의 주요 설계 고려사항과 권장 사항을 포함하고 있습니다. 이 보고서는 AWS Solutions Architect – Professional 인증을 받은 이지은에 의해 검토되었으며, 고객의 요구사항에 따른 최적의 솔루션 제안을 포함하고 있습니다.\n- 작성자/승인자: AWS Solutions Architect 이지은, 날짜: 2023년 5월 10일\n\n🔹 **문서 3: 검토 승인 메일**\n- 파일명: 프로젝트_승인메일_ProjectX_2023.msg\n- 내용: 프로젝트 X에 대한 설계 검토가 완료되었음을 확인하고, AWS Solutions Architect – Professional 인증을 받은 담당자가 최종 승인을 했다는 내용을 포함합니다. 이 메일은 프로젝트 팀과 고객에게 발송되었습니다.\n- 작성자/승인자: 프로젝트 관리자 박민수, 날짜: 2023년 5월 12일\n\n💡 **실무 팁**: 실제 준비 시, 설계 검토 정책 문서는 정기적으로 업데이트되어야 하며, 새로운 인증 요구사항이나 AWS 서비스가 추가될 때마다 반영해야 합니다. 또한, 검토 보고서와 승인 메일은 프로젝트마다 철저히 보관하여 필요 시 고객에게 제공할 수 있도록 준비해두는 것이 중요합니다. 각 문서에 대한 접근 권한도 명확히 설정해 두세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:01.007Z"
+    },
+    {
+      "itemId": "SEC-001",
+      "category": "Security",
+      "title": "Security Policies and Procedures",
+      "virtualEvidence": "📋 **SEC-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Security Policies and Procedures**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-001_Security_Security_Policies_and_Procedures_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Security Policies and Procedures requirement compliance\n- Approved by: CISO, Date: 2024-1-26\n\n🔹 **Document 2: SEC-001 Implementation Evidence**\n- Filename: SEC-001_Implementation_Evidence_2026.xlsx\n- Content: Security Policies and Procedures\nMandatory\n\nAWS Pa... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-25\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-001_Security_Validation_056527.png\n- Content: Security Policies and Procedures related system screens and configuration evidence\n- Validated: 2024-12-7\n\n💡 **SEC-001 Practical Note**: Prepare specific evidence materials for this particular item (Security Policies and Procedures).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:16.527Z"
+    },
+    {
+      "itemId": "SEC-001",
+      "category": "Security",
+      "title": "보안 정책 및 절차",
+      "virtualEvidence": "📋 **SEC-001 가상증빙예제-참고용 (더미 데이터)**\n\n**보안 정책 및 절차** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-001_Security_보안_정책_및_절차_v2.1.pdf\n- 내용: 보안 정책 및 절차 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-6-23\n\n🔹 **문서 2: SEC-001 구현 증빙**\n- 파일명: SEC-001_Implementation_Evidence_2026.xlsx\n- 내용: Security Policies and Procedures\nMandatory\n\nAWS Pa... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-16\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-001_Security_Validation_043646.png\n- 내용: 보안 정책 및 절차 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-9\n\n💡 **SEC-001 실무 팁**: 이 특정 항목(보안 정책 및 절차)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:03.646Z"
+    },
+    {
+      "itemId": "SEC-002",
+      "category": "Security",
+      "title": "Security Awareness Training and testing",
+      "virtualEvidence": "📋 **SEC-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Security Awareness Training and testing**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-002_Security_Security_Awareness_Training_and_testing_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Security Awareness Training and testing requirement compliance\n- Approved by: CISO, Date: 2024-6-14\n\n🔹 **Document 2: SEC-002 Implementation Evidence**\n- Filename: SEC-002_Implementation_Evidence_2026.xlsx\n- Content: Security Awareness Training and testing\nMandatory\n... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-15\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-002_Security_Validation_056748.png\n- Content: Security Awareness Training and testing related system screens and configuration evidence\n- Validated: 2024-12-26\n\n💡 **SEC-002 Practical Note**: Prepare specific evidence materials for this particular item (Security Awareness Training and testing).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:16.748Z"
+    },
+    {
+      "itemId": "SEC-002",
+      "category": "Security",
+      "title": "보안 인식 교육 및 테스트",
+      "virtualEvidence": "📋 **SEC-002 가상증빙예제-참고용 (더미 데이터)**\n\n**보안 인식 교육 및 테스트** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-002_Security_보안_인식_교육_및_테스트_v2.1.pdf\n- 내용: 보안 인식 교육 및 테스트 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-3-8\n\n🔹 **문서 2: SEC-002 구현 증빙**\n- 파일명: SEC-002_Implementation_Evidence_2026.xlsx\n- 내용: Security Awareness Training and testing\nMandatory\n... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-12\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-002_Security_Validation_043842.png\n- 내용: 보안 인식 교육 및 테스트 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-18\n\n💡 **SEC-002 실무 팁**: 이 특정 항목(보안 인식 교육 및 테스트)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:03.842Z"
+    },
+    {
+      "itemId": "SEC-003",
+      "category": "Security",
+      "title": "AWS Account Configuration",
+      "virtualEvidence": "📋 **SEC-003 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **AWS Account Configuration**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-003_Security_AWS_Account_Configuration_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for AWS Account Configuration requirement compliance\n- Approved by: CISO, Date: 2024-5-6\n\n🔹 **Document 2: SEC-003 Implementation Evidence**\n- Filename: SEC-003_Implementation_Evidence_2026.xlsx\n- Content: AWS Account Configuration\nMandatory\n\nAWS Partner d... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-10\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-003_Security_Validation_056981.png\n- Content: AWS Account Configuration related system screens and configuration evidence\n- Validated: 2024-12-21\n\n💡 **SEC-003 Practical Note**: Prepare specific evidence materials for this particular item (AWS Account Configuration).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:16.981Z"
+    },
+    {
+      "itemId": "SEC-003",
+      "category": "Security",
+      "title": "AWS 계정 구성",
+      "virtualEvidence": "📋 **SEC-003 가상증빙예제-참고용 (더미 데이터)**\n\n**AWS 계정 구성** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-003_Security_AWS_계정_구성_v2.1.pdf\n- 내용: AWS 계정 구성 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-12-23\n\n🔹 **문서 2: SEC-003 구현 증빙**\n- 파일명: SEC-003_Implementation_Evidence_2026.xlsx\n- 내용: AWS Account Configuration\nMandatory\n\nAWS Partner d... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-25\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-003_Security_Validation_044032.png\n- 내용: AWS 계정 구성 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-24\n\n💡 **SEC-003 실무 팁**: 이 특정 항목(AWS 계정 구성)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:04.032Z"
+    },
+    {
+      "itemId": "SEC-004",
+      "category": "Security",
+      "title": "Identity and Access Management",
+      "virtualEvidence": "📋 **SEC-004 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Identity and Access Management**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-004_Security_Identity_and_Access_Management_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Identity and Access Management requirement compliance\n- Approved by: CISO, Date: 2024-12-3\n\n🔹 **Document 2: SEC-004 Implementation Evidence**\n- Filename: SEC-004_Implementation_Evidence_2026.xlsx\n- Content: Identity and Access Management\nMandatory\n\nAWS Part... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-24\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-004_Security_Validation_057199.png\n- Content: Identity and Access Management related system screens and configuration evidence\n- Validated: 2024-12-13\n\n💡 **SEC-004 Practical Note**: Prepare specific evidence materials for this particular item (Identity and Access Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:17.199Z"
+    },
+    {
+      "itemId": "SEC-004",
+      "category": "Security",
+      "title": "신원 및 액세스 관리",
+      "virtualEvidence": "📋 **SEC-004 가상증빙예제-참고용 (더미 데이터)**\n\n**신원 및 액세스 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-004_Security_신원_및_액세스_관리_v2.1.pdf\n- 내용: 신원 및 액세스 관리 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-2-2\n\n🔹 **문서 2: SEC-004 구현 증빙**\n- 파일명: SEC-004_Implementation_Evidence_2026.xlsx\n- 내용: Identity and Access Management\nMandatory\n\nAWS Part... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-12\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-004_Security_Validation_044219.png\n- 내용: 신원 및 액세스 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-6\n\n💡 **SEC-004 실무 팁**: 이 특정 항목(신원 및 액세스 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:04.219Z"
+    },
+    {
+      "itemId": "SEC-005",
+      "category": "Security",
+      "title": "Policy Management",
+      "virtualEvidence": "📋 **SEC-005 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Policy Management**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-005_Security_Policy_Management_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Policy Management requirement compliance\n- Approved by: CISO, Date: 2024-10-11\n\n🔹 **Document 2: SEC-005 Implementation Evidence**\n- Filename: SEC-005_Implementation_Evidence_2026.xlsx\n- Content: Policy Management\nMandatory\n\nAWS Partner has estab... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-13\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-005_Security_Validation_057413.png\n- Content: Policy Management related system screens and configuration evidence\n- Validated: 2024-12-23\n\n💡 **SEC-005 Practical Note**: Prepare specific evidence materials for this particular item (Policy Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:17.413Z"
+    },
+    {
+      "itemId": "SEC-005",
+      "category": "Security",
+      "title": "정책 관리",
+      "virtualEvidence": "📋 **SEC-005 가상증빙예제-참고용 (더미 데이터)**\n\n**정책 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-005_Security_정책_관리_v2.1.pdf\n- 내용: 정책 관리 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-1-17\n\n🔹 **문서 2: SEC-005 구현 증빙**\n- 파일명: SEC-005_Implementation_Evidence_2026.xlsx\n- 내용: Policy Management\nMandatory\n\nAWS Partner has estab... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-14\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-005_Security_Validation_044443.png\n- 내용: 정책 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-27\n\n💡 **SEC-005 실무 팁**: 이 특정 항목(정책 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:04.443Z"
+    },
+    {
+      "itemId": "SEC-006",
+      "category": "Security",
+      "title": "Role-Based Access",
+      "virtualEvidence": "📋 **SEC-006 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Role-Based Access**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-006_Security_Role-Based_Access_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Role-Based Access requirement compliance\n- Approved by: CISO, Date: 2024-7-6\n\n🔹 **Document 2: SEC-006 Implementation Evidence**\n- Filename: SEC-006_Implementation_Evidence_2026.xlsx\n- Content: Role-Based Access\nMandatory\n\nAWS Partners ensures ... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-8\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-006_Security_Validation_057639.png\n- Content: Role-Based Access related system screens and configuration evidence\n- Validated: 2024-12-17\n\n💡 **SEC-006 Practical Note**: Prepare specific evidence materials for this particular item (Role-Based Access).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:17.639Z"
+    },
+    {
+      "itemId": "SEC-006",
+      "category": "Security",
+      "title": "역할 기반 액세스",
+      "virtualEvidence": "📋 **SEC-006 가상증빙예제-참고용 (더미 데이터)**\n\n**역할 기반 액세스** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-006_Security_역할_기반_액세스_v2.1.pdf\n- 내용: 역할 기반 액세스 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-1-10\n\n🔹 **문서 2: SEC-006 구현 증빙**\n- 파일명: SEC-006_Implementation_Evidence_2026.xlsx\n- 내용: Role-Based Access\nMandatory\n\nAWS Partners ensures ... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-18\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-006_Security_Validation_044640.png\n- 내용: 역할 기반 액세스 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-13\n\n💡 **SEC-006 실무 팁**: 이 특정 항목(역할 기반 액세스)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:04.640Z"
+    },
+    {
+      "itemId": "SEC-007",
+      "category": "Security",
+      "title": "Multi-Factor Authentication",
+      "virtualEvidence": "📋 **SEC-007 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Multi-Factor Authentication**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-007_Security_Multi-Factor_Authentication_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Multi-Factor Authentication requirement compliance\n- Approved by: CISO, Date: 2024-1-15\n\n🔹 **Document 2: SEC-007 Implementation Evidence**\n- Filename: SEC-007_Implementation_Evidence_2026.xlsx\n- Content: Multi-Factor Authentication\nMandatory\n\nAll access ... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-9\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-007_Security_Validation_057869.png\n- Content: Multi-Factor Authentication related system screens and configuration evidence\n- Validated: 2024-12-11\n\n💡 **SEC-007 Practical Note**: Prepare specific evidence materials for this particular item (Multi-Factor Authentication).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:17.869Z"
+    },
+    {
+      "itemId": "SEC-007",
+      "category": "Security",
+      "title": "다중 인증",
+      "virtualEvidence": "📋 **SEC-007 가상증빙예제-참고용 (더미 데이터)**\n\n**다중 인증** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-007_Security_다중_인증_v2.1.pdf\n- 내용: 다중 인증 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-11-24\n\n🔹 **문서 2: SEC-007 구현 증빙**\n- 파일명: SEC-007_Implementation_Evidence_2026.xlsx\n- 내용: Multi-Factor Authentication\nMandatory\n\nAll access ... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-26\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-007_Security_Validation_044834.png\n- 내용: 다중 인증 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-1\n\n💡 **SEC-007 실무 팁**: 이 특정 항목(다중 인증)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:04.834Z"
+    },
+    {
+      "itemId": "SEC-008",
+      "category": "Security",
+      "title": "Vulnerability Management",
+      "virtualEvidence": "📋 **SEC-008 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Vulnerability Management**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-008_Security_Vulnerability_Management_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Vulnerability Management requirement compliance\n- Approved by: CISO, Date: 2024-4-21\n\n🔹 **Document 2: SEC-008 Implementation Evidence**\n- Filename: SEC-008_Implementation_Evidence_2026.xlsx\n- Content: Vulnerability Management\nMandatory\n\nAWS Partner pr... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-20\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-008_Security_Validation_058094.png\n- Content: Vulnerability Management related system screens and configuration evidence\n- Validated: 2024-12-8\n\n💡 **SEC-008 Practical Note**: Prepare specific evidence materials for this particular item (Vulnerability Management).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:18.094Z"
+    },
+    {
+      "itemId": "SEC-008",
+      "category": "Security",
+      "title": "취약점 관리",
+      "virtualEvidence": "📋 **SEC-008 가상증빙예제-참고용 (더미 데이터)**\n\n**취약점 관리** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-008_Security_취약점_관리_v2.1.pdf\n- 내용: 취약점 관리 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-8-28\n\n🔹 **문서 2: SEC-008 구현 증빙**\n- 파일명: SEC-008_Implementation_Evidence_2026.xlsx\n- 내용: Vulnerability Management\nMandatory\n\nAWS Partner pr... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-10\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-008_Security_Validation_045031.png\n- 내용: 취약점 관리 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-23\n\n💡 **SEC-008 실무 팁**: 이 특정 항목(취약점 관리)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:05.031Z"
+    },
+    {
+      "itemId": "SEC-009",
+      "category": "Security",
+      "title": "Security Event Logging",
+      "virtualEvidence": "📋 **SEC-009 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Security Event Logging**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-009_Security_Security_Event_Logging_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Security Event Logging requirement compliance\n- Approved by: CISO, Date: 2024-7-14\n\n🔹 **Document 2: SEC-009 Implementation Evidence**\n- Filename: SEC-009_Implementation_Evidence_2026.xlsx\n- Content: Security Event Logging\nMandatory\n\nAWS Partner 1/ d... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-7\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-009_Security_Validation_058313.png\n- Content: Security Event Logging related system screens and configuration evidence\n- Validated: 2024-12-7\n\n💡 **SEC-009 Practical Note**: Prepare specific evidence materials for this particular item (Security Event Logging).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:18.313Z"
+    },
+    {
+      "itemId": "SEC-009",
+      "category": "Security",
+      "title": "보안 이벤트 로깅",
+      "virtualEvidence": "📋 **SEC-009 가상증빙예제-참고용 (더미 데이터)**\n\n**보안 이벤트 로깅** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-009_Security_보안_이벤트_로깅_v2.1.pdf\n- 내용: 보안 이벤트 로깅 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-7-25\n\n🔹 **문서 2: SEC-009 구현 증빙**\n- 파일명: SEC-009_Implementation_Evidence_2026.xlsx\n- 내용: Security Event Logging\nMandatory\n\nAWS Partner 1/ d... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-14\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-009_Security_Validation_045256.png\n- 내용: 보안 이벤트 로깅 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-9\n\n💡 **SEC-009 실무 팁**: 이 특정 항목(보안 이벤트 로깅)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:05.256Z"
+    },
+    {
+      "itemId": "SEC-010",
+      "category": "Security",
+      "title": "SaaS Tooling Account Access",
+      "virtualEvidence": "📋 **SEC-010 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **SaaS Tooling Account Access**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SEC-010_Security_SaaS_Tooling_Account_Access_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for SaaS Tooling Account Access requirement compliance\n- Approved by: CISO, Date: 2024-3-13\n\n🔹 **Document 2: SEC-010 Implementation Evidence**\n- Filename: SEC-010_Implementation_Evidence_2026.xlsx\n- Content: SaaS Tooling Account Access\nMandatory\n\nAny third p... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-22\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SEC-010_Security_Validation_058508.png\n- Content: SaaS Tooling Account Access related system screens and configuration evidence\n- Validated: 2024-12-12\n\n💡 **SEC-010 Practical Note**: Prepare specific evidence materials for this particular item (SaaS Tooling Account Access).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:18.508Z"
+    },
+    {
+      "itemId": "SEC-010",
+      "category": "Security",
+      "title": "SaaS 도구 계정 액세스",
+      "virtualEvidence": "📋 **SEC-010 가상증빙예제-참고용 (더미 데이터)**\n\n**SaaS 도구 계정 액세스** 항목을 위한 맞춤형 증빙예제:\n\n🔹 **문서 1: Security 특화 문서**\n- 파일명: SEC-010_Security_SaaS_도구_계정_액세스_v2.1.pdf\n- 내용: SaaS 도구 계정 액세스 요구사항 충족을 위한 보안 정책, 취약점 스캔 결과, 액세스 로그\n- 승인자: CISO, 승인일: 2024-8-16\n\n🔹 **문서 2: SEC-010 구현 증빙**\n- 파일명: SEC-010_Implementation_Evidence_2026.xlsx\n- 내용: SaaS Tooling Account Access\nMandatory\n\nAny third p... 관련 구현 결과 및 메트릭\n- 담당자: Security 팀장, 작성일: 2024-12-7\n\n🔹 **문서 3: Security 검증 자료**\n- 파일명: SEC-010_Security_Validation_045451.png\n- 내용: SaaS 도구 계정 액세스 관련 시스템 화면 및 설정 증빙\n- 검증일: 2024-12-1\n\n💡 **SEC-010 실무 팁**: 이 특정 항목(SaaS 도구 계정 액세스)에 맞는 구체적인 증빙자료를 준비하세요.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:34:05.451Z"
+    },
+    {
+      "itemId": "SECP-001",
+      "category": "Security",
+      "title": "Access Key Exposure Detection",
+      "virtualEvidence": "📋 **SECP-001 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Access Key Exposure Detection**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SECP-001_Security_Access_Key_Exposure_Detection_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Access Key Exposure Detection requirement compliance\n- Approved by: CISO, Date: 2024-7-6\n\n🔹 **Document 2: SECP-001 Implementation Evidence**\n- Filename: SECP-001_Implementation_Evidence_2026.xlsx\n- Content: Access Key Exposure Detection\nMandatory\n\nAWS Partn... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-3\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SECP-001_Security_Validation_051243.png\n- Content: Access Key Exposure Detection related system screens and configuration evidence\n- Validated: 2024-12-11\n\n💡 **SECP-001 Practical Note**: Prepare specific evidence materials for this particular item (Access Key Exposure Detection).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:11.243Z"
+    },
+    {
+      "itemId": "SECP-001",
+      "category": "Security",
+      "title": "액세스 키 노출 탐지",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 자동화된 티켓 생성 시스템 설정 가이드**\n- 파일명: AccessKey_Exposure_Ticketing_Automation_Setup.docx\n- 내용: 이 문서는 AWS Health 이벤트의 \"RISK\" 알림을 수신하여 노출된 액세스 키에 대한 티켓을 자동으로 생성하는 프로세스를 설명합니다. AWS Lambda를 활용하여 AWS Health 이벤트 알림을 수신하고, 이를 ITSM 시스템(예: ServiceNow)으로 전송하여 최고 심각도의 티켓을 생성합니다. 이 문서에는 Lambda 함수 코드 샘플, SNS 설정 방법 및 ITSM API 연동 절차가 포함되어 있습니다.\n- 작성자/승인자: 클라우드 아키텍트 이정훈, 날짜: 2023년 10월 15일\n\n🔹 **문서 2: 노출된 액세스 키 대응 절차 매뉴얼**\n- 파일명: AccessKey_Exposure_Response_Procedure.pdf\n- 내용: 이 문서는 노출된 액세스 키를 탐지했을 때 수행해야 하는 구체적인 절차를 설명합니다. 단계별로 액세스 키 비활성화, 로그 확인, 계정 잠금, 새로운 키 생성 및 배포, 관련 이해 관계자와의 커뮤니케이션 방안 등을 다룹니다. 또한 보안 감사팀과의 협력 및 사건 보고서 작성 방법도 포함되어 있습니다.\n- 작성자/승인자: 보안 운영 관리자 김하나, 날짜: 2023년 10월 16일\n\n🔹 **문서 3: 액세스 키 노출 예방 조치 보고서**\n- 파일명: AccessKey_Exposure_Prevention_Measures_Report.xlsx\n- 내용: 이 보고서는 액세스 키 노출을 예방하기 위해 채택한 보안 조치를 정리한 문서입니다. IAM 정책 검토, 액세스 키 로테이션 주기, CloudTrail 및 Config 설정에 대한 세부 정보가 포함되어 있습니다. 특히, 정기적인 IAM 사용 감사 및 사용자 교육 프로그램에 대한 상세 계획이 기술되어 있습니다.\n- 작성자/승인자: 보안 분석가 박수진, 날짜: 2023년 10월 17일\n\n💡 **실무 팁**: 자동화된 티켓 시스템 설정 시 ITSM 시스템과의 원활한 연동을 위해 API 키 관리 및 권한 설정을 철저히 하세요. 또한, 대응 절차 매뉴얼은 정기적으로 업데이트하여 최신 보안 트렌드와 내부 절차 변화에 맞추도록 합니다. 모든 문서는 정기적인 보안 심사를 통해 유효성을 검증받는 것이 중요합니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:05.713Z"
+    },
+    {
+      "itemId": "SECP-002",
+      "category": "Security",
+      "title": "Public Resources",
+      "virtualEvidence": "📋 **SECP-002 Virtual Evidence Example (Dummy Data)**\n\nCustomized evidence example for **Public Resources**:\n\n🔹 **Document 1: Security Specialized Document**\n- Filename: SECP-002_Security_Public_Resources_v2.1.pdf\n- Content: Security policies, vulnerability scan results, access logs for Public Resources requirement compliance\n- Approved by: CISO, Date: 2024-2-9\n\n🔹 **Document 2: SECP-002 Implementation Evidence**\n- Filename: SECP-002_Implementation_Evidence_2026.xlsx\n- Content: Public Resources\nMandatory\n\nAWS Partner has toolin... related implementation results and metrics\n- Owner: Security Team Lead, Created: 2024-12-20\n\n🔹 **Document 3: Security Validation Materials**\n- Filename: SECP-002_Security_Validation_051446.png\n- Content: Public Resources related system screens and configuration evidence\n- Validated: 2024-12-1\n\n💡 **SECP-002 Practical Note**: Prepare specific evidence materials for this particular item (Public Resources).",
+      "language": "en",
+      "createdAt": "2026-01-01T09:34:11.446Z"
+    },
+    {
+      "itemId": "SECP-002",
+      "category": "Security",
+      "title": "공개 리소스",
+      "virtualEvidence": "📋 **가상증빙예제-참고용**\n\n🔹 **문서 1: 보안 리소스 접근 제어 정책**\n- 파일명: Security_Resource_Access_Control_Policy_v1.2.pdf\n- 내용: 이 문서는 AWS 리소스에 대한 접근 제어 정책을 정의합니다. Amazon S3, RDS, EC2, EBS, AMI 등 주요 서비스에 대한 접근 제어를 명시하고, 민감한 포트에 대한 무제한 액세스를 방지하는 보안 그룹 설정 지침을 포함합니다. 문서는 각 서비스 별로 접근 제어 목록(ACL) 설정 방법과 IAM 정책을 통한 접근 제한 규칙을 상세히 설명합니다.\n- 작성자/승인자: 보안팀 매니저 김보안, 날짜: 2023년 10월 10일\n\n🔹 **문서 2: 공개 리소스 탐지 및 경고 시스템 절차**\n- 파일명: Public_Resource_Detection_And_Alert_Procedures_v2.1.docx\n- 내용: AWS 환경 내에서 의도하지 않은 공개 액세스를 실시간으로 탐지하기 위한 CloudWatch와 AWS Config의 구성 방법을 설명합니다. 특히 Amazon S3 버킷에 대한 공개 액세스 설정 변경 시 즉시 알림이 가도록 설정하는 방법과, RDS 및 EC2 인스턴스의 네트워크 액세스에 대한 모니터링 규칙을 설명합니다. 알림은 SNS를 통해 관련자에게 전송됩니다.\n- 작성자/승인자: 클라우드 운영 팀장 이운영, 날짜: 2023년 10월 15일\n\n🔹 **문서 3: 비정상적 액세스 시나리오 대응 계획**\n- 파일명: Unusual_Access_Response_Plan_v3.0.xlsx\n- 내용: 예상치 못한 공개 액세스 발생 시 조치를 위한 대응 계획을 표 형식으로 정리했습니다. 각 리소스 유형에 대해 탐지된 문제 유형별로 대응 절차가 구체적으로 나열되어 있으며, 예를 들어 S3 버킷이 공개되었을 때 버킷 정책을 어떻게 수정할 것인지, EC2 인스턴스의 보안 그룹 설정 변경 시 어떤 조치를 취할 것인지에 대해 단계별로 설명합니다.\n- 작성자/승인자: IT 보안 책임자 최안전, 날짜: 2023년 10월 20일\n\n💡 **실무 팁**: AWS 환경에서 보안 설정 변경을 실시간으로 모니터링하는 것이 중요합니다. 특히, AWS Config와 CloudTrail을 사용하여 리소스 설정 변경 이력을 추적하고, 변경 시 즉각적인 알림을 받을 수 있도록 SNS와 연동하는 것이 효과적입니다. 이를 통해 의도치 않은 공개 액세스를 신속하게 탐지하고 대응할 수 있습니다.",
+      "language": "ko",
+      "createdAt": "2026-01-01T09:33:11.718Z"
+    }
+  ]
+}
