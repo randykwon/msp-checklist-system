@@ -241,6 +241,47 @@ ${item.virtual_evidence}`;
       }
     }
 
+    // 생성된 요약을 JSON 파일로 저장
+    if (successCount > 0) {
+      try {
+        const cwd = process.cwd();
+        const basePath = cwd.endsWith('/admin') || cwd.endsWith('\\admin') 
+          ? path.join(cwd, '..') 
+          : cwd;
+        const summaryDir = path.join(basePath, 'cache', 'virtual-evidence-summaries');
+        
+        if (!fs.existsSync(summaryDir)) {
+          fs.mkdirSync(summaryDir, { recursive: true });
+        }
+        
+        // 생성된 요약 데이터 조회
+        const summaries = getVirtualEvidenceSummaries(summaryVersion, language as 'ko' | 'en');
+        
+        const fileData = {
+          version: summaryVersion,
+          sourceVersion: veVersion,
+          language,
+          provider: finalLLMConfig.provider,
+          model: finalLLMConfig.model,
+          createdAt: new Date().toISOString(),
+          totalItems: summaries.length,
+          summaries: summaries.map(s => ({
+            item_id: s.item_id,
+            category: s.category,
+            title: s.title,
+            summary: s.summary,
+          })),
+        };
+        
+        const filename = `${summaryVersion}.json`;
+        const filePath = path.join(summaryDir, filename);
+        fs.writeFileSync(filePath, JSON.stringify(fileData, null, 2), 'utf-8');
+        console.log(`[VE Summary] Saved to file: ${filePath}`);
+      } catch (fileError: any) {
+        console.error('[VE Summary] Failed to save file:', fileError.message);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       version: summaryVersion,
