@@ -34,11 +34,11 @@ export async function POST(request: NextRequest) {
     if (adviceCache) {
       try {
         const adviceResponse = await fetch(`${mainAppUrl}/api/advice-cache`, {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'import',
-            data: adviceCache,
+            cacheData: adviceCache,
           }),
         });
         
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
           const result = await adviceResponse.json();
           results.adviceCache = {
             success: true,
-            message: `조언 캐시 가져오기 완료: ${result.importedCount || 0}개 항목`,
+            message: `조언 캐시 가져오기 완료: ${result.totalItems || 0}개 항목`,
             version: result.version,
           };
         } else {
@@ -68,11 +68,11 @@ export async function POST(request: NextRequest) {
     if (virtualEvidenceCache) {
       try {
         const veResponse = await fetch(`${mainAppUrl}/api/virtual-evidence-cache`, {
-          method: 'POST',
+          method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'import',
-            data: virtualEvidenceCache,
+            cacheData: virtualEvidenceCache,
           }),
         });
         
@@ -80,7 +80,7 @@ export async function POST(request: NextRequest) {
           const result = await veResponse.json();
           results.virtualEvidenceCache = {
             success: true,
-            message: `가상증빙예제 캐시 가져오기 완료: ${result.importedCount || 0}개 항목`,
+            message: `가상증빙예제 캐시 가져오기 완료: ${result.totalItems || 0}개 항목`,
             version: result.version,
           };
         } else {
