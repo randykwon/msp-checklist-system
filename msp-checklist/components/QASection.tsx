@@ -39,8 +39,52 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
 
   // Load questions on component mount
   useEffect(() => {
-    setError(''); // 컴포넌트 마운트 시 에러 초기화
-    loadQuestions();
+    let isMounted = true;
+    const abortController = new AbortController();
+    
+    const fetchQuestions = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const url = `/api/qa?itemId=${encodeURIComponent(itemId)}&assessmentType=${assessmentType}`;
+        console.log('[QASection] Loading questions:', { itemId, assessmentType, url });
+        
+        const response = await fetch(url, { signal: abortController.signal });
+        
+        if (!isMounted) return;
+        
+        if (response.ok) {
+          const data = await response.json();
+          console.log('[QASection] Questions loaded:', { itemId, count: data.questions?.length || 0 });
+          setQuestions(data.questions || []);
+          setError('');
+        } else {
+          const errorData = await response.json();
+          console.error('[QASection] Failed to load questions:', errorData);
+          setError(errorData.error || 'Failed to load questions');
+        }
+      } catch (error: any) {
+        if (error.name === 'AbortError') {
+          console.log('[QASection] Request aborted');
+          return;
+        }
+        console.error('[QASection] Error loading questions:', error);
+        if (isMounted) {
+          setError('An error occurred while loading questions');
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchQuestions();
+    
+    return () => {
+      isMounted = false;
+      abortController.abort();
+    };
   }, [itemId, assessmentType]);
 
   // File handling functions
@@ -79,10 +123,12 @@ export default function QASection({ itemId, assessmentType }: QASectionProps) {
       setLoading(true);
       setError(''); // 로딩 시작 시 에러 클리어
       const url = `/api/qa?itemId=${encodeURIComponent(itemId)}&assessmentType=${assessmentType}`;
+      console.log('[QASection] Loading questions:', { itemId, assessmentType, url });
       const response = await fetch(url);
       
       if (response.ok) {
         const data = await response.json();
+        console.log('[QASection] Questions loaded:', { itemId, count: data.questions?.length || 0 });
         setQuestions(data.questions || []);
         setError(''); // 성공 시 에러 클리어
       } else {

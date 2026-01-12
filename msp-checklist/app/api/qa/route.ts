@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createQuestion, answerQuestion, getQuestionsForItem, deleteQuestion } from '@/lib/db';
+import { createQuestion, answerQuestion, getQuestionsForItem, getQuestionsForItemByUser, deleteQuestion } from '@/lib/db';
 import { verifyToken } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
@@ -17,8 +17,23 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const questions = getQuestionsForItem(itemId, assessmentType);
-    console.log('[QA API] Questions found:', questions.length);
+    // 사용자 인증 확인 - 로그인한 사용자만 질문 조회 가능
+    const token = request.cookies.get('msp_auth_token')?.value;
+    if (!token) {
+      // 비로그인 사용자는 빈 배열 반환
+      console.log('[QA API] No auth token, returning empty questions');
+      return NextResponse.json({ questions: [] });
+    }
+
+    const user = verifyToken(token);
+    if (!user) {
+      console.log('[QA API] Invalid token, returning empty questions');
+      return NextResponse.json({ questions: [] });
+    }
+
+    // 사용자별 질문 필터링 (질문 작성자 또는 관리자만 볼 수 있음)
+    const questions = getQuestionsForItemByUser(itemId, assessmentType, user.userId, user.role);
+    console.log('[QA API] Questions found for user:', { userId: user.userId, role: user.role, count: questions.length });
     return NextResponse.json({ questions });
 
   } catch (error) {

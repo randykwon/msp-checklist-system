@@ -648,6 +648,42 @@ export function getQuestionsForItem(
   return stmt.all(itemId, assessmentType) as QAItem[];
 }
 
+// 사용자별 질문 조회 (질문 작성자 또는 관리자만 볼 수 있음)
+export function getQuestionsForItemByUser(
+  itemId: string,
+  assessmentType: 'prerequisites' | 'technical',
+  userId: number,
+  userRole: string
+): QAItem[] {
+  // 관리자(admin, superadmin)는 모든 질문 조회 가능
+  if (userRole === 'admin' || userRole === 'superadmin') {
+    return getQuestionsForItem(itemId, assessmentType);
+  }
+  
+  // 일반 사용자는 자신이 작성한 질문만 조회 가능
+  const stmt = db.prepare(`
+    SELECT 
+      qa.id,
+      qa.item_id as itemId,
+      qa.assessment_type as assessmentType,
+      qa.question,
+      qa.answer,
+      qa.question_user_id as questionUserId,
+      qa.answer_user_id as answerUserId,
+      qa.question_created_at as questionCreatedAt,
+      qa.answer_created_at as answerCreatedAt,
+      qu.name as questionUserName,
+      au.name as answerUserName
+    FROM item_qa qa
+    LEFT JOIN users qu ON qa.question_user_id = qu.id
+    LEFT JOIN users au ON qa.answer_user_id = au.id
+    WHERE qa.item_id = ? AND qa.assessment_type = ? AND qa.question_user_id = ?
+    ORDER BY qa.question_created_at DESC
+  `);
+  
+  return stmt.all(itemId, assessmentType, userId) as QAItem[];
+}
+
 export function deleteQuestion(questionId: number, userId: number): boolean {
   // Only allow deletion by the question author or admin
   const checkStmt = db.prepare(`
