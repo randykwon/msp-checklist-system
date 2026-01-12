@@ -273,7 +273,9 @@ ${item.virtual_evidence}`;
           })),
         };
         
-        const filename = `${summaryVersion}.json`;
+        // 파일명: {버전}_{프로바이더}_{모델}.json
+        const modelName = finalLLMConfig.model.replace(/[/:]/g, '-');
+        const filename = `${summaryVersion}_${finalLLMConfig.provider}_${modelName}.json`;
         const filePath = path.join(summaryDir, filename);
         fs.writeFileSync(filePath, JSON.stringify(fileData, null, 2), 'utf-8');
         console.log(`[VE Summary] Saved to file: ${filePath}`);
