@@ -38,6 +38,7 @@ msp-assessment.db
 /cache/virtual-evidence/*.json
 /cache/advice-summaries/*.json
 /cache/virtual-evidence-summaries/*.json
+/cache/msp_cache_backup_*.json
 
 # misc
 .DS_Store
