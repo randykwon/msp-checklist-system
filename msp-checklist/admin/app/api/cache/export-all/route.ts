@@ -52,30 +52,38 @@ export async function GET(request: NextRequest) {
         }
         
         // 조언 요약도 내보내기 (list action 사용)
-        // 먼저 해당 버전에 맞는 요약 버전 찾기
+        // 먼저 해당 버전에 맞는 요약 버전들 찾기
         const adviceSummaryVersionsResponse = await fetch(
           `${adminAppUrl}/api/advice-summary?action=versions`,
           { headers: { Cookie: `admin_auth_token=${token}` } }
         );
         if (adviceSummaryVersionsResponse.ok) {
           const versionsData = await adviceSummaryVersionsResponse.json();
-          // 해당 캐시 버전을 포함하는 요약 버전 찾기 (summary_{캐시버전}_... 형식)
-          const matchingSummaryVersion = versionsData.versions?.find((v: string) => 
+          // 해당 캐시 버전을 포함하는 모든 요약 버전 찾기 (summary_{캐시버전}_... 형식)
+          const matchingSummaryVersions = (versionsData.versions || []).filter((v: string) => 
             v.includes(adviceVersion) || v.includes(`summary_${adviceVersion}`)
           );
-          if (matchingSummaryVersion) {
+          
+          if (matchingSummaryVersions.length > 0) {
             // 한국어와 영어 요약 모두 내보내기
-            const summaries: any = { version: matchingSummaryVersion, ko: [], en: [] };
+            const summaries: any = { versions: matchingSummaryVersions, ko: [], en: [] };
             
+            // 각 언어별로 가장 최신 버전에서 요약 가져오기
             for (const lang of ['ko', 'en']) {
-              const summaryResponse = await fetch(
-                `${adminAppUrl}/api/advice-summary?action=list&version=${encodeURIComponent(matchingSummaryVersion)}&language=${lang}`,
-                { headers: { Cookie: `admin_auth_token=${token}` } }
-              );
-              if (summaryResponse.ok) {
-                const summaryData = await summaryResponse.json();
-                if (summaryData.summaries && summaryData.summaries.length > 0) {
-                  summaries[lang] = summaryData.summaries;
+              // 해당 언어의 버전 찾기 (언어 코드가 포함된 버전 우선, 없으면 첫 번째 버전 사용)
+              const langVersion = matchingSummaryVersions.find((v: string) => v.includes(`_${lang}_`)) 
+                || matchingSummaryVersions[0];
+              
+              if (langVersion) {
+                const summaryResponse = await fetch(
+                  `${adminAppUrl}/api/advice-summary?action=list&version=${encodeURIComponent(langVersion)}&language=${lang}`,
+                  { headers: { Cookie: `admin_auth_token=${token}` } }
+                );
+                if (summaryResponse.ok) {
+                  const summaryData = await summaryResponse.json();
+                  if (summaryData.summaries && summaryData.summaries.length > 0) {
+                    summaries[lang] = summaryData.summaries;
+                  }
                 }
               }
             }
@@ -108,22 +116,30 @@ export async function GET(request: NextRequest) {
         );
         if (veSummaryVersionsResponse.ok) {
           const versionsData = await veSummaryVersionsResponse.json();
-          // 해당 캐시 버전을 포함하는 요약 버전 찾기 (ve_summary_{캐시버전}_... 형식)
-          const matchingSummaryVersion = versionsData.versions?.find((v: string) => 
+          // 해당 캐시 버전을 포함하는 모든 요약 버전 찾기 (ve_summary_{캐시버전}_... 형식)
+          const matchingSummaryVersions = (versionsData.versions || []).filter((v: string) => 
             v.includes(virtualEvidenceVersion) || v.includes(`ve_summary_${virtualEvidenceVersion}`)
           );
-          if (matchingSummaryVersion) {
-            const summaries: any = { version: matchingSummaryVersion, ko: [], en: [] };
+          
+          if (matchingSummaryVersions.length > 0) {
+            const summaries: any = { versions: matchingSummaryVersions, ko: [], en: [] };
             
+            // 각 언어별로 가장 최신 버전에서 요약 가져오기
             for (const lang of ['ko', 'en']) {
-              const summaryResponse = await fetch(
-                `${adminAppUrl}/api/virtual-evidence-summary?action=list&version=${encodeURIComponent(matchingSummaryVersion)}&language=${lang}`,
-                { headers: { Cookie: `admin_auth_token=${token}` } }
-              );
-              if (summaryResponse.ok) {
-                const summaryData = await summaryResponse.json();
-                if (summaryData.summaries && summaryData.summaries.length > 0) {
-                  summaries[lang] = summaryData.summaries;
+              // 해당 언어의 버전 찾기 (언어 코드가 포함된 버전 우선, 없으면 첫 번째 버전 사용)
+              const langVersion = matchingSummaryVersions.find((v: string) => v.includes(`_${lang}_`)) 
+                || matchingSummaryVersions[0];
+              
+              if (langVersion) {
+                const summaryResponse = await fetch(
+                  `${adminAppUrl}/api/virtual-evidence-summary?action=list&version=${encodeURIComponent(langVersion)}&language=${lang}`,
+                  { headers: { Cookie: `admin_auth_token=${token}` } }
+                );
+                if (summaryResponse.ok) {
+                  const summaryData = await summaryResponse.json();
+                  if (summaryData.summaries && summaryData.summaries.length > 0) {
+                    summaries[lang] = summaryData.summaries;
+                  }
                 }
               }
             }
