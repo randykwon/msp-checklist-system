@@ -67,6 +67,7 @@ const INFERENCE_PROFILE_REQUIRED_MODELS = [
   'anthropic.claude-opus-4-5-20251101-v1:0',
   'anthropic.claude-sonnet-4-5-20250929-v1:0',
   'anthropic.claude-haiku-4-5-20251001-v1:0',
+  'anthropic.claude-3-5-sonnet-20241022-v2:0',  // Sonnet v2도 Inference Profile 필요
 ];
 
 const LLM_PROVIDERS = {
@@ -103,12 +104,13 @@ const LLM_PROVIDERS = {
     name: 'AWS Bedrock',
     icon: '☁️',
     models: [
+      { id: 'anthropic.claude-3-haiku-20240307-v1:0', name: 'Claude 3 Haiku (빠름/저렴, 추천)' },
+      { id: 'anthropic.claude-3-5-haiku-20241022-v1:0', name: 'Claude 3.5 Haiku (빠름)' },
+      { id: 'anthropic.claude-3-5-sonnet-20241022-v2:0', name: '🔐 Claude 3.5 Sonnet v2 (Inference Profile 필요)' },
+      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus (고성능)' },
       { id: 'anthropic.claude-opus-4-5-20251101-v1:0', name: '🔐 Claude 4.5 Opus (Inference Profile)' },
       { id: 'anthropic.claude-sonnet-4-5-20250929-v1:0', name: '🔐 Claude 4.5 Sonnet (Inference Profile)' },
       { id: 'anthropic.claude-haiku-4-5-20251001-v1:0', name: '🔐 Claude 4.5 Haiku (Inference Profile)' },
-      { id: 'anthropic.claude-3-5-sonnet-20241022-v2:0', name: 'Claude 3.5 Sonnet v2 (추천)' },
-      { id: 'anthropic.claude-3-5-haiku-20241022-v1:0', name: 'Claude 3.5 Haiku (빠름)' },
-      { id: 'anthropic.claude-3-opus-20240229-v1:0', name: 'Claude 3 Opus (고성능)' },
     ],
     color: '#FF9900',
   },
