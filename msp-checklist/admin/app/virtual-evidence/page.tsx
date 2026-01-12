@@ -651,7 +651,7 @@ export default function VirtualEvidencePage() {
 
       setSummaryProgressInfo(prev => ({ ...prev, percent: 100 }));
       showMessage(`항목별 요약 생성 완료! ${results.join(', ')}`, 'success');
-      await loadItemSummaryVersions();
+      refreshItemSummaryVersions();
     } catch (error) {
       console.error('Failed to generate item summaries:', error);
       showMessage('항목별 요약 생성 중 오류가 발생했습니다.', 'error');
@@ -661,99 +661,80 @@ export default function VirtualEvidencePage() {
     }
   };
 
-  // 항목별 요약 버전 목록 로드
+  // 항목별 요약 버전 목록 불러오기 (모달 열기)
   const loadItemSummaryVersions = async () => {
     try {
+      setIsLoadingItemSummaries(true);
       const response = await fetch('/api/virtual-evidence-summary?action=versions');
       if (response.ok) {
         const data = await response.json();
         setItemSummaryVersions(data.versions || []);
-        if (data.versions && data.versions.length > 0 && !selectedItemSummaryVersion) {
-          setSelectedItemSummaryVersion(data.versions[0].version);
-        }
+        setShowItemSummaryModal(true);
+      } else {
+        showMessage('항목별 요약 버전 목록을 불러오는데 실패했습니다.', 'error');
       }
     } catch (error) {
       console.error('Failed to load item summary versions:', error);
-    }
-  };
-
-  // 항목별 요약 목록 로드 (모달 열기)
-  const loadItemSummaries = async (version: string, lang: 'ko' | 'en' = 'ko') => {
-    try {
-      setIsLoadingItemSummaries(true);
-      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${version}&language=${lang}`);
-      if (response.ok) {
-        const data = await response.json();
-        setItemSummaries(data.summaries || []);
-        setShowItemSummaryModal(true);
-      } else {
-        showMessage('요약 목록을 불러오는데 실패했습니다.', 'error');
-      }
-    } catch (error) {
-      console.error('Failed to load item summaries:', error);
-      showMessage('요약 목록 로드 중 오류가 발생했습니다.', 'error');
+      showMessage('항목별 요약 버전 목록 로드 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsLoadingItemSummaries(false);
     }
   };
 
-  // 항목별 요약 목록만 새로고침 (모달 열지 않음)
-  const refreshItemSummaries = async (version: string, lang: 'ko' | 'en' = 'ko') => {
+  // 항목별 요약 버전 목록만 새로고침 (모달 열지 않음)
+  const refreshItemSummaryVersions = async () => {
     try {
-      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${version}&language=${lang}`);
+      const response = await fetch('/api/virtual-evidence-summary?action=versions');
+      if (response.ok) {
+        const data = await response.json();
+        setItemSummaryVersions(data.versions || []);
+      }
+    } catch (error) {
+      console.error('Failed to refresh item summary versions:', error);
+    }
+  };
+
+  // 특정 버전의 항목별 요약 불러오기
+  const loadItemSummariesByVersion = async (version: string, lang: 'ko' | 'en' = 'ko') => {
+    try {
+      setIsLoadingItemSummaries(true);
+      setSelectedItemSummaryVersion(version);
+      const response = await fetch(`/api/virtual-evidence-summary?action=list&version=${encodeURIComponent(version)}&language=${lang}`);
       if (response.ok) {
         const data = await response.json();
         setItemSummaries(data.summaries || []);
+      } else {
+        showMessage('항목별 요약을 불러오는데 실패했습니다.', 'error');
       }
     } catch (error) {
-      console.error('Failed to refresh item summaries:', error);
+      console.error('Failed to load item summaries:', error);
+      showMessage('항목별 요약 로드 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsLoadingItemSummaries(false);
     }
   };
 
-  // 요약 보기 버튼 클릭
-  const handleViewItemSummaries = async () => {
-    await loadItemSummaryVersions();
-    if (itemSummaryVersions.length > 0) {
-      await loadItemSummaries(itemSummaryVersions[0].version, summaryViewLanguage);
-    } else {
-      showMessage('생성된 요약이 없습니다. 먼저 항목별 요약을 생성해주세요.', 'info');
-    }
-  };
-
-  // 요약 버전 삭제
+  // 항목별 요약 버전 삭제
   const deleteItemSummaryVersion = async (version: string) => {
-    if (!confirm(`요약 버전 "${version}"을 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
-      return;
-    }
+    if (!confirm(`버전 "${version}"을 삭제하시겠습니까?`)) return;
     
     try {
       const response = await fetch(`/api/virtual-evidence-summary?version=${encodeURIComponent(version)}`, {
         method: 'DELETE',
       });
-      
       if (response.ok) {
-        showMessage(`요약 버전이 삭제되었습니다.`, 'success');
-        await loadItemSummaryVersions();
-        // 삭제된 버전이 선택된 버전이면 첫 번째 버전 선택
+        showMessage('버전이 삭제되었습니다.', 'success');
+        refreshItemSummaryVersions();
         if (selectedItemSummaryVersion === version) {
-          if (itemSummaryVersions.length > 1) {
-            const newVersion = itemSummaryVersions.find(v => v.version !== version)?.version;
-            if (newVersion) {
-              setSelectedItemSummaryVersion(newVersion);
-              await loadItemSummaries(newVersion, summaryViewLanguage);
-            }
-          } else {
-            setSelectedItemSummaryVersion('');
-            setItemSummaries([]);
-          }
+          setSelectedItemSummaryVersion('');
+          setItemSummaries([]);
         }
       } else {
-        const error = await response.json();
-        showMessage(`삭제 실패: ${error.error}`, 'error');
+        showMessage('버전 삭제에 실패했습니다.', 'error');
       }
     } catch (error) {
-      console.error('Failed to delete summary version:', error);
-      showMessage('요약 버전 삭제 중 오류가 발생했습니다.', 'error');
+      console.error('Failed to delete item summary version:', error);
+      showMessage('버전 삭제 중 오류가 발생했습니다.', 'error');
     }
   };
 
@@ -815,7 +796,7 @@ export default function VirtualEvidencePage() {
         const result = await importResponse.json();
         showMessage(`요약 가져오기 완료: ${result.importedCount || 0}개 항목`, 'success');
         setShowSummaryImportModal(false);
-        await loadItemSummaryVersions();
+        await refreshItemSummaryVersions();
       } else {
         const error = await importResponse.json();
         throw new Error(error.error || '가져오기 실패');
@@ -1217,7 +1198,7 @@ export default function VirtualEvidencePage() {
                     {isGeneratingItemSummary ? '⏳ 요약 생성 중...' : '📝 항목별 요약'}
                   </button>
                   <button
-                    onClick={handleViewItemSummaries}
+                    onClick={loadItemSummaryVersions}
                     disabled={isLoadingItemSummaries}
                     style={{
                       padding: '10px 16px', fontSize: 13, fontWeight: 600, color: '#6366F1',
@@ -2825,9 +2806,9 @@ export default function VirtualEvidencePage() {
               display: 'flex', alignItems: 'center', justifyContent: 'space-between'
             }}>
               <div>
-                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📖 가상증빙예제 항목별 요약 관리</h2>
+                <h2 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>📖 항목별 요약 보기</h2>
                 <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.9 }}>
-                  {itemSummaryVersions.length}개 버전 | 선택된 버전: {itemSummaries.length}개 항목
+                  버전을 선택하여 각 항목의 요약을 확인합니다
                 </p>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -2847,7 +2828,7 @@ export default function VirtualEvidencePage() {
                   <button
                     onClick={() => {
                       setSummaryViewLanguage('ko');
-                      if (selectedItemSummaryVersion) loadItemSummaries(selectedItemSummaryVersion, 'ko');
+                      if (selectedItemSummaryVersion) loadItemSummariesByVersion(selectedItemSummaryVersion, 'ko');
                     }}
                     style={{
                       padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
@@ -2861,7 +2842,7 @@ export default function VirtualEvidencePage() {
                   <button
                     onClick={() => {
                       setSummaryViewLanguage('en');
-                      if (selectedItemSummaryVersion) loadItemSummaries(selectedItemSummaryVersion, 'en');
+                      if (selectedItemSummaryVersion) loadItemSummariesByVersion(selectedItemSummaryVersion, 'en');
                     }}
                     style={{
                       padding: '6px 12px', fontSize: 12, fontWeight: 600, border: 'none', borderRadius: 6,
@@ -2922,10 +2903,7 @@ export default function VirtualEvidencePage() {
                           }}
                         >
                           <div 
-                            onClick={() => {
-                              setSelectedItemSummaryVersion(v.version);
-                              loadItemSummaries(v.version, summaryViewLanguage);
-                            }}
+                            onClick={() => loadItemSummariesByVersion(v.version, summaryViewLanguage)}
                           >
                             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
                               <span style={{ fontSize: 16 }}>{langLabel}</span>
