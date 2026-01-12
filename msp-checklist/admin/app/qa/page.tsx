@@ -347,58 +347,103 @@ export default function QAPage() {
 
   const handleGenerateAnswer = async (qa: QAItem, isEditing = false) => {
     setGeneratingAnswer(true);
-    try {
-      const response = await fetch('/api/qa/generate-answer', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    
+    // Fallback 순서: Claude 4.5 Opus (Bedrock) → OpenAI GPT-4o
+    const fallbackConfigs = [
+      {
+        provider: 'bedrock' as const,
+        model: 'anthropic.claude-opus-4-5-20251101-v1:0',
+        name: 'Claude 4.5 Opus',
+        awsRegion: llmConfig.awsRegion || 'ap-northeast-2',
+        awsAccessKeyId: llmConfig.awsAccessKeyId,
+        awsSecretAccessKey: llmConfig.awsSecretAccessKey,
+        autoCreateInferenceProfile: true,
+      },
+      {
+        provider: 'openai' as const,
+        model: 'gpt-4o',
+        name: 'OpenAI GPT-4o',
+        apiKey: llmConfig.apiKey,
+      },
+    ];
+
+    let lastError = '';
+    let usedProvider = '';
+    let usedModel = '';
+
+    for (const config of fallbackConfigs) {
+      try {
+        console.log(`[AI 답변] ${config.name} 시도 중...`);
+        
+        const requestBody: any = {
           question: qa.question,
           itemId: qa.itemId,
           assessmentType: qa.assessmentType,
           llmConfig: {
-            provider: llmConfig.provider,
-            model: llmConfig.model,
-            apiKey: llmConfig.apiKey,
-            awsRegion: llmConfig.awsRegion,
-            awsAccessKeyId: llmConfig.awsAccessKeyId,
-            awsSecretAccessKey: llmConfig.awsSecretAccessKey,
-            inferenceProfileArn: llmConfig.inferenceProfileArn,
-            autoCreateInferenceProfile: llmConfig.autoCreateInferenceProfile,
-            temperature: llmConfig.temperature,
-            maxTokens: llmConfig.maxTokens,
+            provider: config.provider,
+            model: config.model,
+            temperature: llmConfig.temperature || 0.6,
+            maxTokens: llmConfig.maxTokens || 2500,
           }
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (isEditing) {
-          setEditAnswer(data.answer);
-        } else {
-          setAnswer(data.answer);
+        };
+
+        // Provider별 설정 추가
+        if (config.provider === 'bedrock') {
+          requestBody.llmConfig.awsRegion = config.awsRegion;
+          requestBody.llmConfig.awsAccessKeyId = config.awsAccessKeyId;
+          requestBody.llmConfig.awsSecretAccessKey = config.awsSecretAccessKey;
+          requestBody.llmConfig.autoCreateInferenceProfile = config.autoCreateInferenceProfile;
+        } else if (config.provider === 'openai') {
+          requestBody.llmConfig.apiKey = config.apiKey;
         }
-        if (data.contextUsed) {
-          const contextInfo = [];
-          if (data.contextUsed.hasItemDetails) contextInfo.push('평가 항목 정보');
-          if (data.contextUsed.hasAdvice) contextInfo.push('AI 조언');
-          if (data.contextUsed.hasVirtualEvidence) contextInfo.push('가상증빙예제');
-          const providerName = LLM_PROVIDERS[llmConfig.provider].name;
-          const modelName = LLM_PROVIDERS[llmConfig.provider].models.find(m => m.id === llmConfig.model)?.name || llmConfig.model;
-          if (contextInfo.length > 0) {
-            alert(`✅ AI 답변이 생성되었습니다!\n\n사용된 LLM: ${providerName} - ${modelName}\n\n참고한 컨텍스트:\n• ${contextInfo.join('\n• ')}`);
+
+        const response = await fetch('/api/qa/generate-answer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestBody),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (isEditing) {
+            setEditAnswer(data.answer);
           } else {
-            alert(`✅ AI 답변이 생성되었습니다!\n\n사용된 LLM: ${providerName} - ${modelName}`);
+            setAnswer(data.answer);
           }
+          
+          usedProvider = config.name;
+          usedModel = config.model;
+          
+          // 성공 알림
+          const contextInfo = [];
+          if (data.contextUsed?.hasItemDetails) contextInfo.push('평가 항목 정보');
+          if (data.contextUsed?.hasAdvice) contextInfo.push('AI 조언');
+          if (data.contextUsed?.hasVirtualEvidence) contextInfo.push('가상증빙예제');
+          
+          let message = `✅ AI 답변이 생성되었습니다!\n\n사용된 LLM: ${usedProvider}`;
+          if (contextInfo.length > 0) {
+            message += `\n\n참고한 컨텍스트:\n• ${contextInfo.join('\n• ')}`;
+          }
+          alert(message);
+          
+          setGeneratingAnswer(false);
+          return; // 성공 시 종료
+        } else {
+          const error = await response.json();
+          lastError = error.error || error.details || 'Unknown error';
+          console.warn(`[AI 답변] ${config.name} 실패:`, lastError);
+          // 다음 provider로 fallback
         }
-      } else {
-        const error = await response.json();
-        alert(error.error || 'AI 답변 생성에 실패했습니다.');
+      } catch (error: any) {
+        lastError = error.message || 'Network error';
+        console.warn(`[AI 답변] ${config.name} 에러:`, lastError);
+        // 다음 provider로 fallback
       }
-    } catch (error) {
-      console.error('Failed to generate answer:', error);
-      alert('AI 답변 생성 중 오류가 발생했습니다.');
-    } finally {
-      setGeneratingAnswer(false);
     }
+
+    // 모든 provider 실패
+    alert(`AI 답변 생성에 실패했습니다.\n\n마지막 에러: ${lastError}\n\n시도한 모델:\n• Claude 4.5 Opus (Bedrock)\n• GPT-4o (OpenAI)`);
+    setGeneratingAnswer(false);
   };
 
   const handleAnswerUpdate = async (questionId: number) => {
