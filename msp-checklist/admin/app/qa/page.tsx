@@ -143,7 +143,7 @@ export default function QAPage() {
   const [showAwsSecretKey, setShowAwsSecretKey] = useState(false);
   const [llmConfig, setLLMConfig] = useState<LLMConfig>({
     provider: 'bedrock',
-    model: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+    model: 'anthropic.claude-3-haiku-20240307-v1:0',
     apiKey: '',
     awsRegion: 'ap-northeast-2',
     awsAccessKeyId: '',
