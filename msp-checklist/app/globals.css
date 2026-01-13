@@ -7757,6 +7757,61 @@ select:focus, input:focus {
   align-self: center;
 }
 
+/* Pastel Theme Login Button Styles */
+.header-login-icon-btn {
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(244, 114, 182, 0.3));
+}
+
+.header-login-icon-btn:hover {
+  transform: scale(1.1) rotate(5deg);
+  filter: drop-shadow(0 6px 12px rgba(244, 114, 182, 0.5));
+}
+
+.main-login-button-pastel {
+  animation: pastel-glow 4s ease-in-out infinite;
+  filter: drop-shadow(0 8px 16px rgba(244, 114, 182, 0.3));
+}
+
+.main-login-button-pastel:hover {
+  transform: scale(1.05) translateY(-3px);
+  filter: drop-shadow(0 12px 24px rgba(244, 114, 182, 0.4));
+  animation: pastel-pulse 2s ease-in-out infinite;
+}
+
+.quick-login-option-pastel {
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.quick-login-option-pastel:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.floating-login-icon-btn:hover {
+  transform: scale(1.15) rotate(10deg) !important;
+  box-shadow: 0 12px 35px rgba(244, 114, 182, 0.6) !important;
+}
+
+/* Pastel Animations */
+@keyframes pastel-glow {
+  0%, 100% {
+    filter: drop-shadow(0 8px 16px rgba(244, 114, 182, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 8px 16px rgba(168, 85, 247, 0.4));
+  }
+}
+
+@keyframes pastel-pulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(244, 114, 182, 0.4), 0 0 40px rgba(168, 85, 247, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(244, 114, 182, 0.6), 0 0 60px rgba(168, 85, 247, 0.3);
+  }
+}
+
 /* Responsive adjustments for day/night toggle */
 @media (max-width: 768px) {
   .day-night-toggle {
@@ -8385,14 +8440,24 @@ select:focus, input:focus {
 
 .main-login-button {
   animation: pulse-glow 3s ease-in-out infinite;
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%) !important;
   background-size: 200% 200%;
+  color: #ffffff !important;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+  font-weight: 900 !important;
+  border: 2px solid rgba(255, 255, 255, 0.2) !important;
 }
 
 .main-login-button:hover {
   animation: gradient-shift 2s ease infinite;
   transform: scale(1.05) translateY(-2px);
   box-shadow: 0 25px 50px rgba(59, 130, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.3);
+  color: #ffffff !important;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9), 0 3px 6px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+.main-login-button svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 /* Floating action button style */
@@ -8407,17 +8472,117 @@ select:focus, input:focus {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
   box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
   transition: all 0.3s ease;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
 }
 
 .floating-login-btn:hover {
   transform: scale(1.1);
   box-shadow: 0 12px 35px rgba(59, 130, 246, 0.5);
+  color: #ffffff !important;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* Responsive adjustments */
+.floating-login-btn svg {
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* Enhanced login button text visibility for all themes */
+.main-login-button,
+.header-login-btn,
+.floating-login-btn {
+  /* Force white text with strong shadows */
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+.main-login-button {
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.7) !important;
+  font-weight: 900 !important;
+}
+
+.main-login-button:hover {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9), 0 3px 6px rgba(0, 0, 0, 0.8), 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+.header-login-btn {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+}
+
+.header-login-btn:hover {
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+.floating-login-btn {
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+.floating-login-btn:hover {
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9) !important;
+}
+
+/* Quick login options with enhanced contrast */
+.quick-login-option.blue-option {
+  color: #1e40af !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  font-weight: 700 !important;
+  background-color: rgba(239, 246, 255, 0.95) !important;
+}
+
+.quick-login-option.blue-option:hover {
+  color: #1e3a8a !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(219, 234, 254, 1) !important;
+}
+
+.quick-login-option.green-option {
+  color: #047857 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  font-weight: 700 !important;
+  background-color: rgba(240, 253, 244, 0.95) !important;
+}
+
+.quick-login-option.green-option:hover {
+  color: #065f46 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+  background-color: rgba(220, 252, 231, 1) !important;
+}
+
+/* Ensure login button text is visible in all themes */
+[data-theme="night"] .main-login-button,
+[data-theme="night"] .header-login-btn,
+[data-theme="night"] .floating-login-btn,
+[data-theme="ocean"] .main-login-button,
+[data-theme="ocean"] .header-login-btn,
+[data-theme="ocean"] .floating-login-btn,
+[data-theme="mountain"] .main-login-button,
+[data-theme="mountain"] .header-login-btn,
+[data-theme="mountain"] .floating-login-btn {
+  color: #ffffff !important;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.8) !important;
+}
+
+/* Ensure quick login options are visible in dark themes */
+[data-theme="night"] .quick-login-option.blue-option,
+[data-theme="ocean"] .quick-login-option.blue-option,
+[data-theme="mountain"] .quick-login-option.blue-option {
+  color: #3b82f6 !important;
+  background-color: rgba(30, 58, 138, 0.2) !important;
+  border-color: #3b82f6 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="night"] .quick-login-option.green-option,
+[data-theme="ocean"] .quick-login-option.green-option,
+[data-theme="mountain"] .quick-login-option.green-option {
+  color: #10b981 !important;
+  background-color: rgba(4, 120, 87, 0.2) !important;
+  border-color: #10b981 !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5) !important;
+}
 @media (max-width: 640px) {
   .main-login-button {
     padding: 16px 32px;
@@ -8437,6 +8602,9 @@ select:focus, input:focus {
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+  font-weight: 700 !important;
 }
 
 .header-login-btn::before {
@@ -8454,10 +8622,20 @@ select:focus, input:focus {
   left: 100%;
 }
 
+.header-login-btn:hover {
+  color: #ffffff !important;
+  text-shadow: 0 3px 6px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.7) !important;
+}
+
+.header-login-btn svg {
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
 /* Quick login options styling */
 .quick-login-option {
   transition: all 0.2s ease;
   position: relative;
+  font-weight: 700 !important;
 }
 
 .quick-login-option:hover {
@@ -8466,4 +8644,32 @@ select:focus, input:focus {
 
 .quick-login-option:active {
   transform: translateY(0);
+}
+
+/* Blue login option */
+.quick-login-option.blue-option {
+  color: #1e40af !important;
+  background-color: rgba(239, 246, 255, 0.9) !important;
+  border-color: #3b82f6 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.quick-login-option.blue-option:hover {
+  color: #1e3a8a !important;
+  background-color: rgba(219, 234, 254, 1) !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Green register option */
+.quick-login-option.green-option {
+  color: #047857 !important;
+  background-color: rgba(240, 253, 244, 0.9) !important;
+  border-color: #10b981 !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.quick-login-option.green-option:hover {
+  color: #065f46 !important;
+  background-color: rgba(220, 252, 231, 1) !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.9) !important;
 }
