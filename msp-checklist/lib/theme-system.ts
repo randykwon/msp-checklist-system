@@ -78,10 +78,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
       },
       text: {
-        primary: '#f1f5f9',
-        secondary: '#e2e8f0',
-        accent: '#cbd5e1',
-        muted: '#94a3b8'
+        primary: '#ffffff',
+        secondary: '#f1f5f9',
+        accent: '#e2e8f0',
+        muted: '#cbd5e1'
       },
       ui: {
         border: '#334155',
@@ -97,15 +97,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#e2e8f0',
-        heading: '#f1f5f9',
+        text: '#f1f5f9',
+        heading: '#ffffff',
         code: {
-          background: 'transparent',
-          text: '#f1f5f9',
-          border: '#1e293b'
+          background: 'rgba(51, 65, 85, 0.3)',
+          text: '#ffffff',
+          border: '#334155'
         },
         link: '#60a5fa',
-        emphasis: '#e2e8f0'
+        emphasis: '#f1f5f9'
       }
     }
   },
@@ -123,10 +123,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%)'
       },
       text: {
-        primary: '#f0f9ff',
-        secondary: '#e0f2fe',
-        accent: '#bae6fd',
-        muted: '#7dd3fc'
+        primary: '#ffffff',
+        secondary: '#f0f9ff',
+        accent: '#e0f2fe',
+        muted: '#bae6fd'
       },
       ui: {
         border: '#0369a1',
@@ -142,15 +142,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#e0f2fe',
-        heading: '#f0f9ff',
+        text: '#f0f9ff',
+        heading: '#ffffff',
         code: {
           background: 'rgba(3, 105, 161, 0.3)',
-          text: '#f0f9ff',
+          text: '#ffffff',
           border: '#0369a1'
         },
         link: '#38bdf8',
-        emphasis: '#bae6fd'
+        emphasis: '#e0f2fe'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)'
@@ -169,10 +169,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%)'
       },
       text: {
-        primary: '#f0fdf4',
-        secondary: '#dcfce7',
-        accent: '#bbf7d0',
-        muted: '#86efac'
+        primary: '#ffffff',
+        secondary: '#f0fdf4',
+        accent: '#dcfce7',
+        muted: '#bbf7d0'
       },
       ui: {
         border: '#15803d',
@@ -188,15 +188,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#dcfce7',
-        heading: '#f0fdf4',
+        text: '#f0fdf4',
+        heading: '#ffffff',
         code: {
           background: 'rgba(21, 128, 61, 0.3)',
-          text: '#f0fdf4',
+          text: '#ffffff',
           border: '#15803d'
         },
         link: '#4ade80',
-        emphasis: '#bbf7d0'
+        emphasis: '#dcfce7'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 30% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(22, 163, 74, 0.1) 0%, transparent 50%)'
@@ -215,10 +215,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #7c3aed 100%)'
       },
       text: {
-        primary: '#fdf4ff',
-        secondary: '#fae8ff',
-        accent: '#f3e8ff',
-        muted: '#e9d5ff'
+        primary: '#ffffff',
+        secondary: '#fdf4ff',
+        accent: '#fae8ff',
+        muted: '#f3e8ff'
       },
       ui: {
         border: '#7c3aed',
@@ -234,15 +234,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#fae8ff',
-        heading: '#fdf4ff',
+        text: '#fdf4ff',
+        heading: '#ffffff',
         code: {
           background: 'rgba(124, 58, 237, 0.3)',
-          text: '#fdf4ff',
+          text: '#ffffff',
           border: '#7c3aed'
         },
         link: '#c084fc',
-        emphasis: '#f3e8ff'
+        emphasis: '#fae8ff'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 25% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 25%, rgba(192, 132, 252, 0.1) 0%, transparent 50%)'
@@ -261,10 +261,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #9a3412 0%, #c2410c 50%, #ea580c 100%)'
       },
       text: {
-        primary: '#fff7ed',
-        secondary: '#fed7aa',
-        accent: '#fdba74',
-        muted: '#fb923c'
+        primary: '#ffffff',
+        secondary: '#fff7ed',
+        accent: '#fed7aa',
+        muted: '#fdba74'
       },
       ui: {
         border: '#ea580c',
@@ -280,15 +280,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#fed7aa',
-        heading: '#fff7ed',
+        text: '#fff7ed',
+        heading: '#ffffff',
         code: {
           background: 'rgba(234, 88, 12, 0.3)',
-          text: '#fff7ed',
+          text: '#ffffff',
           border: '#ea580c'
         },
         link: '#fb923c',
-        emphasis: '#fdba74'
+        emphasis: '#fed7aa'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 40% 60%, rgba(249, 115, 22, 0.1) 0%, transparent 50%), radial-gradient(circle at 60% 40%, rgba(251, 146, 60, 0.1) 0%, transparent 50%)'
@@ -307,10 +307,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #78350f 0%, #92400e 50%, #b45309 100%)'
       },
       text: {
-        primary: '#fefce8',
-        secondary: '#fef3c7',
-        accent: '#fde68a',
-        muted: '#fcd34d'
+        primary: '#ffffff',
+        secondary: '#fefce8',
+        accent: '#fef3c7',
+        muted: '#fde68a'
       },
       ui: {
         border: '#b45309',
@@ -326,15 +326,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#fef3c7',
-        heading: '#fefce8',
+        text: '#fefce8',
+        heading: '#ffffff',
         code: {
           background: 'rgba(180, 83, 9, 0.3)',
-          text: '#fefce8',
+          text: '#ffffff',
           border: '#b45309'
         },
         link: '#fcd34d',
-        emphasis: '#fde68a'
+        emphasis: '#fef3c7'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 35% 65%, rgba(217, 119, 6, 0.1) 0%, transparent 50%), radial-gradient(circle at 65% 35%, rgba(245, 158, 11, 0.1) 0%, transparent 50%)'
@@ -353,10 +353,10 @@ export const themes: Record<ThemeType, Theme> = {
         gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)'
       },
       text: {
-        primary: '#f8fafc',
-        secondary: '#f1f5f9',
-        accent: '#e2e8f0',
-        muted: '#cbd5e1'
+        primary: '#ffffff',
+        secondary: '#f8fafc',
+        accent: '#f1f5f9',
+        muted: '#e2e8f0'
       },
       ui: {
         border: '#2563eb',
@@ -372,15 +372,15 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#f1f5f9',
-        heading: '#f8fafc',
+        text: '#f8fafc',
+        heading: '#ffffff',
         code: {
           background: 'rgba(37, 99, 235, 0.3)',
-          text: '#f8fafc',
+          text: '#ffffff',
           border: '#2563eb'
         },
         link: '#60a5fa',
-        emphasis: '#e2e8f0'
+        emphasis: '#f1f5f9'
       }
     },
     backgroundPattern: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%), radial-gradient(circle at 25% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%)'

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import AdminLayout from '@/components/AdminLayout';
+import ProgressChart from '@/components/ProgressChart';
 
 interface DashboardStats {
   userStats: {
@@ -205,6 +206,9 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* MSP 검증 진행 현황 차트 */}
+            <ProgressChart className="col-span-full" />
 
             {/* 빠른 액션 */}
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">

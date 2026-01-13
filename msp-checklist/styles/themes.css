@@ -1,16 +1,16 @@
 /* 테마 시스템 CSS 변수 및 스타일 */
 
 :root {
-  /* 기본 테마 변수 (야간 모드) */
+  /* 기본 테마 변수 (야간 모드) - 가독성 개선 */
   --theme-bg-primary: #0f172a;
   --theme-bg-secondary: #1e293b;
   --theme-bg-accent: #334155;
   --theme-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
   
-  --theme-text-primary: #f1f5f9;
-  --theme-text-secondary: #e2e8f0;
-  --theme-text-accent: #cbd5e1;
-  --theme-text-muted: #94a3b8;
+  --theme-text-primary: #ffffff;
+  --theme-text-secondary: #f1f5f9;
+  --theme-text-accent: #e2e8f0;
+  --theme-text-muted: #cbd5e1;
   
   --theme-ui-border: #334155;
   --theme-ui-card: #1e293b;
@@ -22,20 +22,25 @@
   --theme-ui-warning: #f59e0b;
   --theme-ui-error: #ef4444;
   
-  --theme-markdown-text: #e2e8f0;
-  --theme-markdown-heading: #f1f5f9;
-  --theme-markdown-code-bg: transparent;
-  --theme-markdown-code-text: #f1f5f9;
-  --theme-markdown-code-border: #1e293b;
+  --theme-markdown-text: #f1f5f9;
+  --theme-markdown-heading: #ffffff;
+  --theme-markdown-code-bg: rgba(51, 65, 85, 0.3);
+  --theme-markdown-code-text: #ffffff;
+  --theme-markdown-code-border: #334155;
   --theme-markdown-link: #60a5fa;
-  --theme-markdown-emphasis: #e2e8f0;
+  --theme-markdown-emphasis: #f1f5f9;
 }
 
-/* 전체 페이지 배경 */
+/* 전체 페이지 배경 및 텍스트 가독성 개선 */
 body {
   background: var(--theme-bg-gradient);
   color: var(--theme-text-primary);
   transition: all 0.3s ease;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* 배경 패턴이 있는 경우 */
@@ -68,12 +73,15 @@ body::before {
   background: var(--theme-bg-gradient) !important;
 }
 
+/* 텍스트 가독성 개선 */
 .theme-text-primary {
   color: var(--theme-text-primary) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .theme-text-secondary {
   color: var(--theme-text-secondary) !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .theme-text-accent {
@@ -107,9 +115,11 @@ body::before {
   color: white !important;
 }
 
-/* 마크다운 콘텐츠 테마 적용 */
+/* 마크다운 콘텐츠 테마 적용 - 가독성 개선 */
 .markdown-content-themed {
   color: var(--theme-markdown-text) !important;
+  line-height: 1.7;
+  font-weight: 400;
 }
 
 .markdown-content-themed h1,
@@ -120,32 +130,68 @@ body::before {
 .markdown-content-themed h6 {
   color: var(--theme-markdown-heading) !important;
   border-color: var(--theme-ui-border) !important;
+  font-weight: 600;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .markdown-content-themed code {
   background-color: var(--theme-markdown-code-bg) !important;
   color: var(--theme-markdown-code-text) !important;
   border-color: var(--theme-markdown-code-border) !important;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 .markdown-content-themed pre {
   background-color: var(--theme-markdown-code-bg) !important;
   color: var(--theme-markdown-code-text) !important;
   border-color: var(--theme-markdown-code-border) !important;
+  font-weight: 400;
+  line-height: 1.6;
 }
 
 .markdown-content-themed a {
   color: var(--theme-markdown-link) !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.markdown-content-themed a:hover {
+  text-decoration-thickness: 2px;
 }
 
 .markdown-content-themed em,
 .markdown-content-themed i {
   color: var(--theme-markdown-emphasis) !important;
+  font-style: italic;
 }
 
 .markdown-content-themed strong,
 .markdown-content-themed b {
   color: var(--theme-markdown-heading) !important;
+  font-weight: 600;
+}
+
+/* 리스트 아이템 가독성 개선 */
+.markdown-content-themed ul,
+.markdown-content-themed ol {
+  line-height: 1.8;
+}
+
+.markdown-content-themed li {
+  margin-bottom: 4px;
+}
+
+/* 인용문 스타일 */
+.markdown-content-themed blockquote {
+  border-left: 4px solid var(--theme-ui-border);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--theme-text-muted) !important;
 }
 
 /* 진행률 바 테마 적용 */
@@ -255,11 +301,40 @@ body::before {
   }
 }
 
-/* 고대비 모드 지원 */
+/* 고대비 모드 지원 - 가독성 최우선 */
 @media (prefers-contrast: high) {
   :root {
     --theme-ui-border: #ffffff;
     --theme-text-primary: #ffffff;
     --theme-text-secondary: #ffffff;
+    --theme-markdown-text: #ffffff;
+    --theme-markdown-heading: #ffffff;
   }
+  
+  .theme-text-primary,
+  .theme-text-secondary,
+  .markdown-content-themed,
+  .markdown-content-themed h1,
+  .markdown-content-themed h2,
+  .markdown-content-themed h3,
+  .markdown-content-themed h4,
+  .markdown-content-themed h5,
+  .markdown-content-themed h6 {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+  }
+}
+
+/* 저시력 사용자를 위한 큰 텍스트 지원 */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-text-large {
+    font-size: 1.125em;
+    line-height: 1.6;
+  }
+}
+
+/* 색맹 사용자를 위한 패턴 추가 */
+.theme-colorblind-safe {
+  text-decoration: underline;
+  text-decoration-style: dotted;
 }
