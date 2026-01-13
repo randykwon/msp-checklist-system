@@ -93,22 +93,22 @@
   /* Advice Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
   --theme-advice-bg: linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%);
   --theme-advice-border: #2d5a2d;
-  --theme-advice-title: #86efac;
-  --theme-advice-text: #d1fae5;
+  --theme-advice-title: #a7f3d0;
+  --theme-advice-text: #f0fdf4;
   --theme-advice-badge-bg: #166534;
-  --theme-advice-badge-text: #bbf7d0;
+  --theme-advice-badge-text: #ecfdf5;
   
   /* Summary Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
   --theme-summary-bg: linear-gradient(135deg, #422006 0%, #451a03 100%);
   --theme-summary-border: #92400e;
-  --theme-summary-title: #fcd34d;
-  --theme-summary-text: #fef3c7;
+  --theme-summary-title: #fde68a;
+  --theme-summary-text: #fffbeb;
   
   /* Virtual Evidence Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
   --theme-ve-bg: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
   --theme-ve-border: #7c3aed;
-  --theme-ve-title: #c4b5fd;
-  --theme-ve-text: #e9d5ff;
+  --theme-ve-title: #ddd6fe;
+  --theme-ve-text: #f5f3ff;
 }
 
 /* ============================================
@@ -142,22 +142,22 @@
   /* Advice Section - Dark Mode */
   --theme-advice-bg: linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%);
   --theme-advice-border: #2d5a2d;
-  --theme-advice-title: #86efac;
-  --theme-advice-text: #bbf7d0;
+  --theme-advice-title: #a7f3d0;
+  --theme-advice-text: #f0fdf4;
   --theme-advice-badge-bg: #166534;
-  --theme-advice-badge-text: #bbf7d0;
+  --theme-advice-badge-text: #ecfdf5;
   
   /* Summary Section - Dark Mode */
   --theme-summary-bg: linear-gradient(135deg, #422006 0%, #451a03 100%);
   --theme-summary-border: #92400e;
-  --theme-summary-title: #fcd34d;
-  --theme-summary-text: #fef3c7;
+  --theme-summary-title: #fde68a;
+  --theme-summary-text: #fffbeb;
   
   /* Virtual Evidence Section - Dark Mode */
   --theme-ve-bg: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
   --theme-ve-border: #7c3aed;
-  --theme-ve-title: #c4b5fd;
-  --theme-ve-text: #e9d5ff;
+  --theme-ve-title: #ddd6fe;
+  --theme-ve-text: #f5f3ff;
   
   /* Dark Mode Shadows */
   --fb-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
