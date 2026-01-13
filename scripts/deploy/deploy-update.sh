@@ -34,6 +34,7 @@ FORCE_BUILD=false
 SKIP_BUILD=false
 MAIN_ONLY=false
 ADMIN_ONLY=false
+SETUP_ENV=false
 PROJECT_DIR=""
 
 # 옵션 파싱
@@ -43,6 +44,7 @@ while [[ "$#" -gt 0 ]]; do
         --skip-build) SKIP_BUILD=true ;;
         --main-only) MAIN_ONLY=true ;;
         --admin-only) ADMIN_ONLY=true ;;
+        --setup-env) SETUP_ENV=true ;;
         -h|--help) 
             echo "MSP Checklist 배포 업데이트 스크립트"
             echo ""
@@ -53,6 +55,7 @@ while [[ "$#" -gt 0 ]]; do
             echo "  --skip-build  빌드 건너뛰기 (서비스 재시작만)"
             echo "  --main-only   메인 앱만 빌드/재시작"
             echo "  --admin-only  Admin 앱만 빌드/재시작"
+            echo "  --setup-env   .bashrc에 nvm/pm2 환경 자동 설정"
             echo "  -h, --help    도움말 표시"
             echo ""
             echo "예시:"
@@ -60,6 +63,7 @@ while [[ "$#" -gt 0 ]]; do
             echo "  $0 --force          # 강제 빌드"
             echo "  $0 --skip-build     # 서비스 재시작만"
             echo "  $0 --admin-only     # Admin만 업데이트"
+            echo "  $0 --setup-env      # 환경 설정 후 업데이트"
             exit 0
             ;;
         *) log_error "알 수 없는 옵션: $1"; exit 1 ;;
@@ -82,6 +86,31 @@ load_nvm() {
             log_error "Node.js를 찾을 수 없습니다. NVM 또는 Node.js를 설치해주세요."
             exit 1
         fi
+    fi
+}
+
+# .bashrc에 NVM 환경 설정 추가
+setup_bash_env() {
+    if [ "$SETUP_ENV" != true ]; then
+        return 0
+    fi
+    
+    log_step ".bashrc에 NVM/PM2 환경 설정"
+    
+    local BASHRC="$HOME/.bashrc"
+    local NVM_SETUP='export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && source "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && source "$NVM_DIR/bash_completion"'
+    
+    # 이미 설정되어 있는지 확인
+    if grep -q 'NVM_DIR' "$BASHRC" 2>/dev/null; then
+        log_info "NVM 환경이 이미 .bashrc에 설정되어 있습니다"
+    else
+        echo "" >> "$BASHRC"
+        echo "# NVM 환경 설정 (자동 추가됨)" >> "$BASHRC"
+        echo "$NVM_SETUP" >> "$BASHRC"
+        log_success "NVM 환경이 .bashrc에 추가되었습니다"
+        log_info "새 터미널에서 'source ~/.bashrc' 실행 또는 재로그인하세요"
     fi
 }
 
@@ -434,6 +463,17 @@ show_complete() {
         echo "   로그 확인:  tail -f $PROJECT_DIR/main-server.log"
         echo "   재시작:     $0 --skip-build"
     fi
+    
+    # NVM/PM2 환경 설정 안내
+    echo ""
+    echo -e "${YELLOW}💡 새 터미널에서 pm2 사용하려면:${NC}"
+    echo "   source ~/.nvm/nvm.sh && pm2 status"
+    echo ""
+    echo -e "${CYAN}🔧 자동 환경 설정 (권장):${NC}"
+    echo "   아래 명령어로 .bashrc에 nvm 환경을 추가하세요:"
+    echo "   echo 'export NVM_DIR=\"\$HOME/.nvm\"' >> ~/.bashrc"
+    echo "   echo '[ -s \"\$NVM_DIR/nvm.sh\" ] && source \"\$NVM_DIR/nvm.sh\"' >> ~/.bashrc"
+    echo "   source ~/.bashrc"
     echo ""
 }
 
@@ -450,6 +490,7 @@ trap 'error_handler $LINENO' ERR
 main() {
     show_banner
     load_nvm
+    setup_bash_env
     detect_project_dir
     pull_changes
     stop_services
