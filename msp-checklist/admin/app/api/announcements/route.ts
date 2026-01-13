@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { title, content, type, priority, isActive, startDate, endDate } = body;
+    const { title, content, type, priority, isActive, showOnHomepage, startDate, endDate } = body;
 
     if (!title || !content) {
       return NextResponse.json({ error: 'Title and content are required' }, { status: 400 });
@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
       type || 'info',
       priority || 1,
       isActive !== false,
+      showOnHomepage === true,
       admin.userId,
       startDate || undefined,
       endDate || undefined

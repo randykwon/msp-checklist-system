@@ -10,6 +10,7 @@ interface AnnouncementFormData {
   type: 'info' | 'warning' | 'success' | 'error';
   priority: number;
   isActive: boolean;
+  showOnHomepage: boolean;
   startDate: string;
   endDate: string;
 }
@@ -39,6 +40,7 @@ export default function AnnouncementsPage() {
     type: 'info',
     priority: 1,
     isActive: true,
+    showOnHomepage: false,
     startDate: '',
     endDate: ''
   });
@@ -97,6 +99,7 @@ export default function AnnouncementsPage() {
       type: 'info',
       priority: 1,
       isActive: true,
+      showOnHomepage: false,
       startDate: '',
       endDate: ''
     });
@@ -180,6 +183,7 @@ export default function AnnouncementsPage() {
       type: announcement.type,
       priority: announcement.priority,
       isActive: announcement.isActive,
+      showOnHomepage: announcement.showOnHomepage,
       startDate: announcement.startDate ? announcement.startDate.split('T')[0] : '',
       endDate: announcement.endDate ? announcement.endDate.split('T')[0] : ''
     });
@@ -241,7 +245,7 @@ export default function AnnouncementsPage() {
         </div>
 
         {/* 통계 카드 그리드 */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
           <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
             <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)', color: 'white' }}>
               <div style={{ fontSize: 13, fontWeight: 500 }}>📋 전체 공지</div>
@@ -256,6 +260,14 @@ export default function AnnouncementsPage() {
             </div>
             <div style={{ padding: 16, background: 'white' }}>
               <div style={{ fontSize: 28, fontWeight: 700, color: '#42B883' }}>{announcements.filter(a => a.isActive).length}</div>
+            </div>
+          </div>
+          <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
+            <div style={{ padding: '12px 16px', background: 'linear-gradient(135deg, #EC4899 0%, #F472B6 100%)', color: 'white' }}>
+              <div style={{ fontSize: 13, fontWeight: 500 }}>🏠 홈페이지 표시</div>
+            </div>
+            <div style={{ padding: 16, background: 'white' }}>
+              <div style={{ fontSize: 28, fontWeight: 700, color: '#EC4899' }}>{announcements.filter(a => a.showOnHomepage).length}</div>
             </div>
           </div>
           <div style={{ borderRadius: 12, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.1)' }}>
@@ -348,6 +360,15 @@ export default function AnnouncementsPage() {
                           }}>
                             {priorityColor.label}
                           </span>
+                          {/* 홈페이지 표시 배지 */}
+                          {announcement.showOnHomepage && (
+                            <span style={{
+                              padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
+                              background: 'rgba(255,255,255,0.25)', color: 'white'
+                            }}>
+                              🏠 홈페이지
+                            </span>
+                          )}
                           {/* 활성 상태 배지 */}
                           <span style={{
                             padding: '3px 10px', borderRadius: 20, fontSize: 11, fontWeight: 600,
@@ -551,19 +572,37 @@ export default function AnnouncementsPage() {
                     />
                   </div>
                 </div>
-                {/* 활성 상태 */}
-                <div style={{ marginBottom: 24 }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={formData.isActive}
-                      onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                      style={{ width: 20, height: 20, accentColor: '#F59E0B' }}
-                    />
-                    <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>
-                      ✅ 즉시 활성화
-                    </span>
-                  </label>
+                {/* 활성 상태 & 홈페이지 표시 */}
+                <div style={{ marginBottom: 24, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.isActive}
+                        onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                        style={{ width: 20, height: 20, accentColor: '#F59E0B' }}
+                      />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>
+                        ✅ 즉시 활성화
+                      </span>
+                    </label>
+                  </div>
+                  <div>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
+                      <input
+                        type="checkbox"
+                        checked={formData.showOnHomepage}
+                        onChange={(e) => setFormData({ ...formData, showOnHomepage: e.target.checked })}
+                        style={{ width: 20, height: 20, accentColor: '#EC4899' }}
+                      />
+                      <span style={{ fontSize: 14, fontWeight: 600, color: '#1C1E21' }}>
+                        🏠 로그인 전 화면에 표시
+                      </span>
+                    </label>
+                    <p style={{ fontSize: 12, color: '#65676B', margin: '4px 0 0 32px', lineHeight: 1.4 }}>
+                      체크하면 로그인하지 않은 사용자도 첫 화면에서 이 공지사항을 볼 수 있습니다.
+                    </p>
+                  </div>
                 </div>
                 {/* 버튼 */}
                 <div style={{ display: 'flex', gap: 12 }}>

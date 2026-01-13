@@ -155,6 +155,7 @@ export function initializeDatabase() {
       type TEXT NOT NULL DEFAULT 'info' CHECK(type IN ('info', 'warning', 'success', 'error')),
       priority INTEGER NOT NULL DEFAULT 1, -- 1=low, 2=medium, 3=high
       is_active BOOLEAN NOT NULL DEFAULT 1,
+      show_on_homepage BOOLEAN NOT NULL DEFAULT 0, -- 로그인 전 화면에 표시 여부
       start_date DATETIME,
       end_date DATETIME,
       created_by INTEGER NOT NULL,
@@ -163,6 +164,13 @@ export function initializeDatabase() {
       FOREIGN KEY (created_by) REFERENCES users (id)
     )
   `);
+
+  // 기존 테이블에 show_on_homepage 컬럼이 없다면 추가
+  try {
+    db.exec(`ALTER TABLE admin_announcements ADD COLUMN show_on_homepage BOOLEAN NOT NULL DEFAULT 0`);
+  } catch (error) {
+    // 컬럼이 이미 존재하면 무시
+  }
 
   // User activity logs table
   db.exec(`
@@ -716,6 +724,7 @@ export interface AdminAnnouncement {
   type: 'info' | 'warning' | 'success' | 'error';
   priority: number;
   isActive: boolean;
+  showOnHomepage: boolean;
   startDate?: string;
   endDate?: string;
   createdBy: number;
@@ -730,17 +739,18 @@ export function createAnnouncement(
   type: 'info' | 'warning' | 'success' | 'error',
   priority: number,
   isActive: boolean,
+  showOnHomepage: boolean,
   createdBy: number,
   startDate?: string,
   endDate?: string
 ): number {
   const stmt = db.prepare(`
     INSERT INTO admin_announcements 
-    (title, content, type, priority, is_active, start_date, end_date, created_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    (title, content, type, priority, is_active, show_on_homepage, start_date, end_date, created_by)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
   
-  const result = stmt.run(title, content, type, priority, isActive ? 1 : 0, startDate || null, endDate || null, createdBy);
+  const result = stmt.run(title, content, type, priority, isActive ? 1 : 0, showOnHomepage ? 1 : 0, startDate || null, endDate || null, createdBy);
   return result.lastInsertRowid as number;
 }
 
@@ -751,17 +761,18 @@ export function updateAnnouncement(
   type: 'info' | 'warning' | 'success' | 'error',
   priority: number,
   isActive: boolean,
+  showOnHomepage: boolean,
   startDate?: string,
   endDate?: string
 ): void {
   const stmt = db.prepare(`
     UPDATE admin_announcements 
-    SET title = ?, content = ?, type = ?, priority = ?, is_active = ?, 
+    SET title = ?, content = ?, type = ?, priority = ?, is_active = ?, show_on_homepage = ?,
         start_date = ?, end_date = ?, updated_at = datetime('now')
     WHERE id = ?
   `);
   
-  stmt.run(title, content, type, priority, isActive ? 1 : 0, startDate || null, endDate || null, id);
+  stmt.run(title, content, type, priority, isActive ? 1 : 0, showOnHomepage ? 1 : 0, startDate || null, endDate || null, id);
 }
 
 export function deleteAnnouncement(id: number): void {
@@ -813,6 +824,7 @@ export function getAllAnnouncements(): AdminAnnouncement[] {
     type: row.type,
     priority: row.priority,
     isActive: row.is_active === 1,
+    showOnHomepage: row.show_on_homepage === 1,
     startDate: row.start_date,
     endDate: row.end_date,
     createdBy: row.created_by,
@@ -844,6 +856,42 @@ export function getActiveAnnouncements(): AdminAnnouncement[] {
     type: row.type,
     priority: row.priority,
     isActive: row.is_active === 1,
+    showOnHomepage: row.show_on_homepage === 1,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    createdBy: row.created_by,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    createdByName: row.createdByName
+  }));
+}
+
+// 홈페이지용 공지사항 가져오기
+export function getHomepageAnnouncements(): AdminAnnouncement[] {
+  const now = new Date().toISOString();
+  
+  const stmt = db.prepare(`
+    SELECT a.*, u.name as createdByName
+    FROM admin_announcements a
+    LEFT JOIN users u ON a.created_by = u.id
+    WHERE a.is_active = 1 
+      AND a.show_on_homepage = 1
+      AND (a.start_date IS NULL OR a.start_date <= ?)
+      AND (a.end_date IS NULL OR a.end_date >= ?)
+    ORDER BY a.priority DESC, a.created_at DESC
+    LIMIT 5
+  `);
+  
+  const rows = stmt.all(now, now) as any[];
+  
+  return rows.map(row => ({
+    id: row.id,
+    title: row.title,
+    content: row.content,
+    type: row.type,
+    priority: row.priority,
+    isActive: row.is_active === 1,
+    showOnHomepage: row.show_on_homepage === 1,
     startDate: row.start_date,
     endDate: row.end_date,
     createdBy: row.created_by,

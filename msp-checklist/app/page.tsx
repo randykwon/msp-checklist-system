@@ -17,6 +17,7 @@ export default function Home() {
   const { user, loading } = useAuth();
   const { t } = useLanguage();
   const [checklistData, setChecklistData] = useState<MSPChecklistData>(mspChecklistData);
+  const [homepageAnnouncements, setHomepageAnnouncements] = useState<any[]>([]);
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [filterPriority, setFilterPriority] = useState<FilterPriority>('all');
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,7 +35,21 @@ export default function Home() {
   // Hydration 완료 표시
   useEffect(() => {
     setIsHydrated(true);
+    // 홈페이지 공지사항 가져오기
+    fetchHomepageAnnouncements();
   }, []);
+
+  const fetchHomepageAnnouncements = async () => {
+    try {
+      const response = await fetch('/api/announcements/homepage');
+      if (response.ok) {
+        const data = await response.json();
+        setHomepageAnnouncements(data.announcements || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch homepage announcements:', error);
+    }
+  };
 
   // LocalStorage에서 데이터 로드 (hydration 후에만)
   useEffect(() => {
@@ -254,26 +269,44 @@ export default function Home() {
         </div>
 
         {/* 공지사항 */}
-        <div className="bg-gradient-to-r from-amber-50/80 to-orange-50/80 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-8 shadow-lg">
-          <div className="flex items-start">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+        {homepageAnnouncements.length > 0 && (
+          <div className="bg-gradient-to-r from-amber-50/80 to-orange-50/80 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-8 shadow-lg">
+            <div className="flex items-start">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
               </div>
-            </div>
-            <div className="ml-4">
-              <h3 className="text-xl font-semibold text-amber-800 mb-3">📢 공지사항</h3>
-              <div className="text-amber-700 space-y-2 text-base leading-relaxed">
-                <p>• MSP 체크리스트 시스템 v{checklistData.version} 업데이트 완료</p>
-                <p>• 새로운 테마 시스템과 향상된 사용자 경험 제공</p>
-                <p>• 평가 데이터는 안전하게 암호화되어 저장됩니다</p>
-                <p>• 문의사항은 관리자에게 연락해주세요</p>
+              <div className="ml-4">
+                <h3 className="text-xl font-semibold text-amber-800 mb-3">📢 공지사항</h3>
+                <div className="space-y-3">
+                  {homepageAnnouncements.map((announcement, index) => (
+                    <div key={announcement.id} className="text-amber-700 text-base leading-relaxed">
+                      <div className="flex items-start gap-2">
+                        <span className="text-lg flex-shrink-0">
+                          {announcement.type === 'warning' ? '⚠️' : 
+                           announcement.type === 'error' ? '❌' : 
+                           announcement.type === 'success' ? '✅' : '📢'}
+                        </span>
+                        <div>
+                          <div className="font-semibold text-amber-800 mb-1">{announcement.title}</div>
+                          <div className="text-amber-700">{announcement.content}</div>
+                          {announcement.priority === 3 && (
+                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full mt-1">
+                              🔴 중요
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </main>
 
       {/* MSP Program Info Modal */}
