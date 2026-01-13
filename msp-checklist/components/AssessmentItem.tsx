@@ -1303,6 +1303,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
+                      className="markdown-content-dark"
                       style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-summary-text, #fffbeb)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
@@ -1334,6 +1335,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
+                      className="markdown-content-dark"
                       style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #f0fdf4)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
                     />
@@ -1389,7 +1391,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
           }}>
             <div style={{
               padding: '12px 16px',
-              background: 'linear-gradient(135deg, #8B5CF6 0%, #A78BFA 100%)',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%)',
               color: 'white',
               display: 'flex',
               justifyContent: 'space-between',
@@ -1418,7 +1420,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     fontSize: 12,
                     fontWeight: 600,
                     background: showVirtualEvidence ? 'white' : 'rgba(255,255,255,0.2)',
-                    color: showVirtualEvidence ? '#8B5CF6' : 'white',
+                    color: showVirtualEvidence ? '#2563eb' : 'white',
                     border: 'none',
                     borderRadius: 6,
                     cursor: (isGeneratingVirtualEvidence || isLoadingVESummary) ? 'not-allowed' : 'pointer',
@@ -1452,9 +1454,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {showVirtualEvidence && virtualEvidenceContent && (
                 <div style={{
                   padding: 16,
-                  background: 'var(--theme-ve-bg, linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%))',
+                  background: 'var(--theme-ve-bg, linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%))',
                   borderRadius: 10,
-                  border: '1px solid var(--theme-ve-border, #7c3aed)'
+                  border: '1px solid var(--theme-ve-border, #3b82f6)'
                 }}>
                   {/* 가상증빙예제 요약 표시 (먼저 표시) */}
                   {showVESummaryInline && veSummaryContent && (
@@ -1481,6 +1483,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         </span>
                       </div>
                       <div 
+                        className="markdown-content-dark"
                         style={{ fontSize: 13, color: 'var(--theme-summary-text, #fffbeb)', lineHeight: 1.6 }}
                         dangerouslySetInnerHTML={createMarkdownHtml(veSummaryContent)}
                       />
@@ -1496,9 +1499,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       
                       return (
                         <>
-                          <span style={{ fontSize: 18, color: 'var(--theme-ve-title, #ddd6fe)' }}>{isDemonstration ? '🎯' : '✨'}</span>
+                          <span style={{ fontSize: 18, color: 'var(--theme-ve-title, #bfdbfe)' }}>{isDemonstration ? '🎯' : '✨'}</span>
                           <div>
-                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-ve-title, #ddd6fe)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-ve-title, #bfdbfe)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                               {isDemonstration ? 
                                 (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
                                 (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
@@ -1513,7 +1516,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                                 {itemLanguage === 'ko' ? '상세 내용' : 'Details'}
                               </span>
                             </p>
-                            <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #f5f3ff)' }}>
+                            <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #e0f2fe)' }}>
                               {isDemonstration ?
                                 (itemLanguage === 'ko' 
                                   ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
@@ -1533,9 +1536,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     background: 'rgba(0, 0, 0, 0.2)',
                     borderRadius: 8,
                     padding: 16,
-                    border: '1px solid var(--theme-ve-border, #7c3aed)'
+                    border: '1px solid var(--theme-ve-border, #3b82f6)'
                   }}>
                     <div 
+                      className="markdown-content-dark"
                       style={{ fontSize: 14, lineHeight: 1.6 }}
                       dangerouslySetInnerHTML={createMarkdownHtml(virtualEvidenceContent)}
                     />
@@ -1546,11 +1550,11 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     padding: 12,
                     background: 'rgba(0, 0, 0, 0.15)',
                     borderRadius: 8,
-                    borderTop: '1px solid var(--theme-ve-border, #7c3aed)'
+                    borderTop: '1px solid var(--theme-ve-border, #3b82f6)'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: '#F59E0B', fontSize: 14 }}>💡</span>
-                      <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #f5f3ff)', fontWeight: 500 }}>
+                      <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #e0f2fe)', fontWeight: 500 }}>
                         {(() => {
                           const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
                           const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
@@ -1577,16 +1581,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {virtualEvidenceError && (
                 <div style={{
                   padding: 16,
-                  background: 'linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%)',
+                  background: 'linear-gradient(135deg, #1e3a5f 0%, #0f2744 100%)',
                   borderRadius: 10,
-                  border: '1px solid #7c3aed'
+                  border: '1px solid #3b82f6'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#ddd6fe' }}>
+                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#bfdbfe' }}>
                         ⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}
                       </h6>
-                      <div style={{ fontSize: 13, color: '#f5f3ff' }}>{virtualEvidenceError}</div>
+                      <div style={{ fontSize: 13, color: '#e0f2fe' }}>{virtualEvidenceError}</div>
                     </div>
                     <button
                       onClick={generateVirtualEvidence}
@@ -1595,7 +1599,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         padding: '8px 16px',
                         fontSize: 12,
                         fontWeight: 600,
-                        background: 'linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%)',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
                         color: 'white',
                         border: 'none',
                         borderRadius: 6,
