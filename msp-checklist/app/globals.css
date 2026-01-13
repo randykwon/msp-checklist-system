@@ -117,7 +117,7 @@
 }
 
 /* ============================================
-   Day Theme Overrides for Advice and Evidence Sections
+   Day Theme Overrides for Advice, Summary, and Evidence Sections
    ============================================ */
 [data-theme="day"] {
   /* Advice Section - 주간 테마: 회색 배경 + 파란색 글씨 */
@@ -127,6 +127,12 @@
   --theme-advice-text: #1e3a8a;
   --theme-advice-badge-bg: #dbeafe;
   --theme-advice-badge-text: #1e40af;
+  
+  /* Summary Section - 주간 테마: 회색 배경 + 파란색 글씨 (밤색 → 회색) */
+  --theme-summary-bg: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --theme-summary-border: #94a3b8;
+  --theme-summary-title: #1e40af;
+  --theme-summary-text: #1e3a8a;
   
   /* Virtual Evidence Section - 주간 테마: 회색 배경 + 파란색 글씨 */
   --theme-ve-bg: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);

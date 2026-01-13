@@ -10,13 +10,10 @@ import Link from 'next/link';
 import MSPPartnerJourneyModal from './MSPPartnerJourneyModal';
 import MSPProgramInfoModal from './MSPProgramInfoModal';
 import DayNightToggle from './DayNightToggle';
-import { useTheme } from '@/contexts/ThemeContext';
-import { themes, ThemeType } from '@/lib/theme-system';
 
 export default function Header() {
   const { user, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
-  const { currentTheme, setTheme } = useTheme();
   const router = useRouter();
   const [showMenu, setShowMenu] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -31,7 +28,6 @@ export default function Header() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [showProgramInfoModal, setShowProgramInfoModal] = useState(false);
   const [showJourneyModal, setShowJourneyModal] = useState(false);
-  const [showThemeDropdown, setShowThemeDropdown] = useState(false);
   const [activeVersion, setActiveVersion] = useState<any>(null);
   const [assessmentData, setAssessmentData] = useState<any>({
     prerequisites: [],
@@ -46,23 +42,6 @@ export default function Header() {
       loadActiveVersionAndData();
     }
   }, [user]);
-
-  // Close theme dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showThemeDropdown) {
-        const target = event.target as Element;
-        if (!target.closest('.fb-header-left')) {
-          setShowThemeDropdown(false);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [showThemeDropdown]);
 
   const loadActiveVersionAndData = async () => {
     try {
@@ -305,151 +284,15 @@ export default function Header() {
         </div>
       )}
 
-      {/* Left Section - Logo with Theme Dropdown */}
+      {/* Left Section - Logo with Refresh Function */}
       <div className="fb-header-left">
-        <div className="relative">
-          <button 
-            onClick={() => setShowThemeDropdown(!showThemeDropdown)}
-            className="fb-header-logo flex items-center"
-            title={language === 'ko' ? '테마 선택' : 'Select Theme'}
-          >
-            <DragonflyIcon width={40} height={40} className="fb-header-logo-icon" />
-            <svg 
-              className="w-3 h-3 ml-1 transition-transform duration-200" 
-              style={{ transform: showThemeDropdown ? 'rotate(180deg)' : 'rotate(0deg)' }}
-              fill="currentColor" 
-              viewBox="0 0 20 20"
-            >
-              <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-            </svg>
-          </button>
-
-          {/* Theme Dropdown Menu */}
-          {showThemeDropdown && (
-            <div className="absolute top-full left-0 mt-2 w-64 bg-white rounded-xl shadow-lg border border-gray-200 z-50" style={{ backgroundColor: 'var(--theme-card-bg)', borderColor: 'var(--theme-border)', boxShadow: '0 10px 25px rgba(0, 0, 0, 0.15)' }}>
-              <div className="p-4">
-                <h3 className="text-sm font-semibold mb-3" style={{ color: 'var(--theme-text-primary)' }}>
-                  {language === 'ko' ? '테마 선택' : 'Select Theme'}
-                </h3>
-                
-                {/* Day/Night Themes */}
-                <div className="mb-4">
-                  <h4 className="text-xs font-medium mb-2" style={{ color: 'var(--theme-text-secondary)' }}>
-                    {language === 'ko' ? '주야간 모드' : 'Day/Night Mode'}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['day', 'night'] as ThemeType[]).map((themeId) => {
-                      const theme = themes[themeId];
-                      const isActive = currentTheme.id === themeId;
-                      return (
-                        <button
-                          key={themeId}
-                          onClick={() => {
-                            setTheme(themeId);
-                            setShowThemeDropdown(false);
-                          }}
-                          className={`p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
-                            isActive 
-                              ? 'border-blue-500' 
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          style={{
-                            backgroundColor: isActive ? 'rgba(59, 130, 246, 0.15)' : 'var(--theme-bg-secondary)',
-                            borderColor: isActive ? '#3b82f6' : 'var(--theme-border)',
-                            boxShadow: isActive ? '0 0 0 1px rgba(59, 130, 246, 0.3)' : 'none'
-                          }}
-                        >
-                          <div className="flex items-center justify-center mb-1">
-                            <span className="text-lg">{theme.icon}</span>
-                          </div>
-                          <div className="text-xs font-medium" style={{ color: 'var(--theme-text-primary)' }}>
-                            {theme.name[language]}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Seasonal Themes */}
-                <div>
-                  <h4 className="text-xs font-medium mb-2" style={{ color: 'var(--theme-text-secondary)' }}>
-                    {language === 'ko' ? '사계절 테마' : 'Seasonal Themes'}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['spring', 'summer', 'autumn', 'winter'] as ThemeType[]).map((themeId) => {
-                      const theme = themes[themeId];
-                      const isActive = currentTheme.id === themeId;
-                      return (
-                        <button
-                          key={themeId}
-                          onClick={() => {
-                            setTheme(themeId);
-                            setShowThemeDropdown(false);
-                          }}
-                          className={`p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
-                            isActive 
-                              ? 'border-blue-500' 
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          style={{
-                            backgroundColor: isActive ? 'rgba(59, 130, 246, 0.15)' : 'var(--theme-bg-secondary)',
-                            borderColor: isActive ? '#3b82f6' : 'var(--theme-border)',
-                            boxShadow: isActive ? '0 0 0 1px rgba(59, 130, 246, 0.3)' : 'none'
-                          }}
-                          title={theme.name[language]}
-                        >
-                          <div className="flex items-center justify-center">
-                            <span className="text-2xl">{theme.icon}</span>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                {/* Nature Themes */}
-                <div className="mt-4">
-                  <h4 className="text-xs font-medium mb-2" style={{ color: 'var(--theme-text-secondary)' }}>
-                    {language === 'ko' ? '자연 테마' : 'Nature Themes'}
-                  </h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(['ocean', 'mountain'] as ThemeType[]).map((themeId) => {
-                      const theme = themes[themeId];
-                      const isActive = currentTheme.id === themeId;
-                      return (
-                        <button
-                          key={themeId}
-                          onClick={() => {
-                            setTheme(themeId);
-                            setShowThemeDropdown(false);
-                          }}
-                          className={`p-3 rounded-lg border-2 transition-all duration-200 hover:shadow-md ${
-                            isActive 
-                              ? 'border-blue-500' 
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          style={{
-                            backgroundColor: isActive ? 'rgba(59, 130, 246, 0.15)' : 'var(--theme-bg-secondary)',
-                            borderColor: isActive ? '#3b82f6' : 'var(--theme-border)',
-                            boxShadow: isActive ? '0 0 0 1px rgba(59, 130, 246, 0.3)' : 'none'
-                          }}
-                        >
-                          <div className="flex items-center justify-center mb-1">
-                            <span className="text-lg">{theme.icon}</span>
-                          </div>
-                          <div className="text-xs font-medium" style={{ color: 'var(--theme-text-primary)' }}>
-                            {theme.name[language]}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
+        <button 
+          onClick={() => window.location.reload()}
+          className="fb-header-logo flex items-center"
+          title={language === 'ko' ? '페이지 새로고침' : 'Refresh Page'}
+        >
+          <DragonflyIcon width={40} height={40} className="fb-header-logo-icon" />
+        </button>
       </div>
 
       {/* Center Section - Action Buttons */}
