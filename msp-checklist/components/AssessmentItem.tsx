@@ -1273,7 +1273,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   </button>
                 </div>
               </div>
-              <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
+              <div style={{ padding: 16 }}>
                 <div style={{ fontSize: '15px', lineHeight: '1.7', color: 'var(--theme-text-primary)' }}>
                   {renderTextWithLinks(itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired)}
                 </div>
@@ -1283,18 +1283,18 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'var(--theme-summary-bg, linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%))',
+                    background: 'var(--theme-summary-bg, linear-gradient(135deg, #422006 0%, #451a03 100%))',
                     borderRadius: 12,
-                    border: '1px solid var(--theme-summary-border, #F59E0B)'
+                    border: '1px solid var(--theme-summary-border, #92400e)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-summary-title, #92400E)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-summary-title, #fde68a)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         📝 {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
                         <span style={{
                           padding: '4px 10px',
                           fontSize: 12,
                           fontWeight: 600,
-                          background: 'var(--theme-summary-border, #F59E0B)',
+                          background: 'var(--theme-summary-border, #92400e)',
                           color: 'white',
                           borderRadius: 12
                         }}>
@@ -1303,7 +1303,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-summary-text, #78350f)' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-summary-text, #fffbeb)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
                   </div>
@@ -1314,19 +1314,19 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'var(--theme-advice-bg, linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%))',
+                    background: 'var(--theme-advice-bg, linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%))',
                     borderRadius: 12,
-                    border: '1px solid var(--theme-advice-border, #A5D6A7)'
+                    border: '1px solid var(--theme-advice-border, #2d5a2d)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-advice-title, #1B5E20)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-advice-title, #a7f3d0)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         💡 {t('assessmentItem.adviceTitle')}
                         <span style={{
                           padding: '4px 10px',
                           fontSize: 12,
                           fontWeight: 600,
-                          background: 'var(--theme-advice-badge-bg, #A5D6A7)',
-                          color: 'var(--theme-advice-badge-text, #1B5E20)',
+                          background: 'var(--theme-advice-badge-bg, #166534)',
+                          color: 'var(--theme-advice-badge-text, #ecfdf5)',
                           borderRadius: 12
                         }}>
                           {itemLanguage === 'ko' ? '상세 조언' : 'Detailed Advice'}
@@ -1334,7 +1334,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #14532d)' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #f0fdf4)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
                     />
                   </div>
@@ -1345,16 +1345,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: '#DCFCE7',
+                    background: 'linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%)',
                     borderRadius: 12,
-                    border: '1px solid #86EFAC'
+                    border: '1px solid #2d5a2d'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#166534' }}>
+                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#a7f3d0' }}>
                           ⚠️ {t('assessmentItem.error')}
                         </h6>
-                        <div style={{ fontSize: 14, color: '#15803D', lineHeight: '1.6' }}>{adviceError}</div>
+                        <div style={{ fontSize: 14, color: '#f0fdf4', lineHeight: '1.6' }}>{adviceError}</div>
                       </div>
                       <button
                         onClick={handleAdviceClick}
@@ -1447,33 +1447,33 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                 </button>
               </div>
             </div>
-            <div style={{ padding: 16, background: 'var(--theme-card-bg)' }}>
+            <div style={{ padding: 16 }}>
               {/* Generated Virtual Evidence */}
               {showVirtualEvidence && virtualEvidenceContent && (
                 <div style={{
                   padding: 16,
-                  background: 'var(--theme-ve-bg, linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%))',
+                  background: 'var(--theme-ve-bg, linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%))',
                   borderRadius: 10,
-                  border: '1px solid var(--theme-ve-border, #DDD6FE)'
+                  border: '1px solid var(--theme-ve-border, #7c3aed)'
                 }}>
                   {/* 가상증빙예제 요약 표시 (먼저 표시) */}
                   {showVESummaryInline && veSummaryContent && (
                     <div style={{
                       marginBottom: 16,
                       padding: 16,
-                      background: 'var(--theme-summary-bg, linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%))',
+                      background: 'var(--theme-summary-bg, linear-gradient(135deg, #422006 0%, #451a03 100%))',
                       borderRadius: 8,
-                      border: '1px solid var(--theme-summary-border, #F59E0B)'
+                      border: '1px solid var(--theme-summary-border, #92400e)'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                         <span style={{ fontSize: 16 }}>📝</span>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-summary-title, #92400E)' }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-summary-title, #fde68a)' }}>
                           {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
                         </span>
                         <span style={{
                           padding: '2px 8px',
                           fontSize: 11,
-                          background: 'var(--theme-summary-border, #F59E0B)',
+                          background: 'var(--theme-summary-border, #92400e)',
                           color: 'white',
                           borderRadius: 10
                         }}>
@@ -1481,7 +1481,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         </span>
                       </div>
                       <div 
-                        style={{ fontSize: 13, color: 'var(--theme-summary-text, #78350f)', lineHeight: 1.6 }}
+                        style={{ fontSize: 13, color: 'var(--theme-summary-text, #fffbeb)', lineHeight: 1.6 }}
                         dangerouslySetInnerHTML={createMarkdownHtml(veSummaryContent)}
                       />
                     </div>
@@ -1496,9 +1496,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       
                       return (
                         <>
-                          <span style={{ fontSize: 18, color: 'var(--theme-ve-title, #8B5CF6)' }}>{isDemonstration ? '🎯' : '✨'}</span>
+                          <span style={{ fontSize: 18, color: 'var(--theme-ve-title, #ddd6fe)' }}>{isDemonstration ? '🎯' : '✨'}</span>
                           <div>
-                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-ve-title, #6D28D9)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-ve-title, #ddd6fe)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                               {isDemonstration ? 
                                 (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
                                 (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
@@ -1506,14 +1506,14 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                               <span style={{
                                 padding: '2px 8px',
                                 fontSize: 11,
-                                background: '#C8E6C9',
-                                color: '#2E7D32',
+                                background: '#166534',
+                                color: '#ecfdf5',
                                 borderRadius: 10
                               }}>
                                 {itemLanguage === 'ko' ? '상세 내용' : 'Details'}
                               </span>
                             </p>
-                            <p style={{ fontSize: 12, color: 'var(--theme-ve-title, #7C3AED)' }}>
+                            <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #f5f3ff)' }}>
                               {isDemonstration ?
                                 (itemLanguage === 'ko' 
                                   ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
@@ -1530,13 +1530,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   </div>
                   
                   <div style={{
-                    background: 'var(--theme-card-bg)',
+                    background: 'rgba(0, 0, 0, 0.2)',
                     borderRadius: 8,
                     padding: 16,
-                    border: '1px solid var(--theme-ve-border, #E9D5FF)'
+                    border: '1px solid var(--theme-ve-border, #7c3aed)'
                   }}>
                     <div 
-                      style={{ fontSize: 14, color: 'var(--theme-text-primary)', lineHeight: 1.6 }}
+                      style={{ fontSize: 14, lineHeight: 1.6 }}
                       dangerouslySetInnerHTML={createMarkdownHtml(virtualEvidenceContent)}
                     />
                   </div>
@@ -1544,13 +1544,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 12,
-                    background: 'var(--theme-surface)',
+                    background: 'rgba(0, 0, 0, 0.15)',
                     borderRadius: 8,
-                    borderTop: '1px solid var(--theme-ve-border, #DDD6FE)'
+                    borderTop: '1px solid var(--theme-ve-border, #7c3aed)'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: '#F59E0B', fontSize: 14 }}>💡</span>
-                      <p style={{ fontSize: 12, color: 'var(--theme-ve-title, #7C3AED)', fontWeight: 500 }}>
+                      <p style={{ fontSize: 12, color: 'var(--theme-ve-text, #f5f3ff)', fontWeight: 500 }}>
                         {(() => {
                           const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
                           const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
@@ -1577,16 +1577,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {virtualEvidenceError && (
                 <div style={{
                   padding: 16,
-                  background: '#EDE9FE',
+                  background: 'linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%)',
                   borderRadius: 10,
-                  border: '1px solid #C4B5FD'
+                  border: '1px solid #7c3aed'
                 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
-                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#6D28D9' }}>
+                      <h6 style={{ margin: '0 0 4px 0', fontSize: 14, fontWeight: 600, color: '#ddd6fe' }}>
                         ⚠️ {itemLanguage === 'ko' ? '오류' : 'Error'}
                       </h6>
-                      <div style={{ fontSize: 13, color: '#7C3AED' }}>{virtualEvidenceError}</div>
+                      <div style={{ fontSize: 13, color: '#f5f3ff' }}>{virtualEvidenceError}</div>
                     </div>
                     <button
                       onClick={generateVirtualEvidence}
