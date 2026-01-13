@@ -4,9 +4,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { mspChecklistData } from '@/data/msp-checklist-data';
 import { MSPChecklistData, FilterStatus, FilterPriority } from '@/types';
-import Dashboard from '@/components/Dashboard';
-import ChecklistView from '@/components/ChecklistView';
-import FilterBar from '@/components/FilterBar';
 import MSPPartnerJourneyModal from '@/components/MSPPartnerJourneyModal';
 import MSPProgramInfoModal from '@/components/MSPProgramInfoModal';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,24 +15,18 @@ export default function Home() {
   const { t } = useLanguage();
   const [checklistData, setChecklistData] = useState<MSPChecklistData>(mspChecklistData);
   const [homepageAnnouncements, setHomepageAnnouncements] = useState<any[]>([]);
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
-  const [filterPriority, setFilterPriority] = useState<FilterPriority>('all');
-  const [searchTerm, setSearchTerm] = useState('');
   const [showJourneyModal, setShowJourneyModal] = useState(false);
   const [showProgramInfoModal, setShowProgramInfoModal] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // Redirect to assessment if logged in
   useEffect(() => {
     if (!loading && user) {
       router.push('/assessment');
     }
   }, [user, loading, router]);
 
-  // Hydration 완료 표시
   useEffect(() => {
     setIsHydrated(true);
-    // 홈페이지 공지사항 가져오기
     fetchHomepageAnnouncements();
   }, []);
 
@@ -51,13 +42,11 @@ export default function Home() {
     }
   };
 
-  // LocalStorage에서 데이터 로드 (hydration 후에만)
   useEffect(() => {
     if (isHydrated) {
       const savedData = localStorage.getItem('msp-checklist-data');
       if (savedData) {
         const parsed = JSON.parse(savedData);
-        // Date 객체 복원
         parsed.lastModified = new Date(parsed.lastModified);
         parsed.categories.forEach((cat: any) => {
           cat.items.forEach((item: any) => {
@@ -73,279 +62,204 @@ export default function Home() {
     }
   }, [isHydrated]);
 
-  // 데이터 변경 시 LocalStorage에 저장 (hydration 후에만)
   useEffect(() => {
     if (isHydrated) {
       localStorage.setItem('msp-checklist-data', JSON.stringify(checklistData));
     }
   }, [checklistData, isHydrated]);
 
-  // Hydration 전에는 null 반환
   if (!isHydrated) {
     return null;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-      {/* 간단한 환영 헤더 */}
-      <header className="bg-white/70 backdrop-blur-md border-b border-pink-200/30 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="flex items-center justify-between">
-            <div className="text-center flex-1">
-              <h1 className="text-4xl font-bold text-gray-800 mb-3">
-                {t('home.title')}
-                <span className="inline-block ml-3 px-4 py-2 text-sm font-semibold text-purple-700 bg-purple-100/80 rounded-full border border-purple-200">
-                  v{checklistData.version}
-                </span>
-              </h1>
-              <p className="text-xl text-gray-600 leading-relaxed">
-                AWS MSP 파트너 프로그램 자체 평가를 위한 체크리스트 시스템
-              </p>
+    <div className="home-page">
+      {/* 배경 장식 요소 */}
+      <div className="home-bg-decoration">
+        <div className="home-bg-circle home-bg-circle-1"></div>
+        <div className="home-bg-circle home-bg-circle-2"></div>
+        <div className="home-bg-circle home-bg-circle-3"></div>
+      </div>
+
+      {/* 헤더 */}
+      <header className="home-header">
+        <div className="home-header-content">
+          <div className="home-logo-section">
+            <div className="home-logo-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
             </div>
-            
-            {/* 헤더 로그인 아이콘 버튼 */}
-            <div className="ml-6">
-              <a
-                href="/login"
-                className="header-login-icon-btn inline-flex items-center justify-center w-12 h-12 rounded-full transform hover:scale-110 transition-all duration-300 shadow-lg hover:shadow-xl"
-                style={{
-                  background: 'linear-gradient(135deg, #f472b6, #a855f7, #3b82f6)',
-                  color: '#ffffff'
-                }}
-                title="로그인"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-              </a>
+            <div className="home-title-group">
+              <h1 className="home-title">AWS MSP 체크리스트</h1>
+              <span className="home-version">v{checklistData.version}</span>
             </div>
           </div>
+          <a href="/login" className="home-header-login">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+            </svg>
+          </a>
         </div>
       </header>
 
-      {/* 메인 콘텐츠 */}
-      <main className="max-w-4xl mx-auto px-6 py-16">
-        {/* 환영 메시지 */}
-        <div className="text-center mb-16">
-          <div className="bg-white/60 backdrop-blur-sm rounded-3xl p-12 shadow-xl border border-pink-200/30">
-            <div className="mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-pink-400 via-purple-500 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                </svg>
-              </div>
-              <h2 className="text-4xl font-bold text-gray-800 mb-6">
-                AWS MSP 자체 평가 시작하기
-              </h2>
-              <p className="text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto">
-                AWS MSP(Managed Service Provider) 파트너 프로그램 요구사항을 체계적으로 확인하고 
-                평가할 수 있는 전문 도구입니다. 로그인하여 맞춤형 평가를 시작해보세요.
-              </p>
+      {/* 히어로 섹션 */}
+      <main className="home-main">
+        <section className="home-hero">
+          <div className="home-hero-content">
+            <div className="home-hero-badge">
+              <span>🚀 AWS MSP Partner Program</span>
             </div>
+            <h2 className="home-hero-title">
+              파트너 프로그램<br />
+              <span className="home-hero-highlight">자체 평가 시스템</span>
+            </h2>
+            <p className="home-hero-desc">
+              AWS MSP 요구사항을 체계적으로 확인하고<br className="home-mobile-br" />
+              평가 진행률을 실시간으로 관리하세요
+            </p>
 
-            {/* 메인 로그인 버튼 */}
-            <div className="mb-10">
-              <div className="text-center space-y-6">
-                <a
-                  href="/login"
-                  className="main-login-button-pastel inline-flex items-center px-16 py-6 text-2xl font-bold rounded-3xl transform transition-all duration-300 shadow-xl hover:shadow-2xl"
-                  style={{
-                    background: 'linear-gradient(135deg, #f472b6 0%, #a855f7 50%, #3b82f6 100%)',
-                    color: '#ffffff',
-                    textShadow: '0 3px 6px rgba(0, 0, 0, 0.3)',
-                    border: '2px solid rgba(255, 255, 255, 0.3)'
-                  }}
-                >
-                  <svg className="w-8 h-8 mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                  </svg>
-                  🚀 지금 시작하기
-                </a>
-                
-                {/* 부가 설명 */}
-                <p className="text-base text-gray-500">
-                  무료 회원가입 • 즉시 사용 가능 • 데이터 안전 보장
-                </p>
-                
-                {/* 빠른 로그인 옵션 */}
-                <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
-                  <a
-                    href="/login"
-                    className="quick-login-option-pastel blue-option inline-flex items-center px-8 py-4 text-base font-medium rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
-                      color: '#1e40af',
-                      border: '2px solid #93c5fd'
-                    }}
-                  >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    기존 계정으로 로그인
-                  </a>
-                  <a
-                    href="/register"
-                    className="quick-login-option-pastel green-option inline-flex items-center px-8 py-4 text-base font-medium rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                    style={{
-                      background: 'linear-gradient(135deg, #dcfce7, #bbf7d0)',
-                      color: '#047857',
-                      border: '2px solid #86efac'
-                    }}
-                  >
-                    <svg className="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                    </svg>
-                    새 계정 만들기
-                  </a>
+            {/* CTA 버튼 */}
+            <div className="home-cta-group">
+              <a href="/login" className="home-cta-primary">
+                <span>시작하기</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
+              <a href="/register" className="home-cta-secondary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                </svg>
+                <span>회원가입</span>
+              </a>
+            </div>
+          </div>
+
+          {/* 히어로 일러스트 */}
+          <div className="home-hero-visual">
+            <div className="home-hero-card">
+              <div className="home-hero-card-header">
+                <div className="home-hero-card-dots">
+                  <span></span><span></span><span></span>
+                </div>
+              </div>
+              <div className="home-hero-card-body">
+                <div className="home-hero-progress">
+                  <div className="home-hero-progress-bar"></div>
+                </div>
+                <div className="home-hero-checklist">
+                  <div className="home-hero-check-item done">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    <span>기본 요구사항</span>
+                  </div>
+                  <div className="home-hero-check-item done">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+                    <span>운영 관리</span>
+                  </div>
+                  <div className="home-hero-check-item">
+                    <div className="home-hero-check-empty"></div>
+                    <span>보안 컴플라이언스</span>
+                  </div>
                 </div>
               </div>
             </div>
-
-            {/* 추가 정보 버튼들 */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button
-                onClick={() => setShowProgramInfoModal(true)}
-                className="inline-flex items-center px-8 py-4 text-base font-medium rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                style={{
-                  background: 'linear-gradient(135deg, #fef3c7, #fde68a)',
-                  color: '#92400e',
-                  border: '2px solid #fcd34d'
-                }}
-              >
-                📋 프로그램 정보
-              </button>
-              <button
-                onClick={() => setShowJourneyModal(true)}
-                className="inline-flex items-center px-8 py-4 text-base font-medium rounded-2xl transition-all duration-200 shadow-lg hover:shadow-xl"
-                style={{
-                  background: 'linear-gradient(135deg, #e0e7ff, #c7d2fe)',
-                  color: '#3730a3',
-                  border: '2px solid #a5b4fc'
-                }}
-              >
-                🗺️ 파트너 여정
-              </button>
-            </div>
           </div>
-        </div>
+        </section>
 
-        {/* 주요 기능 소개 */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-pink-200/30 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-pink-300 to-rose-400 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">체계적 평가</h3>
-              <p className="text-base text-gray-600">MSP 요구사항을 단계별로 체크하고 진행상황을 추적합니다.</p>
+        {/* 기능 카드 */}
+        <section className="home-features">
+          <div className="home-feature-card">
+            <div className="home-feature-icon pink">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
             </div>
+            <h3>체계적 평가</h3>
+            <p>MSP 요구사항을 단계별로 체크하고 진행상황을 추적</p>
           </div>
           
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-green-200/30 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-green-300 to-emerald-400 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">진행률 관리</h3>
-              <p className="text-base text-gray-600">실시간 대시보드로 평가 진행률과 완료 상태를 확인합니다.</p>
+          <div className="home-feature-card">
+            <div className="home-feature-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
             </div>
+            <h3>실시간 대시보드</h3>
+            <p>평가 진행률과 완료 상태를 한눈에 확인</p>
           </div>
           
-          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 border border-purple-200/30 shadow-lg hover:shadow-xl transition-all duration-300">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-300 to-violet-400 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-800 mb-3">가이드 제공</h3>
-              <p className="text-base text-gray-600">각 요구사항에 대한 상세한 가이드와 모범 사례를 제공합니다.</p>
+          <div className="home-feature-card">
+            <div className="home-feature-icon purple">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
             </div>
+            <h3>AI 가이드</h3>
+            <p>각 요구사항에 대한 상세 가이드와 모범 사례 제공</p>
           </div>
-        </div>
+        </section>
+
+        {/* 추가 정보 버튼 */}
+        <section className="home-info-buttons">
+          <button onClick={() => setShowProgramInfoModal(true)} className="home-info-btn">
+            <span className="home-info-btn-icon">📋</span>
+            <span>프로그램 정보</span>
+          </button>
+          <button onClick={() => setShowJourneyModal(true)} className="home-info-btn">
+            <span className="home-info-btn-icon">🗺️</span>
+            <span>파트너 여정</span>
+          </button>
+        </section>
 
         {/* 공지사항 */}
         {homepageAnnouncements.length > 0 && (
-          <div className="bg-gradient-to-r from-amber-50/80 to-orange-50/80 backdrop-blur-sm border border-amber-200/50 rounded-2xl p-8 shadow-lg">
-            <div className="flex items-start">
-              <div className="flex-shrink-0">
-                <div className="w-12 h-12 bg-gradient-to-br from-amber-300 to-orange-400 rounded-full flex items-center justify-center shadow-lg">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-xl font-semibold text-amber-800 mb-3">📢 공지사항</h3>
-                <div className="space-y-3">
-                  {homepageAnnouncements.map((announcement, index) => (
-                    <div key={announcement.id} className="text-amber-700 text-base leading-relaxed">
-                      <div className="flex items-start gap-2">
-                        <span className="text-lg flex-shrink-0">
-                          {announcement.type === 'warning' ? '⚠️' : 
-                           announcement.type === 'error' ? '❌' : 
-                           announcement.type === 'success' ? '✅' : '📢'}
-                        </span>
-                        <div>
-                          <div className="font-semibold text-amber-800 mb-1">{announcement.title}</div>
-                          <div className="text-amber-700">{announcement.content}</div>
-                          {announcement.priority === 3 && (
-                            <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-red-100 text-red-800 rounded-full mt-1">
-                              🔴 중요
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <section className="home-announcements">
+            <div className="home-announcements-header">
+              <span className="home-announcements-icon">📢</span>
+              <h3>공지사항</h3>
             </div>
-          </div>
+            <div className="home-announcements-list">
+              {homepageAnnouncements.map((announcement) => (
+                <div key={announcement.id} className="home-announcement-item">
+                  <span className="home-announcement-type">
+                    {announcement.type === 'warning' ? '⚠️' : 
+                     announcement.type === 'error' ? '❌' : 
+                     announcement.type === 'success' ? '✅' : '📢'}
+                  </span>
+                  <div className="home-announcement-content">
+                    <strong>{announcement.title}</strong>
+                    <p>{announcement.content}</p>
+                    {announcement.priority === 3 && (
+                      <span className="home-announcement-badge">중요</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         )}
       </main>
 
-      {/* MSP Program Info Modal */}
+      {/* 푸터 */}
+      <footer className="home-footer">
+        <p>© 2024 AWS MSP Checklist System</p>
+      </footer>
+
+      {/* 모달 */}
       <MSPProgramInfoModal 
         isOpen={showProgramInfoModal} 
         onClose={() => setShowProgramInfoModal(false)} 
       />
-
-      {/* MSP Partner Journey Modal */}
       <MSPPartnerJourneyModal 
         isOpen={showJourneyModal} 
         onClose={() => setShowJourneyModal(false)} 
       />
       
-      {/* 플로팅 로그인 아이콘 버튼 */}
-      <a
-        href="/login"
-        className="floating-login-icon-btn"
-        title="로그인하기"
-        style={{
-          position: 'fixed',
-          bottom: '30px',
-          right: '30px',
-          zIndex: 1000,
-          borderRadius: '50%',
-          width: '64px',
-          height: '64px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'linear-gradient(135deg, #f472b6, #a855f7, #3b82f6)',
-          boxShadow: '0 8px 25px rgba(244, 114, 182, 0.4)',
-          transition: 'all 0.3s ease',
-          color: '#ffffff',
-          textDecoration: 'none'
-        }}
-      >
-        <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+      {/* 플로팅 버튼 */}
+      <a href="/login" className="home-floating-btn" title="로그인">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
         </svg>
       </a>
     </div>
