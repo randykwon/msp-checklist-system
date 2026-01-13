@@ -43,6 +43,22 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+/* 모든 텍스트 요소에 기본 가독성 향상 적용 */
+body * {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 밝은 배경의 텍스트는 어둡게, 어두운 배경의 텍스트는 밝게 */
+.light-bg-text {
+  color: #1a202c !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+}
+
+.dark-bg-text {
+  color: #ffffff !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+}
+
 /* 배경 패턴이 있는 경우 */
 body::before {
   content: '';

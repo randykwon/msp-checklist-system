@@ -333,7 +333,10 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
       {isOpen && (
         <div className="absolute top-full left-0 mt-2 w-[800px] bg-white border border-gray-200 rounded-xl shadow-2xl z-50 overflow-hidden backdrop-blur-sm">
           <div className="p-6 border-b border-gray-200 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50">
-            <h3 className="text-base font-bold text-gray-900 flex items-center gap-3 mb-4">
+            <h3 className="text-base font-bold text-gray-900 flex items-center gap-3 mb-4" style={{
+              textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)',
+              color: '#1a202c'
+            }}>
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -351,7 +354,10 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-800 font-semibold leading-relaxed">
+                  <p className="text-sm font-semibold leading-relaxed" style={{
+                    color: '#1a202c',
+                    textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                  }}>
                     {language === 'ko' 
                       ? '프로파일을 클릭하면 즉시 전환됩니다' 
                       : 'Click any profile to switch instantly'}
@@ -366,7 +372,10 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                       <path fillRule="evenodd" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                     </svg>
                   </div>
-                  <p className="text-sm text-gray-800 font-semibold leading-relaxed">
+                  <p className="text-sm font-semibold leading-relaxed" style={{
+                    color: '#1a202c',
+                    textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                  }}>
                     {language === 'ko' 
                       ? '각 프로파일은 독립적인 진행상황을 저장합니다' 
                       : 'Each profile saves independent progress'}
@@ -379,7 +388,10 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
           <div className="max-h-80 overflow-y-auto p-4 bg-gradient-to-b from-gray-50 to-white">
             {versions.length === 0 ? (
               <div className="p-6 text-center bg-white rounded-xl border border-gray-200 shadow-sm">
-                <div className="mb-3 text-gray-600 font-medium">
+                <div className="mb-3 font-semibold" style={{
+                  color: '#1a202c',
+                  textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                }}>
                   {language === 'ko' ? '프로파일이 없습니다' : 'No profiles available'}
                 </div>
                 <button
@@ -387,7 +399,17 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                     setIsOpen(false);
                     window.location.href = '/versions';
                   }}
-                  className="text-blue-600 hover:text-blue-800 underline font-semibold transition-colors"
+                  className="font-semibold transition-colors underline"
+                  style={{
+                    color: '#2563eb',
+                    textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#1d4ed8';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#2563eb';
+                  }}
                 >
                   {language === 'ko' ? '첫 번째 프로파일 만들기' : 'Create first profile'}
                 </button>
@@ -458,39 +480,41 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                         alignItems: 'center',
                         position: 'relative'
                       }}>
-                        {/* 배경 오버레이로 텍스트 가독성 향상 */}
+                        {/* 강화된 배경 오버레이로 텍스트 가독성 대폭 향상 */}
                         <div style={{
                           position: 'absolute',
                           top: 0,
                           left: 0,
                           right: 0,
                           bottom: 0,
-                          background: 'rgba(0, 0, 0, 0.1)',
-                          backdropFilter: 'blur(1px)'
+                          background: 'rgba(0, 0, 0, 0.4)',
+                          backdropFilter: 'blur(2px)'
                         }}></div>
                         
                         <span style={{ 
-                          color: 'white', 
-                          fontWeight: 700, 
+                          color: '#ffffff', 
+                          fontWeight: 800, 
                           fontSize: 14,
                           position: 'relative',
                           zIndex: 1,
-                          textShadow: '0 1px 3px rgba(0, 0, 0, 0.3)',
-                          letterSpacing: '0.5px'
+                          textShadow: '0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6)',
+                          letterSpacing: '0.5px',
+                          filter: 'contrast(1.2) brightness(1.1)'
                         }}>
                           {version.versionName}
                         </span>
                         {version.isActive && (
                           <span style={{
-                            padding: '4px 10px',
-                            background: 'rgba(255, 255, 255, 0.9)',
+                            padding: '5px 12px',
+                            background: 'rgba(255, 255, 255, 0.95)',
                             color: colorScheme.accent,
-                            borderRadius: 12,
-                            fontSize: 10,
-                            fontWeight: 700,
+                            borderRadius: 14,
+                            fontSize: 11,
+                            fontWeight: 800,
                             position: 'relative',
                             zIndex: 1,
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)'
+                            boxShadow: '0 3px 8px rgba(0, 0, 0, 0.2), 0 1px 3px rgba(0, 0, 0, 0.1)',
+                            border: '1px solid rgba(255, 255, 255, 0.8)'
                           }}>
                             ✓ {language === 'ko' ? '활성' : 'Active'}
                           </span>
@@ -500,8 +524,9 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                       {/* Card Body */}
                       <div style={{ 
                         padding: '12px 14px',
-                        background: 'rgba(255, 255, 255, 0.95)',
-                        backdropFilter: 'blur(10px)'
+                        background: 'rgba(255, 255, 255, 0.98)',
+                        backdropFilter: 'blur(10px)',
+                        borderTop: '1px solid rgba(0, 0, 0, 0.05)'
                       }}>
                         {version.description && (
                           <p style={{ 
@@ -511,8 +536,9 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap',
-                            fontWeight: 500,
-                            lineHeight: 1.4
+                            fontWeight: 600,
+                            lineHeight: 1.4,
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
                           }}>
                             {version.description}
                           </p>
@@ -523,26 +549,29 @@ export default function VersionSwitcher({ onVersionChange, className = '' }: Ver
                           <div style={{ 
                             flex: 1, 
                             height: 8, 
-                            background: 'rgba(228, 230, 235, 0.8)', 
+                            background: 'rgba(228, 230, 235, 0.9)', 
                             borderRadius: 4, 
                             overflow: 'hidden',
-                            boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.1)'
+                            boxShadow: 'inset 0 1px 3px rgba(0, 0, 0, 0.15)',
+                            border: '1px solid rgba(0, 0, 0, 0.05)'
                           }}>
                             <div style={{
                               height: '100%',
                               width: `${version.progressSummary?.completionPercentage || 0}%`,
                               background: `linear-gradient(90deg, ${colorScheme.accent}, ${colorScheme.accent}dd)`,
-                              borderRadius: 4,
-                              transition: 'width 0.3s ease'
+                              borderRadius: 3,
+                              transition: 'width 0.3s ease',
+                              boxShadow: '0 1px 2px rgba(0, 0, 0, 0.1)'
                             }}></div>
                           </div>
                           <span style={{ 
                             fontSize: 12, 
-                            fontWeight: 700, 
+                            fontWeight: 800, 
                             color: colorScheme.accent, 
                             minWidth: 36,
                             textAlign: 'right',
-                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.8)'
+                            textShadow: '0 1px 2px rgba(255, 255, 255, 0.9)',
+                            filter: 'contrast(1.1)'
                           }}>
                             {version.progressSummary?.completionPercentage || 0}%
                           </span>

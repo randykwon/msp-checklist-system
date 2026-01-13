@@ -20,6 +20,11 @@
   --fb-text-primary: #1C1E21;
   --fb-text-secondary: #4B4F56;
   
+  /* 고대비 텍스트 색상 추가 */
+  --fb-text-high-contrast: #000000;
+  --fb-text-medium-contrast: #2D3748;
+  --fb-text-light-contrast: #4A5568;
+  
   /* Facebook Colors - Status */
   --fb-success: #42B72A;
   --fb-error: #FA383E;
@@ -129,8 +134,8 @@
   --theme-bg: #18191A;
   --theme-surface: #242526;
   --theme-surface-hover: #3A3B3C;
-  --theme-text-primary: #F5F6F7;
-  --theme-text-secondary: #D1D5DB;
+  --theme-text-primary: #FFFFFF;
+  --theme-text-secondary: #F5F6F7;
   --theme-border: #3E4042;
   --theme-card-bg: #242526;
   --theme-input-bg: #3A3B3C;
@@ -138,6 +143,11 @@
   --theme-header-bg: #242526;
   --theme-dropdown-bg: #242526;
   --theme-shadow: rgba(0, 0, 0, 0.3);
+  
+  /* 고대비 텍스트 색상 추가 */
+  --fb-text-high-contrast: #FFFFFF;
+  --fb-text-medium-contrast: #F5F6F7;
+  --fb-text-light-contrast: #E4E6EB;
   
   /* Advice Section - Dark Mode - 하늘색 배경 */
   --theme-advice-bg: linear-gradient(135deg, #0c4a6e 0%, #164e63 100%);
@@ -190,6 +200,25 @@ body {
   color: var(--fb-text-primary);
   background-color: var(--fb-background);
   min-height: 100vh;
+}
+
+/* 모든 텍스트 요소에 기본 가독성 향상 적용 */
+body, p, h1, h2, h3, h4, h5, h6, span, div, a, button, input, select, textarea, label {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* 밝은 배경에서의 텍스트 가독성 향상 */
+.light-text {
+  color: var(--fb-text-high-contrast) !important;
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+  font-weight: 600 !important;
+}
+
+/* 어두운 배경에서의 텍스트 가독성 향상 */
+.dark-text {
+  color: #ffffff !important;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.8), 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+  font-weight: 600 !important;
 }
 
 a {
