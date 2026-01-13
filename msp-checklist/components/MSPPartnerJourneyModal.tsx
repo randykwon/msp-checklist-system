@@ -206,13 +206,14 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
   };
 
   const getStepColor = (status: string) => {
+    // 다크 모드에 맞는 색상 사용
     switch (status) {
       case 'completed':
-        return 'border-green-200 bg-green-50';
+        return 'border-green-600 bg-green-900/30';
       case 'current':
-        return 'border-blue-200 bg-blue-50';
+        return 'border-blue-500 bg-blue-900/30';
       default:
-        return 'border-gray-200 bg-gray-50';
+        return 'border-gray-600 bg-gray-800/50';
     }
   };
 
@@ -251,7 +252,7 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
               <div key={step.id} className="relative">
                 {/* Connector Line */}
                 {index < journeySteps.length - 1 && (
-                  <div className="absolute left-4 top-12 w-0.5 h-16 bg-gray-300"></div>
+                  <div className="absolute left-4 top-12 w-0.5 h-16" style={{ background: 'var(--theme-border)' }}></div>
                 )}
                 
                 {/* Step Card */}
@@ -268,20 +269,20 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
                     {/* Step Content */}
                     <div className="flex-1">
                       <div className="flex items-center justify-between mb-2">
-                        <h3 className="text-lg font-semibold text-gray-900">
+                        <h3 className="text-lg font-semibold" style={{ color: 'var(--theme-text-primary)' }}>
                           {language === 'ko' ? step.titleKo : step.title}
                         </h3>
-                        <span className="text-sm text-gray-500 bg-white px-2 py-1 rounded">
+                        <span className="text-sm px-2 py-1 rounded" style={{ color: 'var(--theme-text-primary)', background: 'var(--theme-surface)', border: '1px solid var(--theme-border)' }}>
                           {language === 'ko' ? step.durationKo : step.duration}
                         </span>
                       </div>
                       
-                      <p className="text-gray-600 mb-4">
+                      <p className="mb-4" style={{ color: 'var(--theme-text-secondary)' }}>
                         {language === 'ko' ? step.descriptionKo : step.description}
                       </p>
 
                       {/* Requirements Preview */}
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--theme-text-secondary)' }}>
                         <span>
                           {language === 'ko' ? '요구사항' : 'Requirements'}:
                         </span>
@@ -299,15 +300,15 @@ export default function MSPPartnerJourneyModal({ isOpen, onClose }: MSPPartnerJo
 
                       {/* Expanded Requirements */}
                       {selectedStep === step.id && (
-                        <div className="mt-4 p-4 bg-white rounded-lg border border-gray-200">
-                          <h4 className="font-semibold text-gray-900 mb-3">
+                        <div className="mt-4 p-4 rounded-lg" style={{ background: 'var(--theme-surface)', border: '1px solid var(--theme-border)' }}>
+                          <h4 className="font-semibold mb-3" style={{ color: 'var(--theme-text-primary)' }}>
                             {language === 'ko' ? '세부 요구사항:' : 'Detailed Requirements:'}
                           </h4>
                           <ul className="space-y-2">
                             {(language === 'ko' ? step.requirementsKo : step.requirements).map((req, reqIndex) => (
                               <li key={reqIndex} className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-1">•</span>
-                                <span className="text-gray-700">{req}</span>
+                                <span className="text-blue-400 mt-1">•</span>
+                                <span style={{ color: 'var(--theme-text-primary)' }}>{req}</span>
                               </li>
                             ))}
                           </ul>
