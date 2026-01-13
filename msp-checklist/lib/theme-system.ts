@@ -118,23 +118,23 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '🌙',
     colors: {
       background: {
-        primary: '#0f172a',
-        secondary: '#1e293b',
-        accent: '#334155',
-        gradient: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'
+        primary: '#0a0e1a',
+        secondary: '#111827',
+        accent: '#1f2937',
+        gradient: 'linear-gradient(135deg, #0a0e1a 0%, #111827 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#f1f5f9',
-        accent: '#e2e8f0',
-        muted: '#cbd5e1'
+        secondary: '#f9fafb',
+        accent: '#f3f4f6',
+        muted: '#d1d5db'
       },
       ui: {
-        border: '#334155',
-        card: '#1e293b',
+        border: '#374151',
+        card: '#1f2937',
         button: {
           primary: '#3b82f6',
-          secondary: '#64748b',
+          secondary: '#6b7280',
           hover: '#2563eb'
         },
         progress: '#60a5fa',
@@ -143,17 +143,18 @@ export const themes: Record<ThemeType, Theme> = {
         error: '#ef4444'
       },
       markdown: {
-        text: '#f1f5f9',
+        text: '#f9fafb',
         heading: '#ffffff',
         code: {
-          background: 'rgba(51, 65, 85, 0.3)',
+          background: 'rgba(55, 65, 81, 0.5)',
           text: '#ffffff',
-          border: '#334155'
+          border: '#374151'
         },
         link: '#60a5fa',
-        emphasis: '#f1f5f9'
+        emphasis: '#f3f4f6'
       }
-    }
+    },
+    backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)'
   },
   
   ocean: {
@@ -482,6 +483,10 @@ export class ThemeManager {
     
     const theme = this.getCurrentTheme();
     const root = document.documentElement;
+    const body = document.body;
+    
+    // Set data-theme attribute on body for CSS targeting
+    body.setAttribute('data-theme', theme.id);
     
     // CSS 변수 설정
     root.style.setProperty('--theme-bg-primary', theme.colors.background.primary);
@@ -496,6 +501,8 @@ export class ThemeManager {
     
     root.style.setProperty('--theme-ui-border', theme.colors.ui.border);
     root.style.setProperty('--theme-ui-card', theme.colors.ui.card);
+    root.style.setProperty('--theme-card-bg', theme.colors.ui.card);
+    root.style.setProperty('--theme-border', theme.colors.ui.border);
     root.style.setProperty('--theme-ui-button-primary', theme.colors.ui.button.primary);
     root.style.setProperty('--theme-ui-button-secondary', theme.colors.ui.button.secondary);
     root.style.setProperty('--theme-ui-button-hover', theme.colors.ui.button.hover);

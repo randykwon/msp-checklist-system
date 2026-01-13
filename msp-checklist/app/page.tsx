@@ -9,7 +9,6 @@ import ChecklistView from '@/components/ChecklistView';
 import FilterBar from '@/components/FilterBar';
 import MSPPartnerJourneyModal from '@/components/MSPPartnerJourneyModal';
 import MSPProgramInfoModal from '@/components/MSPProgramInfoModal';
-import ThemeSelector from '@/components/ThemeSelector';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -88,60 +87,6 @@ export default function Home() {
               </p>
             </div>
             <div className="header-actions animate-fade-in">
-              {/* 테마 갤러리 페이지 버튼 */}
-              <a
-                href="/seasons"
-                className="btn"
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
-                  color: 'white',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                  fontWeight: '700',
-                  padding: '12px 20px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 15px rgba(102, 126, 234, 0.4)',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  minWidth: '140px',
-                  justifyContent: 'center'
-                }}
-              >
-                🎨 테마 갤러리
-              </a>
-              
-              {/* 주야간 모드 페이지 버튼 */}
-              <a
-                href="/day-night"
-                className="btn"
-                style={{
-                  background: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)',
-                  color: 'white',
-                  border: '2px solid rgba(255,255,255,0.2)',
-                  textShadow: '0 1px 2px rgba(0,0,0,0.5)',
-                  fontWeight: '700',
-                  padding: '12px 20px',
-                  borderRadius: '12px',
-                  boxShadow: '0 4px 15px rgba(30, 41, 59, 0.4)',
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '8px',
-                  minWidth: '140px',
-                  justifyContent: 'center'
-                }}
-              >
-                🌓 주야간 모드
-              </a>
-              
-              {/* 테마 선택기 추가 */}
-              <ThemeSelector 
-                language={t.language || 'ko'} 
-                className="mr-4"
-              />
-              
               <button
                 onClick={() => setShowProgramInfoModal(true)}
                 className="btn btn-success"
