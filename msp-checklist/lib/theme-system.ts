@@ -1,5 +1,5 @@
 // 테마 시스템 타입 정의
-export type ThemeType = 'night' | 'ocean' | 'mountain' | 'spring' | 'summer' | 'autumn' | 'winter';
+export type ThemeType = 'day' | 'night' | 'ocean' | 'mountain' | 'spring' | 'summer' | 'autumn' | 'winter';
 
 export interface ThemeColors {
   // 배경 색상
@@ -65,6 +65,52 @@ export interface Theme {
 
 // 테마 정의
 export const themes: Record<ThemeType, Theme> = {
+  day: {
+    id: 'day',
+    name: { ko: '주간 모드', en: 'Day Mode' },
+    description: { ko: '밝고 활기찬 주간 작업을 위한 라이트 테마', en: 'Bright light theme for energetic day work' },
+    icon: '☀️',
+    colors: {
+      background: {
+        primary: '#ffffff',
+        secondary: '#f8fafc',
+        accent: '#f1f5f9',
+        gradient: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)'
+      },
+      text: {
+        primary: '#0f172a',
+        secondary: '#1e293b',
+        accent: '#334155',
+        muted: '#64748b'
+      },
+      ui: {
+        border: '#e2e8f0',
+        card: '#ffffff',
+        button: {
+          primary: '#3b82f6',
+          secondary: '#64748b',
+          hover: '#2563eb'
+        },
+        progress: '#3b82f6',
+        success: '#10b981',
+        warning: '#f59e0b',
+        error: '#ef4444'
+      },
+      markdown: {
+        text: '#1e293b',
+        heading: '#0f172a',
+        code: {
+          background: 'rgba(241, 245, 249, 0.8)',
+          text: '#0f172a',
+          border: '#e2e8f0'
+        },
+        link: '#3b82f6',
+        emphasis: '#1e293b'
+      }
+    },
+    backgroundPattern: 'radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)'
+  },
+  
   night: {
     id: 'night',
     name: { ko: '야간 모드', en: 'Night Mode' },
@@ -389,7 +435,7 @@ export const themes: Record<ThemeType, Theme> = {
 
 // 테마 관리 클래스
 export class ThemeManager {
-  private currentTheme: ThemeType = 'night';
+  private currentTheme: ThemeType = 'day';
   private listeners: ((theme: Theme) => void)[] = [];
 
   constructor() {

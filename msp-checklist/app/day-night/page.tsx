@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { themeManager, ThemeType } from '@/lib/theme-system';
 
 export default function DayNightPage() {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>('night');
-  const [isDayMode, setIsDayMode] = useState(false);
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>('day');
+  const [isDayMode, setIsDayMode] = useState(true);
 
   useEffect(() => {
     themeManager.initialize();
@@ -21,7 +21,7 @@ export default function DayNightPage() {
     const newMode = !isDayMode;
     setIsDayMode(newMode);
     
-    const newTheme = newMode ? 'spring' : 'night';
+    const newTheme = newMode ? 'day' : 'night';
     themeManager.setTheme(newTheme as ThemeType);
   };
 
@@ -50,9 +50,20 @@ export default function DayNightPage() {
               
               <button
                 onClick={toggleDayNight}
-                className="relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-blue-300 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg"
+                className={`
+                  relative w-16 h-8 rounded-full transition-all duration-500 focus:outline-none focus:ring-4 focus:ring-blue-300
+                  ${isDayMode 
+                    ? 'bg-gradient-to-r from-yellow-400 to-orange-500 shadow-lg' 
+                    : 'bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg'
+                  }
+                `}
               >
-                <div className="absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 flex items-center justify-center left-1">
+                <div
+                  className={`
+                    absolute top-1 w-6 h-6 bg-white rounded-full shadow-md transition-all duration-500 flex items-center justify-center
+                    ${isDayMode ? 'left-9 transform rotate-180' : 'left-1'}
+                  `}
+                >
                   <span className="text-xs">
                     {isDayMode ? '☀️' : '🌙'}
                   </span>

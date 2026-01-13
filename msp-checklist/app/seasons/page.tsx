@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { themeManager, ThemeType } from '@/lib/theme-system';
 
 export default function SeasonsPage() {
-  const [currentTheme, setCurrentTheme] = useState<ThemeType>('spring');
+  const [currentTheme, setCurrentTheme] = useState<ThemeType>('day');
   const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
@@ -29,6 +29,22 @@ export default function SeasonsPage() {
   };
 
   const seasons = [
+    {
+      id: 'day' as ThemeType,
+      name: '주간',
+      nameEn: 'Day',
+      icon: '☀️',
+      description: '밝고 활기찬 주간 모드',
+      color: '#3B82F6'
+    },
+    {
+      id: 'night' as ThemeType,
+      name: '야간',
+      nameEn: 'Night',
+      icon: '🌙',
+      description: '편안한 야간 모드',
+      color: '#1E293B'
+    },
     {
       id: 'spring' as ThemeType,
       name: '봄',
@@ -82,7 +98,7 @@ export default function SeasonsPage() {
               >
                 ← 홈으로
               </a>
-              <h1 className="text-2xl font-bold text-gray-900">🌈 사계절 테마</h1>
+              <h1 className="text-2xl font-bold text-gray-900">🎨 테마 갤러리</h1>
               <span className="text-sm text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
                 현재: {currentSeason.name} {currentSeason.icon}
               </span>

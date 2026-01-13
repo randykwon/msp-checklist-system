@@ -88,7 +88,7 @@ export default function Home() {
               </p>
             </div>
             <div className="header-actions animate-fade-in">
-              {/* 사계절 테마 페이지 버튼 */}
+              {/* 테마 갤러리 페이지 버튼 */}
               <a
                 href="/seasons"
                 className="btn"
@@ -109,7 +109,7 @@ export default function Home() {
                   justifyContent: 'center'
                 }}
               >
-                🌈 사계절 테마
+                🎨 테마 갤러리
               </a>
               
               {/* 주야간 모드 페이지 버튼 */}

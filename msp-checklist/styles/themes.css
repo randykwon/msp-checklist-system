@@ -1,34 +1,37 @@
 /* 테마 시스템 CSS 변수 및 스타일 */
 
 :root {
-  /* 기본 테마 변수 (야간 모드) - 가독성 개선 */
-  --theme-bg-primary: #0f172a;
-  --theme-bg-secondary: #1e293b;
-  --theme-bg-accent: #334155;
-  --theme-bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  /* 기본 테마 변수 (주간 모드) - 가독성 개선 */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8fafc;
+  --theme-bg-accent: #f1f5f9;
+  --theme-bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
   
-  --theme-text-primary: #ffffff;
-  --theme-text-secondary: #f1f5f9;
-  --theme-text-accent: #e2e8f0;
-  --theme-text-muted: #cbd5e1;
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #1e293b;
+  --theme-text-accent: #334155;
+  --theme-text-muted: #64748b;
   
-  --theme-ui-border: #334155;
-  --theme-ui-card: #1e293b;
+  --theme-ui-border: #e2e8f0;
+  --theme-ui-card: #ffffff;
   --theme-ui-button-primary: #3b82f6;
   --theme-ui-button-secondary: #64748b;
   --theme-ui-button-hover: #2563eb;
-  --theme-ui-progress: #60a5fa;
+  --theme-ui-progress: #3b82f6;
   --theme-ui-success: #10b981;
   --theme-ui-warning: #f59e0b;
   --theme-ui-error: #ef4444;
   
-  --theme-markdown-text: #f1f5f9;
-  --theme-markdown-heading: #ffffff;
-  --theme-markdown-code-bg: rgba(51, 65, 85, 0.3);
-  --theme-markdown-code-text: #ffffff;
-  --theme-markdown-code-border: #334155;
-  --theme-markdown-link: #60a5fa;
-  --theme-markdown-emphasis: #f1f5f9;
+  --theme-markdown-text: #1e293b;
+  --theme-markdown-heading: #0f172a;
+  --theme-markdown-code-bg: rgba(241, 245, 249, 0.8);
+  --theme-markdown-code-text: #0f172a;
+  --theme-markdown-code-border: #e2e8f0;
+  --theme-markdown-link: #3b82f6;
+  --theme-markdown-emphasis: #1e293b;
+  
+  /* 배경 패턴 */
+  --theme-bg-pattern: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
 }
 
 /* 전체 페이지 배경 및 텍스트 가독성 개선 */
