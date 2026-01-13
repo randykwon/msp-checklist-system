@@ -1243,7 +1243,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
             }}>
               <div style={{
                 padding: '14px 18px',
-                background: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
                 color: 'white',
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -1315,19 +1315,19 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'var(--theme-advice-bg, linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%))',
+                    background: 'var(--theme-advice-bg, linear-gradient(135deg, #0c4a6e 0%, #164e63 100%))',
                     borderRadius: 12,
-                    border: '1px solid var(--theme-advice-border, #2d5a2d)'
+                    border: '1px solid var(--theme-advice-border, #0ea5e9)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-advice-title, #a7f3d0)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-advice-title, #bae6fd)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         💡 {t('assessmentItem.adviceTitle')}
                         <span style={{
                           padding: '4px 10px',
                           fontSize: 12,
                           fontWeight: 600,
-                          background: 'var(--theme-advice-badge-bg, #166534)',
-                          color: 'var(--theme-advice-badge-text, #ecfdf5)',
+                          background: 'var(--theme-advice-badge-bg, #0284c7)',
+                          color: 'var(--theme-advice-badge-text, #f0f9ff)',
                           borderRadius: 12
                         }}>
                           {itemLanguage === 'ko' ? '상세 조언' : 'Detailed Advice'}
@@ -1336,7 +1336,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     </div>
                     <div 
                       className="markdown-content-dark"
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #f0fdf4)' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #e0f2fe)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
                     />
                   </div>
@@ -1347,16 +1347,16 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%)',
+                    background: 'linear-gradient(135deg, #0c4a6e 0%, #164e63 100%)',
                     borderRadius: 12,
-                    border: '1px solid #2d5a2d'
+                    border: '1px solid #0ea5e9'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#a7f3d0' }}>
+                        <h6 style={{ margin: '0 0 6px 0', fontSize: 16, fontWeight: 700, color: '#bae6fd' }}>
                           ⚠️ {t('assessmentItem.error')}
                         </h6>
-                        <div style={{ fontSize: 14, color: '#f0fdf4', lineHeight: '1.6' }}>{adviceError}</div>
+                        <div style={{ fontSize: 14, color: '#e0f2fe', lineHeight: '1.6' }}>{adviceError}</div>
                       </div>
                       <button
                         onClick={handleAdviceClick}
@@ -1509,8 +1509,8 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                               <span style={{
                                 padding: '2px 8px',
                                 fontSize: 11,
-                                background: '#166534',
-                                color: '#ecfdf5',
+                                background: '#0284c7',
+                                color: '#f0f9ff',
                                 borderRadius: 10
                               }}>
                                 {itemLanguage === 'ko' ? '상세 내용' : 'Details'}
