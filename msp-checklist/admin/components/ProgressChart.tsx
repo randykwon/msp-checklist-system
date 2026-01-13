@@ -271,9 +271,7 @@ export default function ProgressChart({ data = [], className = '' }: ProgressCha
   }
 
   return (
-    <>
-      <style jsx>{fadeInUp}</style>
-      <div className={`bg-white rounded-lg shadow-lg p-6 ${className} animate-fade-in-up`}>
+    <div className={`bg-white rounded-lg shadow-lg p-6 ${className}`}>
       {/* 헤더 */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -473,6 +471,6 @@ export default function ProgressChart({ data = [], className = '' }: ProgressCha
           </span>
         </div>
       </div>
-    </>
+    </div>
   );
 }
