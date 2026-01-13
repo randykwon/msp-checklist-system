@@ -1,0 +1,298 @@
+/* 사계절 테마 페이지 전용 스타일 */
+
+/* 애니메이션 효과 */
+@keyframes seasonTransition {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes floatingIcon {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(-5deg);
+  }
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 계절별 특수 효과 */
+.season-spring {
+  background: linear-gradient(-45deg, #ff9a9e, #fecfef, #fecfef, #ff9a9e);
+  background-size: 400% 400%;
+  animation: gradientShift 8s ease infinite;
+}
+
+.season-summer {
+  background: linear-gradient(-45deg, #ff9a56, #ffad56, #ff6b6b, #ff8e53);
+  background-size: 400% 400%;
+  animation: gradientShift 6s ease infinite;
+}
+
+.season-autumn {
+  background: linear-gradient(-45deg, #f093fb, #f5576c, #4facfe, #00f2fe);
+  background-size: 400% 400%;
+  animation: gradientShift 10s ease infinite;
+}
+
+.season-winter {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #a8edea, #fed6e3);
+  background-size: 400% 400%;
+  animation: gradientShift 12s ease infinite;
+}
+
+/* 테마 버튼 호버 효과 */
+.theme-button {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.theme-button:hover::before {
+  left: 100%;
+}
+
+.theme-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* 카드 호버 효과 */
+.season-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  backdrop-filter: blur(10px);
+}
+
+.season-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* 아이콘 애니메이션 */
+.floating-icon {
+  animation: floatingIcon 6s ease-in-out infinite;
+}
+
+/* 진행률 바 애니메이션 */
+.progress-bar-animated {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar-animated::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .season-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .theme-buttons {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .theme-button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-icon {
+    font-size: 4rem;
+  }
+  
+  .theme-button {
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .floating-icon,
+  .progress-bar-animated::after,
+  .season-spring,
+  .season-summer,
+  .season-autumn,
+  .season-winter {
+    animation: none;
+  }
+  
+  .theme-button,
+  .season-card {
+    transition: none;
+  }
+}
+
+/* 고대비 모드 지원 */
+@media (prefers-contrast: high) {
+  .season-card {
+    border: 2px solid #000;
+    background: #fff;
+  }
+  
+  .theme-button {
+    border: 2px solid #000;
+    color: #000;
+    background: #fff;
+  }
+  
+  .theme-button:hover {
+    background: #000;
+    color: #fff;
+  }
+}
+
+/* 다크 모드 지원 */
+@media (prefers-color-scheme: dark) {
+  .season-card {
+    background: rgba(0, 0, 0, 0.8);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+  
+  .hero-title,
+  .section-title {
+    color: #fff;
+  }
+  
+  .text-description {
+    color: #e5e7eb;
+  }
+}
+
+/* 특수 효과 */
+.sparkle-effect {
+  position: relative;
+}
+
+.sparkle-effect::before {
+  content: '✨';
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  font-size: 1.2rem;
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0.5) rotate(0deg);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1) rotate(180deg);
+  }
+}
+
+/* 그라데이션 텍스트 */
+.gradient-text {
+  background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #f5576c);
+  background-size: 400% 400%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 8s ease infinite;
+}
+
+/* 글래스모피즘 효과 */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* 네온 효과 */
+.neon-glow {
+  text-shadow: 
+    0 0 5px currentColor,
+    0 0 10px currentColor,
+    0 0 15px currentColor,
+    0 0 20px currentColor;
+}
+
+/* 물결 효과 */
+.wave-effect {
+  position: relative;
+  overflow: hidden;
+}
+
+.wave-effect::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 200%;
+  height: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  animation: wave 3s linear infinite;
+}
+
+@keyframes wave {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}

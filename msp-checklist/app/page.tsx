@@ -88,6 +88,20 @@ export default function Home() {
               </p>
             </div>
             <div className="header-actions animate-fade-in">
+              {/* 사계절 테마 페이지 버튼 */}
+              <a
+                href="/seasons"
+                className="btn btn-secondary"
+                style={{
+                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+                  color: 'white',
+                  border: 'none',
+                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+                }}
+              >
+                🌈 사계절 테마
+              </a>
+              
               {/* 테마 선택기 추가 */}
               <ThemeSelector 
                 language={t.language || 'ko'} 
