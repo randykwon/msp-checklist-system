@@ -8039,3 +8039,182 @@ select:focus, input:focus {
 [data-theme="night"] ::-webkit-scrollbar-thumb:hover {
   background: #6b7280;
 }
+/* Enhanced readability for all dark themes */
+[data-theme="night"] .bg-white,
+[data-theme="night"] .card,
+[data-theme="night"] .modal-content {
+  background-color: rgba(45, 55, 72, 0.85) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(74, 85, 104, 0.6) !important;
+}
+
+[data-theme="ocean"] .bg-white,
+[data-theme="ocean"] .card,
+[data-theme="ocean"] .modal-content {
+  background-color: rgba(49, 130, 206, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(66, 153, 225, 0.6) !important;
+}
+
+[data-theme="mountain"] .bg-white,
+[data-theme="mountain"] .card,
+[data-theme="mountain"] .modal-content {
+  background-color: rgba(56, 161, 105, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(72, 187, 120, 0.6) !important;
+}
+
+[data-theme="spring"] .bg-white,
+[data-theme="spring"] .card,
+[data-theme="spring"] .modal-content {
+  background-color: rgba(159, 122, 234, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(183, 148, 246, 0.6) !important;
+}
+
+[data-theme="summer"] .bg-white,
+[data-theme="summer"] .card,
+[data-theme="summer"] .modal-content {
+  background-color: rgba(237, 137, 54, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(246, 173, 85, 0.6) !important;
+}
+
+[data-theme="autumn"] .bg-white,
+[data-theme="autumn"] .card,
+[data-theme="autumn"] .modal-content {
+  background-color: rgba(214, 158, 46, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(236, 201, 75, 0.6) !important;
+}
+
+[data-theme="winter"] .bg-white,
+[data-theme="winter"] .card,
+[data-theme="winter"] .modal-content {
+  background-color: rgba(66, 153, 225, 0.75) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(99, 179, 237, 0.6) !important;
+}
+
+/* Enhanced text shadows for better readability on lighter backgrounds */
+[data-theme="ocean"] .text-primary,
+[data-theme="ocean"] h1,
+[data-theme="ocean"] h2,
+[data-theme="ocean"] h3,
+[data-theme="ocean"] h4,
+[data-theme="ocean"] h5,
+[data-theme="ocean"] h6,
+[data-theme="mountain"] .text-primary,
+[data-theme="mountain"] h1,
+[data-theme="mountain"] h2,
+[data-theme="mountain"] h3,
+[data-theme="mountain"] h4,
+[data-theme="mountain"] h5,
+[data-theme="mountain"] h6,
+[data-theme="spring"] .text-primary,
+[data-theme="spring"] h1,
+[data-theme="spring"] h2,
+[data-theme="spring"] h3,
+[data-theme="spring"] h4,
+[data-theme="spring"] h5,
+[data-theme="spring"] h6,
+[data-theme="summer"] .text-primary,
+[data-theme="summer"] h1,
+[data-theme="summer"] h2,
+[data-theme="summer"] h3,
+[data-theme="summer"] h4,
+[data-theme="summer"] h5,
+[data-theme="summer"] h6,
+[data-theme="autumn"] .text-primary,
+[data-theme="autumn"] h1,
+[data-theme="autumn"] h2,
+[data-theme="autumn"] h3,
+[data-theme="autumn"] h4,
+[data-theme="autumn"] h5,
+[data-theme="autumn"] h6,
+[data-theme="winter"] .text-primary,
+[data-theme="winter"] h1,
+[data-theme="winter"] h2,
+[data-theme="winter"] h3,
+[data-theme="winter"] h4,
+[data-theme="winter"] h5,
+[data-theme="winter"] h6 {
+  color: #ffffff !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7), 0 1px 2px rgba(0, 0, 0, 0.5);
+  font-weight: 700;
+}
+
+[data-theme="ocean"] .text-secondary,
+[data-theme="ocean"] p,
+[data-theme="ocean"] span,
+[data-theme="mountain"] .text-secondary,
+[data-theme="mountain"] p,
+[data-theme="mountain"] span,
+[data-theme="spring"] .text-secondary,
+[data-theme="spring"] p,
+[data-theme="spring"] span,
+[data-theme="summer"] .text-secondary,
+[data-theme="summer"] p,
+[data-theme="summer"] span,
+[data-theme="autumn"] .text-secondary,
+[data-theme="autumn"] p,
+[data-theme="autumn"] span,
+[data-theme="winter"] .text-secondary,
+[data-theme="winter"] p,
+[data-theme="winter"] span {
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.4);
+  font-weight: 500;
+}
+
+/* Better contrast for buttons in all themes */
+[data-theme="ocean"] .btn,
+[data-theme="mountain"] .btn,
+[data-theme="spring"] .btn,
+[data-theme="summer"] .btn,
+[data-theme="autumn"] .btn,
+[data-theme="winter"] .btn {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  font-weight: 600;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Enhanced input field contrast */
+[data-theme="ocean"] input,
+[data-theme="ocean"] textarea,
+[data-theme="ocean"] select,
+[data-theme="mountain"] input,
+[data-theme="mountain"] textarea,
+[data-theme="mountain"] select,
+[data-theme="spring"] input,
+[data-theme="spring"] textarea,
+[data-theme="spring"] select,
+[data-theme="summer"] input,
+[data-theme="summer"] textarea,
+[data-theme="summer"] select,
+[data-theme="autumn"] input,
+[data-theme="autumn"] textarea,
+[data-theme="autumn"] select,
+[data-theme="winter"] input,
+[data-theme="winter"] textarea,
+[data-theme="winter"] select {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="ocean"] input::placeholder,
+[data-theme="ocean"] textarea::placeholder,
+[data-theme="mountain"] input::placeholder,
+[data-theme="mountain"] textarea::placeholder,
+[data-theme="spring"] input::placeholder,
+[data-theme="spring"] textarea::placeholder,
+[data-theme="summer"] input::placeholder,
+[data-theme="summer"] textarea::placeholder,
+[data-theme="autumn"] input::placeholder,
+[data-theme="autumn"] textarea::placeholder,
+[data-theme="winter"] input::placeholder,
+[data-theme="winter"] textarea::placeholder {
+  color: rgba(255, 255, 255, 0.7) !important;
+}

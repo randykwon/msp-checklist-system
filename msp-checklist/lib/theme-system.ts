@@ -118,43 +118,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '🌙',
     colors: {
       background: {
-        primary: '#0a0e1a',
-        secondary: '#111827',
-        accent: '#1f2937',
-        gradient: 'linear-gradient(135deg, #0a0e1a 0%, #111827 100%)'
+        primary: '#1a202c',
+        secondary: '#2d3748',
+        accent: '#4a5568',
+        gradient: 'linear-gradient(135deg, #1a202c 0%, #2d3748 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#f9fafb',
-        accent: '#f3f4f6',
-        muted: '#d1d5db'
+        secondary: '#f7fafc',
+        accent: '#edf2f7',
+        muted: '#cbd5e0'
       },
       ui: {
-        border: '#374151',
-        card: '#1f2937',
+        border: '#4a5568',
+        card: 'rgba(45, 55, 72, 0.8)',
         button: {
-          primary: '#3b82f6',
-          secondary: '#6b7280',
-          hover: '#2563eb'
+          primary: '#4299e1',
+          secondary: '#718096',
+          hover: '#3182ce'
         },
-        progress: '#60a5fa',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#63b3ed',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#f9fafb',
+        text: '#f7fafc',
         heading: '#ffffff',
         code: {
-          background: 'rgba(55, 65, 81, 0.5)',
+          background: 'rgba(74, 85, 104, 0.4)',
           text: '#ffffff',
-          border: '#374151'
+          border: '#4a5568'
         },
-        link: '#60a5fa',
-        emphasis: '#f3f4f6'
+        link: '#63b3ed',
+        emphasis: '#edf2f7'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.05) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(66, 153, 225, 0.06) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(56, 178, 172, 0.04) 0%, transparent 50%)'
   },
   
   ocean: {
@@ -164,43 +164,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '🌊',
     colors: {
       background: {
-        primary: '#0c4a6e',
-        secondary: '#075985',
-        accent: '#0369a1',
-        gradient: 'linear-gradient(135deg, #0c4a6e 0%, #075985 50%, #0369a1 100%)'
+        primary: '#2c5282',
+        secondary: '#3182ce',
+        accent: '#4299e1',
+        gradient: 'linear-gradient(135deg, #2c5282 0%, #3182ce 50%, #4299e1 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#f0f9ff',
-        accent: '#e0f2fe',
-        muted: '#bae6fd'
+        secondary: '#f7fafc',
+        accent: '#edf2f7',
+        muted: '#cbd5e0'
       },
       ui: {
-        border: '#0369a1',
-        card: '#075985',
+        border: '#4299e1',
+        card: 'rgba(49, 130, 206, 0.7)',
         button: {
-          primary: '#0ea5e9',
-          secondary: '#0284c7',
-          hover: '#0284c7'
+          primary: '#63b3ed',
+          secondary: '#4299e1',
+          hover: '#3182ce'
         },
-        progress: '#38bdf8',
-        success: '#06b6d4',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#90cdf4',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#f0f9ff',
+        text: '#f7fafc',
         heading: '#ffffff',
         code: {
-          background: 'rgba(3, 105, 161, 0.3)',
+          background: 'rgba(66, 153, 225, 0.25)',
           text: '#ffffff',
-          border: '#0369a1'
+          border: '#4299e1'
         },
-        link: '#38bdf8',
-        emphasis: '#e0f2fe'
+        link: '#90cdf4',
+        emphasis: '#edf2f7'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(14, 165, 233, 0.1) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 20% 80%, rgba(144, 205, 244, 0.08) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(99, 179, 237, 0.06) 0%, transparent 50%)'
   },
   
   mountain: {
@@ -210,43 +210,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '⛰️',
     colors: {
       background: {
-        primary: '#14532d',
-        secondary: '#166534',
-        accent: '#15803d',
-        gradient: 'linear-gradient(135deg, #14532d 0%, #166534 50%, #15803d 100%)'
+        primary: '#2f855a',
+        secondary: '#38a169',
+        accent: '#48bb78',
+        gradient: 'linear-gradient(135deg, #2f855a 0%, #38a169 50%, #48bb78 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#f0fdf4',
-        accent: '#dcfce7',
-        muted: '#bbf7d0'
+        secondary: '#f7fafc',
+        accent: '#edf2f7',
+        muted: '#cbd5e0'
       },
       ui: {
-        border: '#15803d',
-        card: '#166534',
+        border: '#48bb78',
+        card: 'rgba(56, 161, 105, 0.7)',
         button: {
-          primary: '#22c55e',
-          secondary: '#16a34a',
-          hover: '#16a34a'
+          primary: '#68d391',
+          secondary: '#48bb78',
+          hover: '#38a169'
         },
-        progress: '#4ade80',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#9ae6b4',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#f0fdf4',
+        text: '#f7fafc',
         heading: '#ffffff',
         code: {
-          background: 'rgba(21, 128, 61, 0.3)',
+          background: 'rgba(72, 187, 120, 0.25)',
           text: '#ffffff',
-          border: '#15803d'
+          border: '#48bb78'
         },
-        link: '#4ade80',
-        emphasis: '#dcfce7'
+        link: '#9ae6b4',
+        emphasis: '#edf2f7'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 30% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(22, 163, 74, 0.1) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 30% 70%, rgba(154, 230, 180, 0.08) 0%, transparent 50%), radial-gradient(circle at 70% 30%, rgba(104, 211, 145, 0.06) 0%, transparent 50%)'
   },
   
   spring: {
@@ -256,43 +256,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '🌸',
     colors: {
       background: {
-        primary: '#4c1d95',
-        secondary: '#5b21b6',
-        accent: '#7c3aed',
-        gradient: 'linear-gradient(135deg, #4c1d95 0%, #5b21b6 50%, #7c3aed 100%)'
+        primary: '#805ad5',
+        secondary: '#9f7aea',
+        accent: '#b794f6',
+        gradient: 'linear-gradient(135deg, #805ad5 0%, #9f7aea 50%, #b794f6 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#fdf4ff',
-        accent: '#fae8ff',
-        muted: '#f3e8ff'
+        secondary: '#faf5ff',
+        accent: '#f3e8ff',
+        muted: '#e9d8fd'
       },
       ui: {
-        border: '#7c3aed',
-        card: '#5b21b6',
+        border: '#b794f6',
+        card: 'rgba(159, 122, 234, 0.7)',
         button: {
-          primary: '#a855f7',
-          secondary: '#9333ea',
-          hover: '#9333ea'
+          primary: '#d6bcfa',
+          secondary: '#b794f6',
+          hover: '#9f7aea'
         },
-        progress: '#c084fc',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#e9d8fd',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#fdf4ff',
+        text: '#faf5ff',
         heading: '#ffffff',
         code: {
-          background: 'rgba(124, 58, 237, 0.3)',
+          background: 'rgba(183, 148, 246, 0.25)',
           text: '#ffffff',
-          border: '#7c3aed'
+          border: '#b794f6'
         },
-        link: '#c084fc',
-        emphasis: '#fae8ff'
+        link: '#e9d8fd',
+        emphasis: '#f3e8ff'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 25% 75%, rgba(168, 85, 247, 0.1) 0%, transparent 50%), radial-gradient(circle at 75% 25%, rgba(192, 132, 252, 0.1) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 25% 75%, rgba(214, 188, 250, 0.08) 0%, transparent 50%), radial-gradient(circle at 75% 25%, rgba(233, 216, 253, 0.06) 0%, transparent 50%)'
   },
   
   summer: {
@@ -302,43 +302,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '☀️',
     colors: {
       background: {
-        primary: '#9a3412',
-        secondary: '#c2410c',
-        accent: '#ea580c',
-        gradient: 'linear-gradient(135deg, #9a3412 0%, #c2410c 50%, #ea580c 100%)'
+        primary: '#dd6b20',
+        secondary: '#ed8936',
+        accent: '#f6ad55',
+        gradient: 'linear-gradient(135deg, #dd6b20 0%, #ed8936 50%, #f6ad55 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#fff7ed',
-        accent: '#fed7aa',
-        muted: '#fdba74'
+        secondary: '#fffaf0',
+        accent: '#fef5e7',
+        muted: '#fed7aa'
       },
       ui: {
-        border: '#ea580c',
-        card: '#c2410c',
+        border: '#f6ad55',
+        card: 'rgba(237, 137, 54, 0.7)',
         button: {
-          primary: '#f97316',
-          secondary: '#ea580c',
-          hover: '#ea580c'
+          primary: '#fbb454',
+          secondary: '#f6ad55',
+          hover: '#ed8936'
         },
-        progress: '#fb923c',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#fbd38d',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#fff7ed',
+        text: '#fffaf0',
         heading: '#ffffff',
         code: {
-          background: 'rgba(234, 88, 12, 0.3)',
+          background: 'rgba(246, 173, 85, 0.25)',
           text: '#ffffff',
-          border: '#ea580c'
+          border: '#f6ad55'
         },
-        link: '#fb923c',
-        emphasis: '#fed7aa'
+        link: '#fbd38d',
+        emphasis: '#fef5e7'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 40% 60%, rgba(249, 115, 22, 0.1) 0%, transparent 50%), radial-gradient(circle at 60% 40%, rgba(251, 146, 60, 0.1) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 40% 60%, rgba(251, 180, 84, 0.08) 0%, transparent 50%), radial-gradient(circle at 60% 40%, rgba(251, 211, 141, 0.06) 0%, transparent 50%)'
   },
   
   autumn: {
@@ -348,43 +348,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '🍂',
     colors: {
       background: {
-        primary: '#78350f',
-        secondary: '#92400e',
-        accent: '#b45309',
-        gradient: 'linear-gradient(135deg, #78350f 0%, #92400e 50%, #b45309 100%)'
+        primary: '#b7791f',
+        secondary: '#d69e2e',
+        accent: '#ecc94b',
+        gradient: 'linear-gradient(135deg, #b7791f 0%, #d69e2e 50%, #ecc94b 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#fefce8',
-        accent: '#fef3c7',
-        muted: '#fde68a'
+        secondary: '#fffff0',
+        accent: '#fefcbf',
+        muted: '#f7e98e'
       },
       ui: {
-        border: '#b45309',
-        card: '#92400e',
+        border: '#ecc94b',
+        card: 'rgba(214, 158, 46, 0.7)',
         button: {
-          primary: '#d97706',
-          secondary: '#b45309',
-          hover: '#b45309'
+          primary: '#f6e05e',
+          secondary: '#ecc94b',
+          hover: '#d69e2e'
         },
-        progress: '#f59e0b',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#faf089',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#fefce8',
+        text: '#fffff0',
         heading: '#ffffff',
         code: {
-          background: 'rgba(180, 83, 9, 0.3)',
+          background: 'rgba(236, 201, 75, 0.25)',
           text: '#ffffff',
-          border: '#b45309'
+          border: '#ecc94b'
         },
-        link: '#fcd34d',
-        emphasis: '#fef3c7'
+        link: '#faf089',
+        emphasis: '#fefcbf'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 35% 65%, rgba(217, 119, 6, 0.1) 0%, transparent 50%), radial-gradient(circle at 65% 35%, rgba(245, 158, 11, 0.1) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 35% 65%, rgba(246, 224, 94, 0.08) 0%, transparent 50%), radial-gradient(circle at 65% 35%, rgba(250, 240, 137, 0.06) 0%, transparent 50%)'
   },
   
   winter: {
@@ -394,43 +394,43 @@ export const themes: Record<ThemeType, Theme> = {
     icon: '❄️',
     colors: {
       background: {
-        primary: '#1e3a8a',
-        secondary: '#1e40af',
-        accent: '#2563eb',
-        gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #2563eb 100%)'
+        primary: '#3182ce',
+        secondary: '#4299e1',
+        accent: '#63b3ed',
+        gradient: 'linear-gradient(135deg, #3182ce 0%, #4299e1 50%, #63b3ed 100%)'
       },
       text: {
         primary: '#ffffff',
-        secondary: '#f8fafc',
-        accent: '#f1f5f9',
-        muted: '#e2e8f0'
+        secondary: '#f7fafc',
+        accent: '#edf2f7',
+        muted: '#cbd5e0'
       },
       ui: {
-        border: '#2563eb',
-        card: '#1e40af',
+        border: '#63b3ed',
+        card: 'rgba(66, 153, 225, 0.7)',
         button: {
-          primary: '#3b82f6',
-          secondary: '#2563eb',
-          hover: '#2563eb'
+          primary: '#90cdf4',
+          secondary: '#63b3ed',
+          hover: '#4299e1'
         },
-        progress: '#60a5fa',
-        success: '#10b981',
-        warning: '#f59e0b',
-        error: '#ef4444'
+        progress: '#bee3f8',
+        success: '#38b2ac',
+        warning: '#ed8936',
+        error: '#f56565'
       },
       markdown: {
-        text: '#f8fafc',
+        text: '#f7fafc',
         heading: '#ffffff',
         code: {
-          background: 'rgba(37, 99, 235, 0.3)',
+          background: 'rgba(99, 179, 237, 0.25)',
           text: '#ffffff',
-          border: '#2563eb'
+          border: '#63b3ed'
         },
-        link: '#60a5fa',
-        emphasis: '#f1f5f9'
+        link: '#bee3f8',
+        emphasis: '#edf2f7'
       }
     },
-    backgroundPattern: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%), radial-gradient(circle at 25% 75%, rgba(96, 165, 250, 0.05) 0%, transparent 50%)'
+    backgroundPattern: 'radial-gradient(circle at 50% 50%, rgba(144, 205, 244, 0.08) 0%, transparent 50%), radial-gradient(circle at 25% 75%, rgba(190, 227, 248, 0.06) 0%, transparent 50%)'
   }
 };
 
