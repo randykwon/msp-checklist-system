@@ -397,12 +397,10 @@ export default function Header() {
                             borderColor: isActive ? '#3b82f6' : 'var(--theme-border)',
                             boxShadow: isActive ? '0 0 0 1px rgba(59, 130, 246, 0.3)' : 'none'
                           }}
+                          title={theme.name[language]}
                         >
-                          <div className="flex items-center justify-center mb-1">
-                            <span className="text-lg">{theme.icon}</span>
-                          </div>
-                          <div className="text-xs font-medium" style={{ color: 'var(--theme-text-primary)' }}>
-                            {theme.name[language]}
+                          <div className="flex items-center justify-center">
+                            <span className="text-2xl">{theme.icon}</span>
                           </div>
                         </button>
                       );

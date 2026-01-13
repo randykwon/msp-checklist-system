@@ -8218,3 +8218,146 @@ select:focus, input:focus {
 [data-theme="winter"] textarea::placeholder {
   color: rgba(255, 255, 255, 0.7) !important;
 }
+/* Day theme specific improvements for better readability */
+[data-theme="day"] .bg-white,
+[data-theme="day"] .card,
+[data-theme="day"] .modal-content {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(226, 232, 240, 0.8) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* Enhanced text contrast for day theme */
+[data-theme="day"] .text-primary,
+[data-theme="day"] h1,
+[data-theme="day"] h2,
+[data-theme="day"] h3,
+[data-theme="day"] h4,
+[data-theme="day"] h5,
+[data-theme="day"] h6 {
+  color: #0f172a !important;
+  font-weight: 700;
+}
+
+[data-theme="day"] .text-secondary,
+[data-theme="day"] p,
+[data-theme="day"] span {
+  color: #1e293b !important;
+  font-weight: 500;
+}
+
+[data-theme="day"] .text-muted {
+  color: #64748b !important;
+}
+
+/* Better summary/highlight sections for day theme */
+[data-theme="day"] .summary,
+[data-theme="day"] .highlight,
+[data-theme="day"] .key-points {
+  background-color: rgba(248, 250, 252, 0.9) !important;
+  border: 1px solid rgba(226, 232, 240, 0.6) !important;
+  color: #0f172a !important;
+}
+
+[data-theme="day"] .summary h3,
+[data-theme="day"] .highlight h3,
+[data-theme="day"] .key-points h3 {
+  color: #1e40af !important;
+  font-weight: 700;
+}
+
+[data-theme="day"] .summary p,
+[data-theme="day"] .highlight p,
+[data-theme="day"] .key-points p {
+  color: #1e293b !important;
+}
+
+/* Enhanced buttons for day theme */
+[data-theme="day"] .btn-primary {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%) !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+[data-theme="day"] .btn-secondary {
+  background: rgba(248, 250, 252, 0.9) !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #1e293b !important;
+  font-weight: 600;
+}
+
+[data-theme="day"] .btn-secondary:hover {
+  background: rgba(241, 245, 249, 0.9) !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Better input fields for day theme */
+[data-theme="day"] input,
+[data-theme="day"] textarea,
+[data-theme="day"] select {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #0f172a !important;
+}
+
+[data-theme="day"] input:focus,
+[data-theme="day"] textarea:focus,
+[data-theme="day"] select:focus {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+[data-theme="day"] input::placeholder,
+[data-theme="day"] textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Enhanced alerts for day theme */
+[data-theme="day"] .alert-info {
+  background-color: rgba(239, 246, 255, 0.9) !important;
+  border-color: #3b82f6 !important;
+  color: #1e40af !important;
+}
+
+[data-theme="day"] .alert-success {
+  background-color: rgba(240, 253, 244, 0.9) !important;
+  border-color: #10b981 !important;
+  color: #047857 !important;
+}
+
+[data-theme="day"] .alert-warning {
+  background-color: rgba(255, 251, 235, 0.9) !important;
+  border-color: #f59e0b !important;
+  color: #92400e !important;
+}
+
+[data-theme="day"] .alert-error {
+  background-color: rgba(254, 242, 242, 0.9) !important;
+  border-color: #ef4444 !important;
+  color: #dc2626 !important;
+}
+
+/* Better code blocks for day theme */
+[data-theme="day"] code,
+[data-theme="day"] pre {
+  background-color: rgba(241, 245, 249, 0.8) !important;
+  color: #0f172a !important;
+  border: 1px solid #e2e8f0 !important;
+}
+
+/* Enhanced navigation for day theme */
+[data-theme="day"] .nav-link {
+  color: #1e293b !important;
+}
+
+[data-theme="day"] .nav-link:hover {
+  color: #0f172a !important;
+  background-color: rgba(241, 245, 249, 0.5) !important;
+}
+
+[data-theme="day"] .nav-link.active {
+  color: #ffffff !important;
+  background-color: #3b82f6 !important;
+}
