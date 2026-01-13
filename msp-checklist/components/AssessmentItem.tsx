@@ -1533,10 +1533,10 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   </div>
                   
                   <div style={{
-                    background: 'rgba(0, 0, 0, 0.2)',
+                    background: 'transparent',
                     borderRadius: 8,
                     padding: 16,
-                    border: '1px solid var(--theme-ve-border, #3b82f6)'
+                    border: '1px solid #1e293b'
                   }}>
                     <div 
                       className="markdown-content-dark"
@@ -1548,9 +1548,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 12,
-                    background: 'rgba(0, 0, 0, 0.15)',
+                    background: 'transparent',
                     borderRadius: 8,
-                    borderTop: '1px solid var(--theme-ve-border, #3b82f6)'
+                    border: '1px solid #1e293b'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: '#F59E0B', fontSize: 14 }}>💡</span>

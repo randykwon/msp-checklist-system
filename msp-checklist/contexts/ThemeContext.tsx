@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Theme = 'light' | 'dark';
+type Theme = 'dark';
 
 interface ThemeContextType {
   theme: Theme;
@@ -13,36 +13,27 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
+  const [theme] = useState<Theme>('dark');
   const [isHydrated, setIsHydrated] = useState(false);
 
-  // LocalStorage에서 테마 설정 로드 (hydration 후에만)
+  // 항상 다크 모드로 설정
   useEffect(() => {
     setIsHydrated(true);
-    const savedTheme = localStorage.getItem('app-theme') as Theme;
-    if (savedTheme && (savedTheme === 'light' || savedTheme === 'dark')) {
-      setThemeState(savedTheme);
-      document.documentElement.setAttribute('data-theme', savedTheme);
-    } else {
-      // 시스템 테마 감지
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      const systemTheme = prefersDark ? 'dark' : 'light';
-      setThemeState(systemTheme);
-      document.documentElement.setAttribute('data-theme', systemTheme);
-    }
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('app-theme', 'dark');
   }, []);
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
+  // 테마 변경 함수 (호환성 유지, 실제로는 항상 dark)
+  const setTheme = (_newTheme: Theme) => {
+    // 항상 dark 모드 유지
     if (isHydrated) {
-      localStorage.setItem('app-theme', newTheme);
-      document.documentElement.setAttribute('data-theme', newTheme);
+      document.documentElement.setAttribute('data-theme', 'dark');
     }
   };
 
+  // 토글 함수 (호환성 유지, 실제로는 아무 동작 안함)
   const toggleTheme = () => {
-    const newTheme = theme === 'light' ? 'dark' : 'light';
-    setTheme(newTheme);
+    // 항상 dark 모드 유지
   };
 
   return (
