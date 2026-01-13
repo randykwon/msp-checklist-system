@@ -90,25 +90,25 @@
   --theme-dropdown-bg: #FFFFFF;
   --theme-shadow: rgba(0, 0, 0, 0.1);
   
-  /* Advice Section - Light Mode */
-  --theme-advice-bg: linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%);
-  --theme-advice-border: #A5D6A7;
-  --theme-advice-title: #1B5E20;
-  --theme-advice-text: #1e3a2f;
-  --theme-advice-badge-bg: #A5D6A7;
-  --theme-advice-badge-text: #1B5E20;
+  /* Advice Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
+  --theme-advice-bg: linear-gradient(135deg, #1a2e1a 0%, #1a2530 100%);
+  --theme-advice-border: #2d5a2d;
+  --theme-advice-title: #86efac;
+  --theme-advice-text: #d1fae5;
+  --theme-advice-badge-bg: #166534;
+  --theme-advice-badge-text: #bbf7d0;
   
-  /* Summary Section - Light Mode */
-  --theme-summary-bg: linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%);
-  --theme-summary-border: #F59E0B;
-  --theme-summary-title: #92400E;
-  --theme-summary-text: #78350f;
+  /* Summary Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
+  --theme-summary-bg: linear-gradient(135deg, #422006 0%, #451a03 100%);
+  --theme-summary-border: #92400e;
+  --theme-summary-title: #fcd34d;
+  --theme-summary-text: #fef3c7;
   
-  /* Virtual Evidence Section - Light Mode */
-  --theme-ve-bg: linear-gradient(135deg, #EDE9FE 0%, #DDD6FE 100%);
-  --theme-ve-border: #C4B5FD;
-  --theme-ve-title: #6D28D9;
-  --theme-ve-text: #4c1d95;
+  /* Virtual Evidence Section - 어두운 배경 + 밝은 글씨 (주간/야간 동일) */
+  --theme-ve-bg: linear-gradient(135deg, #2e1065 0%, #1e1b4b 100%);
+  --theme-ve-border: #7c3aed;
+  --theme-ve-title: #c4b5fd;
+  --theme-ve-text: #e9d5ff;
 }
 
 /* ============================================
