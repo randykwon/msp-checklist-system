@@ -1283,18 +1283,18 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                    background: 'var(--theme-summary-bg, linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%))',
                     borderRadius: 12,
-                    border: '1px solid #F59E0B'
+                    border: '1px solid var(--theme-summary-border, #F59E0B)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#92400E', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-summary-title, #92400E)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         📝 {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
                         <span style={{
                           padding: '4px 10px',
                           fontSize: 12,
                           fontWeight: 600,
-                          background: '#F59E0B',
+                          background: 'var(--theme-summary-border, #F59E0B)',
                           color: 'white',
                           borderRadius: 12
                         }}>
@@ -1303,7 +1303,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#78350f' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-summary-text, #78350f)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(summaryContent)}
                     />
                   </div>
@@ -1314,19 +1314,19 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 20,
-                    background: 'linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%)',
+                    background: 'var(--theme-advice-bg, linear-gradient(135deg, #E8F5E9 0%, #E3F2FD 100%))',
                     borderRadius: 12,
-                    border: '1px solid #A5D6A7'
+                    border: '1px solid var(--theme-advice-border, #A5D6A7)'
                   }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: '#1B5E20', display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <h6 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: 'var(--theme-advice-title, #1B5E20)', display: 'flex', alignItems: 'center', gap: 8 }}>
                         💡 {t('assessmentItem.adviceTitle')}
                         <span style={{
                           padding: '4px 10px',
                           fontSize: 12,
                           fontWeight: 600,
-                          background: '#A5D6A7',
-                          color: '#1B5E20',
+                          background: 'var(--theme-advice-badge-bg, #A5D6A7)',
+                          color: 'var(--theme-advice-badge-text, #1B5E20)',
                           borderRadius: 12
                         }}>
                           {itemLanguage === 'ko' ? '상세 조언' : 'Detailed Advice'}
@@ -1334,7 +1334,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       </h6>
                     </div>
                     <div 
-                      style={{ fontSize: '15px', lineHeight: '1.8', color: '#14532d' }}
+                      style={{ fontSize: '15px', lineHeight: '1.8', color: 'var(--theme-advice-text, #14532d)' }}
                       dangerouslySetInnerHTML={createMarkdownHtml(adviceContent)}
                     />
                   </div>
@@ -1452,28 +1452,28 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
               {showVirtualEvidence && virtualEvidenceContent && (
                 <div style={{
                   padding: 16,
-                  background: 'linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%)',
+                  background: 'var(--theme-ve-bg, linear-gradient(135deg, #EDE9FE 0%, #FCE7F3 100%))',
                   borderRadius: 10,
-                  border: '1px solid #DDD6FE'
+                  border: '1px solid var(--theme-ve-border, #DDD6FE)'
                 }}>
                   {/* 가상증빙예제 요약 표시 (먼저 표시) */}
                   {showVESummaryInline && veSummaryContent && (
                     <div style={{
                       marginBottom: 16,
                       padding: 16,
-                      background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)',
+                      background: 'var(--theme-summary-bg, linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%))',
                       borderRadius: 8,
-                      border: '1px solid #F59E0B'
+                      border: '1px solid var(--theme-summary-border, #F59E0B)'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                         <span style={{ fontSize: 16 }}>📝</span>
-                        <span style={{ fontSize: 14, fontWeight: 600, color: '#92400E' }}>
+                        <span style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-summary-title, #92400E)' }}>
                           {itemLanguage === 'ko' ? '핵심 요약' : 'Key Summary'}
                         </span>
                         <span style={{
                           padding: '2px 8px',
                           fontSize: 11,
-                          background: '#F59E0B',
+                          background: 'var(--theme-summary-border, #F59E0B)',
                           color: 'white',
                           borderRadius: 10
                         }}>
@@ -1481,7 +1481,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                         </span>
                       </div>
                       <div 
-                        style={{ fontSize: 13, color: '#78350f', lineHeight: 1.6 }}
+                        style={{ fontSize: 13, color: 'var(--theme-summary-text, #78350f)', lineHeight: 1.6 }}
                         dangerouslySetInnerHTML={createMarkdownHtml(veSummaryContent)}
                       />
                     </div>
@@ -1496,9 +1496,9 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                       
                       return (
                         <>
-                          <span style={{ fontSize: 18, color: '#8B5CF6' }}>{isDemonstration ? '🎯' : '✨'}</span>
+                          <span style={{ fontSize: 18, color: 'var(--theme-ve-title, #8B5CF6)' }}>{isDemonstration ? '🎯' : '✨'}</span>
                           <div>
-                            <p style={{ fontSize: 14, fontWeight: 600, color: '#6D28D9', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <p style={{ fontSize: 14, fontWeight: 600, color: 'var(--theme-ve-title, #6D28D9)', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
                               {isDemonstration ? 
                                 (itemLanguage === 'ko' ? 'AI 생성 시연 가이드' : 'AI-Generated Demonstration Guide') :
                                 (itemLanguage === 'ko' ? 'AI 생성 가상증빙예제-참고용' : 'AI-Generated Virtual Evidence Examples')
@@ -1513,7 +1513,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                                 {itemLanguage === 'ko' ? '상세 내용' : 'Details'}
                               </span>
                             </p>
-                            <p style={{ fontSize: 12, color: '#7C3AED' }}>
+                            <p style={{ fontSize: 12, color: 'var(--theme-ve-title, #7C3AED)' }}>
                               {isDemonstration ?
                                 (itemLanguage === 'ko' 
                                   ? '이 항목의 설명과 조언을 바탕으로 AI가 생성한 구체적인 시연 방법 가이드입니다.'
@@ -1533,7 +1533,7 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                     background: 'var(--theme-card-bg)',
                     borderRadius: 8,
                     padding: 16,
-                    border: '1px solid #E9D5FF'
+                    border: '1px solid var(--theme-ve-border, #E9D5FF)'
                   }}>
                     <div 
                       style={{ fontSize: 14, color: 'var(--theme-text-primary)', lineHeight: 1.6 }}
@@ -1544,13 +1544,13 @@ export default function AssessmentItemComponent({ item, assessmentType, onUpdate
                   <div style={{
                     marginTop: 16,
                     padding: 12,
-                    background: 'rgba(255,255,255,0.6)',
+                    background: 'var(--theme-surface)',
                     borderRadius: 8,
-                    borderTop: '1px solid #DDD6FE'
+                    borderTop: '1px solid var(--theme-ve-border, #DDD6FE)'
                   }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                       <span style={{ color: '#F59E0B', fontSize: 14 }}>💡</span>
-                      <p style={{ fontSize: 12, color: '#7C3AED', fontWeight: 500 }}>
+                      <p style={{ fontSize: 12, color: 'var(--theme-ve-title, #7C3AED)', fontWeight: 500 }}>
                         {(() => {
                           const evidenceText = itemLanguage === 'ko' && item.evidenceRequiredKo ? item.evidenceRequiredKo : item.evidenceRequired;
                           const isDemonstration = evidenceText?.toLowerCase().includes('시연') || 
