@@ -74,9 +74,9 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
       {/* 간단한 환영 헤더 */}
       <header className="bg-white/80 backdrop-blur-md border-b border-gray-200/50 shadow-sm">
-        <div className="max-w-4xl mx-auto px-6 py-8">
-          <div className="text-center">
-            <div className="mb-6">
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          <div className="flex items-center justify-between">
+            <div className="text-center flex-1">
               <h1 className="text-4xl font-bold text-gray-900 mb-2">
                 {t('home.title')}
                 <span className="inline-block ml-3 px-3 py-1 text-sm font-semibold text-blue-700 bg-blue-100 rounded-full">
@@ -86,6 +86,19 @@ export default function Home() {
               <p className="text-lg text-gray-600">
                 AWS MSP 파트너 프로그램 자체 평가를 위한 체크리스트 시스템
               </p>
+            </div>
+            
+            {/* 헤더 로그인 버튼 */}
+            <div className="ml-6">
+              <a
+                href="/login"
+                className="header-login-btn inline-flex items-center px-6 py-3 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-md hover:shadow-lg"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                </svg>
+                로그인
+              </a>
             </div>
           </div>
         </div>
@@ -111,17 +124,46 @@ export default function Home() {
               </p>
             </div>
 
-            {/* 로그인 버튼 */}
+            {/* 메인 로그인 버튼 */}
             <div className="mb-8">
-              <a
-                href="/login"
-                className="inline-flex items-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl hover:from-blue-700 hover:to-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg hover:shadow-xl"
-              >
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
-                </svg>
-                로그인 / 회원가입
-              </a>
+              <div className="text-center space-y-4">
+                <a
+                  href="/login"
+                  className="main-login-button inline-flex items-center px-12 py-5 text-xl font-bold text-white rounded-2xl transform transition-all duration-300"
+                >
+                  <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+                  </svg>
+                  🚀 지금 시작하기
+                </a>
+                
+                {/* 부가 설명 */}
+                <p className="text-sm text-gray-500">
+                  무료 회원가입 • 즉시 사용 가능 • 데이터 안전 보장
+                </p>
+                
+                {/* 빠른 로그인 옵션 */}
+                <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+                  <a
+                    href="/login"
+                    className="quick-login-option inline-flex items-center px-6 py-3 text-sm font-medium text-blue-700 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    기존 계정으로 로그인
+                  </a>
+                  <a
+                    href="/register"
+                    className="quick-login-option inline-flex items-center px-6 py-3 text-sm font-medium text-green-700 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors duration-200"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                    </svg>
+                    새 계정 만들기
+                  </a>
+                </div>
+              </div>
             </div>
 
             {/* 추가 정보 버튼들 */}
@@ -213,6 +255,17 @@ export default function Home() {
         isOpen={showJourneyModal} 
         onClose={() => setShowJourneyModal(false)} 
       />
+      
+      {/* 플로팅 로그인 버튼 */}
+      <a
+        href="/login"
+        className="floating-login-btn"
+        title="로그인하기"
+      >
+        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+      </a>
     </div>
   );
 }
