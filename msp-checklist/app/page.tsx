@@ -9,6 +9,7 @@ import ChecklistView from '@/components/ChecklistView';
 import FilterBar from '@/components/FilterBar';
 import MSPPartnerJourneyModal from '@/components/MSPPartnerJourneyModal';
 import MSPProgramInfoModal from '@/components/MSPProgramInfoModal';
+import ThemeSelector from '@/components/ThemeSelector';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -87,6 +88,12 @@ export default function Home() {
               </p>
             </div>
             <div className="header-actions animate-fade-in">
+              {/* 테마 선택기 추가 */}
+              <ThemeSelector 
+                language={t.language || 'ko'} 
+                className="mr-4"
+              />
+              
               <button
                 onClick={() => setShowProgramInfoModal(true)}
                 className="btn btn-success"

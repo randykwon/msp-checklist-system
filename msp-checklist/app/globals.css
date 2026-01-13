@@ -7510,3 +7510,185 @@ label {
   background: transparent !important;
   background-color: transparent !important;
 }
+
+/* ============================================
+   테마 시스템 CSS 추가
+   ============================================ */
+
+/* 테마 CSS 파일 임포트 */
+@import '../styles/themes.css';
+
+/* 기존 스타일과 테마 시스템 통합 */
+body {
+  background: var(--theme-bg-gradient, var(--fb-background));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 카드 스타일 테마 적용 */
+.card {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.98));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.3));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 버튼 스타일 테마 적용 */
+.btn-primary {
+  background: var(--theme-ui-button-primary, linear-gradient(135deg, #3b82f6, #1d4ed8));
+}
+
+.btn-primary:hover {
+  background: var(--theme-ui-button-hover, linear-gradient(135deg, #2563eb, #1e40af));
+}
+
+/* 진행률 바 테마 적용 */
+.progress-fill {
+  background: var(--theme-ui-progress, linear-gradient(90deg, #3b82f6, #8b5cf6));
+}
+
+/* 헤더 테마 적용 */
+.header {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.98));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.3));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 체크리스트 카테고리 테마 적용 */
+.checklist-category {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.98));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.4));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 필터 바 테마 적용 */
+.filter-bar {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.95));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.3));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 폼 요소 테마 적용 */
+select, input {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.9));
+  border-color: var(--theme-ui-border, rgba(229, 231, 235, 0.8));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+select:focus, input:focus {
+  border-color: var(--theme-ui-button-primary, #3b82f6);
+  box-shadow: 0 0 0 3px var(--theme-ui-button-primary, rgba(59, 130, 246, 0.1));
+}
+
+/* 통계 카드 테마 적용 */
+.stat-card {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.95));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.4));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+.stat-value {
+  background: linear-gradient(135deg, var(--theme-ui-button-primary, #3b82f6), var(--theme-ui-progress, #8b5cf6));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 카테고리 카드 테마 적용 */
+.category-card {
+  background: var(--theme-ui-card, rgba(255, 255, 255, 0.95));
+  border-color: var(--theme-ui-border, rgba(255, 255, 255, 0.3));
+  color: var(--theme-text-primary, var(--fb-text-primary));
+}
+
+/* 텍스트 색상 테마 적용 */
+.section-title {
+  color: var(--theme-text-primary, #1f2937);
+  background: linear-gradient(135deg, var(--theme-text-primary, #1f2937), var(--theme-text-secondary, #4b5563));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section-subtitle {
+  color: var(--theme-text-muted, #6b7280);
+}
+
+/* 상태 색상 테마 적용 */
+.text-success {
+  color: var(--theme-ui-success, #10b981) !important;
+}
+
+.text-warning {
+  color: var(--theme-ui-warning, #f59e0b) !important;
+}
+
+.text-error {
+  color: var(--theme-ui-error, #ef4444) !important;
+}
+
+/* 어드바이스 섹션 테마 적용 */
+.advice-section {
+  background: var(--theme-advice-bg);
+  border-color: var(--theme-advice-border);
+  color: var(--theme-advice-text);
+}
+
+.advice-title {
+  color: var(--theme-advice-title);
+}
+
+/* 요약 섹션 테마 적용 */
+.summary-section {
+  background: var(--theme-summary-bg);
+  border-color: var(--theme-summary-border);
+  color: var(--theme-summary-text);
+}
+
+.summary-title {
+  color: var(--theme-summary-title);
+}
+
+/* 가상 증거 섹션 테마 적용 */
+.virtual-evidence-section {
+  background: var(--theme-ve-bg);
+  border-color: var(--theme-ve-border);
+  color: var(--theme-ve-text);
+}
+
+.virtual-evidence-title {
+  color: var(--theme-ve-title);
+}
+
+/* 테마 전환 애니메이션 */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 스크롤바 테마 적용 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-bg-secondary, #f3f4f6);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-ui-border, #d1d5db);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-muted, #9ca3af);
+}
+
+/* 선택 영역 테마 적용 */
+::selection {
+  background-color: var(--theme-ui-button-primary, #3b82f6);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--theme-ui-button-primary, #3b82f6);
+  color: white;
+}
