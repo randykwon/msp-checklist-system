@@ -97,9 +97,23 @@ export function deleteUser(id: number): void {
   stmt.run(id);
 }
 
-export function createUser(email: string, hashedPassword: string, name: string, role: string = 'user', phone?: string, organization?: string): User {
+export function createUser(email: string, hashedPassword: string, name: string, role: string = 'user', phone?: string, organization?: string, status?: string): User {
+  // 자동 활성화 설정 확인
+  let userStatus = status || 'inactive';
+  if (!status) {
+    try {
+      const autoActivate = isAutoActivateEnabled();
+      if (autoActivate) {
+        userStatus = 'active';
+        console.log('[Admin DB] Auto-activate enabled, setting user status to active');
+      }
+    } catch (error) {
+      console.error('[Admin DB] Error checking auto-activate setting:', error);
+    }
+  }
+  
   const stmt = db.prepare('INSERT INTO users (email, password, name, role, status, phone, organization) VALUES (?, ?, ?, ?, ?, ?, ?)');
-  const result = stmt.run(email, hashedPassword, name, role, 'inactive', phone || null, organization || null);
+  const result = stmt.run(email, hashedPassword, name, role, userStatus, phone || null, organization || null);
 
   const now = new Date().toISOString();
   return {
@@ -107,12 +121,25 @@ export function createUser(email: string, hashedPassword: string, name: string, 
     email,
     name,
     role,
-    status: 'inactive',
+    status: userStatus,
     phone,
     organization,
     created_at: now,
     updated_at: now
   };
+}
+
+export function isAutoActivateEnabled(): boolean {
+  try {
+    const stmt = db.prepare('SELECT setting_value FROM system_settings WHERE setting_key = ?');
+    const row = stmt.get('auto_activate_users') as { setting_value: string } | undefined;
+    const value = row?.setting_value;
+    console.log('[Admin DB] isAutoActivateEnabled - setting value:', value);
+    return value === 'true';
+  } catch (error) {
+    console.error('[Admin DB] Error checking auto_activate_users setting:', error);
+    return false;
+  }
 }
 
 // Q&A management functions
