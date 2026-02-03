@@ -107,10 +107,10 @@ export default function AdminHome() {
       gradient: 'linear-gradient(135deg, #1877F2 0%, #42A5F5 100%)'
     },
     { 
-      title: '활성 사용자', 
+      title: '활동중인 사용자', 
       value: stats?.activeUsers || 0, 
       icon: '✅', 
-      desc: '최근 7일 활동',
+      desc: '최근 30일 활동',
       gradient: 'linear-gradient(135deg, #42B883 0%, #35495E 100%)'
     },
     { 

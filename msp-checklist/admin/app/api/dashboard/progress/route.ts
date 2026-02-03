@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import Database from 'better-sqlite3';
 import path from 'path';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'admin-secret-key-change-in-production';
+const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
 export async function GET(request: NextRequest) {
   try {

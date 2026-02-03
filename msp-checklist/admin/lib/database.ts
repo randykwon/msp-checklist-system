@@ -102,11 +102,11 @@ export function getProgressStats(): ProgressStats {
     // 총 사용자 수
     const totalUsers = db.prepare('SELECT COUNT(*) as count FROM users').get() as { count: number };
     
-    // 활성 사용자 수 (최근 7일 내 업데이트된 평가 데이터가 있는 사용자)
+    // 활성 사용자 수 (최근 30일 내 업데이트된 평가 데이터가 있는 사용자)
     const activeUsers = db.prepare(`
       SELECT COUNT(DISTINCT user_id) as count 
       FROM assessment_data 
-      WHERE last_updated > datetime('now', '-7 days')
+      WHERE last_updated > datetime('now', '-30 days')
     `).get() as { count: number };
     
     // 완료된 평가 수 (met이 true 또는 false로 설정된 항목들)
