@@ -1,0 +1,350 @@
+/* 테마 시스템 CSS 변수 및 스타일 */
+
+:root {
+  /* 기본 테마 변수 (주간 모드) - 가독성 개선 */
+  --theme-bg-primary: #ffffff;
+  --theme-bg-secondary: #f8fafc;
+  --theme-bg-accent: #f1f5f9;
+  --theme-bg-gradient: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  
+  --theme-text-primary: #0f172a;
+  --theme-text-secondary: #1e293b;
+  --theme-text-accent: #334155;
+  --theme-text-muted: #64748b;
+  
+  --theme-ui-border: #e2e8f0;
+  --theme-ui-card: #ffffff;
+  --theme-ui-button-primary: #3b82f6;
+  --theme-ui-button-secondary: #64748b;
+  --theme-ui-button-hover: #2563eb;
+  --theme-ui-progress: #3b82f6;
+  --theme-ui-success: #10b981;
+  --theme-ui-warning: #f59e0b;
+  --theme-ui-error: #ef4444;
+  
+  --theme-markdown-text: #1e293b;
+  --theme-markdown-heading: #0f172a;
+  --theme-markdown-code-bg: rgba(241, 245, 249, 0.8);
+  --theme-markdown-code-text: #0f172a;
+  --theme-markdown-code-border: #e2e8f0;
+  --theme-markdown-link: #3b82f6;
+  --theme-markdown-emphasis: #1e293b;
+  
+  /* 배경 패턴 */
+  --theme-bg-pattern: radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.05) 0%, transparent 50%), radial-gradient(circle at 75% 75%, rgba(16, 185, 129, 0.05) 0%, transparent 50%);
+}
+
+/* 전체 페이지 배경 및 텍스트 가독성 개선 */
+body {
+  background: var(--theme-bg-gradient);
+  color: var(--theme-text-primary);
+  transition: all 0.3s ease;
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* 특정 배경에서의 텍스트 가독성 향상 (필요한 곳에만 적용) */
+.light-bg-text {
+  color: #1a202c;
+}
+
+.dark-bg-text {
+  color: #ffffff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+/* 배경 패턴이 있는 경우 */
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--theme-bg-pattern, none);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* 테마 적용 클래스들 */
+.theme-bg-primary {
+  background-color: var(--theme-bg-primary) !important;
+}
+
+.theme-bg-secondary {
+  background-color: var(--theme-bg-secondary) !important;
+}
+
+.theme-bg-accent {
+  background-color: var(--theme-bg-accent) !important;
+}
+
+.theme-bg-gradient {
+  background: var(--theme-bg-gradient) !important;
+}
+
+/* 텍스트 가독성 개선 */
+.theme-text-primary {
+  color: var(--theme-text-primary) !important;
+}
+
+.theme-text-secondary {
+  color: var(--theme-text-secondary) !important;
+}
+
+.theme-text-accent {
+  color: var(--theme-text-accent) !important;
+}
+
+.theme-text-muted {
+  color: var(--theme-text-muted) !important;
+}
+
+.theme-border {
+  border-color: var(--theme-ui-border) !important;
+}
+
+.theme-card {
+  background-color: var(--theme-ui-card) !important;
+  border-color: var(--theme-ui-border) !important;
+}
+
+.theme-button-primary {
+  background-color: var(--theme-ui-button-primary) !important;
+  color: white !important;
+}
+
+.theme-button-primary:hover {
+  background-color: var(--theme-ui-button-hover) !important;
+}
+
+.theme-button-secondary {
+  background-color: var(--theme-ui-button-secondary) !important;
+  color: white !important;
+}
+
+/* 마크다운 콘텐츠 테마 적용 - 가독성 개선 */
+.markdown-content-themed {
+  color: var(--theme-markdown-text) !important;
+  line-height: 1.7;
+  font-weight: 400;
+}
+
+.markdown-content-themed h1,
+.markdown-content-themed h2,
+.markdown-content-themed h3,
+.markdown-content-themed h4,
+.markdown-content-themed h5,
+.markdown-content-themed h6 {
+  color: var(--theme-markdown-heading) !important;
+  border-color: var(--theme-ui-border) !important;
+  font-weight: 600;
+}
+
+.markdown-content-themed code {
+  background-color: var(--theme-markdown-code-bg) !important;
+  color: var(--theme-markdown-code-text) !important;
+  border-color: var(--theme-markdown-code-border) !important;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.markdown-content-themed pre {
+  background-color: var(--theme-markdown-code-bg) !important;
+  color: var(--theme-markdown-code-text) !important;
+  border-color: var(--theme-markdown-code-border) !important;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+.markdown-content-themed a {
+  color: var(--theme-markdown-link) !important;
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.markdown-content-themed a:hover {
+  text-decoration-thickness: 2px;
+}
+
+.markdown-content-themed em,
+.markdown-content-themed i {
+  color: var(--theme-markdown-emphasis) !important;
+  font-style: italic;
+}
+
+.markdown-content-themed strong,
+.markdown-content-themed b {
+  color: var(--theme-markdown-heading) !important;
+  font-weight: 600;
+}
+
+/* 리스트 아이템 가독성 개선 */
+.markdown-content-themed ul,
+.markdown-content-themed ol {
+  line-height: 1.8;
+}
+
+.markdown-content-themed li {
+  margin-bottom: 4px;
+}
+
+/* 인용문 스타일 */
+.markdown-content-themed blockquote {
+  border-left: 4px solid var(--theme-ui-border);
+  padding-left: 16px;
+  margin: 16px 0;
+  font-style: italic;
+  color: var(--theme-text-muted) !important;
+}
+
+/* 진행률 바 테마 적용 */
+.theme-progress {
+  background-color: var(--theme-ui-progress) !important;
+}
+
+/* 상태 색상 */
+.theme-success {
+  color: var(--theme-ui-success) !important;
+}
+
+.theme-warning {
+  color: var(--theme-ui-warning) !important;
+}
+
+.theme-error {
+  color: var(--theme-ui-error) !important;
+}
+
+.theme-success-bg {
+  background-color: var(--theme-ui-success) !important;
+}
+
+.theme-warning-bg {
+  background-color: var(--theme-ui-warning) !important;
+}
+
+.theme-error-bg {
+  background-color: var(--theme-ui-error) !important;
+}
+
+/* 애니메이션 효과 */
+.theme-transition {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* 호버 효과 */
+.theme-hover:hover {
+  background-color: var(--theme-bg-accent) !important;
+}
+
+/* 포커스 효과 */
+.theme-focus:focus {
+  outline: 2px solid var(--theme-ui-button-primary);
+  outline-offset: 2px;
+}
+
+/* 그림자 효과 */
+.theme-shadow {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.theme-shadow-lg {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* 스크롤바 테마 적용 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--theme-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-ui-border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--theme-text-muted);
+}
+
+/* 선택 영역 테마 적용 */
+::selection {
+  background-color: var(--theme-ui-button-primary);
+  color: white;
+}
+
+::-moz-selection {
+  background-color: var(--theme-ui-button-primary);
+  color: white;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 768px) {
+  .theme-mobile-bg {
+    background: var(--theme-bg-primary) !important;
+  }
+}
+
+/* 다크 모드 호환성 */
+@media (prefers-color-scheme: dark) {
+  .theme-auto {
+    background: var(--theme-bg-gradient);
+    color: var(--theme-text-primary);
+  }
+}
+
+/* 접근성 개선 */
+@media (prefers-reduced-motion: reduce) {
+  .theme-transition {
+    transition: none;
+  }
+}
+
+/* 고대비 모드 지원 - 가독성 최우선 */
+@media (prefers-contrast: high) {
+  :root {
+    --theme-ui-border: #ffffff;
+    --theme-text-primary: #ffffff;
+    --theme-text-secondary: #ffffff;
+    --theme-markdown-text: #ffffff;
+    --theme-markdown-heading: #ffffff;
+  }
+  
+  .theme-text-primary,
+  .theme-text-secondary,
+  .markdown-content-themed,
+  .markdown-content-themed h1,
+  .markdown-content-themed h2,
+  .markdown-content-themed h3,
+  .markdown-content-themed h4,
+  .markdown-content-themed h5,
+  .markdown-content-themed h6 {
+    color: #ffffff !important;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8) !important;
+  }
+}
+
+/* 저시력 사용자를 위한 큰 텍스트 지원 */
+@media (prefers-reduced-motion: no-preference) {
+  .theme-text-large {
+    font-size: 1.125em;
+    line-height: 1.6;
+  }
+}
+
+/* 색맹 사용자를 위한 패턴 추가 */
+.theme-colorblind-safe {
+  text-decoration: underline;
+  text-decoration-style: dotted;
+}

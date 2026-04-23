@@ -1,0 +1,51 @@
+{
+  "name": "msp-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "next dev -p 3010",
+    "build": "npm run build:shared && next build",
+    "build:shared": "cd packages/shared && npm run build",
+    "start": "next start -p 3010",
+    "lint": "eslint",
+    "cache": "node scripts/generate-advice-cache-node.js",
+    "cache:generate": "npm run cache generate",
+    "cache:list": "npm run cache list",
+    "cache:stats": "npm run cache stats",
+    "test": "node scripts/full-functional-test.js",
+    "test:verbose": "node scripts/full-functional-test.js --verbose",
+    "test:main": "node scripts/full-functional-test.js --main-only",
+    "test:admin": "node scripts/full-functional-test.js --admin-only"
+  },
+  "dependencies": {
+    "@aws-sdk/client-bedrock": "^3.962.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.958.0",
+    "@msp/shared": "file:packages/shared",
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie": "^1.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.9.0",
+    "cookie": "^1.1.1",
+    "jsonwebtoken": "^9.0.3",
+    "next": "^14.2.35",
+    "openai": "^6.13.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "dotenv": "^17.2.3",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "14.2.18",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "name": "msp-checklist",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3010",
+    "build": "next build",
+    "start": "next start -p 3010",
+    "lint": "eslint",
+    "cache": "node scripts/generate-advice-cache-node.js",
+    "cache:generate": "npm run cache generate",
+    "cache:list": "npm run cache list",
+    "cache:stats": "npm run cache stats"
+  },
+  "dependencies": {
+    "@types/bcryptjs": "^3.0.0",
+    "@types/cookie": "^1.0.0",
+    "@types/jsonwebtoken": "^9.0.10",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.5.0",
+    "cookie": "^1.1.1",
+    "jsonwebtoken": "^9.0.3",
+    "next": "14.2.18",
+    "openai": "^6.13.0",
+    "pdfjs-dist": "4.10.38",
+    "react": "19.2.1",
+    "react-dom": "19.2.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.0.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

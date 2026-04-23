@@ -1,0 +1,110 @@
+# =============================================================================
+# AWS CloudFormation - GitHub Actions SSM 배포용 IAM 설정
+#
+# 이 템플릿이 생성하는 리소스:
+#   1. GitHub OIDC Identity Provider
+#   2. GitHub Actions용 IAM Role (SSM 권한)
+#
+# 사용법:
+#   aws cloudformation deploy \
+#     --template-file scripts/deploy/aws-setup-ssm.yml \
+#     --stack-name github-actions-deploy \
+#     --parameter-overrides GitHubOrg=randykwon GitHubRepo=msp-qna-teams \
+#     --capabilities CAPABILITY_NAMED_IAM
+#
+# 생성 후:
+#   1. 출력값의 RoleArn을 GitHub Secrets의 AWS_ROLE_ARN에 설정
+#   2. EC2 인스턴스 ID를 GitHub Secrets의 EC2_INSTANCE_ID에 설정
+# =============================================================================
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: GitHub Actions OIDC + SSM Deploy Role for MSP Checklist
+
+Parameters:
+  GitHubOrg:
+    Type: String
+    Default: randykwon
+    Description: GitHub 조직 또는 사용자명
+
+  GitHubRepo:
+    Type: String
+    Default: msp-qna-teams
+    Description: GitHub 리포지토리명
+
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: 배포 허용 브랜치 (main, develop 등)
+
+Resources:
+  # GitHub OIDC Provider
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+        - sts.amazonaws.com
+      ThumbprintList:
+        - 6938fd4d98bab03faadb97b34396831e3780aea1
+        - 1c58a3a8518e8759bf075b76b750d4f2df264fcd
+
+  # GitHub Actions Deploy Role
+  GitHubActionsDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: github-actions-msp-deploy
+      Description: GitHub Actions에서 SSM을 통해 EC2에 배포하기 위한 Role
+      MaxSessionDuration: 3600
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !Ref GitHubOIDCProvider
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub repo:${GitHubOrg}/${GitHubRepo}:ref:refs/heads/${GitHubBranch}
+      Policies:
+        - PolicyName: SSMDeployPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              # SSM Run Command 실행
+              - Effect: Allow
+                Action:
+                  - ssm:SendCommand
+                  - ssm:GetCommandInvocation
+                  - ssm:ListCommandInvocations
+                  - ssm:DescribeInstanceInformation
+                Resource: '*'
+              # EC2 인스턴스 정보 조회
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                Resource: '*'
+      Tags:
+        - Key: Project
+          Value: msp-checklist
+        - Key: ManagedBy
+          Value: cloudformation
+
+Outputs:
+  RoleArn:
+    Description: GitHub Secrets의 AWS_ROLE_ARN에 이 값을 설정하세요
+    Value: !GetAtt GitHubActionsDeployRole.Arn
+    Export:
+      Name: GitHubActionsDeployRoleArn
+
+  OIDCProviderArn:
+    Description: GitHub OIDC Provider ARN
+    Value: !Ref GitHubOIDCProvider
+
+  SetupInstructions:
+    Description: 설정 안내
+    Value: !Sub |
+      1. 이 Role ARN을 GitHub Secrets에 AWS_ROLE_ARN으로 추가: ${GitHubActionsDeployRole.Arn}
+      2. EC2 인스턴스 ID를 GitHub Secrets에 EC2_INSTANCE_ID로 추가
+      3. EC2 IAM Role에 AmazonSSMManagedInstanceCore 정책이 연결되어 있는지 확인
